@@ -1,0 +1,656 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - nvc.info - src/rt/cover.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/rt</a> - cover.c<span style="font-size: 80%;"> (source / <a href="cover.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">nvc.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">202</td>
+            <td class="headerCovTableEntry">217</td>
+            <td class="headerCovTableEntryHi">93.1 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-07-21</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<span class="lineNum">       2 </span>            : //  Copyright (C) 2013-2015  Nick Gasson
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //  This program is free software: you can redistribute it and/or modify
+<span class="lineNum">       5 </span>            : //  it under the terms of the GNU General Public License as published by
+<span class="lineNum">       6 </span>            : //  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       7 </span>            : //  (at your option) any later version.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //  This program is distributed in the hope that it will be useful,
+<span class="lineNum">      10 </span>            : //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      11 </span>            : //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      12 </span>            : //  GNU General Public License for more details.
+<span class="lineNum">      13 </span>            : //
+<span class="lineNum">      14 </span>            : //  You should have received a copy of the GNU General Public License
+<span class="lineNum">      15 </span>            : //  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      16 </span>            : //
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &quot;util.h&quot;
+<span class="lineNum">      19 </span>            : #include &quot;cover.h&quot;
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : #include &lt;assert.h&gt;
+<span class="lineNum">      22 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      23 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      24 </span>            : #include &lt;limits.h&gt;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #if 0
+<span class="lineNum">      27 </span>            : #define CSS_DIR &quot;/home/nick/nvc/data/&quot;
+<span class="lineNum">      28 </span>            : #else
+<span class="lineNum">      29 </span>            : #define CSS_DIR DATADIR
+<span class="lineNum">      30 </span>            : #endif
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : #define PERCENT_RED    50.0f
+<span class="lineNum">      33 </span>            : #define PERCENT_ORANGE 90.0f
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : typedef struct cover_hl cover_hl_t;
+<span class="lineNum">      36 </span>            : typedef struct cover_file cover_file_t;
+<span class="lineNum">      37 </span>            : 
+<span class="lineNum">      38 </span>            : typedef enum {
+<span class="lineNum">      39 </span>            :    HL_HIT,
+<span class="lineNum">      40 </span>            :    HL_MISS
+<span class="lineNum">      41 </span>            : } hl_kind_t;
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : struct cover_hl {
+<span class="lineNum">      44 </span>            :    cover_hl_t *next;
+<span class="lineNum">      45 </span>            :    int         start;
+<span class="lineNum">      46 </span>            :    int         end;
+<span class="lineNum">      47 </span>            :    hl_kind_t   kind;
+<span class="lineNum">      48 </span>            :    const char *help;
+<span class="lineNum">      49 </span>            : };
+<span class="lineNum">      50 </span>            : 
+<span class="lineNum">      51 </span>            : typedef struct {
+<span class="lineNum">      52 </span>            :    char       *text;
+<span class="lineNum">      53 </span>            :    size_t      len;
+<span class="lineNum">      54 </span>            :    int         hits;
+<span class="lineNum">      55 </span>            :    cover_hl_t *hl;
+<span class="lineNum">      56 </span>            : } cover_line_t;
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : struct cover_file {
+<span class="lineNum">      59 </span>            :    ident_t       name;
+<span class="lineNum">      60 </span>            :    cover_line_t *lines;
+<span class="lineNum">      61 </span>            :    unsigned      n_lines;
+<span class="lineNum">      62 </span>            :    unsigned      alloc_lines;
+<span class="lineNum">      63 </span>            :    bool          valid;
+<span class="lineNum">      64 </span>            :    cover_file_t *next;
+<span class="lineNum">      65 </span>            : };
+<span class="lineNum">      66 </span>            : 
+<span class="lineNum">      67 </span>            : typedef struct {
+<span class="lineNum">      68 </span>            :    int next_stmt_tag;
+<span class="lineNum">      69 </span>            :    int next_cond_tag;
+<span class="lineNum">      70 </span>            :    int next_sub_cond;
+<span class="lineNum">      71 </span>            : } cover_tag_ctx_t;
+<span class="lineNum">      72 </span>            : 
+<span class="lineNum">      73 </span>            : typedef struct {
+<span class="lineNum">      74 </span>            :    unsigned total_branches;
+<span class="lineNum">      75 </span>            :    unsigned hit_branches;
+<span class="lineNum">      76 </span>            :    unsigned total_conds;
+<span class="lineNum">      77 </span>            :    unsigned hit_conds;
+<span class="lineNum">      78 </span>            :    unsigned total_stmts;
+<span class="lineNum">      79 </span>            :    unsigned hit_stmts;
+<span class="lineNum">      80 </span>            : } cover_stats_t;
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span>            : typedef struct {
+<span class="lineNum">      83 </span>            :    const int32_t *stmts;
+<span class="lineNum">      84 </span>            :    const int32_t *conds;
+<span class="lineNum">      85 </span>            : } report_ctx_t;
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span>            : static ident_t       stmt_tag_i;
+<span class="lineNum">      88 </span>            : static ident_t       cond_tag_i;
+<span class="lineNum">      89 </span>            : static ident_t       sub_cond_i;
+<span class="lineNum">      90 </span>            : static ident_t       builtin_i;
+<span class="lineNum">      91 </span>            : static ident_t       std_bool_i;
+<span class="lineNum">      92 </span>            : static cover_file_t *files;
+<a name="93"><span class="lineNum">      93 </span>            : static cover_stats_t stats;</a>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineCov">          8 : static void cover_tag_conditions(tree_t t, cover_tag_ctx_t *ctx, int branch)</span>
+<span class="lineNum">      96 </span>            : {
+<span class="lineNum">      97 </span><span class="lineCov">          8 :    const int tag = (branch == -1) ? (ctx-&gt;next_cond_tag)++ : branch;</span>
+<span class="lineNum">      98 </span>            : 
+<span class="lineNum">      99 </span><span class="lineCov">          8 :    if (ctx-&gt;next_sub_cond == 16)</span>
+<span class="lineNum">     100 </span>            :       return;
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineCov">          8 :    tree_add_attr_int(t, cond_tag_i, tag);</span>
+<span class="lineNum">     103 </span><span class="lineCov">          8 :    tree_add_attr_int(t, sub_cond_i, (ctx-&gt;next_sub_cond)++);</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineCov">          8 :    if (tree_kind(t) != T_FCALL)</span>
+<span class="lineNum">     106 </span>            :       return;
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span>            :    // Tag Boolean sub-expressions
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineCov">          8 :    if (tree_attr_str(tree_ref(t), builtin_i) == NULL)</span>
+<span class="lineNum">     111 </span>            :       return;
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineCov">          8 :    const int nparams = tree_params(t);</span>
+<span class="lineNum">     114 </span><span class="lineCov">         24 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">     115 </span><span class="lineCov">         16 :       tree_t value = tree_value(tree_param(t, i));</span>
+<span class="lineNum">     116 </span><span class="lineCov">         16 :       if (type_ident(tree_type(value)) == std_bool_i)</span>
+<span class="lineNum">     117 </span><span class="lineCov">          4 :          cover_tag_conditions(value, ctx, tag);</span>
+<span class="lineNum">     118 </span>            :    }
+<a name="119"><span class="lineNum">     119 </span>            : }</a>
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span><span class="lineCov">         26 : static bool cover_has_conditions(tree_t t)</span>
+<span class="lineNum">     122 </span>            : {
+<span class="lineNum">     123 </span><span class="lineCov">         26 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     124 </span>            :    case T_IF:
+<span class="lineNum">     125 </span>            :    case T_WHILE:
+<span class="lineNum">     126 </span>            :    case T_NEXT:
+<span class="lineNum">     127 </span>            :    case T_EXIT:
+<span class="lineNum">     128 </span><span class="lineCov">          7 :       return tree_has_value(t);</span>
+<span class="lineNum">     129 </span>            :    default:
+<span class="lineNum">     130 </span>            :       return false;
+<span class="lineNum">     131 </span>            :    }
+<a name="132"><span class="lineNum">     132 </span>            : }</a>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineCov">        173 : static bool cover_is_stmt(tree_t t)</span>
+<span class="lineNum">     135 </span>            : {
+<span class="lineNum">     136 </span><span class="lineCov">        173 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     137 </span>            :    case T_IF:
+<span class="lineNum">     138 </span>            :    case T_WHILE:
+<span class="lineNum">     139 </span>            :    case T_NEXT:
+<span class="lineNum">     140 </span>            :    case T_EXIT:
+<span class="lineNum">     141 </span>            :    case T_SIGNAL_ASSIGN:
+<span class="lineNum">     142 </span>            :    case T_ASSERT:
+<span class="lineNum">     143 </span>            :    case T_VAR_ASSIGN:
+<span class="lineNum">     144 </span>            :    case T_WAIT:
+<span class="lineNum">     145 </span>            :    case T_RETURN:
+<span class="lineNum">     146 </span>            :    case T_CASE:
+<span class="lineNum">     147 </span>            :       return true;
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :    default:
+<span class="lineNum">     150 </span><span class="lineCov">        147 :       return false;</span>
+<span class="lineNum">     151 </span>            :    }
+<a name="152"><span class="lineNum">     152 </span>            : }</a>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">        101 : static void cover_tag_visit_fn(tree_t t, void *context)</span>
+<span class="lineNum">     155 </span>            : {
+<span class="lineNum">     156 </span><span class="lineCov">        101 :    cover_tag_ctx_t *ctx = context;</span>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span><span class="lineCov">        101 :    if (cover_is_stmt(t)) {</span>
+<span class="lineNum">     159 </span><span class="lineCov">         15 :       tree_add_attr_int(t, stmt_tag_i, (ctx-&gt;next_stmt_tag)++);</span>
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineCov">         15 :       if (cover_has_conditions(t)) {</span>
+<span class="lineNum">     162 </span><span class="lineCov">          4 :          ctx-&gt;next_sub_cond = 0;</span>
+<span class="lineNum">     163 </span><span class="lineCov">          4 :          cover_tag_conditions(tree_value(t), ctx, -1);</span>
+<span class="lineNum">     164 </span>            :       }
+<span class="lineNum">     165 </span>            :    }
+<a name="166"><span class="lineNum">     166 </span><span class="lineCov">        101 : }</span></a>
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span><span class="lineCov">          2 : void cover_tag(tree_t top)</span>
+<span class="lineNum">     169 </span>            : {
+<span class="lineNum">     170 </span><span class="lineCov">          2 :    stmt_tag_i = ident_new(&quot;stmt_tag&quot;);</span>
+<span class="lineNum">     171 </span><span class="lineCov">          2 :    cond_tag_i = ident_new(&quot;cond_tag&quot;);</span>
+<span class="lineNum">     172 </span><span class="lineCov">          2 :    sub_cond_i = ident_new(&quot;sub_cond&quot;);</span>
+<span class="lineNum">     173 </span><span class="lineCov">          2 :    std_bool_i = ident_new(&quot;STD.STANDARD.BOOLEAN&quot;);</span>
+<span class="lineNum">     174 </span><span class="lineCov">          2 :    builtin_i  = ident_new(&quot;builtin&quot;);</span>
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineCov">          2 :    cover_tag_ctx_t ctx = {</span>
+<span class="lineNum">     177 </span>            :       .next_stmt_tag = 0,
+<span class="lineNum">     178 </span>            :       .next_cond_tag = 0
+<span class="lineNum">     179 </span>            :    };
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineCov">          2 :    tree_visit(top, cover_tag_visit_fn, &amp;ctx);</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineCov">          2 :    tree_add_attr_int(top, ident_new(&quot;stmt_tags&quot;), ctx.next_stmt_tag);</span>
+<span class="lineNum">     184 </span><span class="lineCov">          2 :    tree_add_attr_int(top, ident_new(&quot;cond_tags&quot;), ctx.next_cond_tag);</span>
+<a name="185"><span class="lineNum">     185 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span><span class="lineCov">         29 : static void cover_append_line(cover_file_t *f, const char *buf)</span>
+<span class="lineNum">     188 </span>            : {
+<span class="lineNum">     189 </span><span class="lineCov">         29 :    if (f-&gt;n_lines == f-&gt;alloc_lines) {</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :       f-&gt;alloc_lines *= 2;</span>
+<span class="lineNum">     191 </span><span class="lineNoCov">          0 :       f-&gt;lines = xrealloc(f-&gt;lines, f-&gt;alloc_lines * sizeof(cover_line_t));</span>
+<span class="lineNum">     192 </span>            :    }
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineCov">         29 :    cover_line_t *l = &amp;(f-&gt;lines[(f-&gt;n_lines)++]);</span>
+<span class="lineNum">     195 </span><span class="lineCov">         29 :    l-&gt;text = xstrdup(buf);</span>
+<span class="lineNum">     196 </span><span class="lineCov">         29 :    l-&gt;len  = strlen(buf);</span>
+<span class="lineNum">     197 </span><span class="lineCov">         29 :    l-&gt;hits = -1;</span>
+<span class="lineNum">     198 </span><span class="lineCov">         29 :    l-&gt;hl   = NULL;</span>
+<a name="199"><span class="lineNum">     199 </span><span class="lineCov">         29 : }</span></a>
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineCov">         14 : static cover_file_t *cover_file(const loc_t *loc)</span>
+<span class="lineNum">     202 </span>            : {
+<span class="lineNum">     203 </span><span class="lineCov">         14 :    if (loc-&gt;file == NULL)</span>
+<span class="lineNum">     204 </span>            :       return NULL;
+<span class="lineNum">     205 </span>            : 
+<span class="lineNum">     206 </span>            :    cover_file_t *f;
+<span class="lineNum">     207 </span><span class="lineCov">         14 :    for (f = files; f != NULL; f = f-&gt;next) {</span>
+<span class="lineNum">     208 </span>            :       // Comparing pointers directly here is OK since only one copy
+<span class="lineNum">     209 </span>            :       // of the file name string will be created by tree_read
+<span class="lineNum">     210 </span><span class="lineCov">         13 :       if (f-&gt;name == loc-&gt;file)</span>
+<span class="lineNum">     211 </span><span class="lineCov">         13 :          return f-&gt;valid ? f : NULL;</span>
+<span class="lineNum">     212 </span>            :    }
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span><span class="lineCov">          1 :    f = xmalloc(sizeof(cover_file_t));</span>
+<span class="lineNum">     215 </span><span class="lineCov">          1 :    f-&gt;name        = loc-&gt;file;</span>
+<span class="lineNum">     216 </span><span class="lineCov">          1 :    f-&gt;n_lines     = 0;</span>
+<span class="lineNum">     217 </span><span class="lineCov">          1 :    f-&gt;alloc_lines = 1024;</span>
+<span class="lineNum">     218 </span><span class="lineCov">          1 :    f-&gt;lines       = xmalloc(sizeof(cover_line_t) * f-&gt;alloc_lines);</span>
+<span class="lineNum">     219 </span><span class="lineCov">          1 :    f-&gt;next        = files;</span>
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineCov">          1 :    FILE *fp = fopen(istr(loc-&gt;file), &quot;r&quot;);</span>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span><span class="lineCov">          1 :    if (fp == NULL) {</span>
+<span class="lineNum">     224 </span>            :       // Guess the path is relative to the work library
+<span class="lineNum">     225 </span><span class="lineNoCov">          0 :       char *path LOCAL =</span>
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :          xasprintf(&quot;%s/../%s&quot;, lib_path(lib_work()), istr(loc-&gt;file));</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :       fp = fopen(path, &quot;r&quot;);</span>
+<span class="lineNum">     228 </span>            :    }
+<span class="lineNum">     229 </span>            : 
+<span class="lineNum">     230 </span><span class="lineCov">          1 :    if (fp == NULL) {</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :       warnf(&quot;failed to open %s for coverage report&quot;, istr(loc-&gt;file));</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :       f-&gt;valid = false;</span>
+<span class="lineNum">     233 </span>            :    }
+<span class="lineNum">     234 </span>            :    else {
+<span class="lineNum">     235 </span><span class="lineCov">          1 :       f-&gt;valid = true;</span>
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span><span class="lineCov">         31 :       while (!feof(fp)) {</span>
+<span class="lineNum">     238 </span>            :          char buf[1024];
+<span class="lineNum">     239 </span><span class="lineCov">         30 :          if (fgets(buf, sizeof(buf), fp) != NULL)</span>
+<span class="lineNum">     240 </span><span class="lineCov">         29 :             cover_append_line(f, buf);</span>
+<span class="lineNum">     241 </span><span class="lineCov">          1 :          else if (ferror(fp))</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :             fatal(&quot;error reading %s&quot;, istr(loc-&gt;file));</span>
+<span class="lineNum">     243 </span>            :       }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineCov">          1 :       fclose(fp);</span>
+<span class="lineNum">     246 </span>            :    }
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineCov">          1 :    return (files = f);</span>
+<a name="249"><span class="lineNum">     249 </span>            : }</a>
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span><span class="lineCov">          3 : static void cover_report_conds(tree_t t, report_ctx_t *ctx)</span>
+<span class="lineNum">     252 </span>            : {
+<span class="lineNum">     253 </span><span class="lineCov">          3 :    const int32_t *masks = ctx-&gt;conds;</span>
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span><span class="lineCov">          3 :    const int tag = tree_attr_int(t, cond_tag_i, -1);</span>
+<span class="lineNum">     256 </span><span class="lineCov">          3 :    if ((tag == -1) || (masks[tag] == 0))</span>
+<span class="lineNum">     257 </span>            :       return;
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineCov">          3 :    const loc_t *loc = tree_loc(t);</span>
+<span class="lineNum">     260 </span><span class="lineCov">          3 :    cover_file_t *file = cover_file(loc);</span>
+<span class="lineNum">     261 </span><span class="lineCov">          3 :    if ((file == NULL) || !file-&gt;valid)</span>
+<span class="lineNum">     262 </span>            :       return;
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">          3 :    assert(loc-&gt;first_line &lt; file-&gt;n_lines);</span>
+<span class="lineNum">     265 </span>            : 
+<span class="lineNum">     266 </span><span class="lineCov">          3 :    cover_line_t *l = &amp;(file-&gt;lines[loc-&gt;first_line - 1]);</span>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineCov">          3 :    const int start = loc-&gt;first_column;</span>
+<span class="lineNum">     269 </span><span class="lineCov">          6 :    const int end = (loc-&gt;last_line == loc-&gt;first_line)</span>
+<span class="lineNum">     270 </span><span class="lineCov">          3 :       ? loc-&gt;last_column : l-&gt;len;</span>
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span><span class="lineCov">          3 :    const int sub_cond = tree_attr_int(t, sub_cond_i, 0);</span>
+<span class="lineNum">     273 </span><span class="lineCov">          3 :    const int mask = (masks[tag] &gt;&gt; (sub_cond * 2)) &amp; 3;</span>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span><span class="lineCov">          3 :    if (sub_cond == 0) {</span>
+<span class="lineNum">     276 </span><span class="lineCov">          3 :       stats.total_branches++;</span>
+<span class="lineNum">     277 </span><span class="lineCov">          3 :       if (mask == 3)</span>
+<span class="lineNum">     278 </span><span class="lineCov">          2 :          stats.hit_branches++;</span>
+<span class="lineNum">     279 </span>            :    }
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span><span class="lineCov">          3 :    stats.total_conds++;</span>
+<span class="lineNum">     282 </span><span class="lineCov">          3 :    if (mask == 3)</span>
+<span class="lineNum">     283 </span><span class="lineCov">          2 :       stats.hit_conds++;</span>
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span>            :    cover_hl_t *hl;
+<span class="lineNum">     286 </span><span class="lineCov">          3 :    for (hl = l-&gt;hl; hl != NULL; hl = hl-&gt;next) {</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :       if ((hl-&gt;start == start) &amp;&amp; (hl-&gt;end == end))</span>
+<span class="lineNum">     288 </span>            :          break;
+<span class="lineNum">     289 </span>            :    }
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span><span class="lineCov">          3 :    if (hl == NULL) {</span>
+<span class="lineNum">     292 </span><span class="lineCov">          3 :       hl = xmalloc(sizeof(cover_hl_t));</span>
+<span class="lineNum">     293 </span><span class="lineCov">          3 :       hl-&gt;start  = start;</span>
+<span class="lineNum">     294 </span><span class="lineCov">          3 :       hl-&gt;end    = end;</span>
+<span class="lineNum">     295 </span><span class="lineCov">          3 :       hl-&gt;next   = l-&gt;hl;</span>
+<span class="lineNum">     296 </span>            : 
+<span class="lineNum">     297 </span><span class="lineCov">          3 :       l-&gt;hl = hl;</span>
+<span class="lineNum">     298 </span>            :    }
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :    else if (hl-&gt;kind == HL_HIT)</span>
+<span class="lineNum">     300 </span>            :       return;
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span><span class="lineCov">          3 :    hl-&gt;kind = (mask == 3) ? HL_HIT : HL_MISS;</span>
+<span class="lineNum">     303 </span><span class="lineCov">          3 :    hl-&gt;help = NULL;</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineCov">          3 :    if (mask == 1)</span>
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :       hl-&gt;help = &quot;Condition never evaluated to TRUE&quot;;</span>
+<span class="lineNum">     307 </span><span class="lineCov">          3 :    else if (mask == 2)</span>
+<span class="lineNum">     308 </span><span class="lineCov">          1 :       hl-&gt;help = &quot;Condition never evaluated to FALSE&quot;;</span>
+<a name="309"><span class="lineNum">     309 </span>            : }</a>
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span><span class="lineCov">         72 : static void cover_report_fn(tree_t t, void *context)</span>
+<span class="lineNum">     312 </span>            : {
+<span class="lineNum">     313 </span><span class="lineCov">         75 :    report_ctx_t *ctx = context;</span>
+<span class="lineNum">     314 </span><span class="lineCov">         72 :    const int32_t *counts = ctx-&gt;stmts;</span>
+<span class="lineNum">     315 </span>            : 
+<span class="lineNum">     316 </span><span class="lineCov">         72 :    if (!cover_is_stmt(t))</span>
+<span class="lineNum">     317 </span>            :       return;
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineCov">         11 :    if (cover_has_conditions(t))</span>
+<span class="lineNum">     320 </span><span class="lineCov">          6 :       cover_report_conds(tree_value(t), ctx);</span>
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span><span class="lineCov">         11 :    const int tag = tree_attr_int(t, stmt_tag_i, -1);</span>
+<span class="lineNum">     323 </span><span class="lineCov">         11 :    if (tag == -1)</span>
+<span class="lineNum">     324 </span>            :       return;
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span><span class="lineCov">         11 :    const loc_t *loc = tree_loc(t);</span>
+<span class="lineNum">     327 </span><span class="lineCov">         11 :    cover_file_t *file = cover_file(loc);</span>
+<span class="lineNum">     328 </span><span class="lineCov">         11 :    if ((file == NULL) || !file-&gt;valid)</span>
+<span class="lineNum">     329 </span>            :       return;
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span><span class="lineCov">         11 :    assert(loc-&gt;first_line &lt; file-&gt;n_lines);</span>
+<span class="lineNum">     332 </span>            : 
+<span class="lineNum">     333 </span><span class="lineCov">         11 :    cover_line_t *l = &amp;(file-&gt;lines[loc-&gt;first_line - 1]);</span>
+<span class="lineNum">     334 </span><span class="lineCov">         11 :    l-&gt;hits = MAX(counts[tag], l-&gt;hits);</span>
+<span class="lineNum">     335 </span>            : 
+<span class="lineNum">     336 </span><span class="lineCov">         11 :    if (counts[tag] &gt; 0)</span>
+<span class="lineNum">     337 </span><span class="lineCov">         10 :       stats.hit_stmts++;</span>
+<span class="lineNum">     338 </span>            : 
+<span class="lineNum">     339 </span><span class="lineCov">         11 :    stats.total_stmts++;</span>
+<a name="340"><span class="lineNum">     340 </span>            : }</a>
+<span class="lineNum">     341 </span>            : 
+<span class="lineNum">     342 </span><span class="lineCov">         29 : static void cover_report_line(FILE *fp, cover_line_t *l)</span>
+<span class="lineNum">     343 </span>            : {
+<span class="lineNum">     344 </span>            :    fprintf(fp, &quot;&lt;tr&gt;&quot;);
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span><span class="lineCov">         29 :    if (l-&gt;hits != -1) {</span>
+<span class="lineNum">     347 </span><span class="lineCov">         11 :       fprintf(fp, &quot;&lt;td&gt;%d&lt;/td&gt;&quot;, l-&gt;hits);</span>
+<span class="lineNum">     348 </span><span class="lineCov">         11 :       fprintf(fp, &quot;&lt;td class=\&quot;%s\&quot;&gt;&quot;, (l-&gt;hits &gt; 0) ? &quot;hit&quot; : &quot;miss&quot;);</span>
+<span class="lineNum">     349 </span>            :    }
+<span class="lineNum">     350 </span>            :    else {
+<span class="lineNum">     351 </span>            :       fprintf(fp, &quot;&lt;td&gt;&lt;/td&gt;&quot;);
+<span class="lineNum">     352 </span>            :       fprintf(fp, &quot;&lt;td&gt;&quot;);
+<span class="lineNum">     353 </span>            :    }
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span><span class="lineCov">         29 :    int col = 0;</span>
+<span class="lineNum">     356 </span><span class="lineCov">        556 :    for (const char *p = l-&gt;text; *p != '\0'; p++, col++) {</span>
+<span class="lineNum">     357 </span><span class="lineCov">        616 :       for (cover_hl_t *it = l-&gt;hl; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">     358 </span><span class="lineCov">         89 :          if (it-&gt;start == col) {</span>
+<span class="lineNum">     359 </span><span class="lineCov">          3 :             fprintf(fp, &quot;&lt;span class=\&quot;hl_%s\&quot;&quot;,</span>
+<span class="lineNum">     360 </span><span class="lineCov">          3 :                     (it-&gt;kind == HL_HIT) ? &quot;hit&quot; : &quot;miss&quot;);</span>
+<span class="lineNum">     361 </span><span class="lineCov">          3 :             if (it-&gt;help != NULL)</span>
+<span class="lineNum">     362 </span><span class="lineCov">          1 :                fprintf(fp, &quot; title=\&quot;%s\&quot;&quot;, it-&gt;help);</span>
+<span class="lineNum">     363 </span>            :             fprintf(fp, &quot;&gt;&quot;);
+<span class="lineNum">     364 </span>            :          }
+<span class="lineNum">     365 </span>            :       }
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span><span class="lineCov">        527 :       switch (*p) {</span>
+<span class="lineNum">     368 </span>            :       case ' ':
+<span class="lineNum">     369 </span>            :          fprintf(fp, &quot;&amp;nbsp;&quot;);
+<span class="lineNum">     370 </span>            :          break;
+<span class="lineNum">     371 </span>            :       case '\t':
+<span class="lineNum">     372 </span>            :          {
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 :             int col = (p - l-&gt;text);</span>
+<span class="lineNum">     374 </span><span class="lineNoCov">          0 :             while (++col % 8)</span>
+<span class="lineNum">     375 </span>            :                fprintf(fp, &quot;&amp;nbsp;&quot;);
+<span class="lineNum">     376 </span>            :          }
+<span class="lineNum">     377 </span>            :          break;
+<span class="lineNum">     378 </span>            :       case '&lt;':
+<span class="lineNum">     379 </span>            :          fprintf(fp, &quot;&amp;lt;&quot;);
+<span class="lineNum">     380 </span>            :          break;
+<span class="lineNum">     381 </span>            :       case '&gt;':
+<span class="lineNum">     382 </span>            :          fprintf(fp, &quot;&amp;gt;&quot;);
+<span class="lineNum">     383 </span>            :          break;
+<span class="lineNum">     384 </span>            :       default:
+<span class="lineNum">     385 </span><span class="lineCov">        278 :          fputc(*p, fp);</span>
+<span class="lineNum">     386 </span><span class="lineCov">        278 :          break;</span>
+<span class="lineNum">     387 </span>            :       }
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span><span class="lineCov">        616 :       for (cover_hl_t *it = l-&gt;hl; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">     390 </span><span class="lineCov">         89 :          if (it-&gt;end == col)</span>
+<span class="lineNum">     391 </span>            :             fprintf(fp, &quot;&lt;/span&gt;&quot;);
+<span class="lineNum">     392 </span>            :       }
+<span class="lineNum">     393 </span>            :    }
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span><span class="lineCov">         29 :    switch (*(l-&gt;text)) {</span>
+<span class="lineNum">     396 </span>            :    case '\n':
+<span class="lineNum">     397 </span>            :    case '\r':
+<span class="lineNum">     398 </span>            :    case '\0':
+<span class="lineNum">     399 </span>            :       fprintf(fp, &quot;&amp;nbsp;&quot;);   // Equal height for empty lines
+<span class="lineNum">     400 </span>            :       break;
+<span class="lineNum">     401 </span>            :    }
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span>            :    fprintf(fp, &quot;&lt;/td&gt;&lt;/tr&gt;\n&quot;);
+<a name="404"><span class="lineNum">     404 </span><span class="lineCov">         29 : }</span></a>
+<span class="lineNum">     405 </span>            : 
+<span class="lineNum">     406 </span><span class="lineCov">          3 : static const char *cover_file_url(cover_file_t *f)</span>
+<span class="lineNum">     407 </span>            : {
+<span class="lineNum">     408 </span>            :    static char buf[256];
+<span class="lineNum">     409 </span><span class="lineCov">          3 :    checked_sprintf(buf, sizeof(buf) - 6, &quot;report_%s.html&quot;, istr(f-&gt;name));</span>
+<span class="lineNum">     410 </span><span class="lineCov">        180 :    for (char *p = buf; *(p + 5) != '\0'; p++) {</span>
+<span class="lineNum">     411 </span><span class="lineCov">        177 :       if (*p == '/' || *p == '.')</span>
+<span class="lineNum">     412 </span><span class="lineCov">         27 :          *p = '_';</span>
+<span class="lineNum">     413 </span>            :    }
+<span class="lineNum">     414 </span><span class="lineCov">          3 :    return buf;</span>
+<a name="415"><span class="lineNum">     415 </span>            : }</a>
+<span class="lineNum">     416 </span>            : 
+<span class="lineNum">     417 </span><span class="lineCov">          2 : static void cover_html_header(FILE *fp, const char *title, ...)</span>
+<span class="lineNum">     418 </span>            : {
+<span class="lineNum">     419 </span>            :     fprintf(fp,
+<span class="lineNum">     420 </span>            :             &quot;&lt;!DOCTYPE html PUBLIC \&quot;-//W3C//DTD HTML 4.01//EN\&quot;&gt;\n&quot;
+<span class="lineNum">     421 </span>            :             &quot;&lt;html&gt;\n&quot;
+<span class="lineNum">     422 </span>            :             &quot;&lt;head&gt;\n&quot;
+<span class="lineNum">     423 </span>            :             &quot;  &lt;meta http-equiv=\&quot;Content-type\&quot; \n&quot;
+<span class="lineNum">     424 </span>            :             &quot;        content=\&quot;text/html;charset=UTF-8\&quot;&gt;\n&quot;
+<span class="lineNum">     425 </span>            :             &quot;  &lt;title&gt;&quot;);
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span>            :     va_list ap;
+<span class="lineNum">     428 </span><span class="lineCov">          2 :     va_start(ap, title);</span>
+<span class="lineNum">     429 </span>            :     vfprintf(fp, title, ap);
+<span class="lineNum">     430 </span><span class="lineCov">          2 :     va_end(ap);</span>
+<span class="lineNum">     431 </span>            : 
+<span class="lineNum">     432 </span>            :     fprintf(fp,
+<span class="lineNum">     433 </span>            :             &quot;&lt;/title&gt;\n&quot;
+<span class="lineNum">     434 </span>            :             &quot;  &lt;link rel=\&quot;stylesheet\&quot; href=\&quot;&quot;CSS_DIR&quot;/coverage.css\&quot;&gt;\n&quot;
+<span class="lineNum">     435 </span>            :             &quot;&lt;/head&gt;\n&quot;
+<span class="lineNum">     436 </span>            :             &quot;&lt;body&gt;\n&quot;);
+<span class="lineNum">     437 </span>            : 
+<span class="lineNum">     438 </span>            :     fprintf(fp, &quot;&lt;div class=\&quot;nav\&quot;&gt;\n&quot;);
+<span class="lineNum">     439 </span>            :     fprintf(fp, &quot;&lt;h3&gt;Reports&lt;/h3&gt;\n&quot;);
+<span class="lineNum">     440 </span>            :     fprintf(fp, &quot;&lt;ul&gt;\n&quot;);
+<span class="lineNum">     441 </span>            :     fprintf(fp, &quot;  &lt;li&gt;&lt;a href=\&quot;index.html\&quot;&gt;Index&lt;/a&gt;&lt;/li&gt;\n&quot;);
+<span class="lineNum">     442 </span>            :     fprintf(fp, &quot;&lt;/ul&gt;\n&quot;);
+<span class="lineNum">     443 </span>            :     fprintf(fp, &quot;&lt;h3&gt;Files&lt;/h3&gt;\n&quot;);
+<span class="lineNum">     444 </span>            :     fprintf(fp, &quot;&lt;ul class=\&quot;nav\&quot;&gt;\n&quot;);
+<span class="lineNum">     445 </span><span class="lineCov">          6 :     for (cover_file_t *f = files; f != NULL; f = f-&gt;next)</span>
+<span class="lineNum">     446 </span><span class="lineCov">          4 :       fprintf(fp, &quot;  &lt;li&gt;&lt;a href=\&quot;%s\&quot;&gt;%s&lt;/a&gt;&lt;/li&gt;\n&quot;,</span>
+<span class="lineNum">     447 </span>            :               cover_file_url(f), istr(f-&gt;name));
+<span class="lineNum">     448 </span>            :     fprintf(fp, &quot;&lt;/ul&gt;\n&quot;);
+<span class="lineNum">     449 </span>            :     fprintf(fp, &quot;&lt;/div&gt;\n&quot;);
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span>            :     fprintf(fp, &quot;&lt;div id=\&quot;body\&quot;&gt;\n&quot;);
+<a name="453"><span class="lineNum">     453 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     454 </span>            : 
+<span class="lineNum">     455 </span><span class="lineCov">          2 : static void cover_html_footer(FILE *fp)</span>
+<span class="lineNum">     456 </span>            : {
+<span class="lineNum">     457 </span>            :    fprintf(fp, &quot;&lt;/div&gt;&lt;/body&gt;\n&lt;/html&gt;\n&quot;);
+<a name="458"><span class="lineNum">     458 </span><span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     459 </span>            : 
+<span class="lineNum">     460 </span><span class="lineCov">          1 : static void cover_report_file(cover_file_t *f, const char *dir)</span>
+<span class="lineNum">     461 </span>            : {
+<span class="lineNum">     462 </span><span class="lineCov">          1 :    char *buf = xasprintf(&quot;%s/%s&quot;, dir, cover_file_url(f));</span>
+<span class="lineNum">     463 </span><span class="lineCov">          1 :    FILE *fp = lib_fopen(lib_work(), buf, &quot;w&quot;);</span>
+<span class="lineNum">     464 </span><span class="lineCov">          1 :    if (fp == NULL)</span>
+<span class="lineNum">     465 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to create %s&quot;, buf);</span>
+<span class="lineNum">     466 </span><span class="lineCov">          1 :    free(buf);</span>
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span><span class="lineCov">          1 :    cover_html_header(fp, &quot;Coverage report for %s&quot;, f-&gt;name);</span>
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span>            :    fprintf(fp, &quot;&lt;table class=\&quot;code\&quot;&gt;\n&quot;);
+<span class="lineNum">     471 </span><span class="lineCov">         30 :    for (int i = 0; i &lt; f-&gt;n_lines; i++) {</span>
+<span class="lineNum">     472 </span><span class="lineCov">         29 :       cover_line_t *l = &amp;(f-&gt;lines[i]);</span>
+<span class="lineNum">     473 </span><span class="lineCov">         29 :       cover_report_line(fp, l);</span>
+<span class="lineNum">     474 </span>            :    }
+<span class="lineNum">     475 </span>            :    fprintf(fp, &quot;&lt;/table&gt;\n&quot;);
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span><span class="lineCov">          1 :    cover_html_footer(fp);</span>
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span><span class="lineCov">          1 :    fclose(fp);</span>
+<a name="480"><span class="lineNum">     480 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span><span class="lineCov">          3 : static const char *cover_percent(unsigned x, unsigned y)</span>
+<span class="lineNum">     483 </span>            : {
+<span class="lineNum">     484 </span><span class="lineCov">          3 :    const float pct = ((float)x / (float)y) * 100.0f;</span>
+<span class="lineNum">     485 </span>            : 
+<span class="lineNum">     486 </span>            :    static char buf[256];
+<span class="lineNum">     487 </span><span class="lineCov">          3 :    snprintf(buf, sizeof(buf), &quot;&lt;span class=\&quot;pct_%s\&quot;&gt;%.0f%%&lt;/span&gt;&quot;,</span>
+<span class="lineNum">     488 </span>            :             (pct &lt; PERCENT_RED) ? &quot;red&quot;
+<span class="lineNum">     489 </span><span class="lineCov">          3 :             : ((pct &lt; PERCENT_ORANGE) ? &quot;orange&quot; : &quot;green&quot;), pct);</span>
+<span class="lineNum">     490 </span>            : 
+<span class="lineNum">     491 </span><span class="lineCov">          3 :    return buf;</span>
+<a name="492"><span class="lineNum">     492 </span>            : }</a>
+<span class="lineNum">     493 </span>            : 
+<span class="lineNum">     494 </span><span class="lineCov">          3 : static void cover_stat_line(FILE *fp, const char *text,</span>
+<span class="lineNum">     495 </span>            :                             unsigned hit, unsigned total)
+<span class="lineNum">     496 </span>            : {
+<span class="lineNum">     497 </span><span class="lineCov">          3 :    if (total &gt; 0) {</span>
+<span class="lineNum">     498 </span><span class="lineCov">          3 :       fprintf(fp, &quot;&lt;tr&gt;&lt;td&gt;%s&lt;/td&gt;&lt;td class=\&quot;num\&quot;&gt;%u&lt;/td&gt;&quot;</span>
+<span class="lineNum">     499 </span>            :               &quot;&lt;td class=\&quot;num\&quot;&gt;%u&lt;/td&gt;&lt;td class=\&quot;num\&quot;&gt;%s&lt;/td&gt;&lt;/tr&gt;\n&quot;,
+<span class="lineNum">     500 </span>            :               text, hit, total, cover_percent(hit, total));
+<span class="lineNum">     501 </span>            :    }
+<a name="502"><span class="lineNum">     502 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">     503 </span>            : 
+<span class="lineNum">     504 </span><span class="lineCov">          1 : static void cover_index(ident_t name, const char *dir)</span>
+<span class="lineNum">     505 </span>            : {
+<span class="lineNum">     506 </span><span class="lineCov">          1 :    char *buf = xasprintf(&quot;%s/index.html&quot;, dir);</span>
+<span class="lineNum">     507 </span><span class="lineCov">          1 :    FILE *fp = lib_fopen(lib_work(), buf, &quot;w&quot;);</span>
+<span class="lineNum">     508 </span><span class="lineCov">          1 :    if (fp == NULL)</span>
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to create %s&quot;, buf);</span>
+<span class="lineNum">     510 </span><span class="lineCov">          1 :    free(buf);</span>
+<span class="lineNum">     511 </span>            : 
+<span class="lineNum">     512 </span><span class="lineCov">          1 :    cover_html_header(fp, &quot;Coverage report for %s&quot;, istr(name));</span>
+<span class="lineNum">     513 </span>            : 
+<span class="lineNum">     514 </span><span class="lineCov">          1 :    fprintf(fp, &quot;&lt;h1&gt;Coverage report for %s&lt;/h1&gt;\n&quot;, istr(name));</span>
+<span class="lineNum">     515 </span>            :    fprintf(fp, &quot;&lt;div class=\&quot;help\&quot;&gt;&lt;p&gt;Select a file from the sidebar to see &quot;
+<span class="lineNum">     516 </span>            :            &quot;annotated statement and condition coverage.&lt;/p&gt;&lt;/div&gt;\n&quot;);
+<span class="lineNum">     517 </span>            : 
+<span class="lineNum">     518 </span>            :    fprintf(fp, &quot;&lt;h2&gt;Overall Statistics&lt;/h2&gt;\n&quot;);
+<span class="lineNum">     519 </span>            :    fprintf(fp, &quot;&lt;table class=\&quot;stats\&quot;&gt;\n&quot;);
+<span class="lineNum">     520 </span>            :    fprintf(fp, &quot;&lt;tr&gt;&lt;th&gt;Metric&lt;/th&gt;&lt;th&gt;Covered&lt;/th&gt;&lt;th&gt;Total&lt;/th&gt;&quot;
+<span class="lineNum">     521 </span>            :            &quot;&lt;th&gt;Percentage&lt;/th&gt;&lt;/tr&gt;\n&quot;);
+<span class="lineNum">     522 </span><span class="lineCov">          1 :    cover_stat_line(fp, &quot;Statements executed&quot;,</span>
+<span class="lineNum">     523 </span>            :                    stats.hit_stmts, stats.total_stmts);
+<span class="lineNum">     524 </span><span class="lineCov">          1 :    cover_stat_line(fp, &quot;Branches observed taken and not taken&quot;,</span>
+<span class="lineNum">     525 </span>            :                    stats.hit_branches, stats.total_branches);
+<span class="lineNum">     526 </span><span class="lineCov">          1 :    cover_stat_line(fp, &quot;Conditions evaluated to both TRUE and FALSE&quot;,</span>
+<span class="lineNum">     527 </span>            :                    stats.hit_conds, stats.total_conds);
+<span class="lineNum">     528 </span>            :    fprintf(fp, &quot;&lt;/table&gt;\n&quot;);
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span>            :    fprintf(fp, &quot;&lt;div class=\&quot;advert\&quot;&gt;&lt;p&gt;Generated by %s\n&quot;
+<span class="lineNum">     531 </span>            :            &quot;&lt;br/&gt;&lt;a href=\&quot;https://github.com/nickg/nvc\&quot;&gt;&quot;
+<span class="lineNum">     532 </span>            :            &quot;github.com/nickg/nvc&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;\n&quot;,
+<span class="lineNum">     533 </span>            :            PACKAGE_STRING);
+<span class="lineNum">     534 </span>            : 
+<span class="lineNum">     535 </span><span class="lineCov">          1 :    cover_html_footer(fp);</span>
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span><span class="lineCov">          1 :    fclose(fp);</span>
+<a name="538"><span class="lineNum">     538 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     539 </span>            : 
+<span class="lineNum">     540 </span><span class="lineCov">          1 : void cover_report(tree_t top, const int32_t *stmts, const int32_t *conds)</span>
+<span class="lineNum">     541 </span>            : {
+<span class="lineNum">     542 </span><span class="lineCov">          1 :    stmt_tag_i = ident_new(&quot;stmt_tag&quot;);</span>
+<span class="lineNum">     543 </span><span class="lineCov">          1 :    cond_tag_i = ident_new(&quot;cond_tag&quot;);</span>
+<span class="lineNum">     544 </span><span class="lineCov">          1 :    sub_cond_i = ident_new(&quot;sub_cond&quot;);</span>
+<span class="lineNum">     545 </span>            : 
+<span class="lineNum">     546 </span><span class="lineCov">          1 :    report_ctx_t report_ctx = {</span>
+<span class="lineNum">     547 </span>            :       .stmts = stmts,
+<span class="lineNum">     548 </span>            :       .conds = conds
+<span class="lineNum">     549 </span>            :    };
+<span class="lineNum">     550 </span>            : 
+<span class="lineNum">     551 </span><span class="lineCov">          1 :    tree_visit(top, cover_report_fn, &amp;report_ctx);</span>
+<span class="lineNum">     552 </span>            : 
+<span class="lineNum">     553 </span><span class="lineCov">          1 :    ident_t name = ident_strip(tree_ident(top), ident_new(&quot;.elab&quot;));</span>
+<span class="lineNum">     554 </span>            : 
+<span class="lineNum">     555 </span><span class="lineCov">          1 :    char *dir = xasprintf(&quot;%s.cover&quot;, istr(name));</span>
+<span class="lineNum">     556 </span>            : 
+<span class="lineNum">     557 </span><span class="lineCov">          1 :    lib_t work = lib_work();</span>
+<span class="lineNum">     558 </span><span class="lineCov">          1 :    lib_mkdir(work, dir);</span>
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span><span class="lineCov">          2 :    for (cover_file_t *f = files; f != NULL; f = f-&gt;next)</span>
+<span class="lineNum">     561 </span><span class="lineCov">          1 :       cover_report_file(f, dir);</span>
+<span class="lineNum">     562 </span>            : 
+<span class="lineNum">     563 </span><span class="lineCov">          1 :    cover_index(name, dir);</span>
+<span class="lineNum">     564 </span>            : 
+<span class="lineNum">     565 </span>            :    char output[PATH_MAX];
+<span class="lineNum">     566 </span><span class="lineCov">          1 :    lib_realpath(work, dir, output, sizeof(output));</span>
+<span class="lineNum">     567 </span><span class="lineCov">          1 :    free(dir);</span>
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span><span class="lineCov">          1 :    char *buf = xasprintf(</span>
+<span class="lineNum">     570 </span>            :             &quot;coverage report generated in %s/\n&quot;
+<span class="lineNum">     571 </span>            :             &quot;  %u/%u statements covered\n&quot;
+<span class="lineNum">     572 </span>            :             &quot;  %u/%u branches covered\n&quot;
+<span class="lineNum">     573 </span>            :             &quot;  %u/%u conditions covered&quot;,
+<span class="lineNum">     574 </span>            :             output,
+<span class="lineNum">     575 </span>            :             stats.hit_stmts, stats.total_stmts,
+<span class="lineNum">     576 </span>            :             stats.hit_branches, stats.total_branches,
+<span class="lineNum">     577 </span>            :             stats.hit_conds, stats.total_conds);
+<span class="lineNum">     578 </span><span class="lineCov">          1 :    notef(&quot;%s&quot;, buf);</span>
+<span class="lineNum">     579 </span><span class="lineCov">          1 :    free(buf);</span>
+<span class="lineNum">     580 </span><span class="lineCov">          1 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

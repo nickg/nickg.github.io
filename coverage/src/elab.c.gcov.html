@@ -1,0 +1,1694 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - nvc.info - src/elab.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - elab.c<span style="font-size: 80%;"> (source / <a href="elab.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">nvc.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">755</td>
+            <td class="headerCovTableEntry">800</td>
+            <td class="headerCovTableEntryHi">94.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-07-21</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">49</td>
+            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntryHi">98.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<span class="lineNum">       2 </span>            : //  Copyright (C) 2011-2017  Nick Gasson
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //  This program is free software: you can redistribute it and/or modify
+<span class="lineNum">       5 </span>            : //  it under the terms of the GNU General Public License as published by
+<span class="lineNum">       6 </span>            : //  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       7 </span>            : //  (at your option) any later version.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //  This program is distributed in the hope that it will be useful,
+<span class="lineNum">      10 </span>            : //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      11 </span>            : //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      12 </span>            : //  GNU General Public License for more details.
+<span class="lineNum">      13 </span>            : //
+<span class="lineNum">      14 </span>            : //  You should have received a copy of the GNU General Public License
+<span class="lineNum">      15 </span>            : //  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      16 </span>            : //
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &quot;phase.h&quot;
+<span class="lineNum">      19 </span>            : #include &quot;util.h&quot;
+<span class="lineNum">      20 </span>            : #include &quot;common.h&quot;
+<span class="lineNum">      21 </span>            : #include &quot;rt/cover.h&quot;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;ctype.h&gt;
+<span class="lineNum">      24 </span>            : #include &lt;assert.h&gt;
+<span class="lineNum">      25 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      26 </span>            : #include &lt;stdarg.h&gt;
+<span class="lineNum">      27 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      28 </span>            : #include &lt;inttypes.h&gt;
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : #define FUNC_REPLACE_MAX 32
+<span class="lineNum">      31 </span>            : 
+<span class="lineNum">      32 </span>            : typedef struct {
+<span class="lineNum">      33 </span>            :    tree_t   out;
+<span class="lineNum">      34 </span>            :    ident_t  path;    // Current 'PATH_NAME
+<span class="lineNum">      35 </span>            :    ident_t  inst;    // Current 'INSTANCE_NAME
+<span class="lineNum">      36 </span>            :    netid_t *next_net;
+<span class="lineNum">      37 </span>            :    lib_t    library;
+<span class="lineNum">      38 </span>            :    tree_t   arch;
+<span class="lineNum">      39 </span>            : } elab_ctx_t;
+<span class="lineNum">      40 </span>            : 
+<span class="lineNum">      41 </span>            : typedef struct {
+<span class="lineNum">      42 </span>            :    const tree_t *formals;
+<span class="lineNum">      43 </span>            :    const tree_t *actuals;
+<span class="lineNum">      44 </span>            :    int           count;
+<span class="lineNum">      45 </span>            : } rewrite_params_t;
+<span class="lineNum">      46 </span>            : 
+<span class="lineNum">      47 </span>            : typedef struct map_list {
+<span class="lineNum">      48 </span>            :    struct map_list *next;
+<span class="lineNum">      49 </span>            :    tree_t formal;
+<span class="lineNum">      50 </span>            :    tree_t actual;
+<span class="lineNum">      51 </span>            :    tree_t signal;
+<span class="lineNum">      52 </span>            :    tree_t name;
+<span class="lineNum">      53 </span>            : } map_list_t;
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span>            : typedef struct copy_list copy_list_t;
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span>            : struct copy_list {
+<span class="lineNum">      58 </span>            :    copy_list_t *next;
+<span class="lineNum">      59 </span>            :    tree_t       tree;
+<span class="lineNum">      60 </span>            : };
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span>            : typedef struct {
+<span class="lineNum">      63 </span>            :    lib_t    lib;
+<span class="lineNum">      64 </span>            :    ident_t  name;
+<span class="lineNum">      65 </span>            :    tree_t  *tree;
+<span class="lineNum">      66 </span>            : } lib_search_params_t;
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span>            : typedef struct generic_list generic_list_t;
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : struct generic_list {
+<span class="lineNum">      71 </span>            :    generic_list_t *next;
+<span class="lineNum">      72 </span>            :    ident_t         name;
+<span class="lineNum">      73 </span>            :    char           *value;
+<span class="lineNum">      74 </span>            :    bool            used;
+<span class="lineNum">      75 </span>            : };
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span>            : static void elab_arch(tree_t t, const elab_ctx_t *ctx);
+<span class="lineNum">      78 </span>            : static void elab_block(tree_t t, const elab_ctx_t *ctx);
+<span class="lineNum">      79 </span>            : static void elab_stmts(tree_t t, const elab_ctx_t *ctx);
+<span class="lineNum">      80 </span>            : static void elab_decls(tree_t t, const elab_ctx_t *ctx);
+<span class="lineNum">      81 </span>            : static void elab_copy_context(tree_t src, const elab_ctx_t *ctx);
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            : static int errors = 0;
+<span class="lineNum">      84 </span>            : 
+<a name="85"><span class="lineNum">      85 </span>            : static generic_list_t *generic_override = NULL;</a>
+<span class="lineNum">      86 </span>            : 
+<span class="lineNum">      87 </span><span class="lineCov">       7484 : static ident_t hpathf(ident_t path, char sep, const char *fmt, ...)</span>
+<span class="lineNum">      88 </span>            : {
+<span class="lineNum">      89 </span>            :    va_list ap;
+<span class="lineNum">      90 </span><span class="lineCov">       7484 :    va_start(ap, fmt);</span>
+<span class="lineNum">      91 </span><span class="lineCov">       7484 :    char *buf = xvasprintf(fmt, ap);</span>
+<span class="lineNum">      92 </span><span class="lineCov">       7484 :    va_end(ap);</span>
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            :    // LRM specifies instance path is lowercase
+<span class="lineNum">      95 </span><span class="lineCov">       7484 :    char *p = buf;</span>
+<span class="lineNum">      96 </span><span class="lineCov">      54129 :    while (*p != '\0') {</span>
+<span class="lineNum">      97 </span><span class="lineCov">      39161 :       *p = tolower((int)*p);</span>
+<span class="lineNum">      98 </span><span class="lineCov">      39161 :       ++p;</span>
+<span class="lineNum">      99 </span>            :    }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span><span class="lineCov">       7484 :    ident_t id = ident_new(buf);</span>
+<span class="lineNum">     102 </span><span class="lineCov">       7484 :    free(buf);</span>
+<span class="lineNum">     103 </span><span class="lineCov">       7484 :    return ident_prefix(path, id, sep);</span>
+<a name="104"><span class="lineNum">     104 </span>            : }</a>
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineCov">       3084 : static const char *simple_name(const char *full)</span>
+<span class="lineNum">     107 </span>            : {
+<span class="lineNum">     108 </span>            :    // Strip off any library or entity prefix from the parameter
+<span class="lineNum">     109 </span><span class="lineCov">       3084 :    const char *start = full;</span>
+<span class="lineNum">     110 </span><span class="lineCov">      26566 :    for (const char *p = full; *p != '\0'; p++) {</span>
+<span class="lineNum">     111 </span><span class="lineCov">      23482 :       if (*p == '.' || *p == '-')</span>
+<span class="lineNum">     112 </span><span class="lineCov">       2017 :          start = p + 1;</span>
+<span class="lineNum">     113 </span>            :    }
+<span class="lineNum">     114 </span>            : 
+<span class="lineNum">     115 </span><span class="lineCov">       3084 :    return start;</span>
+<a name="116"><span class="lineNum">     116 </span>            : }</a>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineCov">       2160 : static lib_t elab_find_lib(ident_t name, const elab_ctx_t *ctx)</span>
+<span class="lineNum">     119 </span>            : {
+<span class="lineNum">     120 </span><span class="lineCov">       2160 :    ident_t lib_name = ident_until(name, '.');</span>
+<span class="lineNum">     121 </span><span class="lineCov">       2160 :    if (lib_name == work_i)</span>
+<span class="lineNum">     122 </span><span class="lineCov">       1935 :       return ctx-&gt;library;</span>
+<span class="lineNum">     123 </span>            :    else
+<span class="lineNum">     124 </span><span class="lineCov">        225 :       return lib_find(lib_name, true);</span>
+<a name="125"><span class="lineNum">     125 </span>            : }</a>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineCov">       2329 : static void find_arch(ident_t name, int kind, void *context)</span>
+<span class="lineNum">     128 </span>            : {
+<span class="lineNum">     129 </span><span class="lineCov">       2329 :    lib_search_params_t *params = context;</span>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span><span class="lineCov">       2329 :    ident_t prefix = ident_until(name, '-');</span>
+<span class="lineNum">     132 </span>            : 
+<span class="lineNum">     133 </span><span class="lineCov">       2329 :    if ((kind == T_ARCH) &amp;&amp; (prefix == params-&gt;name)) {</span>
+<span class="lineNum">     134 </span><span class="lineCov">        671 :       tree_t t = lib_get_check_stale(params-&gt;lib, name);</span>
+<span class="lineNum">     135 </span><span class="lineCov">        671 :       assert(t != NULL);</span>
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span><span class="lineCov">        671 :       if (*(params-&gt;tree) == NULL)</span>
+<span class="lineNum">     138 </span><span class="lineCov">        670 :          *(params-&gt;tree) = t;</span>
+<span class="lineNum">     139 </span>            :       else {
+<span class="lineNum">     140 </span><span class="lineCov">          1 :          lib_mtime_t old_mtime = lib_mtime(params-&gt;lib,</span>
+<span class="lineNum">     141 </span>            :                                            tree_ident(*(params-&gt;tree)));
+<span class="lineNum">     142 </span><span class="lineCov">          1 :          lib_mtime_t new_mtime = lib_mtime(params-&gt;lib, tree_ident(t));</span>
+<span class="lineNum">     143 </span>            : 
+<span class="lineNum">     144 </span><span class="lineCov">          1 :          if (new_mtime == old_mtime) {</span>
+<span class="lineNum">     145 </span>            :             // Analysed at the same time: compare line number
+<span class="lineNum">     146 </span>            :             // Note this assumes both architectures are from the same
+<span class="lineNum">     147 </span>            :             // file but this shouldn't be a problem with high-resolution
+<span class="lineNum">     148 </span>            :             // timestamps
+<span class="lineNum">     149 </span><span class="lineNoCov">          0 :             uint16_t new_line = tree_loc(t)-&gt;first_line;</span>
+<span class="lineNum">     150 </span><span class="lineNoCov">          0 :             uint16_t old_line = tree_loc(*(params-&gt;tree))-&gt;first_line;</span>
+<span class="lineNum">     151 </span>            : 
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :             if (new_line &gt; old_line)</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :                *(params-&gt;tree) = t;</span>
+<span class="lineNum">     154 </span>            :          }
+<span class="lineNum">     155 </span><span class="lineCov">          1 :          else if (new_mtime &gt; old_mtime)</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :             *(params-&gt;tree) = t;</span>
+<span class="lineNum">     157 </span>            :       }
+<span class="lineNum">     158 </span>            :    }
+<a name="159"><span class="lineNum">     159 </span><span class="lineCov">       2329 : }</span></a>
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span><span class="lineCov">        674 : static tree_t pick_arch(const loc_t *loc, ident_t name, lib_t *new_lib,</span>
+<span class="lineNum">     162 </span>            :                         const elab_ctx_t *ctx)
+<span class="lineNum">     163 </span>            : {
+<span class="lineNum">     164 </span>            :    // When an explicit architecture name is not given select the most
+<span class="lineNum">     165 </span>            :    // recently analysed architecture of this entity
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineCov">        674 :    lib_t lib = elab_find_lib(name, ctx);</span>
+<span class="lineNum">     168 </span><span class="lineCov">        674 :    ident_t search_name =</span>
+<span class="lineNum">     169 </span><span class="lineCov">        674 :       ident_prefix(lib_name(lib), ident_rfrom(name, '.'), '.');</span>
+<span class="lineNum">     170 </span>            : 
+<span class="lineNum">     171 </span><span class="lineCov">        674 :    tree_t arch = lib_get_check_stale(lib, search_name);</span>
+<span class="lineNum">     172 </span><span class="lineCov">        674 :    if ((arch == NULL) || (tree_kind(arch) != T_ARCH)) {</span>
+<span class="lineNum">     173 </span><span class="lineCov">        670 :       arch = NULL;</span>
+<span class="lineNum">     174 </span><span class="lineCov">        670 :       lib_search_params_t params = { lib, search_name, &amp;arch };</span>
+<span class="lineNum">     175 </span><span class="lineCov">        670 :       lib_walk_index(lib, find_arch, &amp;params);</span>
+<span class="lineNum">     176 </span>            : 
+<span class="lineNum">     177 </span><span class="lineCov">        670 :       if (arch == NULL)</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :          fatal_at(loc, &quot;no suitable architecture for %s&quot;, istr(search_name));</span>
+<span class="lineNum">     179 </span>            :    }
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineCov">        674 :    if (new_lib != NULL)</span>
+<span class="lineNum">     182 </span><span class="lineCov">        236 :       *new_lib = lib;</span>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span><span class="lineCov">        674 :    return arch;</span>
+<a name="185"><span class="lineNum">     185 </span>            : }</a>
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span><span class="lineCov">      83301 : static tree_t fixup_entity_refs(tree_t t, void *context)</span>
+<span class="lineNum">     188 </span>            : {
+<span class="lineNum">     189 </span>            :    // Rewrite references to an entity to point at the selected architecture
+<span class="lineNum">     190 </span>            :    // so attributes like 'PATH_NAME are correct
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineCov">      83301 :    if (tree_kind(t) != T_REF)</span>
+<span class="lineNum">     193 </span>            :       return t;
+<span class="lineNum">     194 </span>            : 
+<span class="lineNum">     195 </span><span class="lineCov">      11361 :    tree_t arch = context;</span>
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span><span class="lineCov">      11361 :    if (tree_ref(t) == tree_ref(arch))</span>
+<span class="lineNum">     198 </span><span class="lineCov">         12 :       tree_set_ref(t, arch);</span>
+<span class="lineNum">     199 </span>            : 
+<span class="lineNum">     200 </span>            :    return t;
+<a name="201"><span class="lineNum">     201 </span>            : }</a>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">      30456 : static tree_t rewrite_refs(tree_t t, void *context)</span>
+<span class="lineNum">     204 </span>            : {
+<span class="lineNum">     205 </span><span class="lineCov">      30456 :    rewrite_params_t *params = context;</span>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineCov">      30456 :    if (tree_kind(t) != T_REF)</span>
+<span class="lineNum">     208 </span>            :       return t;
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineCov">       4446 :    tree_t decl = tree_ref(t);</span>
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">      11255 :    for (int i = 0; i &lt; params-&gt;count; i++) {</span>
+<span class="lineNum">     213 </span><span class="lineCov">       8334 :       if (decl != params-&gt;formals[i])</span>
+<span class="lineNum">     214 </span><span class="lineCov">       6775 :          continue;</span>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span>            :       // Do not rewrite references if they appear as formal names
+<span class="lineNum">     217 </span><span class="lineCov">       1559 :       if (tree_attr_int(t, formal_i, 0))</span>
+<span class="lineNum">     218 </span><span class="lineCov">         30 :          continue;</span>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span>            :       // Skip assignments to OPEN ports
+<span class="lineNum">     221 </span><span class="lineCov">       1529 :       if (params-&gt;actuals[i] == NULL)</span>
+<span class="lineNum">     222 </span><span class="lineCov">          4 :          continue;</span>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span><span class="lineCov">       1525 :       switch (tree_kind(params-&gt;actuals[i])) {</span>
+<span class="lineNum">     225 </span>            :       case T_SIGNAL_DECL:
+<span class="lineNum">     226 </span>            :       case T_ENUM_LIT:
+<span class="lineNum">     227 </span><span class="lineCov">        582 :          tree_set_ref(t, params-&gt;actuals[i]);</span>
+<span class="lineNum">     228 </span><span class="lineCov">        582 :          tree_set_type(t, tree_type(params-&gt;actuals[i]));</span>
+<span class="lineNum">     229 </span><span class="lineCov">        582 :          return t;</span>
+<span class="lineNum">     230 </span>            :       case T_LITERAL:
+<span class="lineNum">     231 </span>            :       case T_AGGREGATE:
+<span class="lineNum">     232 </span>            :       case T_REF:
+<span class="lineNum">     233 </span>            :       case T_ARRAY_SLICE:
+<span class="lineNum">     234 </span>            :       case T_ARRAY_REF:
+<span class="lineNum">     235 </span>            :       case T_FCALL:
+<span class="lineNum">     236 </span>            :       case T_CONCAT:
+<span class="lineNum">     237 </span>            :       case T_RECORD_REF:
+<span class="lineNum">     238 </span><span class="lineCov">        938 :          return params-&gt;actuals[i];</span>
+<span class="lineNum">     239 </span>            :       case T_TYPE_CONV:
+<span class="lineNum">     240 </span>            :          // XXX: this only works in trivial cases
+<span class="lineNum">     241 </span><span class="lineCov">          5 :          return tree_value(tree_param(params-&gt;actuals[i], 0));</span>
+<span class="lineNum">     242 </span>            :       default:
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :          fatal_at(tree_loc(params-&gt;actuals[i]), &quot;cannot handle tree kind %s &quot;</span>
+<span class="lineNum">     244 </span>            :                   &quot;in rewrite_refs&quot;,
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                   tree_kind_str(tree_kind(params-&gt;actuals[i])));</span>
+<span class="lineNum">     246 </span>            :       }
+<span class="lineNum">     247 </span>            :    }
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span>            :    return t;
+<a name="250"><span class="lineNum">     250 </span>            : }</a>
+<span class="lineNum">     251 </span>            : 
+<span class="lineNum">     252 </span><span class="lineCov">        520 : static tree_t elab_port_to_signal(tree_t arch, tree_t port, tree_t actual)</span>
+<span class="lineNum">     253 </span>            : {
+<span class="lineNum">     254 </span><span class="lineCov">        520 :    assert(tree_kind(port) == T_PORT_DECL);</span>
+<span class="lineNum">     255 </span>            : 
+<span class="lineNum">     256 </span><span class="lineCov">        520 :    ident_t name = tree_ident(port);</span>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineCov">        520 :    const int ndecls = tree_decls(arch);</span>
+<span class="lineNum">     259 </span><span class="lineCov">       1240 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">     260 </span><span class="lineCov">        734 :       tree_t d = tree_decl(arch, i);</span>
+<span class="lineNum">     261 </span><span class="lineCov">        734 :       if (tree_ident(d) == name)</span>
+<span class="lineNum">     262 </span>            :          return d;
+<span class="lineNum">     263 </span>            :    }
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineCov">        506 :    type_t port_type   = tree_type(port);</span>
+<span class="lineNum">     266 </span><span class="lineCov">        506 :    type_t actual_type = tree_type(actual);</span>
+<span class="lineNum">     267 </span>            : 
+<span class="lineNum">     268 </span><span class="lineCov">        506 :    type_t type = (type_is_unconstrained(port_type)) ? actual_type : port_type;</span>
+<span class="lineNum">     269 </span>            : 
+<span class="lineNum">     270 </span><span class="lineCov">        506 :    port_mode_t mode = tree_subkind(port);</span>
+<span class="lineNum">     271 </span>            : 
+<span class="lineNum">     272 </span><span class="lineCov">        506 :    tree_t s = tree_new(T_SIGNAL_DECL);</span>
+<span class="lineNum">     273 </span><span class="lineCov">        506 :    tree_set_ident(s, tree_ident(port));</span>
+<span class="lineNum">     274 </span><span class="lineCov">        506 :    tree_set_type(s, type);</span>
+<span class="lineNum">     275 </span><span class="lineCov">        506 :    tree_add_attr_int(s, fst_dir_i, mode);</span>
+<span class="lineNum">     276 </span><span class="lineCov">        506 :    tree_set_loc(s, tree_loc(port));</span>
+<span class="lineNum">     277 </span><span class="lineCov">        506 :    tree_set_flag(s, tree_flags(port) &amp; TREE_F_LAST_VALUE);</span>
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span><span class="lineCov">        506 :    if ((mode == PORT_OUT) || (mode == PORT_INOUT) || (mode == PORT_BUFFER)) {</span>
+<span class="lineNum">     280 </span><span class="lineCov">        195 :       if (tree_has_value(port))</span>
+<span class="lineNum">     281 </span><span class="lineCov">          1 :          tree_add_attr_tree(s, driver_init_i, tree_value(port));</span>
+<span class="lineNum">     282 </span>            :    }
+<span class="lineNum">     283 </span>            : 
+<span class="lineNum">     284 </span><span class="lineCov">        506 :    tree_add_decl(arch, s);</span>
+<span class="lineNum">     285 </span><span class="lineCov">        506 :    return s;</span>
+<a name="286"><span class="lineNum">     286 </span>            : }</a>
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span><span class="lineCov">        116 : static void elab_add_context(tree_t t, const elab_ctx_t *ctx)</span>
+<span class="lineNum">     289 </span>            : {
+<span class="lineNum">     290 </span><span class="lineCov">        116 :    ident_t cname = tree_ident(t);</span>
+<span class="lineNum">     291 </span><span class="lineCov">        116 :    ident_t lname = ident_until(cname, '.');</span>
+<span class="lineNum">     292 </span>            : 
+<span class="lineNum">     293 </span><span class="lineCov">        116 :    lib_t lib = elab_find_lib(lname, ctx);</span>
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span><span class="lineCov">        116 :    tree_t unit = lib_get(lib, cname);</span>
+<span class="lineNum">     296 </span><span class="lineCov">        116 :    if (unit == NULL)</span>
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :       fatal_at(tree_loc(t), &quot;cannot find unit %s&quot;, istr(cname));</span>
+<span class="lineNum">     298 </span><span class="lineCov">        116 :    else if (tree_kind(unit) == T_PACKAGE) {</span>
+<span class="lineNum">     299 </span><span class="lineCov">        116 :       elab_copy_context(unit, ctx);</span>
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span><span class="lineCov">        116 :       ident_t name = tree_ident(unit);</span>
+<span class="lineNum">     302 </span>            : 
+<span class="lineNum">     303 </span><span class="lineCov">        116 :       ident_t body_i = ident_prefix(name, ident_new(&quot;body&quot;), '-');</span>
+<span class="lineNum">     304 </span><span class="lineCov">        116 :       tree_t body = lib_get(lib, body_i);</span>
+<span class="lineNum">     305 </span><span class="lineCov">        116 :       if (body != NULL)</span>
+<span class="lineNum">     306 </span><span class="lineCov">         92 :          elab_copy_context(unit, ctx);</span>
+<span class="lineNum">     307 </span>            :    }
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span>            :    // Always use real library name rather than WORK alias
+<span class="lineNum">     310 </span><span class="lineCov">        116 :    tree_set_ident(t, tree_ident(unit));</span>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span><span class="lineCov">        116 :    tree_add_context(ctx-&gt;out, t);</span>
+<a name="313"><span class="lineNum">     313 </span><span class="lineCov">        116 : }</span></a>
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span><span class="lineCov">        178 : static bool elab_have_context(tree_t unit, ident_t name)</span>
+<span class="lineNum">     316 </span>            : {
+<span class="lineNum">     317 </span><span class="lineCov">        178 :    const int ndest = tree_contexts(unit);</span>
+<span class="lineNum">     318 </span><span class="lineCov">        478 :    for (int i = 0; i &lt; ndest; i++) {</span>
+<span class="lineNum">     319 </span><span class="lineCov">        362 :       tree_t c2 = tree_context(unit, i);</span>
+<span class="lineNum">     320 </span><span class="lineCov">        362 :       if (tree_kind(c2) != T_USE)</span>
+<span class="lineNum">     321 </span><span class="lineNoCov">          0 :          continue;</span>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineCov">        362 :       if (tree_ident(c2) == name)</span>
+<span class="lineNum">     324 </span>            :          return true;
+<span class="lineNum">     325 </span>            :    }
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span>            :    return false;
+<a name="328"><span class="lineNum">     328 </span>            : }</a>
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span><span class="lineCov">          3 : static void elab_context_walk_fn(ident_t name, int kind, void *context)</span>
+<span class="lineNum">     331 </span>            : {
+<span class="lineNum">     332 </span><span class="lineCov">          3 :    if (kind == T_PACKAGE) {</span>
+<span class="lineNum">     333 </span><span class="lineCov">          1 :       const elab_ctx_t *ctx = (elab_ctx_t *)context;</span>
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineCov">          1 :       if (!elab_have_context(ctx-&gt;out, name)) {</span>
+<span class="lineNum">     336 </span><span class="lineCov">          1 :          tree_t c = tree_new(T_USE);</span>
+<span class="lineNum">     337 </span><span class="lineCov">          1 :          tree_set_ident(c, name);</span>
+<span class="lineNum">     338 </span><span class="lineCov">          1 :          tree_set_ident2(c, all_i);</span>
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span><span class="lineCov">          1 :          elab_add_context(c, ctx);</span>
+<span class="lineNum">     341 </span>            :       }
+<span class="lineNum">     342 </span>            :    }
+<a name="343"><span class="lineNum">     343 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span><span class="lineCov">        178 : static void elab_use_clause(tree_t use, const elab_ctx_t *ctx)</span>
+<span class="lineNum">     346 </span>            : {
+<span class="lineNum">     347 </span><span class="lineCov">        178 :    tree_set_ident2(use, all_i);</span>
+<span class="lineNum">     348 </span>            : 
+<span class="lineNum">     349 </span><span class="lineCov">        178 :    ident_t name = tree_ident(use);</span>
+<span class="lineNum">     350 </span><span class="lineCov">        178 :    ident_t lname = ident_until(name, '.');</span>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span><span class="lineCov">        178 :    elab_ctx_t new_ctx = *ctx;</span>
+<span class="lineNum">     353 </span><span class="lineCov">        178 :    new_ctx.library = elab_find_lib(lname, ctx);</span>
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span><span class="lineCov">        178 :    if (name == lname)</span>
+<span class="lineNum">     356 </span><span class="lineCov">          1 :       lib_walk_index(new_ctx.library, elab_context_walk_fn, &amp;new_ctx);</span>
+<span class="lineNum">     357 </span><span class="lineCov">        177 :    else if (!elab_have_context(ctx-&gt;out, name))</span>
+<span class="lineNum">     358 </span><span class="lineCov">        115 :       elab_add_context(use, &amp;new_ctx);</span>
+<a name="359"><span class="lineNum">     359 </span><span class="lineCov">        178 : }</span></a>
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span><span class="lineCov">       1549 : static void elab_copy_context(tree_t src, const elab_ctx_t *ctx)</span>
+<span class="lineNum">     362 </span>            : {
+<span class="lineNum">     363 </span><span class="lineCov">       1549 :    const int nsrc = tree_contexts(src);</span>
+<span class="lineNum">     364 </span><span class="lineCov">       4874 :    for (int i = 0; i &lt; nsrc; i++) {</span>
+<span class="lineNum">     365 </span><span class="lineCov">       3325 :       tree_t c = tree_context(src, i);</span>
+<span class="lineNum">     366 </span><span class="lineCov">       3325 :       if (tree_kind(c) == T_USE)</span>
+<span class="lineNum">     367 </span><span class="lineCov">        177 :          elab_use_clause(c, ctx);</span>
+<span class="lineNum">     368 </span>            :    }
+<a name="369"><span class="lineNum">     369 </span><span class="lineCov">       1549 : }</span></a>
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span><span class="lineCov">       1776 : static void elab_pseudo_context(tree_t out, tree_t src)</span>
+<span class="lineNum">     372 </span>            : {
+<span class="lineNum">     373 </span>            :    // Add a pseudo use clause for an entity or architecture so the
+<span class="lineNum">     374 </span>            :    // makefile generator can find the dependencies
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineCov">       1776 :    ident_t name = tree_ident(src);</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span><span class="lineCov">       1776 :    const int nctx = tree_contexts(out);</span>
+<span class="lineNum">     379 </span><span class="lineCov">       3859 :    for (int i = 0; i &lt; nctx; i++) {</span>
+<span class="lineNum">     380 </span><span class="lineCov">       2796 :       tree_t c = tree_context(out, i);</span>
+<span class="lineNum">     381 </span><span class="lineCov">       2796 :       if (tree_kind(c) != T_USE)</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :          continue;</span>
+<span class="lineNum">     383 </span><span class="lineCov">       2796 :       else if (tree_ident(c) == name)</span>
+<span class="lineNum">     384 </span><span class="lineCov">       1776 :          return;</span>
+<span class="lineNum">     385 </span>            :    }
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span><span class="lineCov">       1063 :    tree_t c = tree_new(T_USE);</span>
+<span class="lineNum">     388 </span><span class="lineCov">       1063 :    tree_set_ident(c, name);</span>
+<span class="lineNum">     389 </span>            : 
+<span class="lineNum">     390 </span><span class="lineCov">       1063 :    tree_add_context(out, c);</span>
+<a name="391"><span class="lineNum">     391 </span>            : }</a>
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span><span class="lineCov">        551 : static tree_t elab_signal_port(tree_t arch, tree_t formal, tree_t param,</span>
+<span class="lineNum">     394 </span>            :                                map_list_t **maps)
+<span class="lineNum">     395 </span>            : {
+<span class="lineNum">     396 </span><span class="lineCov">        551 :    assert(tree_kind(param) == T_PARAM);</span>
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span><span class="lineCov">        551 :    tree_t actual = tree_value(param);</span>
+<span class="lineNum">     399 </span>            : 
+<span class="lineNum">     400 </span>            :    // NULL name means associate the whole port
+<span class="lineNum">     401 </span><span class="lineCov">        551 :    tree_t name = NULL;</span>
+<span class="lineNum">     402 </span><span class="lineCov">        551 :    if (tree_subkind(param) == P_NAMED) {</span>
+<span class="lineNum">     403 </span><span class="lineCov">        189 :       tree_t n = tree_name(param);</span>
+<span class="lineNum">     404 </span><span class="lineCov">        189 :       if (tree_kind(n) != T_REF)</span>
+<span class="lineNum">     405 </span><span class="lineCov">         28 :          name = n;</span>
+<span class="lineNum">     406 </span>            :    }
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span><span class="lineCov">        551 :    const bool partial_map = name != NULL;</span>
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span><span class="lineCov">        551 :    switch (tree_kind(actual)) {</span>
+<span class="lineNum">     411 </span>            :    case T_REF:
+<span class="lineNum">     412 </span>            :    case T_ARRAY_REF:
+<span class="lineNum">     413 </span>            :    case T_ARRAY_SLICE:
+<span class="lineNum">     414 </span>            :    case T_RECORD_REF:
+<span class="lineNum">     415 </span>            :       {
+<span class="lineNum">     416 </span>            :          // Replace the formal port with a signal and connect its nets to
+<span class="lineNum">     417 </span>            :          // those of the actual
+<span class="lineNum">     418 </span>            : 
+<span class="lineNum">     419 </span>            :          tree_t ref = actual;
+<span class="lineNum">     420 </span>            :          tree_kind_t ref_kind;
+<span class="lineNum">     421 </span><span class="lineCov">        821 :          while ((ref_kind = tree_kind(ref)) != T_REF) {</span>
+<span class="lineNum">     422 </span><span class="lineCov">        286 :             if ((ref_kind == T_AGGREGATE) || (ref_kind == T_LITERAL))</span>
+<span class="lineNum">     423 </span>            :                return actual;
+<span class="lineNum">     424 </span>            :             else
+<span class="lineNum">     425 </span><span class="lineCov">        286 :                ref = tree_value(ref);</span>
+<span class="lineNum">     426 </span>            :          }
+<span class="lineNum">     427 </span>            : 
+<span class="lineNum">     428 </span><span class="lineCov">        535 :          tree_t decl = tree_ref(ref);</span>
+<span class="lineNum">     429 </span><span class="lineCov">        535 :          tree_kind_t decl_kind = tree_kind(decl);</span>
+<span class="lineNum">     430 </span><span class="lineCov">        535 :          if (decl_kind == T_SIGNAL_DECL) {</span>
+<span class="lineNum">     431 </span><span class="lineCov">        520 :             tree_t s = elab_port_to_signal(arch, formal, actual);</span>
+<span class="lineNum">     432 </span>            : 
+<span class="lineNum">     433 </span><span class="lineCov">        520 :             if (partial_map)</span>
+<span class="lineNum">     434 </span><span class="lineCov">         27 :                tree_add_attr_int(s, partial_map_i, 1);</span>
+<span class="lineNum">     435 </span>            : 
+<span class="lineNum">     436 </span><span class="lineCov">        520 :             map_list_t *m = xmalloc(sizeof(map_list_t));</span>
+<span class="lineNum">     437 </span><span class="lineCov">        520 :             m-&gt;next   = *maps;</span>
+<span class="lineNum">     438 </span><span class="lineCov">        520 :             m-&gt;formal = formal;</span>
+<span class="lineNum">     439 </span><span class="lineCov">        520 :             m-&gt;actual = actual;</span>
+<span class="lineNum">     440 </span><span class="lineCov">        520 :             m-&gt;signal = s;</span>
+<span class="lineNum">     441 </span><span class="lineCov">        520 :             m-&gt;name   = name;</span>
+<span class="lineNum">     442 </span>            : 
+<span class="lineNum">     443 </span><span class="lineCov">        520 :             *maps = m;</span>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineCov">        520 :             return s;</span>
+<span class="lineNum">     446 </span>            :          }
+<span class="lineNum">     447 </span><span class="lineCov">         15 :          else if (decl_kind == T_PORT_DECL)</span>
+<span class="lineNum">     448 </span>            :             return NULL;    // Port was OPEN at a higher level
+<span class="lineNum">     449 </span>            :          else
+<span class="lineNum">     450 </span><span class="lineCov">         14 :             return actual;</span>
+<span class="lineNum">     451 </span>            :       }
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span>            :    case T_LITERAL:
+<span class="lineNum">     454 </span>            :    case T_AGGREGATE:
+<span class="lineNum">     455 </span>            :       {
+<span class="lineNum">     456 </span><span class="lineCov">         12 :          type_t formal_type = tree_type(formal);</span>
+<span class="lineNum">     457 </span><span class="lineCov">         12 :          if (!type_is_unconstrained(formal_type))</span>
+<span class="lineNum">     458 </span><span class="lineCov">         11 :             tree_set_type(actual, formal_type);</span>
+<span class="lineNum">     459 </span><span class="lineCov">         12 :          return actual;</span>
+<span class="lineNum">     460 </span>            :       }
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span>            :    case T_OPEN:
+<span class="lineNum">     463 </span>            :       return NULL;
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span>            :    case T_TYPE_CONV:
+<span class="lineNum">     466 </span>            :       // Only allow simple array type conversions for now
+<span class="lineNum">     467 </span>            :       {
+<span class="lineNum">     468 </span><span class="lineCov">          2 :          type_t to_type   = tree_type(actual);</span>
+<span class="lineNum">     469 </span><span class="lineCov">          2 :          type_t from_type = tree_type(tree_value(tree_param(actual, 0)));</span>
+<span class="lineNum">     470 </span>            : 
+<span class="lineNum">     471 </span><span class="lineCov">          2 :          if (type_is_array(to_type) &amp;&amp; type_is_array(from_type))</span>
+<span class="lineNum">     472 </span>            :             return actual;
+<span class="lineNum">     473 </span>            :          else
+<span class="lineNum">     474 </span><span class="lineNoCov">          0 :             fatal_at(tree_loc(actual), &quot;sorry, this form of type conversion &quot;</span>
+<span class="lineNum">     475 </span>            :                      &quot;is not supported as an actual&quot;);
+<span class="lineNum">     476 </span>            :       }
+<span class="lineNum">     477 </span>            : 
+<span class="lineNum">     478 </span>            :    default:
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :       fatal_at(tree_loc(actual), &quot;tree %s not supported as actual&quot;,</span>
+<span class="lineNum">     480 </span>            :                tree_kind_str(tree_kind(actual)));
+<span class="lineNum">     481 </span>            :    }
+<a name="482"><span class="lineNum">     482 </span>            : }</a>
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span><span class="lineCov">        245 : static ident_t elab_formal_name(tree_t t)</span>
+<span class="lineNum">     485 </span>            : {
+<span class="lineNum">     486 </span>            :    tree_kind_t kind;
+<span class="lineNum">     487 </span><span class="lineCov">        518 :    while ((kind = tree_kind(t)) != T_REF) {</span>
+<span class="lineNum">     488 </span><span class="lineCov">         28 :       switch (kind) {</span>
+<span class="lineNum">     489 </span>            :       case T_ARRAY_REF:
+<span class="lineNum">     490 </span>            :       case T_ARRAY_SLICE:
+<span class="lineNum">     491 </span><span class="lineCov">         28 :          t = tree_value(t);</span>
+<span class="lineNum">     492 </span><span class="lineCov">         28 :          break;</span>
+<span class="lineNum">     493 </span>            : 
+<span class="lineNum">     494 </span>            :       default:
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :          fatal_at(tree_loc(t), &quot;sorry, this kind of formal is not supported %s&quot;,</span>
+<span class="lineNum">     496 </span>            :                   tree_kind_str(kind));
+<span class="lineNum">     497 </span>            :       }
+<span class="lineNum">     498 </span>            :    }
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span><span class="lineCov">        245 :    return tree_ident(t);</span>
+<a name="501"><span class="lineNum">     501 </span>            : }</a>
+<span class="lineNum">     502 </span>            : 
+<span class="lineNum">     503 </span><span class="lineCov">        906 : static map_list_t *elab_map(tree_t t, tree_t arch,</span>
+<span class="lineNum">     504 </span>            :                             tree_formals_t tree_Fs, tree_formal_t tree_F,
+<span class="lineNum">     505 </span>            :                             tree_actuals_t tree_As, tree_actual_t tree_A)
+<span class="lineNum">     506 </span>            : {
+<span class="lineNum">     507 </span><span class="lineCov">        906 :    tree_t unit = tree_ref(arch);</span>
+<span class="lineNum">     508 </span><span class="lineCov">        906 :    assert(tree_kind(unit) == T_ENTITY);</span>
+<span class="lineNum">     509 </span>            : 
+<span class="lineNum">     510 </span><span class="lineCov">        906 :    const int nformals = tree_Fs(unit);</span>
+<span class="lineNum">     511 </span><span class="lineCov">        906 :    const int nactuals = (tree_As != NULL) ? tree_As(t) : 0;</span>
+<span class="lineNum">     512 </span>            : 
+<span class="lineNum">     513 </span><span class="lineCov">        906 :    bool *have_formals = xmalloc(sizeof(bool) * nformals);</span>
+<span class="lineNum">     514 </span>            : 
+<span class="lineNum">     515 </span><span class="lineCov">       1561 :    for (int i = 0; i &lt; nformals; i++)</span>
+<span class="lineNum">     516 </span><span class="lineCov">        655 :       have_formals[i] = false;</span>
+<span class="lineNum">     517 </span>            : 
+<span class="lineNum">     518 </span><span class="lineCov">        906 :    const int maxr = nformals + nactuals;</span>
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span><span class="lineCov">        906 :    tree_t *rformals = xmalloc(sizeof(tree_t) * maxr);</span>
+<span class="lineNum">     521 </span><span class="lineCov">        906 :    tree_t *ractuals = xmalloc(sizeof(tree_t) * maxr);</span>
+<span class="lineNum">     522 </span><span class="lineCov">        906 :    int count = 0;</span>
+<span class="lineNum">     523 </span>            : 
+<span class="lineNum">     524 </span><span class="lineCov">        906 :    map_list_t *maps = NULL;</span>
+<span class="lineNum">     525 </span>            : 
+<span class="lineNum">     526 </span><span class="lineCov">       1536 :    for (int i = 0; i &lt; nactuals; i++) {</span>
+<span class="lineNum">     527 </span><span class="lineCov">        630 :       tree_t p = tree_A(t, i);</span>
+<span class="lineNum">     528 </span><span class="lineCov">        630 :       tree_t formal = NULL;</span>
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span><span class="lineCov">        630 :       switch (tree_subkind(p)) {</span>
+<span class="lineNum">     531 </span>            :       case P_POS:
+<span class="lineNum">     532 </span>            :          {
+<span class="lineNum">     533 </span><span class="lineCov">        385 :             const int pos = tree_pos(p);</span>
+<span class="lineNum">     534 </span><span class="lineCov">        385 :             formal = tree_F(unit, pos);</span>
+<span class="lineNum">     535 </span><span class="lineCov">        385 :             have_formals[pos] = true;</span>
+<span class="lineNum">     536 </span>            :          }
+<span class="lineNum">     537 </span><span class="lineCov">        385 :          break;</span>
+<span class="lineNum">     538 </span>            :       case P_NAMED:
+<span class="lineNum">     539 </span>            :          {
+<span class="lineNum">     540 </span><span class="lineCov">        245 :             ident_t name = elab_formal_name(tree_name(p));</span>
+<span class="lineNum">     541 </span><span class="lineCov">        432 :             for (int j = 0; j &lt; nformals; j++) {</span>
+<span class="lineNum">     542 </span><span class="lineCov">        432 :                tree_t port = tree_F(unit, j);</span>
+<span class="lineNum">     543 </span><span class="lineCov">        432 :                if (tree_ident(port) == name) {</span>
+<span class="lineNum">     544 </span><span class="lineCov">        245 :                   formal = port;</span>
+<span class="lineNum">     545 </span><span class="lineCov">        245 :                   have_formals[j] = true;</span>
+<span class="lineNum">     546 </span><span class="lineCov">        245 :                   break;</span>
+<span class="lineNum">     547 </span>            :                }
+<span class="lineNum">     548 </span>            :             }
+<span class="lineNum">     549 </span>            :          }
+<span class="lineNum">     550 </span>            :          break;
+<span class="lineNum">     551 </span>            :       default:
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :          assert(false);</span>
+<span class="lineNum">     553 </span>            :       }
+<span class="lineNum">     554 </span><span class="lineCov">        630 :       assert(formal != NULL);</span>
+<span class="lineNum">     555 </span>            : 
+<span class="lineNum">     556 </span><span class="lineCov">        630 :       switch (tree_class(formal)) {</span>
+<span class="lineNum">     557 </span>            :       case C_SIGNAL:
+<span class="lineNum">     558 </span><span class="lineCov">        551 :          ractuals[count] = elab_signal_port(arch, formal, p, &amp;maps);</span>
+<span class="lineNum">     559 </span><span class="lineCov">        551 :          break;</span>
+<span class="lineNum">     560 </span>            : 
+<span class="lineNum">     561 </span>            :       case C_CONSTANT:
+<span class="lineNum">     562 </span><span class="lineCov">         79 :          ractuals[count] = tree_value(p);</span>
+<span class="lineNum">     563 </span><span class="lineCov">         79 :          break;</span>
+<span class="lineNum">     564 </span>            : 
+<span class="lineNum">     565 </span>            :       default:
+<span class="lineNum">     566 </span><span class="lineNoCov">          0 :          assert(false);</span>
+<span class="lineNum">     567 </span>            :       }
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span><span class="lineCov">        630 :       rformals[count] = formal;</span>
+<span class="lineNum">     570 </span><span class="lineCov">        630 :       count++;</span>
+<span class="lineNum">     571 </span>            :    }
+<span class="lineNum">     572 </span>            : 
+<span class="lineNum">     573 </span>            :    // Assign default values
+<span class="lineNum">     574 </span><span class="lineCov">        655 :    for (unsigned i = 0; i &lt; nformals; i++) {</span>
+<span class="lineNum">     575 </span><span class="lineCov">        655 :       if (!have_formals[i]) {</span>
+<span class="lineNum">     576 </span><span class="lineCov">         39 :          tree_t f = tree_F(unit, i);</span>
+<span class="lineNum">     577 </span><span class="lineCov">         39 :          if (tree_has_value(f)) {</span>
+<span class="lineNum">     578 </span><span class="lineCov">         36 :             rformals[count] = f;</span>
+<span class="lineNum">     579 </span><span class="lineCov">         36 :             ractuals[count] = tree_value(f);</span>
+<span class="lineNum">     580 </span><span class="lineCov">         36 :             count++;</span>
+<span class="lineNum">     581 </span>            :          }
+<span class="lineNum">     582 </span>            :       }
+<span class="lineNum">     583 </span>            :    }
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span><span class="lineCov">        906 :    assert(count &lt;= maxr);</span>
+<span class="lineNum">     586 </span>            : 
+<span class="lineNum">     587 </span><span class="lineCov">        906 :    if (count &gt; 0) {</span>
+<span class="lineNum">     588 </span><span class="lineCov">        286 :       rewrite_params_t params = {</span>
+<span class="lineNum">     589 </span>            :          .formals = rformals,
+<span class="lineNum">     590 </span>            :          .actuals = ractuals,
+<span class="lineNum">     591 </span>            :          .count   = count
+<span class="lineNum">     592 </span>            :       };
+<span class="lineNum">     593 </span><span class="lineCov">        286 :       tree_rewrite(arch, rewrite_refs, &amp;params);</span>
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span><span class="lineCov">        286 :       tree_t ent = tree_ref(arch);</span>
+<span class="lineNum">     596 </span><span class="lineCov">        286 :       if (tree_stmts(ent) &gt; 0 || tree_decls(ent) &gt; 0)</span>
+<span class="lineNum">     597 </span><span class="lineCov">          5 :          tree_rewrite(ent, rewrite_refs, &amp;params);</span>
+<span class="lineNum">     598 </span>            :    }
+<span class="lineNum">     599 </span>            : 
+<span class="lineNum">     600 </span><span class="lineCov">        906 :    free(have_formals);</span>
+<span class="lineNum">     601 </span><span class="lineCov">        906 :    free(rformals);</span>
+<span class="lineNum">     602 </span><span class="lineCov">        906 :    free(ractuals);</span>
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span><span class="lineCov">        906 :    return maps;</span>
+<a name="605"><span class="lineNum">     605 </span>            : }</a>
+<span class="lineNum">     606 </span>            : 
+<span class="lineNum">     607 </span><span class="lineCov">       1716 : static netid_t elab_get_net(tree_t expr, int n)</span>
+<span class="lineNum">     608 </span>            : {
+<span class="lineNum">     609 </span><span class="lineCov">       1716 :    switch (tree_kind(expr)) {</span>
+<span class="lineNum">     610 </span>            :    case T_REF:
+<span class="lineNum">     611 </span>            :       {
+<span class="lineNum">     612 </span><span class="lineCov">       1307 :          tree_t decl = tree_ref(expr);</span>
+<span class="lineNum">     613 </span><span class="lineCov">       1307 :          if (n &lt; 0 || n &gt;= tree_nets(decl)) {</span>
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :             assert(bounds_errors() &gt; 0);   // Should have already caught this</span>
+<span class="lineNum">     615 </span>            :             return NETID_INVALID;
+<span class="lineNum">     616 </span>            :          }
+<span class="lineNum">     617 </span>            :          else
+<span class="lineNum">     618 </span><span class="lineCov">       1307 :             return tree_net(tree_ref(expr), n);</span>
+<span class="lineNum">     619 </span>            :       }
+<span class="lineNum">     620 </span>            : 
+<span class="lineNum">     621 </span>            :    case T_ARRAY_REF:
+<span class="lineNum">     622 </span>            :       {
+<span class="lineNum">     623 </span><span class="lineCov">        385 :          tree_t value = tree_value(expr);</span>
+<span class="lineNum">     624 </span><span class="lineCov">        385 :          type_t array_type = tree_type(value);</span>
+<span class="lineNum">     625 </span>            : 
+<span class="lineNum">     626 </span><span class="lineCov">        385 :          const int nparams = tree_params(expr);</span>
+<span class="lineNum">     627 </span>            : 
+<span class="lineNum">     628 </span><span class="lineCov">        385 :          int64_t offset = 0;</span>
+<span class="lineNum">     629 </span><span class="lineCov">        834 :          for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">     630 </span><span class="lineCov">        449 :             tree_t index = tree_value(tree_param(expr, i));</span>
+<span class="lineNum">     631 </span><span class="lineCov">        449 :             const int64_t dim_off =</span>
+<span class="lineNum">     632 </span><span class="lineCov">        449 :                rebase_index(array_type, i, assume_int(index));</span>
+<span class="lineNum">     633 </span>            : 
+<span class="lineNum">     634 </span><span class="lineCov">        449 :             if (i &gt; 0) {</span>
+<span class="lineNum">     635 </span><span class="lineCov">         64 :                range_t type_r = type_dim(array_type, i);</span>
+<span class="lineNum">     636 </span>            :                int64_t low, high;
+<span class="lineNum">     637 </span><span class="lineCov">         64 :                range_bounds(type_r, &amp;low, &amp;high);</span>
+<span class="lineNum">     638 </span>            : 
+<span class="lineNum">     639 </span><span class="lineCov">         64 :                offset *= high - low + 1;</span>
+<span class="lineNum">     640 </span>            :             }
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span><span class="lineCov">        449 :             offset += dim_off;</span>
+<span class="lineNum">     643 </span>            :          }
+<span class="lineNum">     644 </span>            : 
+<span class="lineNum">     645 </span><span class="lineCov">        385 :          const int64_t stride = type_width(type_elem(array_type));</span>
+<span class="lineNum">     646 </span><span class="lineCov">        385 :          return elab_get_net(value, n + offset * stride);</span>
+<span class="lineNum">     647 </span>            :       }
+<span class="lineNum">     648 </span>            : 
+<span class="lineNum">     649 </span>            :    case T_ARRAY_SLICE:
+<span class="lineNum">     650 </span>            :       {
+<span class="lineNum">     651 </span><span class="lineCov">         18 :          tree_t value = tree_value(expr);</span>
+<span class="lineNum">     652 </span><span class="lineCov">         18 :          type_t array_type = tree_type(value);</span>
+<span class="lineNum">     653 </span>            : 
+<span class="lineNum">     654 </span><span class="lineCov">         18 :          range_t type_r  = type_dim(array_type, 0);</span>
+<span class="lineNum">     655 </span><span class="lineCov">         18 :          range_t slice_r = tree_range(expr);</span>
+<span class="lineNum">     656 </span>            : 
+<span class="lineNum">     657 </span><span class="lineCov">         18 :          assert(type_r.kind == slice_r.kind);</span>
+<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     659 </span><span class="lineCov">         18 :          const int64_t type_off =</span>
+<span class="lineNum">     660 </span><span class="lineCov">         18 :             rebase_index(array_type, 0, assume_int(slice_r.left));</span>
+<span class="lineNum">     661 </span>            : 
+<span class="lineNum">     662 </span><span class="lineCov">         18 :          const int stride = type_width(type_elem(array_type));</span>
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span><span class="lineCov">         18 :          return elab_get_net(value, n + (type_off * stride));</span>
+<span class="lineNum">     665 </span>            :       }
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span>            :    case T_RECORD_REF:
+<span class="lineNum">     668 </span>            :       {
+<span class="lineNum">     669 </span><span class="lineCov">          6 :          tree_t rec  = tree_value(expr);</span>
+<span class="lineNum">     670 </span><span class="lineCov">          6 :          type_t type = tree_type(rec);</span>
+<span class="lineNum">     671 </span>            : 
+<span class="lineNum">     672 </span><span class="lineCov">          6 :          const int roff = record_field_to_net(type, tree_ident(expr));</span>
+<span class="lineNum">     673 </span>            : 
+<span class="lineNum">     674 </span><span class="lineCov">          6 :          return elab_get_net(rec, n + roff);</span>
+<span class="lineNum">     675 </span>            :       }
+<span class="lineNum">     676 </span>            : 
+<span class="lineNum">     677 </span>            :    default:
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :       assert(false);</span>
+<span class="lineNum">     679 </span>            :    }
+<a name="680"><span class="lineNum">     680 </span>            : }</a>
+<span class="lineNum">     681 </span>            : 
+<span class="lineNum">     682 </span><span class="lineCov">        234 : static void elab_map_nets(map_list_t *maps)</span>
+<span class="lineNum">     683 </span>            : {
+<span class="lineNum">     684 </span><span class="lineCov">        754 :    for (; maps != NULL; maps = maps-&gt;next) {</span>
+<span class="lineNum">     685 </span><span class="lineCov">        520 :       if (maps-&gt;name == NULL) {</span>
+<span class="lineNum">     686 </span>            :          // Associate the whole port
+<span class="lineNum">     687 </span><span class="lineCov">        493 :          const int awidth = type_width(tree_type(maps-&gt;actual));</span>
+<span class="lineNum">     688 </span><span class="lineCov">        493 :          type_t ftype = tree_type(maps-&gt;signal);</span>
+<span class="lineNum">     689 </span><span class="lineCov">        493 :          if (type_kind(ftype) != T_UARRAY) {</span>
+<span class="lineNum">     690 </span><span class="lineCov">        493 :             const int fwidth = type_width(ftype);</span>
+<span class="lineNum">     691 </span><span class="lineCov">        493 :             if (fwidth != awidth) {</span>
+<span class="lineNum">     692 </span><span class="lineCov">          1 :                error_at(tree_loc(maps-&gt;actual), &quot;actual width %d does not &quot;</span>
+<span class="lineNum">     693 </span>            :                         &quot;match formal %s width %d&quot;, awidth,
+<span class="lineNum">     694 </span>            :                         istr(tree_ident(maps-&gt;signal)), fwidth);
+<span class="lineNum">     695 </span><span class="lineCov">          1 :                ++errors;</span>
+<span class="lineNum">     696 </span><span class="lineCov">          1 :                continue;</span>
+<span class="lineNum">     697 </span>            :             }
+<span class="lineNum">     698 </span>            :          }
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span><span class="lineCov">       1254 :          for (int i = 0; i &lt; awidth; i++)</span>
+<span class="lineNum">     701 </span><span class="lineCov">       1254 :             tree_add_net(maps-&gt;signal, elab_get_net(maps-&gt;actual, i));</span>
+<span class="lineNum">     702 </span>            :       }
+<span class="lineNum">     703 </span>            :       else {
+<span class="lineNum">     704 </span>            :          // Associate a sub-element or slice of the port
+<span class="lineNum">     705 </span><span class="lineCov">         27 :          switch (tree_kind(maps-&gt;name)) {</span>
+<span class="lineNum">     706 </span>            :          case T_ARRAY_REF:
+<span class="lineNum">     707 </span>            :             {
+<span class="lineNum">     708 </span><span class="lineCov">         17 :                type_t array_type = tree_type(maps-&gt;formal);</span>
+<span class="lineNum">     709 </span>            : 
+<span class="lineNum">     710 </span><span class="lineCov">         17 :                type_t elem_type = type_elem(array_type);</span>
+<span class="lineNum">     711 </span><span class="lineCov">         17 :                const int width = type_width(elem_type);</span>
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span><span class="lineCov">         17 :                assert(tree_params(maps-&gt;name) == 1);</span>
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span><span class="lineCov">         17 :                tree_t index = tree_value(tree_param(maps-&gt;name, 0));</span>
+<span class="lineNum">     716 </span><span class="lineCov">         17 :                const int64_t index_off =</span>
+<span class="lineNum">     717 </span><span class="lineCov">         17 :                   rebase_index(array_type, 0, assume_int(index));</span>
+<span class="lineNum">     718 </span>            : 
+<span class="lineNum">     719 </span><span class="lineCov">         34 :                for (int i = 0; i &lt; width; i++)</span>
+<span class="lineNum">     720 </span><span class="lineCov">         17 :                   tree_change_net(maps-&gt;signal, index_off * width + i,</span>
+<span class="lineNum">     721 </span>            :                                   elab_get_net(maps-&gt;actual, i));
+<span class="lineNum">     722 </span>            :             }
+<span class="lineNum">     723 </span>            :             break;
+<span class="lineNum">     724 </span>            : 
+<span class="lineNum">     725 </span>            :          case T_ARRAY_SLICE:
+<span class="lineNum">     726 </span>            :             {
+<span class="lineNum">     727 </span><span class="lineCov">         10 :                type_t array_type = tree_type(maps-&gt;formal);</span>
+<span class="lineNum">     728 </span>            : 
+<span class="lineNum">     729 </span><span class="lineCov">         10 :                range_t slice = tree_range(maps-&gt;name);</span>
+<span class="lineNum">     730 </span>            : 
+<span class="lineNum">     731 </span>            :                int64_t low, high;
+<span class="lineNum">     732 </span><span class="lineCov">         10 :                range_bounds(slice, &amp;low, &amp;high);</span>
+<span class="lineNum">     733 </span>            : 
+<span class="lineNum">     734 </span><span class="lineCov">         10 :                const int64_t base_off =</span>
+<span class="lineNum">     735 </span><span class="lineCov">         10 :                   rebase_index(array_type, 0, assume_int(slice.left));</span>
+<span class="lineNum">     736 </span>            : 
+<span class="lineNum">     737 </span><span class="lineCov">         10 :                const int width = MAX(high - low + 1, 0);</span>
+<span class="lineNum">     738 </span><span class="lineCov">         46 :                for (int i = 0; i &lt; width; i++)</span>
+<span class="lineNum">     739 </span><span class="lineCov">         36 :                   tree_change_net(maps-&gt;signal, base_off + i,</span>
+<span class="lineNum">     740 </span>            :                                   elab_get_net(maps-&gt;actual, i));
+<span class="lineNum">     741 </span>            :             }
+<span class="lineNum">     742 </span><span class="lineCov">         10 :             break;</span>
+<span class="lineNum">     743 </span>            : 
+<span class="lineNum">     744 </span>            :          default:
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :             fatal_at(tree_loc(maps-&gt;formal), &quot;sorry, tree kind %s not &quot;</span>
+<span class="lineNum">     746 </span>            :                      &quot;supported as a formal&quot;,
+<span class="lineNum">     747 </span>            :                      tree_kind_str(tree_kind(maps-&gt;formal)));
+<span class="lineNum">     748 </span>            :          }
+<span class="lineNum">     749 </span>            :       }
+<span class="lineNum">     750 </span>            :    }
+<a name="751"><span class="lineNum">     751 </span><span class="lineCov">        234 : }</span></a>
+<span class="lineNum">     752 </span>            : 
+<span class="lineNum">     753 </span><span class="lineCov">      44137 : static bool elab_should_copy(tree_t t)</span>
+<span class="lineNum">     754 </span>            : {
+<span class="lineNum">     755 </span><span class="lineCov">      44137 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     756 </span>            :    case T_SIGNAL_DECL:
+<span class="lineNum">     757 </span>            :    case T_GENVAR:
+<span class="lineNum">     758 </span>            :    case T_PROCESS:
+<span class="lineNum">     759 </span>            :    case T_ARCH:
+<span class="lineNum">     760 </span>            :       return true;
+<span class="lineNum">     761 </span>            :    case T_LITERAL:
+<span class="lineNum">     762 </span>            :    case T_ASSOC:
+<span class="lineNum">     763 </span>            :    case T_PARAM:
+<span class="lineNum">     764 </span>            :    case T_WAVEFORM:
+<span class="lineNum">     765 </span>            :    case T_ARRAY_SLICE:
+<span class="lineNum">     766 </span>            :    case T_UNIT_DECL:
+<span class="lineNum">     767 </span>            :    case T_USE:
+<span class="lineNum">     768 </span>            :    case T_IF_GENERATE:
+<span class="lineNum">     769 </span>            :    case T_CONCAT:
+<span class="lineNum">     770 </span>            :    case T_LIBRARY:
+<span class="lineNum">     771 </span>            :    case T_TYPE_CONV:
+<span class="lineNum">     772 </span>            :    case T_ALL:
+<span class="lineNum">     773 </span>            :    case T_OPEN:
+<span class="lineNum">     774 </span>            :    case T_ATTR_REF:
+<span class="lineNum">     775 </span>            :    case T_NEW:
+<span class="lineNum">     776 </span>            :    case T_BINDING:
+<span class="lineNum">     777 </span>            :    case T_SPEC:
+<span class="lineNum">     778 </span>            :    case T_AGGREGATE:
+<span class="lineNum">     779 </span><span class="lineCov">      17153 :        return false;</span>
+<span class="lineNum">     780 </span>            :    case T_VAR_DECL:
+<span class="lineNum">     781 </span><span class="lineCov">         42 :       if (tree_flags(t) &amp; TREE_F_SHARED)</span>
+<span class="lineNum">     782 </span>            :          return true;
+<span class="lineNum">     783 </span>            :       // Fall-through
+<span class="lineNum">     784 </span>            :    default:
+<span class="lineNum">     785 </span><span class="lineCov">      24429 :       return tree_attr_int(t, elab_copy_i, 0);</span>
+<span class="lineNum">     786 </span>            :    }
+<a name="787"><span class="lineNum">     787 </span>            : }</a>
+<span class="lineNum">     788 </span>            : 
+<span class="lineNum">     789 </span><span class="lineCov">      15051 : static void elab_build_copy_list(tree_t t, void *context)</span>
+<span class="lineNum">     790 </span>            : {
+<span class="lineNum">     791 </span><span class="lineCov">      15051 :    copy_list_t **list = context;</span>
+<span class="lineNum">     792 </span>            : 
+<span class="lineNum">     793 </span><span class="lineCov">      15051 :    if (elab_should_copy(t)) {</span>
+<span class="lineNum">     794 </span><span class="lineCov">       1688 :       copy_list_t *new = xmalloc(sizeof(copy_list_t));</span>
+<span class="lineNum">     795 </span><span class="lineCov">       1688 :       new-&gt;tree = t;</span>
+<span class="lineNum">     796 </span><span class="lineCov">       1688 :       new-&gt;next = *list;</span>
+<span class="lineNum">     797 </span>            : 
+<span class="lineNum">     798 </span><span class="lineCov">       1688 :       *list = new;</span>
+<span class="lineNum">     799 </span>            :    }
+<a name="800"><span class="lineNum">     800 </span><span class="lineCov">      15051 : }</span></a>
+<span class="lineNum">     801 </span>            : 
+<span class="lineNum">     802 </span><span class="lineCov">      29086 : static bool elab_copy_trees(tree_t t, void *context)</span>
+<span class="lineNum">     803 </span>            : {
+<span class="lineNum">     804 </span><span class="lineCov">      29086 :    copy_list_t *list = context;</span>
+<span class="lineNum">     805 </span>            : 
+<span class="lineNum">     806 </span><span class="lineCov">      29086 :    if (elab_should_copy(t)) {</span>
+<span class="lineNum">     807 </span><span class="lineCov">       5967 :       for (; list != NULL; list = list-&gt;next) {</span>
+<span class="lineNum">     808 </span><span class="lineCov">       7655 :          if (list-&gt;tree == t)</span>
+<span class="lineNum">     809 </span>            :             return true;
+<span class="lineNum">     810 </span>            :       }
+<span class="lineNum">     811 </span>            :    }
+<span class="lineNum">     812 </span>            : 
+<span class="lineNum">     813 </span>            :    return false;
+<a name="814"><span class="lineNum">     814 </span>            : }</a>
+<span class="lineNum">     815 </span>            : 
+<span class="lineNum">     816 </span><span class="lineCov">        442 : static tree_t elab_copy(tree_t t)</span>
+<span class="lineNum">     817 </span>            : {
+<span class="lineNum">     818 </span><span class="lineCov">        442 :    copy_list_t *copy_list = NULL;</span>
+<span class="lineNum">     819 </span><span class="lineCov">        442 :    tree_visit(t, elab_build_copy_list, &amp;copy_list);</span>
+<span class="lineNum">     820 </span>            : 
+<span class="lineNum">     821 </span>            :    // For achitectures, also make a copy of the entity ports
+<span class="lineNum">     822 </span><span class="lineCov">        442 :    if (tree_kind(t) == T_ARCH)</span>
+<span class="lineNum">     823 </span><span class="lineCov">        236 :       tree_visit(tree_ref(t), elab_build_copy_list, &amp;copy_list);</span>
+<span class="lineNum">     824 </span>            : 
+<span class="lineNum">     825 </span><span class="lineCov">        442 :    tree_t copy = tree_copy(t, elab_copy_trees, copy_list);</span>
+<span class="lineNum">     826 </span>            : 
+<span class="lineNum">     827 </span><span class="lineCov">       2572 :    while (copy_list != NULL) {</span>
+<span class="lineNum">     828 </span><span class="lineCov">       1688 :       copy_list_t *tmp = copy_list-&gt;next;</span>
+<span class="lineNum">     829 </span><span class="lineCov">       1688 :       free(copy_list);</span>
+<span class="lineNum">     830 </span><span class="lineCov">       1688 :       copy_list = tmp;</span>
+<span class="lineNum">     831 </span>            :    }
+<span class="lineNum">     832 </span>            : 
+<span class="lineNum">     833 </span><span class="lineCov">        442 :    return copy;</span>
+<a name="834"><span class="lineNum">     834 </span>            : }</a>
+<span class="lineNum">     835 </span>            : 
+<span class="lineNum">     836 </span><span class="lineCov">         44 : static bool elab_compatible_map(tree_t comp, tree_t entity, char *what,</span>
+<span class="lineNum">     837 </span>            :                                 tree_formals_t tree_Fs, tree_formal_t tree_F)
+<span class="lineNum">     838 </span>            : {
+<span class="lineNum">     839 </span>            :    // TODO: for now they must exactly match up
+<span class="lineNum">     840 </span>            : 
+<span class="lineNum">     841 </span><span class="lineCov">         44 :    const int comp_nf   = (*tree_Fs)(comp);</span>
+<span class="lineNum">     842 </span><span class="lineCov">         44 :    const int entity_nf = (*tree_Fs)(entity);</span>
+<span class="lineNum">     843 </span>            : 
+<span class="lineNum">     844 </span><span class="lineCov">         86 :    for (int i = 0; i &lt; comp_nf; i++) {</span>
+<span class="lineNum">     845 </span><span class="lineCov">         44 :       tree_t comp_f = (*tree_F)(comp, i);</span>
+<span class="lineNum">     846 </span>            : 
+<span class="lineNum">     847 </span><span class="lineCov">         44 :       bool found = false;</span>
+<span class="lineNum">     848 </span><span class="lineCov">        115 :       for (int j = 0; j &lt; entity_nf; j++) {</span>
+<span class="lineNum">     849 </span><span class="lineCov">         72 :          tree_t entity_f = (*tree_F)(entity, j);</span>
+<span class="lineNum">     850 </span>            : 
+<span class="lineNum">     851 </span><span class="lineCov">         72 :          if (tree_ident(comp_f) != tree_ident(entity_f))</span>
+<span class="lineNum">     852 </span><span class="lineCov">         29 :             continue;</span>
+<span class="lineNum">     853 </span>            : 
+<span class="lineNum">     854 </span><span class="lineCov">         43 :          found = true;</span>
+<span class="lineNum">     855 </span>            : 
+<span class="lineNum">     856 </span><span class="lineCov">         43 :          type_t entity_type = tree_type(entity_f);</span>
+<span class="lineNum">     857 </span><span class="lineCov">         43 :          type_t comp_type   = tree_type(comp_f);</span>
+<span class="lineNum">     858 </span>            : 
+<span class="lineNum">     859 </span><span class="lineCov">         43 :          if (!type_eq(entity_type, comp_type)) {</span>
+<span class="lineNum">     860 </span><span class="lineCov">          1 :             error_at(tree_loc(comp_f), &quot;type of %s %s in component &quot;</span>
+<span class="lineNum">     861 </span>            :                      &quot;declaration %s is %s which does not match type %s in &quot;
+<span class="lineNum">     862 </span>            :                      &quot;entity %s&quot;, what, istr(tree_ident(comp_f)),
+<span class="lineNum">     863 </span>            :                      istr(tree_ident(comp)), type_pp(comp_type),
+<span class="lineNum">     864 </span>            :                      type_pp(entity_type), istr(tree_ident(entity)));
+<span class="lineNum">     865 </span><span class="lineCov">          1 :             ++errors;</span>
+<span class="lineNum">     866 </span><span class="lineCov">          1 :             return false;</span>
+<span class="lineNum">     867 </span>            :          }
+<span class="lineNum">     868 </span>            :       }
+<span class="lineNum">     869 </span>            : 
+<span class="lineNum">     870 </span><span class="lineCov">         43 :       if (!found) {</span>
+<span class="lineNum">     871 </span><span class="lineCov">          1 :          error_at(tree_loc(comp_f), &quot;%s %s not found in entity %s&quot;,</span>
+<span class="lineNum">     872 </span>            :                   what, istr(tree_ident(comp_f)), istr(tree_ident(entity)));
+<span class="lineNum">     873 </span><span class="lineCov">          1 :          ++errors;</span>
+<span class="lineNum">     874 </span><span class="lineCov">          1 :          return false;</span>
+<span class="lineNum">     875 </span>            :       }
+<span class="lineNum">     876 </span>            :    }
+<span class="lineNum">     877 </span>            : 
+<span class="lineNum">     878 </span>            :    return true;
+<a name="879"><span class="lineNum">     879 </span>            : }</a>
+<span class="lineNum">     880 </span>            : 
+<span class="lineNum">     881 </span><span class="lineCov">        127 : static void find_entity(ident_t name, int kind, void *context)</span>
+<span class="lineNum">     882 </span>            : {
+<span class="lineNum">     883 </span><span class="lineCov">        127 :    lib_search_params_t *params = context;</span>
+<span class="lineNum">     884 </span>            : 
+<span class="lineNum">     885 </span><span class="lineCov">        127 :    if (kind == T_ENTITY) {</span>
+<span class="lineNum">     886 </span><span class="lineCov">         55 :       if (params-&gt;name == name)</span>
+<span class="lineNum">     887 </span><span class="lineCov">         22 :          *(params-&gt;tree) = lib_get_check_stale(params-&gt;lib, name);</span>
+<span class="lineNum">     888 </span>            :    }
+<a name="889"><span class="lineNum">     889 </span><span class="lineCov">        127 : }</span></a>
+<span class="lineNum">     890 </span>            : 
+<span class="lineNum">     891 </span><span class="lineCov">         22 : static tree_t elab_default_binding(tree_t inst, lib_t *new_lib,</span>
+<span class="lineNum">     892 </span>            :                                    const elab_ctx_t *ctx)
+<span class="lineNum">     893 </span>            : {
+<span class="lineNum">     894 </span>            :    // Default binding indication is described in LRM 93 section 5.2.2
+<span class="lineNum">     895 </span>            : 
+<span class="lineNum">     896 </span><span class="lineCov">         22 :    tree_t comp = tree_ref(inst);</span>
+<span class="lineNum">     897 </span>            : 
+<span class="lineNum">     898 </span><span class="lineCov">         22 :    ident_t full_i = tree_ident(comp);</span>
+<span class="lineNum">     899 </span><span class="lineCov">         22 :    ident_t lib_i = ident_until(full_i, '.');</span>
+<span class="lineNum">     900 </span>            : 
+<span class="lineNum">     901 </span><span class="lineCov">         22 :    lib_t lib = NULL;</span>
+<span class="lineNum">     902 </span><span class="lineCov">         22 :    bool search_others = true;</span>
+<span class="lineNum">     903 </span><span class="lineCov">         22 :    if (lib_i == full_i) {</span>
+<span class="lineNum">     904 </span><span class="lineCov">         20 :       lib    = ctx-&gt;library;</span>
+<span class="lineNum">     905 </span><span class="lineCov">         20 :       full_i = ident_prefix(lib_name(lib), full_i, '.');</span>
+<span class="lineNum">     906 </span>            :    }
+<span class="lineNum">     907 </span>            :    else {
+<span class="lineNum">     908 </span><span class="lineCov">          2 :       search_others = false;</span>
+<span class="lineNum">     909 </span><span class="lineCov">          2 :       lib = elab_find_lib(lib_i, ctx);</span>
+<span class="lineNum">     910 </span>            : 
+<span class="lineNum">     911 </span>            :       // Strip out the component package name, if any
+<span class="lineNum">     912 </span><span class="lineCov">          2 :       full_i = ident_prefix(lib_i, ident_rfrom(full_i, '.'), '.');</span>
+<span class="lineNum">     913 </span>            :    }
+<span class="lineNum">     914 </span>            : 
+<span class="lineNum">     915 </span><span class="lineCov">         22 :    tree_t entity = NULL;</span>
+<span class="lineNum">     916 </span><span class="lineCov">         22 :    lib_search_params_t params = { lib, full_i, &amp;entity };</span>
+<span class="lineNum">     917 </span><span class="lineCov">         22 :    lib_walk_index(params.lib, find_entity, &amp;params);</span>
+<span class="lineNum">     918 </span>            : 
+<span class="lineNum">     919 </span><span class="lineCov">         22 :    if (entity == NULL) {</span>
+<span class="lineNum">     920 </span><span class="lineCov">          3 :       if (search_others &amp;&amp; ctx-&gt;arch != NULL) {</span>
+<span class="lineNum">     921 </span><span class="lineCov">          3 :          tree_t elab_ent = tree_ref(ctx-&gt;arch);</span>
+<span class="lineNum">     922 </span><span class="lineCov">          3 :          const int nctxe = tree_contexts(elab_ent);</span>
+<span class="lineNum">     923 </span><span class="lineCov">          3 :          const int nctxa = tree_contexts(ctx-&gt;arch);</span>
+<span class="lineNum">     924 </span><span class="lineCov">         14 :          for (int i = 0; entity == NULL &amp;&amp; i &lt; nctxe + nctxa; i++) {</span>
+<span class="lineNum">     925 </span><span class="lineCov">         11 :             tree_t c = i &lt; nctxe</span>
+<span class="lineNum">     926 </span><span class="lineCov">          8 :                ? tree_context(elab_ent, i)</span>
+<span class="lineNum">     927 </span><span class="lineCov">         19 :                : tree_context(ctx-&gt;arch, i - nctxe);</span>
+<span class="lineNum">     928 </span>            : 
+<span class="lineNum">     929 </span><span class="lineCov">         11 :             if (tree_kind(c) != T_LIBRARY)</span>
+<span class="lineNum">     930 </span><span class="lineNoCov">          0 :                continue;</span>
+<span class="lineNum">     931 </span>            : 
+<span class="lineNum">     932 </span><span class="lineCov">         11 :             lib_t lib = elab_find_lib(tree_ident(c), ctx);</span>
+<span class="lineNum">     933 </span><span class="lineCov">         11 :             full_i = ident_prefix(lib_name(lib), tree_ident(comp), '.');</span>
+<span class="lineNum">     934 </span><span class="lineCov">         11 :             if (lib != NULL) {</span>
+<span class="lineNum">     935 </span><span class="lineCov">         11 :                lib_search_params_t params = { lib, full_i, &amp;entity };</span>
+<span class="lineNum">     936 </span><span class="lineCov">         11 :                lib_walk_index(params.lib, find_entity, &amp;params);</span>
+<span class="lineNum">     937 </span>            :             }
+<span class="lineNum">     938 </span>            :          }
+<span class="lineNum">     939 </span>            :       }
+<span class="lineNum">     940 </span>            : 
+<span class="lineNum">     941 </span><span class="lineCov">          3 :       if (entity == NULL) {</span>
+<span class="lineNum">     942 </span><span class="lineNoCov">          0 :          error_at(tree_loc(inst), &quot;cannot find entity for component %s &quot;</span>
+<span class="lineNum">     943 </span>            :                   &quot;without binding indication&quot;, istr(tree_ident(comp)));
+<span class="lineNum">     944 </span><span class="lineNoCov">          0 :          ++errors;</span>
+<span class="lineNum">     945 </span><span class="lineNoCov">          0 :          return NULL;</span>
+<span class="lineNum">     946 </span>            :       }
+<span class="lineNum">     947 </span>            :    }
+<span class="lineNum">     948 </span>            : 
+<span class="lineNum">     949 </span><span class="lineCov">         22 :    tree_t arch = elab_copy(pick_arch(tree_loc(comp),</span>
+<span class="lineNum">     950 </span>            :                                      tree_ident(entity), new_lib, ctx));
+<span class="lineNum">     951 </span>            : 
+<span class="lineNum">     952 </span>            :    // Check entity is compatible with component declaration
+<span class="lineNum">     953 </span>            : 
+<span class="lineNum">     954 </span><span class="lineCov">         22 :    if (!elab_compatible_map(comp, entity, &quot;generic&quot;,</span>
+<span class="lineNum">     955 </span>            :                             tree_generics, tree_generic))
+<span class="lineNum">     956 </span>            :       return NULL;
+<span class="lineNum">     957 </span>            : 
+<span class="lineNum">     958 </span><span class="lineCov">         22 :    if (!elab_compatible_map(comp, entity, &quot;port&quot;, tree_ports, tree_port))</span>
+<span class="lineNum">     959 </span>            :       return NULL;
+<span class="lineNum">     960 </span>            : 
+<span class="lineNum">     961 </span><span class="lineCov">         20 :    return arch;</span>
+<a name="962"><span class="lineNum">     962 </span>            : }</a>
+<span class="lineNum">     963 </span>            : 
+<span class="lineNum">     964 </span><span class="lineCov">        234 : static void elab_free_maps(map_list_t *maps)</span>
+<span class="lineNum">     965 </span>            : {
+<span class="lineNum">     966 </span><span class="lineCov">        988 :    while (maps != NULL) {</span>
+<span class="lineNum">     967 </span><span class="lineCov">        520 :       map_list_t *tmp = maps-&gt;next;</span>
+<span class="lineNum">     968 </span><span class="lineCov">        520 :       free(maps);</span>
+<span class="lineNum">     969 </span><span class="lineCov">        520 :       maps = tmp;</span>
+<span class="lineNum">     970 </span>            :    }
+<a name="971"><span class="lineNum">     971 </span><span class="lineCov">        234 : }</span></a>
+<span class="lineNum">     972 </span>            : 
+<span class="lineNum">     973 </span><span class="lineCov">        236 : static void elab_instance(tree_t t, const elab_ctx_t *ctx)</span>
+<span class="lineNum">     974 </span>            : {
+<span class="lineNum">     975 </span><span class="lineCov">        236 :    lib_t new_lib = NULL;</span>
+<span class="lineNum">     976 </span><span class="lineCov">        236 :    tree_t arch = NULL;</span>
+<span class="lineNum">     977 </span><span class="lineCov">        236 :    switch (tree_class(t)) {</span>
+<span class="lineNum">     978 </span>            :    case C_ENTITY:
+<span class="lineNum">     979 </span><span class="lineCov">        214 :       arch = elab_copy(pick_arch(tree_loc(t), tree_ident2(t), &amp;new_lib, ctx));</span>
+<span class="lineNum">     980 </span><span class="lineCov">        214 :       break;</span>
+<span class="lineNum">     981 </span>            : 
+<span class="lineNum">     982 </span>            :    case C_COMPONENT:
+<span class="lineNum">     983 </span><span class="lineCov">         22 :       arch = elab_default_binding(t, &amp;new_lib, ctx);</span>
+<span class="lineNum">     984 </span><span class="lineCov">         22 :       break;</span>
+<span class="lineNum">     985 </span>            : 
+<span class="lineNum">     986 </span>            :    case C_CONFIGURATION:
+<span class="lineNum">     987 </span><span class="lineNoCov">          0 :       fatal_at(tree_loc(t), &quot;sorry, configurations is not supported yet&quot;);</span>
+<span class="lineNum">     988 </span>            :       break;
+<span class="lineNum">     989 </span>            : 
+<span class="lineNum">     990 </span>            :    default:
+<span class="lineNum">     991 </span><span class="lineNoCov">          0 :       assert(false);</span>
+<span class="lineNum">     992 </span>            :    }
+<span class="lineNum">     993 </span>            : 
+<span class="lineNum">     994 </span><span class="lineCov">        236 :    if (arch == NULL)</span>
+<span class="lineNum">     995 </span><span class="lineCov">          4 :       return;</span>
+<span class="lineNum">     996 </span>            : 
+<span class="lineNum">     997 </span><span class="lineCov">        234 :    map_list_t *maps = elab_map(t, arch, tree_ports, tree_port,</span>
+<span class="lineNum">     998 </span>            :                                tree_params, tree_param);
+<span class="lineNum">     999 </span>            : 
+<span class="lineNum">    1000 </span><span class="lineCov">        234 :    (void)elab_map(t, arch, tree_generics, tree_generic,</span>
+<span class="lineNum">    1001 </span>            :                   tree_genmaps, tree_genmap);
+<span class="lineNum">    1002 </span>            : 
+<span class="lineNum">    1003 </span><span class="lineCov">        234 :    ident_t ninst = hpathf(ctx-&gt;inst, '@', &quot;%s(%s)&quot;,</span>
+<span class="lineNum">    1004 </span>            :                           simple_name(istr(tree_ident2(arch))),
+<span class="lineNum">    1005 </span>            :                           simple_name(istr(tree_ident(arch))));
+<span class="lineNum">    1006 </span>            : 
+<span class="lineNum">    1007 </span><span class="lineCov">        702 :    elab_ctx_t new_ctx = {</span>
+<span class="lineNum">    1008 </span><span class="lineCov">        234 :       .out      = ctx-&gt;out,</span>
+<span class="lineNum">    1009 </span><span class="lineCov">        234 :       .path     = ctx-&gt;path,</span>
+<span class="lineNum">    1010 </span>            :       .inst     = ninst,
+<span class="lineNum">    1011 </span><span class="lineCov">        234 :       .next_net = ctx-&gt;next_net,</span>
+<span class="lineNum">    1012 </span>            :       .library  = new_lib,
+<span class="lineNum">    1013 </span>            :       .arch     = arch
+<span class="lineNum">    1014 </span>            :    };
+<span class="lineNum">    1015 </span>            : 
+<span class="lineNum">    1016 </span><span class="lineCov">        234 :    tree_t entity = tree_ref(arch);</span>
+<span class="lineNum">    1017 </span><span class="lineCov">        234 :    elab_copy_context(entity, &amp;new_ctx);</span>
+<span class="lineNum">    1018 </span><span class="lineCov">        234 :    elab_decls(entity, &amp;new_ctx);</span>
+<span class="lineNum">    1019 </span>            : 
+<span class="lineNum">    1020 </span><span class="lineCov">        234 :    elab_map_nets(maps);</span>
+<span class="lineNum">    1021 </span><span class="lineCov">        234 :    elab_free_maps(maps);</span>
+<span class="lineNum">    1022 </span>            : 
+<span class="lineNum">    1023 </span><span class="lineCov">        234 :    simplify(arch, EVAL_LOWER);</span>
+<span class="lineNum">    1024 </span><span class="lineCov">        234 :    bounds_check(arch);</span>
+<span class="lineNum">    1025 </span>            : 
+<span class="lineNum">    1026 </span><span class="lineCov">        234 :    if (eval_errors() &gt; 0 || bounds_errors() &gt; 0)</span>
+<span class="lineNum">    1027 </span>            :       return;
+<span class="lineNum">    1028 </span>            : 
+<span class="lineNum">    1029 </span><span class="lineCov">        232 :    elab_arch(arch, &amp;new_ctx);</span>
+<a name="1030"><span class="lineNum">    1030 </span>            : }</a>
+<span class="lineNum">    1031 </span>            : 
+<span class="lineNum">    1032 </span><span class="lineCov">       1047 : static void elab_signal_nets(tree_t decl, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1033 </span>            : {
+<span class="lineNum">    1034 </span>            :    // Assign net IDs to each sub-element of a signal declaration
+<span class="lineNum">    1035 </span>            : 
+<span class="lineNum">    1036 </span><span class="lineCov">       1047 :    if (tree_nets(decl) != 0) {</span>
+<span class="lineNum">    1037 </span>            :       // Nets have already been assigned e.g. from a port map
+<span class="lineNum">    1038 </span>            :    }
+<span class="lineNum">    1039 </span>            :    else {
+<span class="lineNum">    1040 </span><span class="lineCov">        544 :       const int width = type_width(tree_type(decl));</span>
+<span class="lineNum">    1041 </span><span class="lineCov">       5904 :       for (int i = 0; i &lt; width; i++)</span>
+<span class="lineNum">    1042 </span><span class="lineCov">       5360 :          tree_add_net(decl, (*ctx-&gt;next_net)++);</span>
+<span class="lineNum">    1043 </span>            :    }
+<a name="1044"><span class="lineNum">    1044 </span><span class="lineCov">       1047 : }</span></a>
+<span class="lineNum">    1045 </span>            : 
+<span class="lineNum">    1046 </span><span class="lineCov">         21 : static void elab_set_subprogram_name(tree_t decl, ident_t new)</span>
+<span class="lineNum">    1047 </span>            : {
+<span class="lineNum">    1048 </span><span class="lineCov">         21 :    tree_set_ident(decl, new);</span>
+<span class="lineNum">    1049 </span><span class="lineCov">         21 :    tree_remove_attr(decl, mangled_i);</span>
+<a name="1050"><span class="lineNum">    1050 </span><span class="lineCov">         21 : }</span></a>
+<span class="lineNum">    1051 </span>            : 
+<span class="lineNum">    1052 </span><span class="lineCov">          6 : static void elab_prot_body_decls(tree_t body)</span>
+<span class="lineNum">    1053 </span>            : {
+<span class="lineNum">    1054 </span><span class="lineCov">          6 :    type_t type = tree_type(body);</span>
+<span class="lineNum">    1055 </span>            : 
+<span class="lineNum">    1056 </span><span class="lineCov">          6 :    const int ntdecls = type_decls(type);</span>
+<span class="lineNum">    1057 </span><span class="lineCov">         16 :    for (int i = 0; i &lt; ntdecls; i++) {</span>
+<span class="lineNum">    1058 </span><span class="lineCov">         10 :       tree_t d = type_decl(type, i);</span>
+<span class="lineNum">    1059 </span>            : 
+<span class="lineNum">    1060 </span><span class="lineCov">         10 :       ident_t base = ident_rfrom(tree_ident(d), '.');</span>
+<span class="lineNum">    1061 </span><span class="lineCov">         10 :       elab_set_subprogram_name(d, ident_prefix(tree_ident(body), base, '.'));</span>
+<span class="lineNum">    1062 </span>            :    }
+<span class="lineNum">    1063 </span>            : 
+<span class="lineNum">    1064 </span><span class="lineCov">          6 :    const int ndecls = tree_decls(body);</span>
+<span class="lineNum">    1065 </span><span class="lineCov">         26 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">    1066 </span><span class="lineCov">         20 :       tree_t d = tree_decl(body, i);</span>
+<span class="lineNum">    1067 </span>            : 
+<span class="lineNum">    1068 </span><span class="lineCov">         20 :       const tree_kind_t kind = tree_kind(d);</span>
+<span class="lineNum">    1069 </span><span class="lineCov">         20 :       if ((kind != T_FUNC_DECL) &amp;&amp; (kind != T_FUNC_BODY)</span>
+<span class="lineNum">    1070 </span><span class="lineCov">         17 :           &amp;&amp; (kind != T_PROC_DECL) &amp;&amp; (kind != T_PROC_BODY))</span>
+<span class="lineNum">    1071 </span><span class="lineCov">         10 :          continue;</span>
+<span class="lineNum">    1072 </span>            : 
+<span class="lineNum">    1073 </span><span class="lineCov">         10 :       ident_t base = ident_rfrom(tree_ident(d), '.');</span>
+<span class="lineNum">    1074 </span><span class="lineCov">         10 :       elab_set_subprogram_name(d, ident_prefix(tree_ident(body), base, '.'));</span>
+<span class="lineNum">    1075 </span>            :    }
+<a name="1076"><span class="lineNum">    1076 </span><span class="lineCov">          6 : }</span></a>
+<span class="lineNum">    1077 </span>            : 
+<span class="lineNum">    1078 </span><span class="lineCov">       1589 : static void elab_decls(tree_t t, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1079 </span>            : {
+<span class="lineNum">    1080 </span><span class="lineCov">       1589 :    tree_add_attr_str(t, inst_name_i,</span>
+<span class="lineNum">    1081 </span>            :                      ident_prefix(ctx-&gt;inst, ident_new(&quot;:&quot;), '\0'));
+<span class="lineNum">    1082 </span>            : 
+<span class="lineNum">    1083 </span><span class="lineCov">       1589 :    const int ndecls = tree_decls(t);</span>
+<span class="lineNum">    1084 </span><span class="lineCov">       3329 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">    1085 </span><span class="lineCov">       1740 :       tree_t d = tree_decl(t, i);</span>
+<span class="lineNum">    1086 </span><span class="lineCov">       1740 :       const char *label = simple_name(istr(tree_ident(d)));</span>
+<span class="lineNum">    1087 </span><span class="lineCov">       1740 :       ident_t ninst = hpathf(ctx-&gt;inst, ':', &quot;%s&quot;, label);</span>
+<span class="lineNum">    1088 </span><span class="lineCov">       1740 :       ident_t npath = hpathf(ctx-&gt;path, ':', &quot;%s&quot;, label);</span>
+<span class="lineNum">    1089 </span>            : 
+<span class="lineNum">    1090 </span><span class="lineCov">       1740 :       if (label[0] == ':')</span>
+<span class="lineNum">    1091 </span><span class="lineCov">          1 :          continue;  // Already named one instance of this</span>
+<span class="lineNum">    1092 </span>            : 
+<span class="lineNum">    1093 </span><span class="lineCov">       1739 :       switch (tree_kind(d)) {</span>
+<span class="lineNum">    1094 </span>            :       case T_SIGNAL_DECL:
+<span class="lineNum">    1095 </span><span class="lineCov">       1045 :          elab_signal_nets(d, ctx);</span>
+<span class="lineNum">    1096 </span>            :          // Fall-through
+<span class="lineNum">    1097 </span>            :       case T_FUNC_BODY:
+<span class="lineNum">    1098 </span>            :       case T_PROC_BODY:
+<span class="lineNum">    1099 </span>            :       case T_ALIAS:
+<span class="lineNum">    1100 </span>            :       case T_FILE_DECL:
+<span class="lineNum">    1101 </span>            :       case T_VAR_DECL:
+<span class="lineNum">    1102 </span><span class="lineCov">       1258 :          tree_set_ident(d, npath);</span>
+<span class="lineNum">    1103 </span><span class="lineCov">       1258 :          tree_add_decl(ctx-&gt;out, d);</span>
+<span class="lineNum">    1104 </span><span class="lineCov">       1258 :          tree_add_attr_str(d, inst_name_i, ninst);</span>
+<span class="lineNum">    1105 </span><span class="lineCov">       1258 :          break;</span>
+<span class="lineNum">    1106 </span>            :       case T_PROT_BODY:
+<span class="lineNum">    1107 </span><span class="lineCov">          6 :          tree_set_ident(d, npath);</span>
+<span class="lineNum">    1108 </span><span class="lineCov">          6 :          elab_prot_body_decls(d);</span>
+<span class="lineNum">    1109 </span><span class="lineCov">          6 :          tree_add_decl(ctx-&gt;out, d);</span>
+<span class="lineNum">    1110 </span><span class="lineCov">          6 :          break;</span>
+<span class="lineNum">    1111 </span>            :       case T_FUNC_DECL:
+<span class="lineNum">    1112 </span>            :       case T_PROC_DECL:
+<span class="lineNum">    1113 </span><span class="lineCov">          1 :          elab_set_subprogram_name(d, npath);</span>
+<span class="lineNum">    1114 </span><span class="lineCov">          1 :          break;</span>
+<span class="lineNum">    1115 </span>            :       case T_CONST_DECL:
+<span class="lineNum">    1116 </span><span class="lineCov">         58 :          tree_set_ident(d, npath);</span>
+<span class="lineNum">    1117 </span><span class="lineCov">         58 :          tree_add_attr_str(d, inst_name_i, ninst);</span>
+<span class="lineNum">    1118 </span><span class="lineCov">         58 :          tree_add_decl(ctx-&gt;out, d);</span>
+<span class="lineNum">    1119 </span><span class="lineCov">         58 :          break;</span>
+<span class="lineNum">    1120 </span>            :       case T_USE:
+<span class="lineNum">    1121 </span><span class="lineCov">          1 :          elab_use_clause(d, ctx);</span>
+<span class="lineNum">    1122 </span><span class="lineCov">          1 :          break;</span>
+<span class="lineNum">    1123 </span>            :       default:
+<span class="lineNum">    1124 </span>            :          break;
+<span class="lineNum">    1125 </span>            :       }
+<span class="lineNum">    1126 </span>            :    }
+<a name="1127"><span class="lineNum">    1127 </span><span class="lineCov">       1589 : }</span></a>
+<span class="lineNum">    1128 </span>            : 
+<span class="lineNum">    1129 </span><span class="lineCov">        919 : static void elab_push_scope(tree_t t, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1130 </span>            : {
+<span class="lineNum">    1131 </span><span class="lineCov">        919 :    tree_t h = tree_new(T_HIER);</span>
+<span class="lineNum">    1132 </span><span class="lineCov">        919 :    tree_set_loc(h, tree_loc(t));</span>
+<span class="lineNum">    1133 </span><span class="lineCov">        919 :    tree_set_subkind(h, tree_kind(t));</span>
+<span class="lineNum">    1134 </span>            : 
+<span class="lineNum">    1135 </span><span class="lineCov">        919 :    if (tree_kind(t) == T_PACKAGE) {</span>
+<span class="lineNum">    1136 </span><span class="lineCov">          2 :       const char *name = istr(tree_ident(t));</span>
+<span class="lineNum">    1137 </span><span class="lineCov">          2 :       char lower[strlen(name) + 1], *p;</span>
+<span class="lineNum">    1138 </span><span class="lineCov">         17 :       for (p = lower; *name != '\0'; p++, name++)</span>
+<span class="lineNum">    1139 </span><span class="lineCov">         15 :          *p = tolower((int)*name);</span>
+<span class="lineNum">    1140 </span><span class="lineCov">          2 :       *p = '\0';</span>
+<span class="lineNum">    1141 </span>            : 
+<span class="lineNum">    1142 </span><span class="lineCov">          2 :       tree_set_ident(h, ident_new(lower));</span>
+<span class="lineNum">    1143 </span>            :    }
+<span class="lineNum">    1144 </span>            :    else
+<span class="lineNum">    1145 </span><span class="lineCov">        917 :       tree_set_ident(h, ident_new(strrchr(istr(ctx-&gt;path), ':') + 1));</span>
+<span class="lineNum">    1146 </span>            : 
+<span class="lineNum">    1147 </span><span class="lineCov">        919 :    if ((tree_kind(t) == T_ARCH) &amp;&amp; (tree_decls(ctx-&gt;out) &gt; 0)) {</span>
+<span class="lineNum">    1148 </span>            :       // Convert an identifier like WORK.FOO-RTL to foo(rtl)
+<span class="lineNum">    1149 </span><span class="lineCov">        233 :       const char *id = istr(tree_ident(t));</span>
+<span class="lineNum">    1150 </span><span class="lineCov">       1165 :       while ((*id != '\0') &amp;&amp; (*id++ != '.'))</span>
+<span class="lineNum">    1151 </span>            :          ;
+<span class="lineNum">    1152 </span>            : 
+<span class="lineNum">    1153 </span><span class="lineCov">        233 :       const size_t len = strlen(id);</span>
+<span class="lineNum">    1154 </span><span class="lineCov">        233 :       char str[len + 2];</span>
+<span class="lineNum">    1155 </span><span class="lineCov">        233 :       char *p = str;</span>
+<span class="lineNum">    1156 </span><span class="lineCov">       2098 :       for (; *id != '\0'; p++, id++) {</span>
+<span class="lineNum">    1157 </span><span class="lineCov">       2098 :          if (*id == '-')</span>
+<span class="lineNum">    1158 </span><span class="lineCov">        233 :             *p = '(';</span>
+<span class="lineNum">    1159 </span>            :          else
+<span class="lineNum">    1160 </span><span class="lineCov">       1865 :             *p = tolower((int)*id);</span>
+<span class="lineNum">    1161 </span>            :       }
+<span class="lineNum">    1162 </span>            : 
+<span class="lineNum">    1163 </span><span class="lineCov">        233 :       *p++ = ')';</span>
+<span class="lineNum">    1164 </span><span class="lineCov">        233 :       *p++ = '\0';</span>
+<span class="lineNum">    1165 </span>            : 
+<span class="lineNum">    1166 </span><span class="lineCov">        233 :       tree_set_ident2(h, ident_new(str));</span>
+<span class="lineNum">    1167 </span>            :    }
+<span class="lineNum">    1168 </span>            : 
+<span class="lineNum">    1169 </span><span class="lineCov">        919 :    tree_add_decl(ctx-&gt;out, h);</span>
+<a name="1170"><span class="lineNum">    1170 </span><span class="lineCov">        919 : }</span></a>
+<span class="lineNum">    1171 </span>            : 
+<span class="lineNum">    1172 </span><span class="lineCov">        919 : static void elab_pop_scope(const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1173 </span>            : {
+<span class="lineNum">    1174 </span><span class="lineCov">        919 :    tree_t last_decl = tree_decl(ctx-&gt;out, tree_decls(ctx-&gt;out) - 1);</span>
+<span class="lineNum">    1175 </span><span class="lineCov">        919 :    tree_add_attr_int(last_decl, scope_pop_i,</span>
+<span class="lineNum">    1176 </span><span class="lineCov">        919 :                      tree_attr_int(last_decl, scope_pop_i, 0) + 1);</span>
+<a name="1177"><span class="lineNum">    1177 </span><span class="lineCov">        919 : }</span></a>
+<span class="lineNum">    1178 </span>            : 
+<span class="lineNum">    1179 </span><span class="lineCov">         28 : static void elab_for_generate(tree_t t, elab_ctx_t *ctx)</span>
+<span class="lineNum">    1180 </span>            : {
+<span class="lineNum">    1181 </span>            :    int64_t low, high;
+<span class="lineNum">    1182 </span><span class="lineCov">         28 :    range_bounds(tree_range(t), &amp;low, &amp;high);</span>
+<span class="lineNum">    1183 </span>            : 
+<span class="lineNum">    1184 </span><span class="lineCov">        234 :    for (int64_t i = low; i &lt;= high; i++) {</span>
+<span class="lineNum">    1185 </span><span class="lineCov">        206 :       tree_t copy = elab_copy(t);</span>
+<span class="lineNum">    1186 </span>            : 
+<span class="lineNum">    1187 </span><span class="lineCov">        206 :       tree_t genvar = tree_ref(copy);</span>
+<span class="lineNum">    1188 </span>            : 
+<span class="lineNum">    1189 </span><span class="lineCov">        206 :       tree_t formals[1] = { genvar };</span>
+<span class="lineNum">    1190 </span><span class="lineCov">        206 :       tree_t actuals[1] = { get_int_lit(genvar, i) };</span>
+<span class="lineNum">    1191 </span>            : 
+<span class="lineNum">    1192 </span><span class="lineCov">        206 :       rewrite_params_t params = {</span>
+<span class="lineNum">    1193 </span>            :          .formals = formals,
+<span class="lineNum">    1194 </span>            :          .actuals = actuals,
+<span class="lineNum">    1195 </span>            :          .count   = 1
+<span class="lineNum">    1196 </span>            :       };
+<span class="lineNum">    1197 </span><span class="lineCov">        206 :       tree_rewrite(copy, rewrite_refs, &amp;params);</span>
+<span class="lineNum">    1198 </span><span class="lineCov">        206 :       simplify(copy, EVAL_LOWER);</span>
+<span class="lineNum">    1199 </span><span class="lineCov">        206 :       bounds_check(copy);</span>
+<span class="lineNum">    1200 </span>            : 
+<span class="lineNum">    1201 </span><span class="lineCov">        206 :       if (eval_errors() &gt; 0)</span>
+<span class="lineNum">    1202 </span>            :          break;
+<span class="lineNum">    1203 </span>            : 
+<span class="lineNum">    1204 </span><span class="lineCov">        206 :       ident_t npath = hpathf(ctx-&gt;path, '\0', &quot;[%&quot;PRIi64&quot;]&quot;, i);</span>
+<span class="lineNum">    1205 </span><span class="lineCov">        206 :       ident_t ninst = hpathf(ctx-&gt;inst, '\0', &quot;[%&quot;PRIi64&quot;]&quot;, i);</span>
+<span class="lineNum">    1206 </span>            : 
+<span class="lineNum">    1207 </span><span class="lineCov">        824 :       elab_ctx_t new_ctx = {</span>
+<span class="lineNum">    1208 </span><span class="lineCov">        206 :          .out      = ctx-&gt;out,</span>
+<span class="lineNum">    1209 </span>            :          .path     = npath,
+<span class="lineNum">    1210 </span>            :          .inst     = ninst,
+<span class="lineNum">    1211 </span><span class="lineCov">        206 :          .next_net = ctx-&gt;next_net,</span>
+<span class="lineNum">    1212 </span><span class="lineCov">        206 :          .library  = ctx-&gt;library,</span>
+<span class="lineNum">    1213 </span><span class="lineCov">        206 :          .arch     = ctx-&gt;arch</span>
+<span class="lineNum">    1214 </span>            :       };
+<span class="lineNum">    1215 </span>            : 
+<span class="lineNum">    1216 </span><span class="lineCov">        206 :       elab_push_scope(copy, &amp;new_ctx);</span>
+<span class="lineNum">    1217 </span><span class="lineCov">        206 :       elab_decls(copy, &amp;new_ctx);</span>
+<span class="lineNum">    1218 </span><span class="lineCov">        206 :       elab_stmts(copy, &amp;new_ctx);</span>
+<span class="lineNum">    1219 </span><span class="lineCov">        206 :       elab_pop_scope(&amp;new_ctx);</span>
+<span class="lineNum">    1220 </span>            :    }
+<a name="1221"><span class="lineNum">    1221 </span><span class="lineCov">         28 : }</span></a>
+<span class="lineNum">    1222 </span>            : 
+<span class="lineNum">    1223 </span><span class="lineNoCov">          0 : static void elab_if_generate(tree_t t, elab_ctx_t *ctx)</span>
+<span class="lineNum">    1224 </span>            : {
+<span class="lineNum">    1225 </span><span class="lineNoCov">          0 :    const int64_t value = assume_int(tree_value(t));</span>
+<span class="lineNum">    1226 </span><span class="lineNoCov">          0 :    if (value != 0) {</span>
+<span class="lineNum">    1227 </span><span class="lineNoCov">          0 :       elab_decls(t, ctx);</span>
+<span class="lineNum">    1228 </span><span class="lineNoCov">          0 :       elab_stmts(t, ctx);</span>
+<span class="lineNum">    1229 </span>            :    }
+<a name="1230"><span class="lineNum">    1230 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1231 </span>            : 
+<span class="lineNum">    1232 </span><span class="lineCov">        954 : static void elab_rename_subprograms(tree_t t, ident_t prefix)</span>
+<span class="lineNum">    1233 </span>            : {
+<span class="lineNum">    1234 </span><span class="lineCov">        954 :    const int ndecls = tree_decls(t);</span>
+<span class="lineNum">    1235 </span><span class="lineCov">       1311 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">    1236 </span><span class="lineCov">        357 :       tree_t d = tree_decl(t, i);</span>
+<span class="lineNum">    1237 </span><span class="lineCov">        357 :       switch (tree_kind(d)) {</span>
+<span class="lineNum">    1238 </span>            :       case T_FUNC_DECL:
+<span class="lineNum">    1239 </span>            :       case T_FUNC_BODY:
+<span class="lineNum">    1240 </span>            :       case T_PROC_DECL:
+<span class="lineNum">    1241 </span>            :       case T_PROC_BODY:
+<span class="lineNum">    1242 </span>            :          {
+<span class="lineNum">    1243 </span><span class="lineCov">         19 :             ident_t new = ident_prefix(prefix, tree_ident(d), '_');</span>
+<span class="lineNum">    1244 </span><span class="lineCov">         19 :             tree_set_ident(d, new);</span>
+<span class="lineNum">    1245 </span><span class="lineCov">         19 :             elab_rename_subprograms(d, new);</span>
+<span class="lineNum">    1246 </span>            :          }
+<span class="lineNum">    1247 </span><span class="lineCov">         19 :          break;</span>
+<span class="lineNum">    1248 </span>            :       default:
+<span class="lineNum">    1249 </span>            :          break;
+<span class="lineNum">    1250 </span>            :       }
+<span class="lineNum">    1251 </span>            :    }
+<a name="1252"><span class="lineNum">    1252 </span><span class="lineCov">        954 : }</span></a>
+<span class="lineNum">    1253 </span>            : 
+<span class="lineNum">    1254 </span><span class="lineCov">        935 : static void elab_process(tree_t t, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1255 </span>            : {
+<span class="lineNum">    1256 </span>            :    // Rename local functions in this process to avoid collisions in the
+<span class="lineNum">    1257 </span>            :    // global LLVM namespace
+<span class="lineNum">    1258 </span>            : 
+<span class="lineNum">    1259 </span><span class="lineCov">        935 :    elab_rename_subprograms(t, ctx-&gt;path);</span>
+<span class="lineNum">    1260 </span>            : 
+<span class="lineNum">    1261 </span><span class="lineCov">        935 :    tree_add_attr_str(t, inst_name_i,</span>
+<span class="lineNum">    1262 </span>            :                      ident_prefix(ctx-&gt;inst, ident_new(&quot;:&quot;), '\0'));
+<a name="1263"><span class="lineNum">    1263 </span><span class="lineCov">        935 : }</span></a>
+<span class="lineNum">    1264 </span>            : 
+<span class="lineNum">    1265 </span><span class="lineCov">       1586 : static void elab_stmts(tree_t t, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1266 </span>            : {
+<span class="lineNum">    1267 </span><span class="lineCov">       1586 :    const int nstmts = tree_stmts(t);</span>
+<span class="lineNum">    1268 </span><span class="lineCov">       2827 :    for (int i = 0; i &lt; nstmts; i++) {</span>
+<span class="lineNum">    1269 </span><span class="lineCov">       1241 :       tree_t s = tree_stmt(t, i);</span>
+<span class="lineNum">    1270 </span><span class="lineCov">       1241 :       const char *label = istr(tree_ident(s));</span>
+<span class="lineNum">    1271 </span><span class="lineCov">       1241 :       ident_t npath = hpathf(ctx-&gt;path, ':', &quot;%s&quot;, label);</span>
+<span class="lineNum">    1272 </span><span class="lineCov">       1241 :       ident_t ninst = hpathf(ctx-&gt;inst, ':', &quot;%s&quot;, label);</span>
+<span class="lineNum">    1273 </span>            : 
+<span class="lineNum">    1274 </span><span class="lineCov">       4964 :       elab_ctx_t new_ctx = {</span>
+<span class="lineNum">    1275 </span><span class="lineCov">       1241 :          .out      = ctx-&gt;out,</span>
+<span class="lineNum">    1276 </span>            :          .path     = npath,
+<span class="lineNum">    1277 </span>            :          .inst     = ninst,
+<span class="lineNum">    1278 </span><span class="lineCov">       1241 :          .next_net = ctx-&gt;next_net,</span>
+<span class="lineNum">    1279 </span><span class="lineCov">       1241 :          .library  = ctx-&gt;library,</span>
+<span class="lineNum">    1280 </span><span class="lineCov">       1241 :          .arch     = ctx-&gt;arch</span>
+<span class="lineNum">    1281 </span>            :       };
+<span class="lineNum">    1282 </span>            : 
+<span class="lineNum">    1283 </span><span class="lineCov">       1241 :       switch (tree_kind(s)) {</span>
+<span class="lineNum">    1284 </span>            :       case T_INSTANCE:
+<span class="lineNum">    1285 </span><span class="lineCov">        236 :          elab_instance(s, &amp;new_ctx);</span>
+<span class="lineNum">    1286 </span><span class="lineCov">        236 :          break;</span>
+<span class="lineNum">    1287 </span>            :       case T_BLOCK:
+<span class="lineNum">    1288 </span><span class="lineCov">         42 :          elab_block(s, &amp;new_ctx);</span>
+<span class="lineNum">    1289 </span><span class="lineCov">         42 :          break;</span>
+<span class="lineNum">    1290 </span>            :       case T_FOR_GENERATE:
+<span class="lineNum">    1291 </span><span class="lineCov">         28 :          elab_for_generate(s, &amp;new_ctx);</span>
+<span class="lineNum">    1292 </span><span class="lineCov">         28 :          break;</span>
+<span class="lineNum">    1293 </span>            :       case T_IF_GENERATE:
+<span class="lineNum">    1294 </span><span class="lineNoCov">          0 :          elab_if_generate(s, &amp;new_ctx);</span>
+<span class="lineNum">    1295 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">    1296 </span>            :       case T_PROCESS:
+<span class="lineNum">    1297 </span><span class="lineCov">        935 :          elab_process(s, &amp;new_ctx);</span>
+<span class="lineNum">    1298 </span>            :          // Fall-through
+<span class="lineNum">    1299 </span>            :       default:
+<span class="lineNum">    1300 </span><span class="lineCov">        935 :          tree_add_stmt(ctx-&gt;out, s);</span>
+<span class="lineNum">    1301 </span>            :       }
+<span class="lineNum">    1302 </span>            : 
+<span class="lineNum">    1303 </span><span class="lineCov">       1241 :       tree_set_ident(s, npath);</span>
+<span class="lineNum">    1304 </span>            :    }
+<a name="1305"><span class="lineNum">    1305 </span><span class="lineCov">       1586 : }</span></a>
+<span class="lineNum">    1306 </span>            : 
+<span class="lineNum">    1307 </span><span class="lineCov">         42 : static void elab_block(tree_t t, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1308 </span>            : {
+<span class="lineNum">    1309 </span><span class="lineCov">         42 :    elab_push_scope(t, ctx);</span>
+<span class="lineNum">    1310 </span><span class="lineCov">         42 :    elab_decls(t, ctx);</span>
+<span class="lineNum">    1311 </span><span class="lineCov">         42 :    elab_stmts(t, ctx);</span>
+<span class="lineNum">    1312 </span><span class="lineCov">         42 :    elab_pop_scope(ctx);</span>
+<a name="1313"><span class="lineNum">    1313 </span><span class="lineCov">         42 : }</span></a>
+<span class="lineNum">    1314 </span>            : 
+<span class="lineNum">    1315 </span><span class="lineCov">        669 : static void elab_arch(tree_t t, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1316 </span>            : {
+<span class="lineNum">    1317 </span><span class="lineCov">        669 :    elab_stmts(tree_ref(t), ctx);</span>
+<span class="lineNum">    1318 </span><span class="lineCov">        669 :    elab_pseudo_context(ctx-&gt;out, t);</span>
+<span class="lineNum">    1319 </span><span class="lineCov">        669 :    elab_pseudo_context(ctx-&gt;out, tree_ref(t));</span>
+<span class="lineNum">    1320 </span><span class="lineCov">        669 :    elab_copy_context(t, ctx);</span>
+<span class="lineNum">    1321 </span><span class="lineCov">        669 :    elab_push_scope(t, ctx);</span>
+<span class="lineNum">    1322 </span><span class="lineCov">        669 :    elab_decls(t, ctx);</span>
+<span class="lineNum">    1323 </span><span class="lineCov">        669 :    elab_stmts(t, ctx);</span>
+<span class="lineNum">    1324 </span><span class="lineCov">        669 :    elab_pop_scope(ctx);</span>
+<span class="lineNum">    1325 </span>            : 
+<span class="lineNum">    1326 </span><span class="lineCov">        669 :    tree_rewrite(t, fixup_entity_refs, t);</span>
+<span class="lineNum">    1327 </span>            : 
+<span class="lineNum">    1328 </span><span class="lineCov">        669 :    tree_set_ident(t, ident_prefix(ctx-&gt;path, ident_new(&quot;:&quot;), '\0'));</span>
+<a name="1329"><span class="lineNum">    1329 </span><span class="lineCov">        669 : }</span></a>
+<span class="lineNum">    1330 </span>            : 
+<span class="lineNum">    1331 </span><span class="lineCov">        438 : static void elab_top_level_ports(tree_t arch, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1332 </span>            : {
+<span class="lineNum">    1333 </span><span class="lineCov">        438 :    tree_t ent = tree_ref(arch);</span>
+<span class="lineNum">    1334 </span>            : 
+<span class="lineNum">    1335 </span><span class="lineCov">        438 :    const int nports = tree_ports(ent);</span>
+<span class="lineNum">    1336 </span><span class="lineCov">        438 :    if (nports == 0)</span>
+<span class="lineNum">    1337 </span><span class="lineCov">        427 :       return;</span>
+<span class="lineNum">    1338 </span>            : 
+<span class="lineNum">    1339 </span>            :    // Replace top-level ports with signals that can be driven from VHPI
+<span class="lineNum">    1340 </span>            : 
+<span class="lineNum">    1341 </span><span class="lineCov">         11 :    tree_t rformals[nports], ractuals[nports];</span>
+<span class="lineNum">    1342 </span>            : 
+<span class="lineNum">    1343 </span><span class="lineCov">         39 :    for (int i = 0; i &lt; nports; i++) {</span>
+<span class="lineNum">    1344 </span><span class="lineCov">         28 :       tree_t p = tree_port(ent, i);</span>
+<span class="lineNum">    1345 </span><span class="lineCov">         28 :       type_t type = tree_type(p);</span>
+<span class="lineNum">    1346 </span>            : 
+<span class="lineNum">    1347 </span><span class="lineCov">         28 :       if (type_is_unconstrained(type))</span>
+<span class="lineNum">    1348 </span><span class="lineNoCov">          0 :          fatal_at(tree_loc(p), &quot;port %s of top-level entity must not have &quot;</span>
+<span class="lineNum">    1349 </span>            :                   &quot;unconstrained array type&quot;, istr(tree_ident(p)));
+<span class="lineNum">    1350 </span>            : 
+<span class="lineNum">    1351 </span><span class="lineCov">         28 :       tree_t s = tree_new(T_SIGNAL_DECL);</span>
+<span class="lineNum">    1352 </span><span class="lineCov">         28 :       tree_set_ident(s, tree_ident(p));</span>
+<span class="lineNum">    1353 </span><span class="lineCov">         28 :       tree_set_loc(s, tree_loc(p));</span>
+<span class="lineNum">    1354 </span><span class="lineCov">         28 :       tree_set_type(s, type);</span>
+<span class="lineNum">    1355 </span><span class="lineCov">         28 :       tree_add_attr_int(s, fst_dir_i, tree_subkind(p));</span>
+<span class="lineNum">    1356 </span>            : 
+<span class="lineNum">    1357 </span><span class="lineCov">         28 :       if (tree_has_value(p))</span>
+<span class="lineNum">    1358 </span><span class="lineCov">          1 :          tree_set_value(s, tree_value(p));</span>
+<span class="lineNum">    1359 </span>            :       else
+<span class="lineNum">    1360 </span><span class="lineCov">         27 :          tree_set_value(s, make_default_value(type, tree_loc(p)));</span>
+<span class="lineNum">    1361 </span>            : 
+<span class="lineNum">    1362 </span><span class="lineCov">         28 :       tree_add_decl(arch, s);</span>
+<span class="lineNum">    1363 </span>            : 
+<span class="lineNum">    1364 </span><span class="lineCov">         28 :       rformals[i] = p;</span>
+<span class="lineNum">    1365 </span><span class="lineCov">         28 :       ractuals[i] = s;</span>
+<span class="lineNum">    1366 </span>            :    }
+<span class="lineNum">    1367 </span>            : 
+<span class="lineNum">    1368 </span><span class="lineCov">         11 :    rewrite_params_t params = {</span>
+<span class="lineNum">    1369 </span>            :       .formals = rformals,
+<span class="lineNum">    1370 </span>            :       .actuals = ractuals,
+<span class="lineNum">    1371 </span>            :       .count   = nports
+<span class="lineNum">    1372 </span>            :    };
+<span class="lineNum">    1373 </span>            : 
+<span class="lineNum">    1374 </span><span class="lineCov">         11 :    tree_rewrite(arch, rewrite_refs, &amp;params);</span>
+<span class="lineNum">    1375 </span>            : 
+<span class="lineNum">    1376 </span><span class="lineCov">         11 :    if (tree_stmts(ent) &gt; 0)</span>
+<span class="lineNum">    1377 </span><span class="lineNoCov">          0 :       tree_rewrite(ent, rewrite_refs, &amp;params);</span>
+<a name="1378"><span class="lineNum">    1378 </span>            : }</a>
+<span class="lineNum">    1379 </span>            : 
+<span class="lineNum">    1380 </span><span class="lineCov">          6 : static tree_t elab_generic_parse(tree_t generic, const char *str)</span>
+<span class="lineNum">    1381 </span>            : {
+<span class="lineNum">    1382 </span><span class="lineCov">          6 :    type_t type = tree_type(generic);</span>
+<span class="lineNum">    1383 </span>            : 
+<span class="lineNum">    1384 </span><span class="lineCov">          6 :    if (type_is_array(type) &amp;&amp; type_is_enum(type_elem(type)))</span>
+<span class="lineNum">    1385 </span><span class="lineCov">          3 :       return str_to_literal(str, NULL, type);</span>
+<span class="lineNum">    1386 </span>            : 
+<span class="lineNum">    1387 </span>            :    int64_t value;
+<span class="lineNum">    1388 </span><span class="lineCov">          3 :    if (!parse_value(type, str, &amp;value))</span>
+<span class="lineNum">    1389 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to parse \&quot;%s\&quot; as type %s for generic %s&quot;,</span>
+<span class="lineNum">    1390 </span>            :             str, type_pp(type), istr(tree_ident(generic)));
+<span class="lineNum">    1391 </span>            : 
+<span class="lineNum">    1392 </span><span class="lineCov">          3 :    if (type_is_enum(type)) {</span>
+<span class="lineNum">    1393 </span><span class="lineCov">          1 :       tree_t result = tree_new(T_REF);</span>
+<span class="lineNum">    1394 </span><span class="lineCov">          1 :       tree_set_type(result, type);</span>
+<span class="lineNum">    1395 </span><span class="lineCov">          1 :       tree_set_ident(result, ident_new(str));</span>
+<span class="lineNum">    1396 </span><span class="lineCov">          1 :       tree_set_ref(result, type_enum_literal(type, value));</span>
+<span class="lineNum">    1397 </span>            : 
+<span class="lineNum">    1398 </span><span class="lineCov">          1 :       return result;</span>
+<span class="lineNum">    1399 </span>            :    }
+<span class="lineNum">    1400 </span><span class="lineCov">          2 :    else if (type_is_integer(type)) {</span>
+<span class="lineNum">    1401 </span><span class="lineCov">          2 :       tree_t result = tree_new(T_LITERAL);</span>
+<span class="lineNum">    1402 </span><span class="lineCov">          2 :       tree_set_subkind(result, L_INT);</span>
+<span class="lineNum">    1403 </span><span class="lineCov">          2 :       tree_set_type(result, type);</span>
+<span class="lineNum">    1404 </span><span class="lineCov">          2 :       tree_set_ival(result, value);</span>
+<span class="lineNum">    1405 </span>            : 
+<span class="lineNum">    1406 </span><span class="lineCov">          2 :       return result;</span>
+<span class="lineNum">    1407 </span>            :    }
+<span class="lineNum">    1408 </span>            :    else
+<span class="lineNum">    1409 </span><span class="lineNoCov">          0 :       fatal(&quot;cannot override generic %s of type %s&quot;, istr(tree_ident(generic)),</span>
+<span class="lineNum">    1410 </span>            :             type_pp(type));
+<a name="1411"><span class="lineNum">    1411 </span>            : }</a>
+<span class="lineNum">    1412 </span>            : 
+<span class="lineNum">    1413 </span><span class="lineCov">        438 : static void elab_top_level_generics(tree_t arch, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1414 </span>            : {
+<span class="lineNum">    1415 </span><span class="lineCov">        438 :    tree_t ent = tree_ref(arch);</span>
+<span class="lineNum">    1416 </span>            : 
+<span class="lineNum">    1417 </span><span class="lineCov">        438 :    const int ngenerics = tree_generics(ent);</span>
+<span class="lineNum">    1418 </span><span class="lineCov">        459 :    for (int i = 0; i &lt; ngenerics; i++) {</span>
+<span class="lineNum">    1419 </span><span class="lineCov">         21 :       tree_t g = tree_generic(ent, i);</span>
+<span class="lineNum">    1420 </span><span class="lineCov">         21 :       ident_t name = tree_ident(g);</span>
+<span class="lineNum">    1421 </span>            : 
+<span class="lineNum">    1422 </span>            :       generic_list_t *it;
+<span class="lineNum">    1423 </span><span class="lineCov">         49 :       for (it = generic_override;</span>
+<span class="lineNum">    1424 </span><span class="lineCov">         13 :            it != NULL &amp;&amp; it-&gt;name != name;</span>
+<span class="lineNum">    1425 </span><span class="lineCov">          7 :            it = it-&gt;next)</span>
+<span class="lineNum">    1426 </span>            :          ;
+<span class="lineNum">    1427 </span>            : 
+<span class="lineNum">    1428 </span><span class="lineCov">         21 :       if (it != NULL) {</span>
+<span class="lineNum">    1429 </span><span class="lineCov">          6 :          tree_set_value(g, elab_generic_parse(g, it-&gt;value));</span>
+<span class="lineNum">    1430 </span><span class="lineCov">          6 :          it-&gt;used = true;</span>
+<span class="lineNum">    1431 </span>            :       }
+<span class="lineNum">    1432 </span><span class="lineCov">         15 :       else if (!tree_has_value(g))</span>
+<span class="lineNum">    1433 </span><span class="lineNoCov">          0 :          fatal_at(tree_loc(g), &quot;generic %s of top-level entity must have &quot;</span>
+<span class="lineNum">    1434 </span>            :                   &quot;default value or be specified using -gNAME=VALUE&quot;,
+<span class="lineNum">    1435 </span>            :                   istr(name));
+<span class="lineNum">    1436 </span>            :    }
+<span class="lineNum">    1437 </span>            : 
+<span class="lineNum">    1438 </span><span class="lineCov">        438 :    (void)elab_map(ent, arch, tree_generics, tree_generic, NULL, NULL);</span>
+<a name="1439"><span class="lineNum">    1439 </span><span class="lineCov">        438 : }</span></a>
+<span class="lineNum">    1440 </span>            : 
+<span class="lineNum">    1441 </span><span class="lineCov">        438 : static void elab_entity_arch(tree_t t, tree_t arch, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1442 </span>            : {
+<span class="lineNum">    1443 </span><span class="lineCov">        438 :    const char *name = simple_name(istr(tree_ident(t)));</span>
+<span class="lineNum">    1444 </span><span class="lineCov">        438 :    ident_t ninst = hpathf(ctx-&gt;inst, ':', &quot;:%s(%s)&quot;, name,</span>
+<span class="lineNum">    1445 </span>            :                           simple_name(istr(tree_ident(arch))));
+<span class="lineNum">    1446 </span><span class="lineCov">        438 :    ident_t npath = hpathf(ctx-&gt;path, ':', &quot;:%s&quot;, name);</span>
+<span class="lineNum">    1447 </span>            : 
+<span class="lineNum">    1448 </span><span class="lineCov">        438 :    elab_top_level_ports(arch, ctx);</span>
+<span class="lineNum">    1449 </span><span class="lineCov">        438 :    elab_top_level_generics(arch, ctx);</span>
+<span class="lineNum">    1450 </span>            : 
+<span class="lineNum">    1451 </span><span class="lineCov">        438 :    elab_pseudo_context(ctx-&gt;out, t);</span>
+<span class="lineNum">    1452 </span><span class="lineCov">        438 :    elab_copy_context(t, ctx);</span>
+<span class="lineNum">    1453 </span><span class="lineCov">        438 :    elab_decls(t, ctx);</span>
+<span class="lineNum">    1454 </span>            : 
+<span class="lineNum">    1455 </span><span class="lineCov">        438 :    tree_add_attr_str(ctx-&gt;out, simple_name_i, npath);</span>
+<span class="lineNum">    1456 </span>            : 
+<span class="lineNum">    1457 </span><span class="lineCov">        438 :    simplify(arch, EVAL_LOWER);</span>
+<span class="lineNum">    1458 </span><span class="lineCov">        438 :    bounds_check(arch);</span>
+<span class="lineNum">    1459 </span>            : 
+<span class="lineNum">    1460 </span><span class="lineCov">        438 :    if (bounds_errors() &gt; 0 || eval_errors() &gt; 0)</span>
+<span class="lineNum">    1461 </span><span class="lineCov">          1 :       return;</span>
+<span class="lineNum">    1462 </span>            : 
+<span class="lineNum">    1463 </span><span class="lineCov">       1311 :    elab_ctx_t new_ctx = {</span>
+<span class="lineNum">    1464 </span><span class="lineCov">        437 :       .out      = ctx-&gt;out,</span>
+<span class="lineNum">    1465 </span>            :       .path     = npath,
+<span class="lineNum">    1466 </span>            :       .inst     = ninst,
+<span class="lineNum">    1467 </span><span class="lineCov">        437 :       .next_net = ctx-&gt;next_net,</span>
+<span class="lineNum">    1468 </span><span class="lineCov">        437 :       .library  = ctx-&gt;library,</span>
+<span class="lineNum">    1469 </span>            :       .arch     = arch
+<span class="lineNum">    1470 </span>            :    };
+<span class="lineNum">    1471 </span><span class="lineCov">        437 :    elab_arch(arch, &amp;new_ctx);</span>
+<a name="1472"><span class="lineNum">    1472 </span>            : }</a>
+<span class="lineNum">    1473 </span>            : 
+<span class="lineNum">    1474 </span><span class="lineCov">        328 : static tree_t rewrite_package_signals(tree_t t, void *ctx)</span>
+<span class="lineNum">    1475 </span>            : {
+<span class="lineNum">    1476 </span><span class="lineCov">        328 :    tree_t decl = ctx;</span>
+<span class="lineNum">    1477 </span>            : 
+<span class="lineNum">    1478 </span><span class="lineCov">        328 :    if (tree_kind(t) != T_REF)</span>
+<span class="lineNum">    1479 </span>            :       return t;
+<span class="lineNum">    1480 </span>            : 
+<span class="lineNum">    1481 </span><span class="lineCov">         23 :    tree_t ref = tree_ref(t);</span>
+<span class="lineNum">    1482 </span>            : 
+<span class="lineNum">    1483 </span><span class="lineCov">         23 :    if (tree_kind(ref) != T_SIGNAL_DECL)</span>
+<span class="lineNum">    1484 </span>            :       return t;
+<span class="lineNum">    1485 </span>            : 
+<span class="lineNum">    1486 </span><span class="lineCov">         10 :    if (tree_ident(ref) != tree_ident(decl))</span>
+<span class="lineNum">    1487 </span>            :       return t;
+<span class="lineNum">    1488 </span>            : 
+<span class="lineNum">    1489 </span><span class="lineCov">          5 :    tree_set_ref(t, decl);</span>
+<span class="lineNum">    1490 </span><span class="lineCov">          5 :    return t;</span>
+<a name="1491"><span class="lineNum">    1491 </span>            : }</a>
+<span class="lineNum">    1492 </span>            : 
+<span class="lineNum">    1493 </span><span class="lineCov">        208 : static void elab_package_signals(tree_t unit, const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1494 </span>            : {
+<span class="lineNum">    1495 </span><span class="lineCov">        208 :    bool have_signals = false;</span>
+<span class="lineNum">    1496 </span><span class="lineCov">        208 :    const int ndecls = tree_decls(unit);</span>
+<span class="lineNum">    1497 </span><span class="lineCov">       5920 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">    1498 </span><span class="lineCov">       5712 :       tree_t d = tree_decl(unit, i);</span>
+<span class="lineNum">    1499 </span><span class="lineCov">       5712 :       if (tree_kind(d) != T_SIGNAL_DECL)</span>
+<span class="lineNum">    1500 </span><span class="lineCov">       5710 :          continue;</span>
+<span class="lineNum">    1501 </span><span class="lineCov">          2 :       else if (tree_nets(d) &gt; 0)</span>
+<span class="lineNum">    1502 </span><span class="lineNoCov">          0 :          continue;</span>
+<span class="lineNum">    1503 </span>            : 
+<span class="lineNum">    1504 </span><span class="lineCov">          2 :       if (!have_signals) {</span>
+<span class="lineNum">    1505 </span><span class="lineCov">          2 :          elab_push_scope(unit, ctx);</span>
+<span class="lineNum">    1506 </span><span class="lineCov">          2 :          have_signals = true;</span>
+<span class="lineNum">    1507 </span>            :       }
+<span class="lineNum">    1508 </span>            : 
+<span class="lineNum">    1509 </span><span class="lineCov">          2 :       elab_signal_nets(d, ctx);</span>
+<span class="lineNum">    1510 </span>            : 
+<span class="lineNum">    1511 </span><span class="lineCov">          2 :       tree_rewrite(ctx-&gt;out, rewrite_package_signals, d);</span>
+<span class="lineNum">    1512 </span>            : 
+<span class="lineNum">    1513 </span><span class="lineCov">          2 :       tree_add_decl(ctx-&gt;out, d);</span>
+<span class="lineNum">    1514 </span>            : 
+<span class="lineNum">    1515 </span><span class="lineCov">          2 :       ident_t i = ident_new(package_signal_path_name(tree_ident(d)));</span>
+<span class="lineNum">    1516 </span><span class="lineCov">          2 :       tree_set_ident(d, i);</span>
+<span class="lineNum">    1517 </span><span class="lineCov">          2 :       tree_add_attr_str(d, inst_name_i, i);</span>
+<span class="lineNum">    1518 </span>            :    }
+<span class="lineNum">    1519 </span>            : 
+<span class="lineNum">    1520 </span><span class="lineCov">        208 :    if (have_signals)</span>
+<span class="lineNum">    1521 </span><span class="lineCov">          2 :       elab_pop_scope(ctx);</span>
+<a name="1522"><span class="lineNum">    1522 </span><span class="lineCov">        208 : }</span></a>
+<span class="lineNum">    1523 </span>            : 
+<span class="lineNum">    1524 </span><span class="lineCov">        438 : static void elab_context_signals(const elab_ctx_t *ctx)</span>
+<span class="lineNum">    1525 </span>            : {
+<span class="lineNum">    1526 </span><span class="lineCov">        438 :    const int nctx = tree_contexts(ctx-&gt;out);</span>
+<span class="lineNum">    1527 </span><span class="lineCov">       1617 :    for (int i = 0; i &lt; nctx; i++) {</span>
+<span class="lineNum">    1528 </span><span class="lineCov">       1179 :       tree_t c = tree_context(ctx-&gt;out, i);</span>
+<span class="lineNum">    1529 </span><span class="lineCov">       1179 :       if (tree_kind(c) != T_USE)</span>
+<span class="lineNum">    1530 </span><span class="lineNoCov">          0 :          continue;</span>
+<span class="lineNum">    1531 </span>            : 
+<span class="lineNum">    1532 </span><span class="lineCov">       1179 :       ident_t name = tree_ident(c);</span>
+<span class="lineNum">    1533 </span><span class="lineCov">       1179 :       lib_t lib = elab_find_lib(name, ctx);</span>
+<span class="lineNum">    1534 </span>            : 
+<span class="lineNum">    1535 </span><span class="lineCov">       1179 :       tree_t pack = lib_get_check_stale(lib, name);</span>
+<span class="lineNum">    1536 </span><span class="lineCov">       1179 :       if ((pack == NULL) || (tree_kind(pack) != T_PACKAGE))</span>
+<span class="lineNum">    1537 </span><span class="lineCov">       1063 :          continue;</span>
+<span class="lineNum">    1538 </span>            : 
+<span class="lineNum">    1539 </span><span class="lineCov">        116 :       elab_package_signals(pack, ctx);</span>
+<span class="lineNum">    1540 </span>            : 
+<span class="lineNum">    1541 </span><span class="lineCov">        116 :       ident_t body_i = ident_prefix(name, ident_new(&quot;body&quot;), '-');</span>
+<span class="lineNum">    1542 </span><span class="lineCov">        116 :       tree_t body = lib_get_check_stale(lib, body_i);</span>
+<span class="lineNum">    1543 </span><span class="lineCov">        116 :       if (body == NULL)</span>
+<span class="lineNum">    1544 </span><span class="lineCov">         24 :          continue;</span>
+<span class="lineNum">    1545 </span>            : 
+<span class="lineNum">    1546 </span><span class="lineCov">         92 :       elab_package_signals(body, ctx);</span>
+<span class="lineNum">    1547 </span>            :    }
+<a name="1548"><span class="lineNum">    1548 </span><span class="lineCov">        438 : }</span></a>
+<span class="lineNum">    1549 </span>            : 
+<span class="lineNum">    1550 </span><span class="lineCov">          6 : void elab_set_generic(const char *name, const char *value)</span>
+<span class="lineNum">    1551 </span>            : {
+<span class="lineNum">    1552 </span><span class="lineCov">          6 :    ident_t id = ident_new(name);</span>
+<span class="lineNum">    1553 </span>            : 
+<span class="lineNum">    1554 </span><span class="lineCov">         13 :    for (generic_list_t *it = generic_override; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">    1555 </span><span class="lineCov">          7 :       if (it-&gt;name == id)</span>
+<span class="lineNum">    1556 </span><span class="lineNoCov">          0 :          fatal(&quot;generic %s already has value '%s'&quot;, name, it-&gt;value);</span>
+<span class="lineNum">    1557 </span>            :    }
+<span class="lineNum">    1558 </span>            : 
+<span class="lineNum">    1559 </span><span class="lineCov">          6 :    generic_list_t *new = xmalloc(sizeof(generic_list_t));</span>
+<span class="lineNum">    1560 </span><span class="lineCov">          6 :    new-&gt;name  = id;</span>
+<span class="lineNum">    1561 </span><span class="lineCov">          6 :    new-&gt;value = xstrdup(value);</span>
+<span class="lineNum">    1562 </span><span class="lineCov">          6 :    new-&gt;used  = false;</span>
+<span class="lineNum">    1563 </span><span class="lineCov">          6 :    new-&gt;next  = generic_override;</span>
+<span class="lineNum">    1564 </span>            : 
+<span class="lineNum">    1565 </span><span class="lineCov">          6 :    generic_override = new;</span>
+<a name="1566"><span class="lineNum">    1566 </span><span class="lineCov">          6 : }</span></a>
+<span class="lineNum">    1567 </span>            : 
+<span class="lineNum">    1568 </span><span class="lineCov">        438 : tree_t elab(tree_t top)</span>
+<span class="lineNum">    1569 </span>            : {
+<span class="lineNum">    1570 </span><span class="lineCov">        438 :    tree_t e = tree_new(T_ELAB);</span>
+<span class="lineNum">    1571 </span><span class="lineCov">        438 :    tree_set_ident(e, ident_prefix(tree_ident(top),</span>
+<span class="lineNum">    1572 </span>            :                                   ident_new(&quot;elab&quot;), '.'));
+<span class="lineNum">    1573 </span>            : 
+<span class="lineNum">    1574 </span><span class="lineCov">        438 :    netid_t next_net = 0;</span>
+<span class="lineNum">    1575 </span><span class="lineCov">        876 :    elab_ctx_t ctx = {</span>
+<span class="lineNum">    1576 </span>            :       .out      = e,
+<span class="lineNum">    1577 </span>            :       .path     = NULL,
+<span class="lineNum">    1578 </span>            :       .inst     = NULL,
+<span class="lineNum">    1579 </span>            :       .next_net = &amp;next_net,
+<span class="lineNum">    1580 </span><span class="lineCov">        438 :       .library  = lib_work()</span>
+<span class="lineNum">    1581 </span>            :    };
+<span class="lineNum">    1582 </span>            : 
+<span class="lineNum">    1583 </span><span class="lineCov">        438 :    switch (tree_kind(top)) {</span>
+<span class="lineNum">    1584 </span>            :    case T_ENTITY:
+<span class="lineNum">    1585 </span>            :       {
+<span class="lineNum">    1586 </span><span class="lineCov">        438 :          tree_t arch = pick_arch(NULL, tree_ident(top), NULL, &amp;ctx);</span>
+<span class="lineNum">    1587 </span><span class="lineCov">        438 :          elab_entity_arch(top, arch, &amp;ctx);</span>
+<span class="lineNum">    1588 </span>            :       }
+<span class="lineNum">    1589 </span><span class="lineCov">        438 :       break;</span>
+<span class="lineNum">    1590 </span>            :    case T_ARCH:
+<span class="lineNum">    1591 </span><span class="lineNoCov">          0 :       elab_entity_arch(tree_ref(top), top, &amp;ctx);</span>
+<span class="lineNum">    1592 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">    1593 </span>            :    default:
+<span class="lineNum">    1594 </span><span class="lineNoCov">          0 :       fatal(&quot;%s is not a suitable top-level unit&quot;, istr(tree_ident(top)));</span>
+<span class="lineNum">    1595 </span>            :    }
+<span class="lineNum">    1596 </span>            : 
+<span class="lineNum">    1597 </span><span class="lineCov">        438 :    elab_context_signals(&amp;ctx);</span>
+<span class="lineNum">    1598 </span>            : 
+<span class="lineNum">    1599 </span><span class="lineCov">        438 :    if (errors &gt; 0 || eval_errors() &gt; 0)</span>
+<span class="lineNum">    1600 </span>            :       return NULL;
+<span class="lineNum">    1601 </span>            : 
+<span class="lineNum">    1602 </span><span class="lineCov">        435 :    tree_add_attr_int(e, nnets_i, next_net);</span>
+<span class="lineNum">    1603 </span>            : 
+<span class="lineNum">    1604 </span><span class="lineCov">        435 :    if (opt_get_int(&quot;cover&quot;))</span>
+<span class="lineNum">    1605 </span><span class="lineCov">          2 :       cover_tag(e);</span>
+<span class="lineNum">    1606 </span>            : 
+<span class="lineNum">    1607 </span><span class="lineCov">        441 :    for (generic_list_t *it = generic_override; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">    1608 </span><span class="lineCov">          6 :       if (!it-&gt;used)</span>
+<span class="lineNum">    1609 </span><span class="lineNoCov">          0 :          warnf(&quot;generic value for %s not used&quot;, istr(it-&gt;name));</span>
+<span class="lineNum">    1610 </span>            :    }
+<span class="lineNum">    1611 </span>            : 
+<span class="lineNum">    1612 </span><span class="lineCov">        435 :    if (bounds_errors() == 0) {</span>
+<span class="lineNum">    1613 </span><span class="lineCov">        432 :       lib_put(lib_work(), e);</span>
+<span class="lineNum">    1614 </span><span class="lineCov">        432 :       return e;</span>
+<span class="lineNum">    1615 </span>            :    }
+<span class="lineNum">    1616 </span>            :    else
+<span class="lineNum">    1617 </span>            :       return NULL;
+<span class="lineNum">    1618 </span>            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

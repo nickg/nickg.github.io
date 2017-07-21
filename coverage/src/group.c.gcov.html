@@ -1,0 +1,628 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - nvc.info - src/group.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - group.c<span style="font-size: 80%;"> (source / <a href="group.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">nvc.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">253</td>
+            <td class="headerCovTableEntry">281</td>
+            <td class="headerCovTableEntryHi">90.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-07-21</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<span class="lineNum">       2 </span>            : //  Copyright (C) 2013-2016  Nick Gasson
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //  This program is free software: you can redistribute it and/or modify
+<span class="lineNum">       5 </span>            : //  it under the terms of the GNU General Public License as published by
+<span class="lineNum">       6 </span>            : //  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       7 </span>            : //  (at your option) any later version.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //  This program is distributed in the hope that it will be useful,
+<span class="lineNum">      10 </span>            : //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      11 </span>            : //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      12 </span>            : //  GNU General Public License for more details.
+<span class="lineNum">      13 </span>            : //
+<span class="lineNum">      14 </span>            : //  You should have received a copy of the GNU General Public License
+<span class="lineNum">      15 </span>            : //  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      16 </span>            : //
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &quot;util.h&quot;
+<span class="lineNum">      19 </span>            : #include &quot;tree.h&quot;
+<span class="lineNum">      20 </span>            : #include &quot;phase.h&quot;
+<span class="lineNum">      21 </span>            : #include &quot;common.h&quot;
+<span class="lineNum">      22 </span>            : #include &quot;rt/netdb.h&quot;
+<span class="lineNum">      23 </span>            : 
+<span class="lineNum">      24 </span>            : #include &lt;assert.h&gt;
+<span class="lineNum">      25 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      26 </span>            : 
+<span class="lineNum">      27 </span>            : typedef struct {
+<span class="lineNum">      28 </span>            :    group_t   *groups;
+<span class="lineNum">      29 </span>            :    group_t   *free_list;
+<span class="lineNum">      30 </span>            :    groupid_t  next_gid;
+<span class="lineNum">      31 </span>            :    group_t  **lookup;
+<span class="lineNum">      32 </span>            :    int        nnets;
+<span class="lineNum">      33 </span>            : } group_nets_ctx_t;
+<span class="lineNum">      34 </span>            : 
+<a name="35"><span class="lineNum">      35 </span>            : static void group_target(tree_t t, group_nets_ctx_t *ctx);</a>
+<span class="lineNum">      36 </span>            : 
+<span class="lineNum">      37 </span><span class="lineCov">       1539 : static groupid_t group_alloc(group_nets_ctx_t *ctx,</span>
+<span class="lineNum">      38 </span>            :                              netid_t first, unsigned length)
+<span class="lineNum">      39 </span>            : {
+<span class="lineNum">      40 </span>            :    group_t *g;
+<span class="lineNum">      41 </span><span class="lineCov">       1539 :    if (ctx-&gt;free_list != NULL) {</span>
+<span class="lineNum">      42 </span><span class="lineCov">        542 :       g = ctx-&gt;free_list;</span>
+<span class="lineNum">      43 </span><span class="lineCov">        542 :       ctx-&gt;free_list = g-&gt;next;</span>
+<span class="lineNum">      44 </span>            :    }
+<span class="lineNum">      45 </span>            :    else
+<span class="lineNum">      46 </span><span class="lineCov">        997 :       g = xmalloc(sizeof(group_t));</span>
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span><span class="lineCov">       1539 :    g-&gt;next   = ctx-&gt;groups;</span>
+<span class="lineNum">      49 </span><span class="lineCov">       1539 :    g-&gt;gid    = ctx-&gt;next_gid++;</span>
+<span class="lineNum">      50 </span><span class="lineCov">       1539 :    g-&gt;first  = first;</span>
+<span class="lineNum">      51 </span><span class="lineCov">       1539 :    g-&gt;length = length;</span>
+<span class="lineNum">      52 </span>            : 
+<span class="lineNum">      53 </span><span class="lineCov">       1539 :    ctx-&gt;groups = g;</span>
+<span class="lineNum">      54 </span>            : 
+<span class="lineNum">      55 </span><span class="lineCov">     272277 :    for (netid_t i = first; i &lt; first + length; i++)</span>
+<span class="lineNum">      56 </span><span class="lineCov">     270738 :       ctx-&gt;lookup[i] = g;</span>
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span><span class="lineCov">       1539 :    return g-&gt;gid;</span>
+<a name="59"><span class="lineNum">      59 </span>            : }</a>
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineCov">        543 : static void group_unlink(group_nets_ctx_t *ctx, group_t *where)</span>
+<span class="lineNum">      62 </span>            : {
+<span class="lineNum">      63 </span><span class="lineCov">        543 :    where-&gt;gid = GROUPID_INVALID;</span>
+<span class="lineNum">      64 </span>            : 
+<span class="lineNum">      65 </span><span class="lineCov">        543 :    if (where == ctx-&gt;groups)</span>
+<span class="lineNum">      66 </span><span class="lineCov">         26 :       ctx-&gt;groups = where-&gt;next;</span>
+<span class="lineNum">      67 </span>            :    else {
+<span class="lineNum">      68 </span><span class="lineCov">       1155 :       for (group_t *it = ctx-&gt;groups; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">      69 </span><span class="lineCov">       1155 :          if (it-&gt;next == where) {</span>
+<span class="lineNum">      70 </span><span class="lineCov">        517 :             it-&gt;next = where-&gt;next;</span>
+<span class="lineNum">      71 </span><span class="lineCov">        543 :             return;</span>
+<span class="lineNum">      72 </span>            :          }
+<span class="lineNum">      73 </span>            :       }
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :       fatal_trace(&quot;unlink group not in list&quot;);</span>
+<span class="lineNum">      75 </span>            :    }
+<a name="76"><span class="lineNum">      76 </span>            : }</a>
+<span class="lineNum">      77 </span>            : 
+<span class="lineNum">      78 </span><span class="lineCov">        543 : static void group_reuse(group_nets_ctx_t *ctx, group_t *group)</span>
+<span class="lineNum">      79 </span>            : {
+<span class="lineNum">      80 </span><span class="lineCov">        543 :    group-&gt;next = ctx-&gt;free_list;</span>
+<span class="lineNum">      81 </span><span class="lineCov">        543 :    ctx-&gt;free_list = group;</span>
+<a name="82"><span class="lineNum">      82 </span><span class="lineCov">        543 : }</span></a>
+<span class="lineNum">      83 </span>            : 
+<span class="lineNum">      84 </span><span class="lineCov">       3937 : static groupid_t group_add(group_nets_ctx_t *ctx, netid_t first, int length)</span>
+<span class="lineNum">      85 </span>            : {
+<span class="lineNum">      86 </span><span class="lineCov">       3937 :    assert(length &gt; 0);</span>
+<span class="lineNum">      87 </span><span class="lineCov">       3937 :    assert(first &lt; ctx-&gt;nnets);</span>
+<span class="lineNum">      88 </span><span class="lineCov">       3937 :    assert(first + length &lt;= ctx-&gt;nnets);</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineCov">     268279 :    for (netid_t i = first; i &lt; first + length; i++) {</span>
+<span class="lineNum">      91 </span><span class="lineCov">     271219 :       group_t *it = ctx-&gt;lookup[i];</span>
+<span class="lineNum">      92 </span><span class="lineCov">     271219 :       if (it == NULL || it-&gt;gid == GROUPID_INVALID)</span>
+<span class="lineNum">      93 </span><span class="lineCov">     268279 :          continue;</span>
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineCov">       2940 :       if ((it-&gt;first == first) &amp;&amp; (it-&gt;length == length)) {</span>
+<span class="lineNum">      96 </span>            :          // Exactly matches
+<span class="lineNum">      97 </span>            :          return it-&gt;gid;
+<span class="lineNum">      98 </span>            :       }
+<span class="lineNum">      99 </span><span class="lineCov">       1416 :       else if (it-&gt;first &gt;= first + length) {</span>
+<span class="lineNum">     100 </span>            :          // Disjoint, to the right
+<span class="lineNum">     101 </span>            :       }
+<span class="lineNum">     102 </span><span class="lineCov">       1416 :       else if (first &gt;= it-&gt;first + it-&gt;length) {</span>
+<span class="lineNum">     103 </span>            :          // Disjoint, to the left
+<span class="lineNum">     104 </span>            :       }
+<span class="lineNum">     105 </span><span class="lineCov">       1416 :       else if ((first == it-&gt;first) &amp;&amp; (length &gt; it-&gt;length)) {</span>
+<span class="lineNum">     106 </span>            :          // Overlaps on left
+<span class="lineNum">     107 </span><span class="lineCov">        873 :          group_add(ctx, first + it-&gt;length, length - it-&gt;length);</span>
+<span class="lineNum">     108 </span><span class="lineCov">        873 :          return GROUPID_INVALID;</span>
+<span class="lineNum">     109 </span>            :       }
+<span class="lineNum">     110 </span><span class="lineCov">        543 :       else if ((first &gt; it-&gt;first)</span>
+<span class="lineNum">     111 </span><span class="lineCov">        145 :                &amp;&amp; (first + length == it-&gt;first + it-&gt;length)) {</span>
+<span class="lineNum">     112 </span>            :          // Overlaps on right
+<span class="lineNum">     113 </span><span class="lineCov">        135 :          group_unlink(ctx, it);</span>
+<span class="lineNum">     114 </span><span class="lineCov">        135 :          group_add(ctx, it-&gt;first, first - it-&gt;first);</span>
+<span class="lineNum">     115 </span><span class="lineCov">        135 :          group_reuse(ctx, it);</span>
+<span class="lineNum">     116 </span><span class="lineCov">        135 :          return group_alloc(ctx, first, length);</span>
+<span class="lineNum">     117 </span>            :       }
+<span class="lineNum">     118 </span><span class="lineCov">        408 :       else if ((first &gt; it-&gt;first)</span>
+<span class="lineNum">     119 </span><span class="lineCov">         10 :                &amp;&amp; (first + length &lt; it-&gt;first + it-&gt;length)) {</span>
+<span class="lineNum">     120 </span>            :          // Overlaps completely
+<span class="lineNum">     121 </span><span class="lineCov">          9 :          group_unlink(ctx, it);</span>
+<span class="lineNum">     122 </span><span class="lineCov">          9 :          group_add(ctx, it-&gt;first, first - it-&gt;first);</span>
+<span class="lineNum">     123 </span><span class="lineCov">          9 :          group_add(ctx, first + length,</span>
+<span class="lineNum">     124 </span><span class="lineCov">          9 :                    it-&gt;first + it-&gt;length - first - length);</span>
+<span class="lineNum">     125 </span><span class="lineCov">          9 :          group_reuse(ctx, it);</span>
+<span class="lineNum">     126 </span><span class="lineCov">          9 :          return group_alloc(ctx, first, length);</span>
+<span class="lineNum">     127 </span>            :       }
+<span class="lineNum">     128 </span><span class="lineCov">        399 :       else if ((first &lt; it-&gt;first)</span>
+<span class="lineNum">     129 </span><span class="lineNoCov">          0 :                &amp;&amp; (first + length &gt; it-&gt;first + it-&gt;length)) {</span>
+<span class="lineNum">     130 </span>            :          // Contains in middle
+<span class="lineNum">     131 </span><span class="lineNoCov">          0 :          group_add(ctx, first, it-&gt;first - first);</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :          group_add(ctx, it-&gt;first + it-&gt;length,</span>
+<span class="lineNum">     133 </span><span class="lineNoCov">          0 :                    first + length - it-&gt;first - it-&gt;length);</span>
+<span class="lineNum">     134 </span><span class="lineNoCov">          0 :          return GROUPID_INVALID;</span>
+<span class="lineNum">     135 </span>            :       }
+<span class="lineNum">     136 </span><span class="lineCov">        399 :       else if ((first == it-&gt;first)</span>
+<span class="lineNum">     137 </span><span class="lineCov">        398 :                &amp;&amp; (first + length &lt; it-&gt;first + it-&gt;length)) {</span>
+<span class="lineNum">     138 </span>            :          // Contains on left
+<span class="lineNum">     139 </span><span class="lineCov">        398 :          group_unlink(ctx, it);</span>
+<span class="lineNum">     140 </span><span class="lineCov">        398 :          group_add(ctx, first + length, it-&gt;length - length);</span>
+<span class="lineNum">     141 </span><span class="lineCov">        398 :          group_reuse(ctx, it);</span>
+<span class="lineNum">     142 </span><span class="lineCov">        398 :          return group_alloc(ctx, first, length);</span>
+<span class="lineNum">     143 </span>            :       }
+<span class="lineNum">     144 </span><span class="lineCov">          1 :       else if ((first &lt; it-&gt;first)</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :                &amp;&amp; (first + length == it-&gt;first + it-&gt;length)) {</span>
+<span class="lineNum">     146 </span>            :          // Contains on right
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :          group_add(ctx, first, it-&gt;first - first);</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :          return GROUPID_INVALID;</span>
+<span class="lineNum">     149 </span>            :       }
+<span class="lineNum">     150 </span><span class="lineCov">          1 :       else if ((first &lt; it-&gt;first) &amp;&amp; (first + length &gt; it-&gt;first)) {</span>
+<span class="lineNum">     151 </span>            :          // Split left
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :          group_unlink(ctx, it);</span>
+<span class="lineNum">     153 </span><span class="lineNoCov">          0 :          group_add(ctx, first, it-&gt;first - first);</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :          group_add(ctx, it-&gt;first, first + length - it-&gt;first);</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :          group_add(ctx, first + length,</span>
+<span class="lineNum">     156 </span><span class="lineNoCov">          0 :                    it-&gt;first + it-&gt;length - first - length);</span>
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :          group_reuse(ctx, it);</span>
+<span class="lineNum">     158 </span><span class="lineNoCov">          0 :          return GROUPID_INVALID;</span>
+<span class="lineNum">     159 </span>            :       }
+<span class="lineNum">     160 </span><span class="lineCov">          1 :       else if ((first &gt; it-&gt;first) &amp;&amp; (it-&gt;first + it-&gt;length &gt; first)) {</span>
+<span class="lineNum">     161 </span>            :          // Split right
+<span class="lineNum">     162 </span><span class="lineCov">          1 :          group_unlink(ctx, it);</span>
+<span class="lineNum">     163 </span><span class="lineCov">          1 :          group_add(ctx, it-&gt;first, first - it-&gt;first);</span>
+<span class="lineNum">     164 </span><span class="lineCov">          1 :          group_add(ctx, first, it-&gt;first + it-&gt;length - first);</span>
+<span class="lineNum">     165 </span><span class="lineCov">          1 :          group_add(ctx, it-&gt;first + it-&gt;length,</span>
+<span class="lineNum">     166 </span><span class="lineCov">          1 :                    first + length - it-&gt;first - it-&gt;length);</span>
+<span class="lineNum">     167 </span><span class="lineCov">          1 :          group_reuse(ctx, it);</span>
+<span class="lineNum">     168 </span><span class="lineCov">          1 :          return GROUPID_INVALID;</span>
+<span class="lineNum">     169 </span>            :       }
+<span class="lineNum">     170 </span>            :       else
+<span class="lineNum">     171 </span><span class="lineNoCov">          0 :          fatal(&quot;unhandled case in group_add: first=%d length=%d &quot;</span>
+<span class="lineNum">     172 </span>            :                &quot;it-&gt;first=%d it-&gt;length=%d&quot;, first, length,
+<span class="lineNum">     173 </span>            :                it-&gt;first, it-&gt;length);
+<span class="lineNum">     174 </span>            :    }
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span><span class="lineCov">        997 :    return group_alloc(ctx, first, length);</span>
+<a name="177"><span class="lineNum">     177 </span>            : }</a>
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineCov">       2338 : static bool group_contains_record(type_t type)</span>
+<span class="lineNum">     180 </span>            : {
+<span class="lineNum">     181 </span><span class="lineCov">       3480 :    if (type_is_record(type))</span>
+<span class="lineNum">     182 </span>            :       return true;
+<span class="lineNum">     183 </span><span class="lineCov">       3441 :    else if (type_is_array(type))</span>
+<span class="lineNum">     184 </span><span class="lineCov">       1142 :       return group_contains_record(type_elem(type));</span>
+<span class="lineNum">     185 </span>            :    else
+<span class="lineNum">     186 </span>            :       return false;
+<a name="187"><span class="lineNum">     187 </span>            : }</a>
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineCov">        267 : static int group_net_to_field(type_t type, netid_t nid)</span>
+<span class="lineNum">     190 </span>            : {
+<span class="lineNum">     191 </span><span class="lineCov">        897 :    int count = 0;</span>
+<span class="lineNum">     192 </span><span class="lineCov">        897 :    if (type_is_record(type)) {</span>
+<span class="lineNum">     193 </span><span class="lineCov">        411 :       const int nfields = type_fields(type);</span>
+<span class="lineNum">     194 </span><span class="lineCov">        411 :       netid_t first = 0;</span>
+<span class="lineNum">     195 </span><span class="lineCov">        723 :       for (int i = 0; i &lt; nfields; i++) {</span>
+<span class="lineNum">     196 </span><span class="lineCov">        723 :          tree_t field = type_field(type, i);</span>
+<span class="lineNum">     197 </span><span class="lineCov">        723 :          type_t ftype = tree_type(field);</span>
+<span class="lineNum">     198 </span><span class="lineCov">        723 :          const netid_t next = first + type_width(tree_type(field));</span>
+<span class="lineNum">     199 </span><span class="lineCov">        723 :          if (nid &gt;= first &amp;&amp; nid &lt; next) {</span>
+<span class="lineNum">     200 </span><span class="lineCov">        411 :             if (type_is_array(ftype) || type_is_record(ftype))</span>
+<span class="lineNum">     201 </span><span class="lineCov">        311 :                return count + group_net_to_field(ftype, nid - first);</span>
+<span class="lineNum">     202 </span>            :             else
+<span class="lineNum">     203 </span>            :                return count;
+<span class="lineNum">     204 </span>            :          }
+<span class="lineNum">     205 </span><span class="lineCov">        312 :          first = next;</span>
+<span class="lineNum">     206 </span><span class="lineCov">        312 :          count += type_width(ftype);</span>
+<span class="lineNum">     207 </span>            :       }
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :       fatal_trace(&quot;group_net_to_field failed to find field for nid=%d type=%s&quot;,</span>
+<span class="lineNum">     209 </span>            :                   nid, type_pp(type));
+<span class="lineNum">     210 </span>            :    }
+<span class="lineNum">     211 </span><span class="lineCov">        486 :    else if (type_is_array(type)) {</span>
+<span class="lineNum">     212 </span><span class="lineCov">        319 :       type_t elem = type_elem(type);</span>
+<span class="lineNum">     213 </span><span class="lineCov">        319 :       const int width = type_width(elem);</span>
+<span class="lineNum">     214 </span><span class="lineCov">        319 :       if (type_is_record(elem))</span>
+<span class="lineNum">     215 </span><span class="lineCov">        152 :          return (nid / width) * width + group_net_to_field(elem, nid % width);</span>
+<span class="lineNum">     216 </span>            :       else
+<span class="lineNum">     217 </span><span class="lineCov">        167 :          return group_net_to_field(elem, nid % width);</span>
+<span class="lineNum">     218 </span>            :    }
+<span class="lineNum">     219 </span>            :    else
+<span class="lineNum">     220 </span>            :       return 0;
+<a name="221"><span class="lineNum">     221 </span>            : }</a>
+<span class="lineNum">     222 </span>            : 
+<span class="lineNum">     223 </span><span class="lineCov">       2338 : static void group_decl(tree_t decl, group_nets_ctx_t *ctx, int start, int n)</span>
+<span class="lineNum">     224 </span>            : {
+<span class="lineNum">     225 </span><span class="lineCov">       2338 :    netid_t first = NETID_INVALID;</span>
+<span class="lineNum">     226 </span><span class="lineCov">       2338 :    unsigned len = 0;</span>
+<span class="lineNum">     227 </span><span class="lineCov">       2338 :    type_t type = tree_type(decl);</span>
+<span class="lineNum">     228 </span><span class="lineCov">       2338 :    const int nnets = tree_nets(decl);</span>
+<span class="lineNum">     229 </span><span class="lineCov">       2338 :    const bool record = group_contains_record(type);</span>
+<span class="lineNum">     230 </span><span class="lineCov">       2338 :    int ffield = -1;</span>
+<span class="lineNum">     231 </span><span class="lineCov">       2338 :    assert((n == -1) | (start + n &lt;= nnets));</span>
+<span class="lineNum">     232 </span><span class="lineCov">      12311 :    for (int i = start; i &lt; (n == -1 ? nnets : start + n); i++) {</span>
+<span class="lineNum">     233 </span><span class="lineCov">      12311 :       netid_t nid = tree_net(decl, i);</span>
+<span class="lineNum">     234 </span><span class="lineCov">      12311 :       if (first == NETID_INVALID) {</span>
+<span class="lineNum">     235 </span><span class="lineCov">       2336 :          first  = nid;</span>
+<span class="lineNum">     236 </span><span class="lineCov">       2336 :          len    = 1;</span>
+<span class="lineNum">     237 </span><span class="lineCov">       2336 :          ffield = record ? group_net_to_field(type, i) : -1;</span>
+<span class="lineNum">     238 </span>            :       }
+<span class="lineNum">     239 </span><span class="lineCov">       9975 :       else if (nid == first + len</span>
+<span class="lineNum">     240 </span><span class="lineCov">       9953 :                &amp;&amp; (!record || group_net_to_field(type, i) == ffield))</span>
+<span class="lineNum">     241 </span><span class="lineCov">       9911 :          ++len;</span>
+<span class="lineNum">     242 </span>            :       else {
+<span class="lineNum">     243 </span><span class="lineCov">         64 :          group_add(ctx, first, len);</span>
+<span class="lineNum">     244 </span><span class="lineCov">         64 :          first  = nid;</span>
+<span class="lineNum">     245 </span><span class="lineCov">         64 :          len    = 1;</span>
+<span class="lineNum">     246 </span><span class="lineCov">         64 :          ffield = record ? group_net_to_field(type, i) : -1;</span>
+<span class="lineNum">     247 </span>            :       }
+<span class="lineNum">     248 </span>            :    }
+<span class="lineNum">     249 </span>            : 
+<span class="lineNum">     250 </span><span class="lineCov">       2338 :    if (first != NETID_INVALID)</span>
+<span class="lineNum">     251 </span><span class="lineCov">       2336 :       group_add(ctx, first, len);</span>
+<span class="lineNum">     252 </span>            :    else {
+<span class="lineNum">     253 </span>            :       // Array signal with null range
+<span class="lineNum">     254 </span><span class="lineCov">          2 :       tree_add_attr_int(decl, null_range_i, 1);</span>
+<span class="lineNum">     255 </span>            :    }
+<a name="256"><span class="lineNum">     256 </span><span class="lineCov">       2338 : }</span></a>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineCov">       1522 : static void group_ref(tree_t target, group_nets_ctx_t *ctx, int start, int n)</span>
+<span class="lineNum">     259 </span>            : {
+<span class="lineNum">     260 </span><span class="lineCov">       1522 :    assert(tree_kind(target) == T_REF);</span>
+<span class="lineNum">     261 </span>            : 
+<span class="lineNum">     262 </span><span class="lineCov">       1522 :    tree_t decl = tree_ref(target);</span>
+<span class="lineNum">     263 </span><span class="lineCov">       1522 :    switch (tree_kind(decl)) {</span>
+<span class="lineNum">     264 </span>            :    case T_SIGNAL_DECL:
+<span class="lineNum">     265 </span><span class="lineCov">       1468 :       group_decl(decl, ctx, start, n);</span>
+<span class="lineNum">     266 </span><span class="lineCov">       1468 :       break;</span>
+<span class="lineNum">     267 </span>            :    case T_ALIAS:
+<span class="lineNum">     268 </span><span class="lineCov">          6 :       group_target(tree_value(decl), ctx);</span>
+<span class="lineNum">     269 </span><span class="lineCov">          6 :       break;</span>
+<span class="lineNum">     270 </span>            :    default:
+<span class="lineNum">     271 </span>            :       break;
+<span class="lineNum">     272 </span>            :    }
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">       1522 : }</span></a>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span><span class="lineCov">          5 : static void ungroup_ref(tree_t target, group_nets_ctx_t *ctx)</span>
+<span class="lineNum">     276 </span>            : {
+<span class="lineNum">     277 </span><span class="lineCov">          5 :    tree_t decl = tree_ref(target);</span>
+<span class="lineNum">     278 </span><span class="lineCov">          5 :    if (tree_kind(decl) == T_SIGNAL_DECL) {</span>
+<span class="lineNum">     279 </span><span class="lineCov">          1 :       const int nnets = tree_nets(decl);</span>
+<span class="lineNum">     280 </span><span class="lineCov">         10 :       for (int i = 0; i &lt; nnets; i++)</span>
+<span class="lineNum">     281 </span><span class="lineCov">          9 :          group_add(ctx, tree_net(decl, i), 1);</span>
+<span class="lineNum">     282 </span>            :    }
+<a name="283"><span class="lineNum">     283 </span><span class="lineCov">          5 : }</span></a>
+<span class="lineNum">     284 </span>            : 
+<span class="lineNum">     285 </span><span class="lineCov">          5 : static void ungroup_name(tree_t name, group_nets_ctx_t *ctx)</span>
+<span class="lineNum">     286 </span>            : {
+<span class="lineNum">     287 </span><span class="lineCov">         11 :    switch (tree_kind(name)) {</span>
+<span class="lineNum">     288 </span>            :    case T_ARRAY_REF:
+<span class="lineNum">     289 </span>            :    case T_ARRAY_SLICE:
+<span class="lineNum">     290 </span>            :    case T_RECORD_REF:
+<span class="lineNum">     291 </span><span class="lineCov">          6 :       ungroup_name(tree_value(name), ctx);</span>
+<span class="lineNum">     292 </span><span class="lineCov">          6 :       break;</span>
+<span class="lineNum">     293 </span>            :    case T_REF:
+<span class="lineNum">     294 </span><span class="lineCov">          5 :       ungroup_ref(name, ctx);</span>
+<span class="lineNum">     295 </span>            :       break;
+<span class="lineNum">     296 </span>            :    default:
+<span class="lineNum">     297 </span><span class="lineNoCov">          0 :       fatal_trace(&quot;cannot handle tree type %s in ungroup_name&quot;,</span>
+<span class="lineNum">     298 </span>            :                   tree_kind_str(tree_kind(name)));
+<span class="lineNum">     299 </span>            :    }
+<a name="300"><span class="lineNum">     300 </span><span class="lineCov">          5 : }</span></a>
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span><span class="lineCov">        564 : static bool group_name(tree_t target, group_nets_ctx_t *ctx, int start, int n)</span>
+<span class="lineNum">     303 </span>            : {
+<span class="lineNum">     304 </span><span class="lineCov">        564 :    switch (tree_kind(target)) {</span>
+<span class="lineNum">     305 </span>            :    case T_REF:
+<span class="lineNum">     306 </span><span class="lineCov">        410 :       group_ref(target, ctx, start, n);</span>
+<span class="lineNum">     307 </span><span class="lineCov">        410 :       return true;</span>
+<span class="lineNum">     308 </span>            : 
+<span class="lineNum">     309 </span>            :    case T_ARRAY_REF:
+<span class="lineNum">     310 </span>            :       {
+<span class="lineNum">     311 </span><span class="lineCov">        122 :          tree_t value = tree_value(target);</span>
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineCov">        122 :          type_t type = tree_type(value);</span>
+<span class="lineNum">     314 </span><span class="lineCov">        122 :          if (type_is_unconstrained(type))</span>
+<span class="lineNum">     315 </span>            :             return false;
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineCov">        120 :          int offset = 0;</span>
+<span class="lineNum">     318 </span><span class="lineCov">        120 :          const int nparams = tree_params(target);</span>
+<span class="lineNum">     319 </span><span class="lineCov">        237 :          for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">     320 </span><span class="lineCov">        122 :             tree_t index = tree_value(tree_param(target, i));</span>
+<span class="lineNum">     321 </span><span class="lineCov">        122 :             const int stride = type_width(type_elem(type));</span>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineCov">        122 :             if (tree_kind(index) != T_LITERAL) {</span>
+<span class="lineNum">     324 </span><span class="lineCov">          5 :                if (i &gt; 0)</span>
+<span class="lineNum">     325 </span>            :                   return false;
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span><span class="lineCov">          5 :                const int twidth = type_width(type);</span>
+<span class="lineNum">     328 </span><span class="lineCov">        276 :                for (int j = 0; j &lt; twidth; j += stride)</span>
+<span class="lineNum">     329 </span><span class="lineCov">        271 :                   group_name(value, ctx, start + j, n);</span>
+<span class="lineNum">     330 </span>            :                return true;
+<span class="lineNum">     331 </span>            :             }
+<span class="lineNum">     332 </span>            :             else {
+<span class="lineNum">     333 </span><span class="lineCov">        117 :                if (i &gt; 0) {</span>
+<span class="lineNum">     334 </span><span class="lineCov">          2 :                   range_t type_r = type_dim(type, i);</span>
+<span class="lineNum">     335 </span>            :                   int64_t low, high;
+<span class="lineNum">     336 </span><span class="lineCov">          2 :                   range_bounds(type_r, &amp;low, &amp;high);</span>
+<span class="lineNum">     337 </span><span class="lineCov">          2 :                   offset *= high - low + 1;</span>
+<span class="lineNum">     338 </span>            :                }
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span><span class="lineCov">        117 :                offset += stride * rebase_index(type, i, assume_int(index));</span>
+<span class="lineNum">     341 </span>            :             }
+<span class="lineNum">     342 </span>            :          }
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span><span class="lineCov">        115 :          return group_name(value, ctx, start + offset, n);</span>
+<span class="lineNum">     345 </span>            :       }
+<span class="lineNum">     346 </span>            : 
+<span class="lineNum">     347 </span>            :    case T_ARRAY_SLICE:
+<span class="lineNum">     348 </span>            :       {
+<span class="lineNum">     349 </span><span class="lineCov">         17 :          tree_t value = tree_value(target);</span>
+<span class="lineNum">     350 </span><span class="lineCov">         17 :          type_t type  = tree_type(value);</span>
+<span class="lineNum">     351 </span>            : 
+<span class="lineNum">     352 </span><span class="lineCov">         17 :          if (type_is_unconstrained(type))</span>
+<span class="lineNum">     353 </span>            :             return false;    // Only in procedure
+<span class="lineNum">     354 </span>            : 
+<span class="lineNum">     355 </span><span class="lineCov">         17 :          range_t slice = tree_range(target);</span>
+<span class="lineNum">     356 </span>            : 
+<span class="lineNum">     357 </span><span class="lineCov">         17 :          if (tree_kind(slice.left) != T_LITERAL</span>
+<span class="lineNum">     358 </span><span class="lineCov">         17 :              || tree_kind(slice.right) != T_LITERAL)</span>
+<span class="lineNum">     359 </span>            :             return false;
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span>            :          int64_t low, high;
+<span class="lineNum">     362 </span><span class="lineCov">         17 :          range_bounds(slice, &amp;low, &amp;high);</span>
+<span class="lineNum">     363 </span>            : 
+<span class="lineNum">     364 </span><span class="lineCov">         17 :          const int64_t low0 = rebase_index(type, 0, assume_int(slice.left));</span>
+<span class="lineNum">     365 </span><span class="lineCov">         17 :          const int stride   = type_width(type_elem(type));</span>
+<span class="lineNum">     366 </span>            : 
+<span class="lineNum">     367 </span><span class="lineCov">         17 :          return group_name(value, ctx, start + low0 * stride, n);</span>
+<span class="lineNum">     368 </span>            :       }
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            :    case T_RECORD_REF:
+<span class="lineNum">     371 </span>            :       {
+<span class="lineNum">     372 </span><span class="lineCov">         15 :          tree_t value = tree_value(target);</span>
+<span class="lineNum">     373 </span><span class="lineCov">         15 :          type_t rec = tree_type(value);</span>
+<span class="lineNum">     374 </span><span class="lineCov">         15 :          const int offset = record_field_to_net(rec, tree_ident(target));</span>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineCov">         15 :          return group_name(value, ctx, start + offset, n);</span>
+<span class="lineNum">     377 </span>            :       }
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span>            :    case T_AGGREGATE:
+<span class="lineNum">     380 </span>            :    case T_LITERAL:
+<span class="lineNum">     381 </span>            :       // This can appear due to assignments to open ports with a
+<span class="lineNum">     382 </span>            :       // default value
+<span class="lineNum">     383 </span>            :       return true;
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span>            :    default:
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :       fatal_at(tree_loc(target), &quot;tree kind %s not yet supported for offset &quot;</span>
+<span class="lineNum">     387 </span>            :                &quot;calculation&quot;, tree_kind_str(tree_kind(target)));
+<span class="lineNum">     388 </span>            :    }
+<a name="389"><span class="lineNum">     389 </span>            : }</a>
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span><span class="lineCov">       1301 : static void group_target(tree_t t, group_nets_ctx_t *ctx)</span>
+<span class="lineNum">     392 </span>            : {
+<span class="lineNum">     393 </span><span class="lineCov">       1301 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     394 </span>            :    case T_REF:
+<span class="lineNum">     395 </span><span class="lineCov">       1112 :       group_ref(t, ctx, 0, -1);</span>
+<span class="lineNum">     396 </span><span class="lineCov">       1112 :       break;</span>
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span>            :    case T_ARRAY_REF:
+<span class="lineNum">     399 </span>            :    case T_ARRAY_SLICE:
+<span class="lineNum">     400 </span>            :    case T_RECORD_REF:
+<span class="lineNum">     401 </span>            :       {
+<span class="lineNum">     402 </span><span class="lineCov">        149 :          type_t type = tree_type(t);</span>
+<span class="lineNum">     403 </span><span class="lineCov">        149 :          if (!type_known_width(type))</span>
+<span class="lineNum">     404 </span><span class="lineCov">          3 :             ungroup_name(t, ctx);</span>
+<span class="lineNum">     405 </span><span class="lineCov">        146 :          else if (!group_name(t, ctx, 0, type_width(type)))</span>
+<span class="lineNum">     406 </span><span class="lineCov">          2 :             ungroup_name(t, ctx);</span>
+<span class="lineNum">     407 </span>            :       }
+<span class="lineNum">     408 </span>            :       break;
+<span class="lineNum">     409 </span>            : 
+<span class="lineNum">     410 </span>            :    case T_LITERAL:
+<span class="lineNum">     411 </span>            :       // Constant folding can cause this to appear
+<span class="lineNum">     412 </span>            :       break;
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span>            :    case T_AGGREGATE:
+<span class="lineNum">     415 </span>            :       {
+<span class="lineNum">     416 </span><span class="lineCov">          7 :          const int nassocs = tree_assocs(t);</span>
+<span class="lineNum">     417 </span><span class="lineCov">         24 :          for (int i = 0; i &lt; nassocs; i++)</span>
+<span class="lineNum">     418 </span><span class="lineCov">         17 :             group_target(tree_value(tree_assoc(t, i)), ctx);</span>
+<span class="lineNum">     419 </span>            :       }
+<span class="lineNum">     420 </span>            :       break;
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span>            :    default:
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :       fmt_loc(stdout, tree_loc(t));</span>
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :       fatal_trace(&quot;Cannot handle tree kind %s in group_target&quot;,</span>
+<span class="lineNum">     425 </span>            :                   tree_kind_str(tree_kind(t)));
+<span class="lineNum">     426 </span>            :    }
+<a name="427"><span class="lineNum">     427 </span><span class="lineCov">       1301 : }</span></a>
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span><span class="lineCov">        272 : static void ungroup_proc_params(tree_t t, group_nets_ctx_t *ctx)</span>
+<span class="lineNum">     430 </span>            : {
+<span class="lineNum">     431 </span>            :    // Ungroup any signal that is passed to a procedure as in general we
+<span class="lineNum">     432 </span>            :    // cannot guarantee anything about the procedure's behaviour
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span><span class="lineCov">        272 :    const int nparams = tree_params(t);</span>
+<span class="lineNum">     435 </span><span class="lineCov">        300 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">     436 </span><span class="lineCov">        281 :       tree_t value = tree_value(tree_param(t, i));</span>
+<span class="lineNum">     437 </span>            : 
+<span class="lineNum">     438 </span><span class="lineCov">        564 :       while (tree_kind(value) != T_REF) {</span>
+<span class="lineNum">     439 </span><span class="lineCov">         67 :          switch (tree_kind(value)) {</span>
+<span class="lineNum">     440 </span>            :          case T_ARRAY_REF:
+<span class="lineNum">     441 </span>            :          case T_ARRAY_SLICE:
+<span class="lineNum">     442 </span><span class="lineCov">          2 :             value = tree_value(value);</span>
+<span class="lineNum">     443 </span><span class="lineCov">          2 :             break;</span>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span>            :          default:
+<span class="lineNum">     446 </span>            :             return;
+<span class="lineNum">     447 </span>            :          }
+<span class="lineNum">     448 </span>            :       }
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span><span class="lineCov">        216 :       tree_t decl = tree_ref(value);</span>
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span><span class="lineCov">        216 :       if (tree_kind(decl) != T_SIGNAL_DECL)</span>
+<span class="lineNum">     453 </span>            :          return;
+<span class="lineNum">     454 </span>            : 
+<span class="lineNum">     455 </span><span class="lineCov">         28 :       const int nnets = tree_nets(decl);</span>
+<span class="lineNum">     456 </span><span class="lineCov">        129 :       for (int i = 0; i &lt; nnets; i++)</span>
+<span class="lineNum">     457 </span><span class="lineCov">        101 :          group_add(ctx, tree_net(decl, i), 1);</span>
+<span class="lineNum">     458 </span>            :    }
+<a name="459"><span class="lineNum">     459 </span>            : }</a>
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineCov">      32532 : static void group_nets_visit_fn(tree_t t, void *_ctx)</span>
+<span class="lineNum">     462 </span>            : {
+<span class="lineNum">     463 </span><span class="lineCov">      32532 :    group_nets_ctx_t *ctx = _ctx;</span>
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span><span class="lineCov">      32532 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     466 </span>            :    case T_SIGNAL_ASSIGN:
+<span class="lineNum">     467 </span><span class="lineCov">        785 :       group_target(tree_target(t), ctx);</span>
+<span class="lineNum">     468 </span><span class="lineCov">        785 :       break;</span>
+<span class="lineNum">     469 </span>            : 
+<span class="lineNum">     470 </span>            :    case T_WAIT:
+<span class="lineNum">     471 </span>            :       {
+<span class="lineNum">     472 </span><span class="lineCov">       1073 :          const int ntriggers = tree_triggers(t);</span>
+<span class="lineNum">     473 </span><span class="lineCov">       1566 :          for (int i = 0; i &lt; ntriggers; i++)</span>
+<span class="lineNum">     474 </span><span class="lineCov">        493 :             group_target(tree_trigger(t, i), ctx);</span>
+<span class="lineNum">     475 </span>            :       }
+<span class="lineNum">     476 </span>            :       break;
+<span class="lineNum">     477 </span>            : 
+<span class="lineNum">     478 </span>            :    case T_PCALL:
+<span class="lineNum">     479 </span><span class="lineCov">        272 :       ungroup_proc_params(t, ctx);</span>
+<span class="lineNum">     480 </span><span class="lineCov">        272 :       break;</span>
+<span class="lineNum">     481 </span>            : 
+<span class="lineNum">     482 </span>            :    case T_SIGNAL_DECL:
+<span class="lineNum">     483 </span>            :       // Ensure that no group is larger than a signal declaration
+<span class="lineNum">     484 </span><span class="lineCov">        870 :       group_decl(t, ctx, 0, -1);</span>
+<span class="lineNum">     485 </span><span class="lineCov">        870 :       break;</span>
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span>            :    default:
+<span class="lineNum">     488 </span>            :       break;
+<span class="lineNum">     489 </span>            :    }
+<a name="490"><span class="lineNum">     490 </span><span class="lineCov">      32532 : }</span></a>
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span><span class="lineCov">        330 : static void group_write_netdb(tree_t top, group_nets_ctx_t *ctx)</span>
+<span class="lineNum">     493 </span>            : {
+<span class="lineNum">     494 </span><span class="lineCov">        330 :    char *name = xasprintf(&quot;_%s.netdb&quot;, istr(tree_ident(top)));</span>
+<span class="lineNum">     495 </span>            : 
+<span class="lineNum">     496 </span><span class="lineCov">        330 :    fbuf_t *f = lib_fbuf_open(lib_work(), name, FBUF_OUT);</span>
+<span class="lineNum">     497 </span><span class="lineCov">        330 :    if (f == NULL)</span>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to create net database file %s&quot;, name);</span>
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span><span class="lineCov">        330 :    free(name);</span>
+<span class="lineNum">     501 </span>            : 
+<span class="lineNum">     502 </span><span class="lineCov">       1326 :    for (group_t *it = ctx-&gt;groups; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">     503 </span><span class="lineCov">        996 :       write_u32(it-&gt;gid, f);</span>
+<span class="lineNum">     504 </span><span class="lineCov">        996 :       write_u32(it-&gt;first, f);</span>
+<span class="lineNum">     505 </span><span class="lineCov">        996 :       write_u32(it-&gt;length, f);</span>
+<span class="lineNum">     506 </span>            :    }
+<span class="lineNum">     507 </span><span class="lineCov">        330 :    write_u32(GROUPID_INVALID, f);</span>
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span><span class="lineCov">        330 :    fbuf_close(f);</span>
+<a name="510"><span class="lineNum">     510 </span><span class="lineCov">        330 : }</span></a>
+<span class="lineNum">     511 </span>            : 
+<span class="lineNum">     512 </span><span class="lineCov">        660 : static void group_free_list(group_t *list)</span>
+<span class="lineNum">     513 </span>            : {
+<span class="lineNum">     514 </span><span class="lineCov">       2317 :    while (list != NULL) {</span>
+<span class="lineNum">     515 </span><span class="lineCov">        997 :       group_t *tmp = list-&gt;next;</span>
+<span class="lineNum">     516 </span><span class="lineCov">        997 :       free(list);</span>
+<span class="lineNum">     517 </span><span class="lineCov">        997 :       list = tmp;</span>
+<span class="lineNum">     518 </span>            :    }
+<a name="519"><span class="lineNum">     519 </span><span class="lineCov">        660 : }</span></a>
+<span class="lineNum">     520 </span>            : 
+<span class="lineNum">     521 </span><span class="lineCov">        330 : static void group_init_context(group_nets_ctx_t *ctx, int nnets)</span>
+<span class="lineNum">     522 </span>            : {
+<span class="lineNum">     523 </span><span class="lineCov">        330 :    ctx-&gt;groups    = NULL;</span>
+<span class="lineNum">     524 </span><span class="lineCov">        330 :    ctx-&gt;next_gid  = 0;</span>
+<span class="lineNum">     525 </span><span class="lineCov">        330 :    ctx-&gt;lookup    = xcalloc(nnets * sizeof(group_t *));</span>
+<span class="lineNum">     526 </span><span class="lineCov">        330 :    ctx-&gt;nnets     = nnets;</span>
+<span class="lineNum">     527 </span><span class="lineCov">        330 :    ctx-&gt;free_list = NULL;</span>
+<a name="528"><span class="lineNum">     528 </span><span class="lineCov">        330 : }</span></a>
+<span class="lineNum">     529 </span>            : 
+<span class="lineNum">     530 </span><span class="lineCov">        330 : void group_nets(tree_t top)</span>
+<span class="lineNum">     531 </span>            : {
+<span class="lineNum">     532 </span><span class="lineCov">        330 :    const int nnets = tree_attr_int(top, nnets_i, 0);</span>
+<span class="lineNum">     533 </span>            : 
+<span class="lineNum">     534 </span>            :    group_nets_ctx_t ctx;
+<span class="lineNum">     535 </span><span class="lineCov">        330 :    group_init_context(&amp;ctx, nnets);</span>
+<span class="lineNum">     536 </span><span class="lineCov">        330 :    tree_visit(top, group_nets_visit_fn, &amp;ctx);</span>
+<span class="lineNum">     537 </span>            : 
+<span class="lineNum">     538 </span><span class="lineCov">        330 :    group_write_netdb(top, &amp;ctx);</span>
+<span class="lineNum">     539 </span>            : 
+<span class="lineNum">     540 </span><span class="lineCov">        330 :    if (opt_get_int(&quot;verbose&quot;)) {</span>
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :       int ngroups = 0;</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :       for (group_t *it = ctx.groups; it != NULL; it = it-&gt;next)</span>
+<span class="lineNum">     543 </span><span class="lineNoCov">          0 :          ngroups++;</span>
+<span class="lineNum">     544 </span>            : 
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :       notef(&quot;%d nets, %d groups&quot;, nnets, ngroups);</span>
+<span class="lineNum">     546 </span><span class="lineNoCov">          0 :       notef(&quot;nets:groups ratio %.3f&quot;, (float)nnets / (float)ngroups);</span>
+<span class="lineNum">     547 </span>            :    }
+<span class="lineNum">     548 </span>            : 
+<span class="lineNum">     549 </span><span class="lineCov">        330 :    group_free_list(ctx.groups);</span>
+<span class="lineNum">     550 </span><span class="lineCov">        330 :    group_free_list(ctx.free_list);</span>
+<span class="lineNum">     551 </span><span class="lineCov">        330 :    free(ctx.lookup);</span>
+<span class="lineNum">     552 </span><span class="lineCov">        330 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

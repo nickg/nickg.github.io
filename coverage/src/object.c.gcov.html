@@ -1,0 +1,1158 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - nvc.info - src/object.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">src</a> - object.c<span style="font-size: 80%;"> (source / <a href="object.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">nvc.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">583</td>
+            <td class="headerCovTableEntry">653</td>
+            <td class="headerCovTableEntryMed">89.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-07-21</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">29</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntryMed">78.4 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<span class="lineNum">       2 </span>            : //  Copyright (C) 2014-2016  Nick Gasson
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //  This program is free software: you can redistribute it and/or modify
+<span class="lineNum">       5 </span>            : //  it under the terms of the GNU General Public License as published by
+<span class="lineNum">       6 </span>            : //  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       7 </span>            : //  (at your option) any later version.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //  This program is distributed in the hope that it will be useful,
+<span class="lineNum">      10 </span>            : //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      11 </span>            : //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      12 </span>            : //  GNU General Public License for more details.
+<span class="lineNum">      13 </span>            : //
+<span class="lineNum">      14 </span>            : //  You should have received a copy of the GNU General Public License
+<span class="lineNum">      15 </span>            : //  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      16 </span>            : //
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #include &quot;object.h&quot;
+<span class="lineNum">      19 </span>            : #include &quot;common.h&quot;
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : #include &lt;string.h&gt;
+<a name="22"><span class="lineNum">      22 </span>            : #include &lt;stdlib.h&gt;</a>
+<a name="23"><span class="lineNum">      23 </span>            : </a>
+<a name="24"><span class="lineNum">      24 </span><span class="lineCov">     728396 : DEFINE_ARRAY(tree);</span></a>
+<a name="25"><span class="lineNum">      25 </span><span class="lineCov">      14194 : DEFINE_ARRAY(netid);</span></a>
+<a name="26"><span class="lineNum">      26 </span><span class="lineCov">     240970 : DEFINE_ARRAY(type);</span></a>
+<span class="lineNum">      27 </span><span class="lineCov">      62570 : DEFINE_ARRAY(range);</span>
+<span class="lineNum">      28 </span><span class="lineNoCov">          0 : DEFINE_ARRAY(ident);</span>
+<span class="lineNum">      29 </span>            : 
+<span class="lineNum">      30 </span>            : static const char *item_text_map[] = {
+<span class="lineNum">      31 </span>            :    &quot;I_IDENT&quot;,    &quot;I_VALUE&quot;,     &quot;I_SEVERITY&quot;, &quot;I_MESSAGE&quot;,    &quot;I_TARGET&quot;,
+<span class="lineNum">      32 </span>            :    &quot;I_LITERAL&quot;,  &quot;I_IDENT2&quot;,    &quot;I_DECLS&quot;,    &quot;I_STMTS&quot;,      &quot;I_PORTS&quot;,
+<span class="lineNum">      33 </span>            :    &quot;I_GENERICS&quot;, &quot;I_PARAMS&quot;,    &quot;I_GENMAPS&quot;,  &quot;I_WAVES&quot;,      &quot;I_CONDS&quot;,
+<span class="lineNum">      34 </span>            :    &quot;I_TYPE&quot;,     &quot;I_SUBKIND&quot;,   &quot;I_DELAY&quot;,    &quot;I_REJECT&quot;,     &quot;I_POS&quot;,
+<span class="lineNum">      35 </span>            :    &quot;I_REF&quot;,      &quot;I_FILE_MODE&quot;, &quot;I_ASSOCS&quot;,   &quot;I_CONTEXT&quot;,    &quot;I_TRIGGERS&quot;,
+<span class="lineNum">      36 </span>            :    &quot;I_ELSES&quot;,    &quot;I_CLASS&quot;,     &quot;I_RANGE&quot;,    &quot;I_NAME&quot;,       &quot;I_NETS&quot;,
+<span class="lineNum">      37 </span>            :    &quot;I_DVAL&quot;,     &quot;I_SPEC&quot;,      &quot;I_OPS&quot;,      &quot;I_CONSTR&quot;,     &quot;I_BASE&quot;,
+<span class="lineNum">      38 </span>            :    &quot;I_ELEM&quot;,     &quot;I_FILE&quot;,      &quot;I_ACCESS&quot;,   &quot;I_RESOLUTION&quot;, &quot;I_RESULT&quot;,
+<span class="lineNum">      39 </span>            :    &quot;I_UNITS&quot;,    &quot;I_LITERALS&quot;,  &quot;I_DIMS&quot;,     &quot;I_FIELDS&quot;,     &quot;I_TEXT_BUF&quot;,
+<span class="lineNum">      40 </span>            :    &quot;I_ATTRS&quot;,    &quot;I_PTYPES&quot;,    &quot;I_CHARS&quot;,    &quot;????&quot;,         &quot;I_FLAGS&quot;
+<span class="lineNum">      41 </span>            : };
+<span class="lineNum">      42 </span>            : 
+<span class="lineNum">      43 </span>            : static object_class_t *classes[4];
+<span class="lineNum">      44 </span>            : static uint32_t        format_digest;
+<span class="lineNum">      45 </span>            : static generation_t    next_generation = 1;
+<span class="lineNum">      46 </span>            : static object_t      **all_objects = NULL;
+<span class="lineNum">      47 </span>            : static size_t          max_objects = 256;   // Grows at runtime
+<a name="48"><span class="lineNum">      48 </span>            : static size_t          n_objects_alloc = 0;</a>
+<span class="lineNum">      49 </span>            : 
+<span class="lineNum">      50 </span><span class="lineNoCov">          0 : void object_lookup_failed(const char *name, const char **kind_text_map,</span>
+<span class="lineNum">      51 </span>            :                           int kind, imask_t mask)
+<span class="lineNum">      52 </span>            : {
+<span class="lineNum">      53 </span>            :    int item;
+<span class="lineNum">      54 </span><span class="lineNoCov">          0 :    for (item = 0; (mask &amp; (1ull &lt;&lt; item)) == 0; item++)</span>
+<span class="lineNum">      55 </span>            :       ;
+<span class="lineNum">      56 </span>            : 
+<span class="lineNum">      57 </span><span class="lineNoCov">          0 :    assert(item &lt; ARRAY_LEN(item_text_map));</span>
+<span class="lineNum">      58 </span><span class="lineNoCov">          0 :    fatal_trace(&quot;%s kind %s does not have item %s&quot;, name,</span>
+<span class="lineNum">      59 </span><span class="lineNoCov">          0 :                kind_text_map[kind], item_text_map[item]);</span>
+<a name="60"><span class="lineNum">      60 </span>            : }</a>
+<span class="lineNum">      61 </span>            : 
+<span class="lineNum">      62 </span><span class="lineNoCov">          0 : void item_without_type(imask_t mask)</span>
+<span class="lineNum">      63 </span>            : {
+<span class="lineNum">      64 </span>            :    int item;
+<span class="lineNum">      65 </span><span class="lineNoCov">          0 :    for (item = 0; (mask &amp; (1ull &lt;&lt; item)) == 0; item++)</span>
+<span class="lineNum">      66 </span>            :       ;
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span><span class="lineNoCov">          0 :    assert(item &lt; ARRAY_LEN(item_text_map));</span>
+<span class="lineNum">      69 </span><span class="lineNoCov">          0 :    fatal_trace(&quot;item %s does not have a type&quot;, item_text_map[item]);</span>
+<a name="70"><span class="lineNum">      70 </span>            : }</a>
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span><span class="lineNoCov">          0 : uint32_t object_index(const object_t *object)</span>
+<span class="lineNum">      73 </span>            : {
+<span class="lineNum">      74 </span><span class="lineNoCov">          0 :    assert(object != NULL);</span>
+<span class="lineNum">      75 </span><span class="lineNoCov">          0 :    assert(object-&gt;index != UINT32_MAX);</span>
+<span class="lineNum">      76 </span>            : 
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :    return object-&gt;index;</span>
+<a name="78"><span class="lineNum">      78 </span>            : }</a>
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span><span class="lineNoCov">          0 : bool object_has_index(const object_t *object)</span>
+<span class="lineNum">      81 </span>            : {
+<span class="lineNum">      82 </span><span class="lineNoCov">          0 :   assert(object != NULL);</span>
+<span class="lineNum">      83 </span><span class="lineNoCov">          0 :   return object-&gt;index != UINT32_MAX;</span>
+<a name="84"><span class="lineNum">      84 </span>            : }</a>
+<span class="lineNum">      85 </span>            : 
+<span class="lineNum">      86 </span><span class="lineCov">      18462 : void object_change_kind(const object_class_t *class, object_t *object, int kind)</span>
+<span class="lineNum">      87 </span>            : {
+<span class="lineNum">      88 </span><span class="lineCov">      18462 :    if (kind == object-&gt;kind)</span>
+<span class="lineNum">      89 </span><span class="lineCov">      18462 :       return;</span>
+<span class="lineNum">      90 </span>            : 
+<span class="lineNum">      91 </span>            :    bool allow = false;
+<span class="lineNum">      92 </span><span class="lineCov">      85513 :    for (size_t i = 0; (class-&gt;change_allowed[i][0] != -1) &amp;&amp; !allow; i++) {</span>
+<span class="lineNum">      93 </span><span class="lineCov">      85513 :       allow = (class-&gt;change_allowed[i][0] == object-&gt;kind)</span>
+<span class="lineNum">      94 </span><span class="lineCov">      85513 :          &amp;&amp; (class-&gt;change_allowed[i][1] == kind);</span>
+<span class="lineNum">      95 </span>            :    }
+<span class="lineNum">      96 </span>            : 
+<span class="lineNum">      97 </span><span class="lineCov">      18462 :    if (!allow)</span>
+<span class="lineNum">      98 </span><span class="lineNoCov">          0 :       fatal_trace(&quot;cannot change %s kind %s to %s&quot;, class-&gt;name,</span>
+<span class="lineNum">      99 </span><span class="lineNoCov">          0 :                   class-&gt;kind_text_map[object-&gt;kind],</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :                   class-&gt;kind_text_map[kind]);</span>
+<span class="lineNum">     101 </span>            : 
+<span class="lineNum">     102 </span><span class="lineCov">      18462 :    const imask_t old_has = class-&gt;has_map[object-&gt;kind];</span>
+<span class="lineNum">     103 </span><span class="lineCov">      18462 :    const imask_t new_has = class-&gt;has_map[kind];</span>
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span><span class="lineCov">      18462 :    const int old_nitems = class-&gt;object_nitems[object-&gt;kind];</span>
+<span class="lineNum">     106 </span><span class="lineCov">      18462 :    const int new_nitems = class-&gt;object_nitems[kind];</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">      18462 :    const int max_items = MAX(old_nitems, new_nitems);</span>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineCov">      18462 :    item_t tmp[max_items];</span>
+<span class="lineNum">     111 </span><span class="lineCov">      18462 :    memcpy(tmp, object-&gt;items, sizeof(item_t) * max_items);</span>
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span><span class="lineCov">      18462 :    int op = 0, np = 0;</span>
+<span class="lineNum">     114 </span><span class="lineCov">     879771 :    for (imask_t mask = 1; np &lt; new_nitems; mask &lt;&lt;= 1) {</span>
+<span class="lineNum">     115 </span><span class="lineCov">     861309 :       if ((old_has &amp; mask) &amp;&amp; (new_has &amp; mask))</span>
+<span class="lineNum">     116 </span><span class="lineCov">      60304 :          object-&gt;items[np++] = tmp[op++];</span>
+<span class="lineNum">     117 </span><span class="lineCov">     801005 :       else if (old_has &amp; mask)</span>
+<span class="lineNum">     118 </span><span class="lineCov">       8456 :          ++op;</span>
+<span class="lineNum">     119 </span><span class="lineCov">     792549 :       else if (new_has &amp; mask)</span>
+<span class="lineNum">     120 </span><span class="lineCov">      28377 :          memset(&amp;(object-&gt;items[np++]), '\0', sizeof(item_t));</span>
+<span class="lineNum">     121 </span>            :    }
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineCov">      18462 :    object-&gt;kind = kind;</span>
+<a name="124"><span class="lineNum">     124 </span>            : }</a>
+<span class="lineNum">     125 </span>            : 
+<span class="lineNum">     126 </span><span class="lineCov">       1300 : static void object_init(object_class_t *class)</span>
+<span class="lineNum">     127 </span>            : {
+<span class="lineNum">     128 </span><span class="lineCov">       1300 :    class-&gt;object_size   = xmalloc(class-&gt;last_kind * sizeof(size_t));</span>
+<span class="lineNum">     129 </span><span class="lineCov">       1300 :    class-&gt;object_nitems = xmalloc(class-&gt;last_kind * sizeof(int));</span>
+<span class="lineNum">     130 </span><span class="lineCov">       1300 :    class-&gt;item_lookup   = xmalloc(class-&gt;last_kind * sizeof(int) * 64);</span>
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span><span class="lineCov">       1300 :    assert(class-&gt;last_kind &lt; (1 &lt;&lt; (sizeof(uint8_t) * 8)));</span>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineCov">       1300 :    assert(class-&gt;tag &lt; ARRAY_LEN(classes));</span>
+<span class="lineNum">     135 </span><span class="lineCov">       1300 :    classes[class-&gt;tag] = class;</span>
+<span class="lineNum">     136 </span>            : 
+<span class="lineNum">     137 </span><span class="lineCov">      59150 :    for (int i = 0; i &lt; class-&gt;last_kind; i++) {</span>
+<span class="lineNum">     138 </span><span class="lineCov">      57850 :       const int nitems = __builtin_popcountll(class-&gt;has_map[i]);</span>
+<span class="lineNum">     139 </span><span class="lineCov">      57850 :       class-&gt;object_size[i]   = sizeof(object_t) + (nitems * sizeof(item_t));</span>
+<span class="lineNum">     140 </span><span class="lineCov">      57850 :       class-&gt;object_nitems[i] = nitems;</span>
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span>            :       // Knuth's multiplicative hash
+<span class="lineNum">     143 </span><span class="lineCov">      57850 :       format_digest +=</span>
+<span class="lineNum">     144 </span><span class="lineCov">      57850 :          (uint32_t)(class-&gt;has_map[i] &gt;&gt; 32) * UINT32_C(2654435761);</span>
+<span class="lineNum">     145 </span><span class="lineCov">      57850 :       format_digest +=</span>
+<span class="lineNum">     146 </span><span class="lineCov">      57850 :          (uint32_t)(class-&gt;has_map[i]) * UINT32_C(2654435761);</span>
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span><span class="lineCov">      57850 :       int n = 0;</span>
+<span class="lineNum">     149 </span><span class="lineCov">    3760250 :       for (int j = 0; j &lt; 64; j++) {</span>
+<span class="lineNum">     150 </span><span class="lineCov">    3702400 :          if (class-&gt;has_map[i] &amp; ONE_HOT(j))</span>
+<span class="lineNum">     151 </span><span class="lineCov">     224900 :             class-&gt;item_lookup[(i * 64) + j] = n++;</span>
+<span class="lineNum">     152 </span>            :          else
+<span class="lineNum">     153 </span><span class="lineCov">    3477500 :             class-&gt;item_lookup[(i * 64) + j] = -1;</span>
+<span class="lineNum">     154 </span>            :       }
+<span class="lineNum">     155 </span>            :    }
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span>            :    bool changed = false;
+<span class="lineNum">     158 </span>            :    do {
+<span class="lineNum">     159 </span>            :       changed = false;
+<span class="lineNum">     160 </span><span class="lineCov">     115700 :       for (int i = 0; i &lt; class-&gt;last_kind; i++) {</span>
+<span class="lineNum">     161 </span><span class="lineCov">     115700 :          size_t max_size = class-&gt;object_size[i];</span>
+<span class="lineNum">     162 </span><span class="lineCov">    2233400 :          for (size_t j = 0; class-&gt;change_allowed[j][0] != -1; j++) {</span>
+<span class="lineNum">     163 </span><span class="lineCov">    2117700 :             if (class-&gt;change_allowed[j][0] == i)</span>
+<span class="lineNum">     164 </span><span class="lineCov">      35100 :                max_size = MAX(max_size,</span>
+<span class="lineNum">     165 </span>            :                               class-&gt;object_size[class-&gt;change_allowed[j][1]]);
+<span class="lineNum">     166 </span>            :          }
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span><span class="lineCov">     115700 :          if (max_size != class-&gt;object_size[i]) {</span>
+<span class="lineNum">     169 </span><span class="lineCov">       3900 :             class-&gt;object_size[i] = max_size;</span>
+<span class="lineNum">     170 </span><span class="lineCov">       3900 :             changed = true;</span>
+<span class="lineNum">     171 </span>            :          }
+<span class="lineNum">     172 </span>            :       }
+<span class="lineNum">     173 </span><span class="lineCov">       2600 :    } while (changed);</span>
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span><span class="lineCov">       1300 :    if (getenv(&quot;NVC_TREE_SIZES&quot;) != NULL) {</span>
+<span class="lineNum">     176 </span><span class="lineNoCov">          0 :       for (int i = 0; i &lt; T_LAST_TREE_KIND; i++)</span>
+<span class="lineNum">     177 </span><span class="lineNoCov">          0 :          printf(&quot;%-15s %d\n&quot;, class-&gt;kind_text_map[i],</span>
+<span class="lineNum">     178 </span><span class="lineNoCov">          0 :                 (int)class-&gt;object_size[i]);</span>
+<span class="lineNum">     179 </span>            :    }
+<a name="180"><span class="lineNum">     180 </span><span class="lineCov">       1300 : }</span></a>
+<span class="lineNum">     181 </span>            : 
+<span class="lineNum">     182 </span><span class="lineCov">    1197054 : void object_one_time_init(void)</span>
+<span class="lineNum">     183 </span>            : {
+<span class="lineNum">     184 </span>            :    extern object_class_t tree_object;
+<span class="lineNum">     185 </span>            :    extern object_class_t type_object;
+<span class="lineNum">     186 </span>            : 
+<span class="lineNum">     187 </span>            :    static bool done = false;
+<span class="lineNum">     188 </span>            : 
+<span class="lineNum">     189 </span><span class="lineCov">    1197054 :    if (unlikely(!done)) {</span>
+<span class="lineNum">     190 </span><span class="lineCov">        650 :       object_init(&amp;tree_object);</span>
+<span class="lineNum">     191 </span><span class="lineCov">        650 :       object_init(&amp;type_object);</span>
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span>            :       // Increment this each time a incompatible change is made to the
+<span class="lineNum">     194 </span>            :       // on-disk format not expressed in the tree and type items table
+<span class="lineNum">     195 </span><span class="lineCov">        650 :       const uint32_t format_fudge = 9;</span>
+<span class="lineNum">     196 </span>            : 
+<span class="lineNum">     197 </span><span class="lineCov">        650 :       format_digest += format_fudge * UINT32_C(2654435761);</span>
+<span class="lineNum">     198 </span>            : 
+<span class="lineNum">     199 </span><span class="lineCov">        650 :       done = true;</span>
+<span class="lineNum">     200 </span>            :    }
+<a name="201"><span class="lineNum">     201 </span><span class="lineCov">    1197054 : }</span></a>
+<span class="lineNum">     202 </span>            : 
+<span class="lineNum">     203 </span><span class="lineCov">    1195957 : object_t *object_new(const object_class_t *class, int kind)</span>
+<span class="lineNum">     204 </span>            : {
+<span class="lineNum">     205 </span><span class="lineCov">    1195957 :    if (unlikely(kind &gt;= class-&gt;last_kind))</span>
+<span class="lineNum">     206 </span><span class="lineNoCov">          0 :       fatal_trace(&quot;invalid kind %d for %s object&quot;, kind, class-&gt;name);</span>
+<span class="lineNum">     207 </span>            : 
+<span class="lineNum">     208 </span><span class="lineCov">    1195957 :    object_one_time_init();</span>
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineCov">    1195957 :    object_t *object = xcalloc(class-&gt;object_size[kind]);</span>
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">    1195957 :    object-&gt;kind  = kind;</span>
+<span class="lineNum">     213 </span><span class="lineCov">    1195957 :    object-&gt;tag   = class-&gt;tag;</span>
+<span class="lineNum">     214 </span><span class="lineCov">    1195957 :    object-&gt;index = UINT32_MAX;</span>
+<span class="lineNum">     215 </span>            : 
+<span class="lineNum">     216 </span><span class="lineCov">    1195957 :    if (unlikely(all_objects == NULL))</span>
+<span class="lineNum">     217 </span><span class="lineCov">        650 :       all_objects = xmalloc(sizeof(object_t *) * max_objects);</span>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineCov">    1195957 :    ARRAY_APPEND(all_objects, object, n_objects_alloc, max_objects);</span>
+<span class="lineNum">     220 </span>            : 
+<span class="lineNum">     221 </span><span class="lineCov">    1195957 :    return object;</span>
+<a name="222"><span class="lineNum">     222 </span>            : }</a>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span><span class="lineNoCov">          0 : static void object_sweep(object_t *object)</span>
+<span class="lineNum">     225 </span>            : {
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :    const object_class_t *class = classes[object-&gt;tag];</span>
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :    const imask_t has = class-&gt;has_map[object-&gt;kind];</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :    const int nitems = class-&gt;object_nitems[object-&gt;kind];</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :    imask_t mask = 1;</span>
+<span class="lineNum">     231 </span><span class="lineNoCov">          0 :    for (int n = 0; n &lt; nitems; mask &lt;&lt;= 1) {</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :       if (has &amp; mask) {</span>
+<span class="lineNum">     233 </span><span class="lineNoCov">          0 :          if (ITEM_TREE_ARRAY &amp; mask)</span>
+<span class="lineNum">     234 </span><span class="lineNoCov">          0 :             free(object-&gt;items[n].tree_array.items);</span>
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :          else if (ITEM_NETID_ARRAY &amp; mask)</span>
+<span class="lineNum">     236 </span><span class="lineNoCov">          0 :             free(object-&gt;items[n].netid_array.items);</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :          else if (ITEM_RANGE &amp; mask)</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :             free(object-&gt;items[n].range);</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :          else if (ITEM_ATTRS &amp; mask)</span>
+<span class="lineNum">     240 </span><span class="lineNoCov">          0 :             free(object-&gt;items[n].attrs.table);</span>
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :          else if (ITEM_RANGE_ARRAY &amp; mask)</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :             free(object-&gt;items[n].range_array.items);</span>
+<span class="lineNum">     243 </span><span class="lineNoCov">          0 :          else if (ITEM_TEXT_BUF &amp; mask) {</span>
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :             if (object-&gt;items[n].text_buf != NULL)</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :                tb_free(object-&gt;items[n].text_buf);</span>
+<span class="lineNum">     246 </span>            :          }
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :          n++;</span>
+<span class="lineNum">     248 </span>            :       }
+<span class="lineNum">     249 </span>            :    }
+<span class="lineNum">     250 </span>            : 
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :    free(object);</span>
+<a name="252"><span class="lineNum">     252 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     253 </span>            : 
+<span class="lineNum">     254 </span><span class="lineCov">          1 : void object_gc(void)</span>
+<span class="lineNum">     255 </span>            : {
+<span class="lineNum">     256 </span>            :    // Generation will be updated by tree_visit
+<span class="lineNum">     257 </span><span class="lineCov">          1 :    const generation_t base_gen = next_generation;</span>
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span>            :    // Mark
+<span class="lineNum">     260 </span><span class="lineCov">         53 :    for (unsigned i = 0; i &lt; n_objects_alloc; i++) {</span>
+<span class="lineNum">     261 </span><span class="lineCov">         52 :       assert(all_objects[i] != NULL);</span>
+<span class="lineNum">     262 </span>            : 
+<span class="lineNum">     263 </span><span class="lineCov">         52 :       const object_class_t *class = classes[all_objects[i]-&gt;tag];</span>
+<span class="lineNum">     264 </span>            : 
+<span class="lineNum">     265 </span><span class="lineCov">         52 :       bool top_level = false;</span>
+<span class="lineNum">     266 </span><span class="lineCov">        285 :       for (int j = 0; (j &lt; class-&gt;gc_num_roots) &amp;&amp; !top_level; j++) {</span>
+<span class="lineNum">     267 </span><span class="lineCov">        233 :          if (class-&gt;gc_roots[j] == all_objects[i]-&gt;kind)</span>
+<span class="lineNum">     268 </span><span class="lineCov">          2 :             top_level = true;</span>
+<span class="lineNum">     269 </span>            :       }
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineCov">         52 :       if (top_level) {</span>
+<span class="lineNum">     272 </span><span class="lineCov">          4 :          object_visit_ctx_t ctx = {</span>
+<span class="lineNum">     273 </span>            :             .count      = 0,
+<span class="lineNum">     274 </span>            :             .postorder  = NULL,
+<span class="lineNum">     275 </span>            :             .preorder   = NULL,
+<span class="lineNum">     276 </span>            :             .context    = NULL,
+<span class="lineNum">     277 </span>            :             .kind       = T_LAST_TREE_KIND,
+<span class="lineNum">     278 </span><span class="lineCov">          2 :             .generation = next_generation++,</span>
+<span class="lineNum">     279 </span>            :             .deep       = true
+<span class="lineNum">     280 </span>            :          };
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span><span class="lineCov">          2 :          object_visit(all_objects[i], &amp;ctx);</span>
+<span class="lineNum">     283 </span>            :       }
+<span class="lineNum">     284 </span>            :    }
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span>            :    // Sweep
+<span class="lineNum">     287 </span><span class="lineCov">         52 :    for (unsigned i = 0; i &lt; n_objects_alloc; i++) {</span>
+<span class="lineNum">     288 </span><span class="lineCov">         52 :       object_t *object = all_objects[i];</span>
+<span class="lineNum">     289 </span><span class="lineCov">         52 :       if (object-&gt;generation &lt; base_gen) {</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :          object_sweep(object);</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :          all_objects[i] = NULL;</span>
+<span class="lineNum">     292 </span>            :       }
+<span class="lineNum">     293 </span>            :    }
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span>            :    // Compact
+<span class="lineNum">     296 </span>            :    size_t p = 0;
+<span class="lineNum">     297 </span><span class="lineCov">         52 :    for (unsigned i = 0; i &lt; n_objects_alloc; i++) {</span>
+<span class="lineNum">     298 </span><span class="lineCov">         52 :       if (all_objects[i] != NULL)</span>
+<span class="lineNum">     299 </span><span class="lineCov">         52 :          all_objects[p++] = all_objects[i];</span>
+<span class="lineNum">     300 </span>            :    }
+<span class="lineNum">     301 </span>            : 
+<span class="lineNum">     302 </span><span class="lineCov">          1 :    if ((getenv(&quot;NVC_GC_VERBOSE&quot;) != NULL) || is_debugger_running())</span>
+<span class="lineNum">     303 </span><span class="lineNoCov">          0 :       notef(&quot;GC: freed %zu objects; %zu allocated&quot;, n_objects_alloc - p, p);</span>
+<span class="lineNum">     304 </span>            : 
+<span class="lineNum">     305 </span><span class="lineCov">          1 :    n_objects_alloc = p;</span>
+<a name="306"><span class="lineNum">     306 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineCov">     428727 : void object_visit(object_t *object, object_visit_ctx_t *ctx)</span>
+<span class="lineNum">     309 </span>            : {
+<span class="lineNum">     310 </span>            :    // If `deep' then will follow links above the tree originally passed
+<span class="lineNum">     311 </span>            :    // to tree_visit - e.g. following references back to their declarations
+<span class="lineNum">     312 </span>            :    // Outside the garbage collector this is usually not what is required
+<span class="lineNum">     313 </span>            : 
+<span class="lineNum">     314 </span><span class="lineCov">     428727 :    if ((object == NULL) || (object-&gt;generation == ctx-&gt;generation))</span>
+<span class="lineNum">     315 </span><span class="lineCov">     428727 :       return;</span>
+<span class="lineNum">     316 </span>            : 
+<span class="lineNum">     317 </span><span class="lineCov">     309850 :    object-&gt;generation = ctx-&gt;generation;</span>
+<span class="lineNum">     318 </span>            : 
+<span class="lineNum">     319 </span><span class="lineCov">     309850 :    const bool visit =</span>
+<span class="lineNum">     320 </span><span class="lineCov">     619694 :       (object-&gt;tag == OBJECT_TAG_TREE &amp;&amp; object-&gt;kind == ctx-&gt;kind)</span>
+<span class="lineNum">     321 </span><span class="lineCov">     616638 :       || ctx-&gt;kind == T_LAST_TREE_KIND;</span>
+<span class="lineNum">     322 </span>            : 
+<span class="lineNum">     323 </span><span class="lineCov">     309850 :    if (visit &amp;&amp; ctx-&gt;preorder != NULL)</span>
+<span class="lineNum">     324 </span><span class="lineNoCov">          0 :       (*ctx-&gt;preorder)((tree_t)object, ctx-&gt;context);</span>
+<span class="lineNum">     325 </span>            : 
+<span class="lineNum">     326 </span><span class="lineCov">     309850 :    const imask_t deep_mask = I_TYPE | I_REF | I_ATTRS;</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineCov">     309850 :    const object_class_t *class = classes[object-&gt;tag];</span>
+<span class="lineNum">     329 </span>            : 
+<span class="lineNum">     330 </span><span class="lineCov">     309850 :    const imask_t has = class-&gt;has_map[object-&gt;kind];</span>
+<span class="lineNum">     331 </span><span class="lineCov">     309850 :    const int nitems = class-&gt;object_nitems[object-&gt;kind];</span>
+<span class="lineNum">     332 </span><span class="lineCov">     309850 :    imask_t mask = 1;</span>
+<span class="lineNum">     333 </span><span class="lineCov">   13865079 :    for (int i = 0; i &lt; nitems; mask &lt;&lt;= 1) {</span>
+<span class="lineNum">     334 </span><span class="lineCov">   13555229 :       if (has &amp; mask &amp; ~(ctx-&gt;deep ? 0 : deep_mask)) {</span>
+<span class="lineNum">     335 </span><span class="lineCov">     998931 :          if (ITEM_IDENT &amp; mask)</span>
+<span class="lineNum">     336 </span>            :             ;
+<span class="lineNum">     337 </span><span class="lineCov">     786815 :          else if (ITEM_TREE &amp; mask)</span>
+<span class="lineNum">     338 </span><span class="lineCov">     231005 :             object_visit((object_t *)object-&gt;items[i].tree, ctx);</span>
+<span class="lineNum">     339 </span><span class="lineCov">     555810 :          else if (ITEM_TREE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     340 </span><span class="lineCov">     114515 :             tree_array_t *a = &amp;(object-&gt;items[i].tree_array);</span>
+<span class="lineNum">     341 </span><span class="lineCov">     302672 :             for (unsigned j = 0; j &lt; a-&gt;count; j++)</span>
+<span class="lineNum">     342 </span><span class="lineCov">     188157 :                object_visit((object_t *)a-&gt;items[j], ctx);</span>
+<span class="lineNum">     343 </span>            :          }
+<span class="lineNum">     344 </span><span class="lineCov">     441295 :          else if (ITEM_TYPE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     345 </span><span class="lineNoCov">          0 :             type_array_t *a = &amp;(object-&gt;items[i].type_array);</span>
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :             for (unsigned j = 0; j &lt; a-&gt;count; j++)</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :                object_visit((object_t *)a-&gt;items[j], ctx);</span>
+<span class="lineNum">     348 </span>            :          }
+<span class="lineNum">     349 </span><span class="lineCov">     441295 :          else if (ITEM_TYPE &amp; mask)</span>
+<span class="lineNum">     350 </span><span class="lineCov">         34 :             object_visit((object_t *)object-&gt;items[i].type, ctx);</span>
+<span class="lineNum">     351 </span><span class="lineCov">     441261 :          else if (ITEM_INT64 &amp; mask)</span>
+<span class="lineNum">     352 </span>            :             ;
+<span class="lineNum">     353 </span><span class="lineCov">     353557 :          else if (ITEM_INT32 &amp; mask)</span>
+<span class="lineNum">     354 </span>            :             ;
+<span class="lineNum">     355 </span><span class="lineCov">      41133 :          else if (ITEM_DOUBLE &amp; mask)</span>
+<span class="lineNum">     356 </span>            :             ;
+<span class="lineNum">     357 </span><span class="lineCov">      16591 :          else if (ITEM_RANGE &amp; mask) {</span>
+<span class="lineNum">     358 </span><span class="lineCov">      14122 :             if (object-&gt;items[i].range != NULL) {</span>
+<span class="lineNum">     359 </span><span class="lineCov">       2025 :                object_visit((object_t *)object-&gt;items[i].range-&gt;left, ctx);</span>
+<span class="lineNum">     360 </span><span class="lineCov">       2025 :                object_visit((object_t *)object-&gt;items[i].range-&gt;right, ctx);</span>
+<span class="lineNum">     361 </span>            :             }
+<span class="lineNum">     362 </span>            :          }
+<span class="lineNum">     363 </span><span class="lineCov">       2469 :          else if (ITEM_RANGE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     364 </span><span class="lineCov">          6 :             range_array_t *a = &amp;(object-&gt;items[i].range_array);</span>
+<span class="lineNum">     365 </span><span class="lineCov">         10 :             for (unsigned j = 0; j &lt; a-&gt;count; j++) {</span>
+<span class="lineNum">     366 </span><span class="lineCov">          4 :                object_visit((object_t *)a-&gt;items[j].left, ctx);</span>
+<span class="lineNum">     367 </span><span class="lineCov">          4 :                object_visit((object_t *)a-&gt;items[j].right, ctx);</span>
+<span class="lineNum">     368 </span>            :             }
+<span class="lineNum">     369 </span>            :          }
+<span class="lineNum">     370 </span><span class="lineCov">       2463 :          else if (ITEM_NETID_ARRAY &amp; mask)</span>
+<span class="lineNum">     371 </span>            :             ;
+<span class="lineNum">     372 </span><span class="lineCov">         28 :          else if (ITEM_TEXT_BUF &amp; mask)</span>
+<span class="lineNum">     373 </span>            :             ;
+<span class="lineNum">     374 </span><span class="lineCov">         28 :          else if (ITEM_ATTRS &amp; mask) {</span>
+<span class="lineNum">     375 </span><span class="lineCov">         28 :             attr_tab_t *attrs = &amp;(object-&gt;items[i].attrs);</span>
+<span class="lineNum">     376 </span><span class="lineCov">         29 :             for (unsigned j = 0; j &lt; attrs-&gt;num; j++) {</span>
+<span class="lineNum">     377 </span><span class="lineCov">          1 :                switch (attrs-&gt;table[j].kind) {</span>
+<span class="lineNum">     378 </span>            :                case A_TREE:
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :                   object_visit((object_t *)attrs-&gt;table[j].tval, ctx);</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :                   break;</span>
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span>            :                default:
+<span class="lineNum">     383 </span>            :                   break;
+<span class="lineNum">     384 </span>            :                }
+<span class="lineNum">     385 </span>            :             }
+<span class="lineNum">     386 </span>            :          }
+<span class="lineNum">     387 </span>            :          else
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 :             item_without_type(mask);</span>
+<span class="lineNum">     389 </span>            :       }
+<span class="lineNum">     390 </span>            : 
+<span class="lineNum">     391 </span><span class="lineCov">   13555229 :       if (has &amp; mask)</span>
+<span class="lineNum">     392 </span><span class="lineCov">    1533316 :          i++;</span>
+<span class="lineNum">     393 </span>            :    }
+<span class="lineNum">     394 </span>            : 
+<span class="lineNum">     395 </span><span class="lineCov">     309850 :    if (visit) {</span>
+<span class="lineNum">     396 </span><span class="lineCov">     251205 :       if (ctx-&gt;postorder != NULL)</span>
+<span class="lineNum">     397 </span><span class="lineCov">     249382 :          (*ctx-&gt;postorder)((tree_t)object, ctx-&gt;context);</span>
+<span class="lineNum">     398 </span><span class="lineCov">     251205 :       ctx-&gt;count++;</span>
+<span class="lineNum">     399 </span>            :    }
+<a name="400"><span class="lineNum">     400 </span>            : }</a>
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span><span class="lineCov">   20090491 : object_t *object_rewrite(object_t *object, object_rewrite_ctx_t *ctx)</span>
+<span class="lineNum">     403 </span>            : {
+<span class="lineNum">     404 </span><span class="lineCov">   20090491 :    if (object == NULL)</span>
+<span class="lineNum">     405 </span>            :       return NULL;
+<span class="lineNum">     406 </span>            : 
+<span class="lineNum">     407 </span><span class="lineCov">   19982415 :    if (object-&gt;generation == ctx-&gt;generation) {</span>
+<span class="lineNum">     408 </span>            :       // Already rewritten this tree so return the cached version
+<span class="lineNum">     409 </span><span class="lineCov">   19394577 :       return ctx-&gt;cache[object-&gt;index];</span>
+<span class="lineNum">     410 </span>            :    }
+<span class="lineNum">     411 </span>            : 
+<span class="lineNum">     412 </span><span class="lineCov">     587838 :    const imask_t skip_mask = (I_REF | I_ATTRS | I_NETS);</span>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span><span class="lineCov">     587838 :    const object_class_t *class = classes[object-&gt;tag];</span>
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span><span class="lineCov">     587838 :    const imask_t has = class-&gt;has_map[object-&gt;kind];</span>
+<span class="lineNum">     417 </span><span class="lineCov">     587838 :    const int nitems = class-&gt;object_nitems[object-&gt;kind];</span>
+<span class="lineNum">     418 </span><span class="lineCov">     587838 :    int type_item = -1;</span>
+<span class="lineNum">     419 </span><span class="lineCov">     587838 :    imask_t mask = 1;</span>
+<span class="lineNum">     420 </span><span class="lineCov">   26216659 :    for (int n = 0; n &lt; nitems; mask &lt;&lt;= 1) {</span>
+<span class="lineNum">     421 </span><span class="lineCov">   25628821 :       if (has &amp; mask &amp; ~skip_mask) {</span>
+<span class="lineNum">     422 </span><span class="lineCov">    2107457 :          if (ITEM_IDENT &amp; mask)</span>
+<span class="lineNum">     423 </span>            :             ;
+<span class="lineNum">     424 </span><span class="lineCov">    1637023 :          else if (ITEM_TREE &amp; mask)</span>
+<span class="lineNum">     425 </span><span class="lineCov">     222796 :             object-&gt;items[n].tree =</span>
+<span class="lineNum">     426 </span><span class="lineCov">     222796 :                (tree_t)object_rewrite((object_t *)object-&gt;items[n].tree, ctx);</span>
+<span class="lineNum">     427 </span><span class="lineCov">    1414227 :          else if (ITEM_TREE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     428 </span><span class="lineCov">     266829 :             tree_array_t *a = &amp;(object-&gt;items[n].tree_array);</span>
+<span class="lineNum">     429 </span>            : 
+<span class="lineNum">     430 </span><span class="lineCov">   19447918 :             for (size_t i = 0; i &lt; a-&gt;count; i++)</span>
+<span class="lineNum">     431 </span><span class="lineCov">   19181089 :                a-&gt;items[i] =</span>
+<span class="lineNum">     432 </span><span class="lineCov">   19181089 :                   (tree_t)object_rewrite((object_t *)a-&gt;items[i], ctx);</span>
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span>            :             // If an item was rewritten to NULL then delete it
+<span class="lineNum">     435 </span>            :             size_t n = 0;
+<span class="lineNum">     436 </span><span class="lineCov">   19181089 :             for (size_t i = 0; i &lt; a-&gt;count; i++) {</span>
+<span class="lineNum">     437 </span><span class="lineCov">   19181089 :                if (a-&gt;items[i] != NULL)</span>
+<span class="lineNum">     438 </span><span class="lineCov">   19180803 :                   a-&gt;items[n++] = a-&gt;items[i];</span>
+<span class="lineNum">     439 </span>            :             }
+<span class="lineNum">     440 </span><span class="lineCov">     266829 :             a-&gt;count = n;</span>
+<span class="lineNum">     441 </span>            :          }
+<span class="lineNum">     442 </span><span class="lineCov">    1147398 :          else if (ITEM_TYPE &amp; mask)</span>
+<span class="lineNum">     443 </span>            :             type_item = n;
+<span class="lineNum">     444 </span><span class="lineCov">     799769 :          else if (ITEM_INT64 &amp; mask)</span>
+<span class="lineNum">     445 </span>            :             ;
+<span class="lineNum">     446 </span><span class="lineCov">     575154 :          else if (ITEM_INT32 &amp; mask)</span>
+<span class="lineNum">     447 </span>            :             ;
+<span class="lineNum">     448 </span><span class="lineCov">     240522 :          else if (ITEM_DOUBLE &amp; mask)</span>
+<span class="lineNum">     449 </span>            :             ;
+<span class="lineNum">     450 </span><span class="lineCov">     185452 :          else if (ITEM_RANGE &amp; mask) {</span>
+<span class="lineNum">     451 </span><span class="lineCov">      11144 :             range_t *r = object-&gt;items[n].range;</span>
+<span class="lineNum">     452 </span><span class="lineCov">      11144 :             if (r != NULL) {</span>
+<span class="lineNum">     453 </span><span class="lineCov">       1688 :                r-&gt;left  = (tree_t)object_rewrite((object_t *)r-&gt;left, ctx);</span>
+<span class="lineNum">     454 </span><span class="lineCov">       1688 :                r-&gt;right = (tree_t)object_rewrite((object_t *)r-&gt;right, ctx);</span>
+<span class="lineNum">     455 </span>            :             }
+<span class="lineNum">     456 </span>            :          }
+<span class="lineNum">     457 </span><span class="lineCov">     174308 :          else if (ITEM_TYPE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     458 </span><span class="lineCov">       9698 :             type_array_t *a = &amp;(object-&gt;items[n].type_array);</span>
+<span class="lineNum">     459 </span><span class="lineCov">      27120 :             for (unsigned i = 0; i &lt; a-&gt;count; i++)</span>
+<span class="lineNum">     460 </span><span class="lineCov">      17422 :                (void)object_rewrite((object_t *)a-&gt;items[i], ctx);</span>
+<span class="lineNum">     461 </span>            :          }
+<span class="lineNum">     462 </span><span class="lineCov">     164610 :          else if (ITEM_RANGE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     463 </span><span class="lineCov">     157182 :             range_array_t *a = &amp;(object-&gt;items[n].range_array);</span>
+<span class="lineNum">     464 </span><span class="lineCov">     314605 :             for (unsigned i = 0; i &lt; a-&gt;count; i++) {</span>
+<span class="lineNum">     465 </span><span class="lineCov">     157423 :                a-&gt;items[i].left =</span>
+<span class="lineNum">     466 </span><span class="lineCov">     157423 :                   (tree_t)object_rewrite((object_t *)a-&gt;items[i].left, ctx);</span>
+<span class="lineNum">     467 </span><span class="lineCov">     157423 :                a-&gt;items[i].right =</span>
+<span class="lineNum">     468 </span><span class="lineCov">     157423 :                   (tree_t)object_rewrite((object_t *)a-&gt;items[i].right, ctx);</span>
+<span class="lineNum">     469 </span><span class="lineCov">     157423 :                assert(a-&gt;items[i].left);</span>
+<span class="lineNum">     470 </span><span class="lineCov">     157423 :                assert(a-&gt;items[i].right);</span>
+<span class="lineNum">     471 </span>            :             }
+<span class="lineNum">     472 </span>            :          }
+<span class="lineNum">     473 </span><span class="lineCov">       7428 :          else if (ITEM_TEXT_BUF &amp; mask)</span>
+<span class="lineNum">     474 </span>            :             ;
+<span class="lineNum">     475 </span>            :          else
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :             item_without_type(mask);</span>
+<span class="lineNum">     477 </span>            :       }
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span><span class="lineCov">   25628821 :       if (has &amp; mask)</span>
+<span class="lineNum">     480 </span><span class="lineCov">    2496927 :          n++;</span>
+<span class="lineNum">     481 </span>            :    }
+<span class="lineNum">     482 </span>            : 
+<span class="lineNum">     483 </span><span class="lineCov">     587838 :    if (unlikely(ctx-&gt;cache == NULL)) {</span>
+<span class="lineNum">     484 </span><span class="lineCov">       3333 :       ctx-&gt;cache_size = MIN(4096, n_objects_alloc);</span>
+<span class="lineNum">     485 </span><span class="lineCov">       3333 :       ctx-&gt;cache = xcalloc(sizeof(object_t *) * ctx-&gt;cache_size);</span>
+<span class="lineNum">     486 </span>            :    }
+<span class="lineNum">     487 </span><span class="lineCov">     584505 :    else if (unlikely(ctx-&gt;index &gt;= ctx-&gt;cache_size)) {</span>
+<span class="lineNum">     488 </span><span class="lineCov">         21 :       assert(ctx-&gt;index &lt; n_objects_alloc);</span>
+<span class="lineNum">     489 </span><span class="lineCov">         42 :       while (ctx-&gt;index &gt;= ctx-&gt;cache_size) {</span>
+<span class="lineNum">     490 </span><span class="lineCov">         21 :          const size_t newsz = (ctx-&gt;cache_size * 3) / 2;</span>
+<span class="lineNum">     491 </span><span class="lineCov">         21 :          ctx-&gt;cache = xrealloc(ctx-&gt;cache, newsz * sizeof(object_t *));</span>
+<span class="lineNum">     492 </span><span class="lineCov">         21 :          memset(ctx-&gt;cache + ctx-&gt;cache_size, '\0',</span>
+<span class="lineNum">     493 </span><span class="lineCov">         21 :                 (newsz - ctx-&gt;cache_size) * sizeof(object_t *));</span>
+<span class="lineNum">     494 </span><span class="lineCov">         21 :          ctx-&gt;cache_size = newsz;</span>
+<span class="lineNum">     495 </span>            :       }
+<span class="lineNum">     496 </span>            :    }
+<span class="lineNum">     497 </span>            : 
+<span class="lineNum">     498 </span><span class="lineCov">     587838 :    if (object-&gt;generation != ctx-&gt;generation) {</span>
+<span class="lineNum">     499 </span><span class="lineCov">     447471 :       object-&gt;generation = ctx-&gt;generation;</span>
+<span class="lineNum">     500 </span><span class="lineCov">     447471 :       object-&gt;index      = ctx-&gt;index++;</span>
+<span class="lineNum">     501 </span>            :    }
+<span class="lineNum">     502 </span>            : 
+<span class="lineNum">     503 </span><span class="lineCov">     587838 :    if (object-&gt;tag == OBJECT_TAG_TREE) {</span>
+<span class="lineNum">     504 </span>            :       // Rewrite this tree before we rewrite the type as there may
+<span class="lineNum">     505 </span>            :       // be a circular reference
+<span class="lineNum">     506 </span><span class="lineCov">     420288 :       object_t *new = (object_t *)(*ctx-&gt;fn)((tree_t)object, ctx-&gt;context);</span>
+<span class="lineNum">     507 </span><span class="lineCov">     420288 :       if (new != NULL &amp;&amp; object != new) {</span>
+<span class="lineNum">     508 </span><span class="lineCov">       7804 :          new-&gt;generation = ctx-&gt;generation;</span>
+<span class="lineNum">     509 </span><span class="lineCov">       7804 :          new-&gt;index      = object-&gt;index;</span>
+<span class="lineNum">     510 </span>            :       }
+<span class="lineNum">     511 </span><span class="lineCov">     420288 :       ctx-&gt;cache[object-&gt;index] = new;</span>
+<span class="lineNum">     512 </span>            :    }
+<span class="lineNum">     513 </span>            :    else
+<span class="lineNum">     514 </span><span class="lineCov">     167550 :       ctx-&gt;cache[object-&gt;index] = object;</span>
+<span class="lineNum">     515 </span>            : 
+<span class="lineNum">     516 </span><span class="lineCov">     587838 :    if (type_item != -1)</span>
+<span class="lineNum">     517 </span><span class="lineCov">     347629 :       (void)object_rewrite((object_t *)object-&gt;items[type_item].type, ctx);</span>
+<span class="lineNum">     518 </span>            : 
+<span class="lineNum">     519 </span><span class="lineCov">     587838 :    return ctx-&gt;cache[object-&gt;index];</span>
+<a name="520"><span class="lineNum">     520 </span>            : }</a>
+<span class="lineNum">     521 </span>            : 
+<span class="lineNum">     522 </span><span class="lineCov">     669587 : void object_write(object_t *object, object_wr_ctx_t *ctx)</span>
+<span class="lineNum">     523 </span>            : {
+<span class="lineNum">     524 </span><span class="lineCov">     669587 :    if (object == NULL) {</span>
+<span class="lineNum">     525 </span><span class="lineCov">      76265 :       write_u16(UINT16_C(0xffff), ctx-&gt;file);  // Null marker</span>
+<span class="lineNum">     526 </span><span class="lineCov">      76265 :       return;</span>
+<span class="lineNum">     527 </span>            :    }
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span><span class="lineCov">     593322 :    if (object-&gt;generation == ctx-&gt;generation) {</span>
+<span class="lineNum">     530 </span>            :       // Already visited this tree
+<span class="lineNum">     531 </span><span class="lineCov">     305084 :       write_u16(UINT16_C(0xfffe), ctx-&gt;file);   // Back reference marker</span>
+<span class="lineNum">     532 </span><span class="lineCov">     305084 :       write_u32(object-&gt;index, ctx-&gt;file);</span>
+<span class="lineNum">     533 </span><span class="lineCov">     305084 :       return;</span>
+<span class="lineNum">     534 </span>            :    }
+<span class="lineNum">     535 </span>            : 
+<span class="lineNum">     536 </span><span class="lineCov">     288238 :    object-&gt;generation = ctx-&gt;generation;</span>
+<span class="lineNum">     537 </span><span class="lineCov">     288238 :    object-&gt;index      = (ctx-&gt;n_objects)++;</span>
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span><span class="lineCov">     288238 :    write_u16(object-&gt;kind, ctx-&gt;file);</span>
+<span class="lineNum">     540 </span>            : 
+<span class="lineNum">     541 </span><span class="lineCov">     288238 :    if (object-&gt;tag == OBJECT_TAG_TREE)</span>
+<span class="lineNum">     542 </span><span class="lineCov">     266308 :       loc_write(&amp;object-&gt;loc, ctx-&gt;file, ctx-&gt;ident_ctx);</span>
+<span class="lineNum">     543 </span>            : 
+<span class="lineNum">     544 </span><span class="lineCov">     288238 :    const object_class_t *class = classes[object-&gt;tag];</span>
+<span class="lineNum">     545 </span>            : 
+<span class="lineNum">     546 </span><span class="lineCov">     288238 :    const imask_t has = class-&gt;has_map[object-&gt;kind];</span>
+<span class="lineNum">     547 </span><span class="lineCov">     288238 :    const int nitems = class-&gt;object_nitems[object-&gt;kind];</span>
+<span class="lineNum">     548 </span><span class="lineCov">     288238 :    imask_t mask = 1;</span>
+<span class="lineNum">     549 </span><span class="lineCov">   13176111 :    for (int n = 0; n &lt; nitems; mask &lt;&lt;= 1) {</span>
+<span class="lineNum">     550 </span><span class="lineCov">   12887873 :       if (has &amp; mask) {</span>
+<span class="lineNum">     551 </span><span class="lineCov">    1370581 :          if (ITEM_IDENT &amp; mask)</span>
+<span class="lineNum">     552 </span><span class="lineCov">     224203 :             ident_write(object-&gt;items[n].ident, ctx-&gt;ident_ctx);</span>
+<span class="lineNum">     553 </span><span class="lineCov">    1146378 :          else if (ITEM_TREE &amp; mask)</span>
+<span class="lineNum">     554 </span><span class="lineCov">     212237 :             object_write((object_t *)object-&gt;items[n].tree, ctx);</span>
+<span class="lineNum">     555 </span><span class="lineCov">     934141 :          else if (ITEM_TYPE &amp; mask)</span>
+<span class="lineNum">     556 </span><span class="lineCov">     225675 :             object_write((object_t *)object-&gt;items[n].type, ctx);</span>
+<span class="lineNum">     557 </span><span class="lineCov">     708466 :          else if (ITEM_TREE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     558 </span><span class="lineCov">      82208 :             const tree_array_t *a = &amp;(object-&gt;items[n].tree_array);</span>
+<span class="lineNum">     559 </span><span class="lineCov">      82208 :             write_u32(a-&gt;count, ctx-&gt;file);</span>
+<span class="lineNum">     560 </span><span class="lineCov">     268218 :             for (unsigned i = 0; i &lt; a-&gt;count; i++)</span>
+<span class="lineNum">     561 </span><span class="lineCov">     186010 :                object_write((object_t *)a-&gt;items[i], ctx);</span>
+<span class="lineNum">     562 </span>            :          }
+<span class="lineNum">     563 </span><span class="lineCov">     626258 :          else if (ITEM_TYPE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     564 </span><span class="lineCov">      10954 :             const type_array_t *a = &amp;(object-&gt;items[n].type_array);</span>
+<span class="lineNum">     565 </span><span class="lineCov">      10954 :             write_u16(a-&gt;count, ctx-&gt;file);</span>
+<span class="lineNum">     566 </span><span class="lineCov">      32108 :             for (unsigned i = 0; i &lt; a-&gt;count; i++)</span>
+<span class="lineNum">     567 </span><span class="lineCov">      21154 :                object_write((object_t *)a-&gt;items[i], ctx);</span>
+<span class="lineNum">     568 </span>            :          }
+<span class="lineNum">     569 </span><span class="lineCov">     615304 :          else if (ITEM_INT64 &amp; mask)</span>
+<span class="lineNum">     570 </span><span class="lineCov">     127299 :             write_u64(object-&gt;items[n].ival, ctx-&gt;file);</span>
+<span class="lineNum">     571 </span><span class="lineCov">     488005 :          else if (ITEM_INT32 &amp; mask)</span>
+<span class="lineNum">     572 </span><span class="lineCov">     236707 :             write_u32(object-&gt;items[n].ival, ctx-&gt;file);</span>
+<span class="lineNum">     573 </span><span class="lineCov">     251298 :          else if (ITEM_RANGE &amp; mask) {</span>
+<span class="lineNum">     574 </span><span class="lineCov">       8026 :             if (object-&gt;items[n].range != NULL) {</span>
+<span class="lineNum">     575 </span><span class="lineCov">        744 :                write_u8(object-&gt;items[n].range-&gt;kind, ctx-&gt;file);</span>
+<span class="lineNum">     576 </span><span class="lineCov">        744 :                object_write((object_t *)object-&gt;items[n].range-&gt;left, ctx);</span>
+<span class="lineNum">     577 </span><span class="lineCov">        744 :                object_write((object_t *)object-&gt;items[n].range-&gt;right, ctx);</span>
+<span class="lineNum">     578 </span>            :             }
+<span class="lineNum">     579 </span>            :             else
+<span class="lineNum">     580 </span><span class="lineCov">       7282 :                write_u8(UINT8_C(0xff), ctx-&gt;file);</span>
+<span class="lineNum">     581 </span>            :          }
+<span class="lineNum">     582 </span><span class="lineCov">     243272 :          else if (ITEM_NETID_ARRAY &amp; mask) {</span>
+<span class="lineNum">     583 </span><span class="lineCov">       1192 :             const netid_array_t *a = &amp;(object-&gt;items[n].netid_array);</span>
+<span class="lineNum">     584 </span><span class="lineCov">       1192 :             write_u32(a-&gt;count, ctx-&gt;file);</span>
+<span class="lineNum">     585 </span><span class="lineCov">       6113 :             for (unsigned i = 0; i &lt; a-&gt;count; i++)</span>
+<span class="lineNum">     586 </span><span class="lineCov">       4921 :                write_u32(a-&gt;items[i], ctx-&gt;file);</span>
+<span class="lineNum">     587 </span>            :          }
+<span class="lineNum">     588 </span><span class="lineCov">     242080 :          else if (ITEM_DOUBLE &amp; mask)</span>
+<span class="lineNum">     589 </span><span class="lineCov">      27724 :             write_double(object-&gt;items[n].dval, ctx-&gt;file);</span>
+<span class="lineNum">     590 </span><span class="lineCov">     214356 :          else if (ITEM_ATTRS &amp; mask) {</span>
+<span class="lineNum">     591 </span><span class="lineCov">     193856 :             const attr_tab_t *attrs = &amp;(object-&gt;items[n].attrs);</span>
+<span class="lineNum">     592 </span><span class="lineCov">     193856 :             write_u16(attrs-&gt;num, ctx-&gt;file);</span>
+<span class="lineNum">     593 </span><span class="lineCov">     209527 :             for (unsigned i = 0; i &lt; attrs-&gt;num; i++) {</span>
+<span class="lineNum">     594 </span><span class="lineCov">      15671 :                write_u16(attrs-&gt;table[i].kind, ctx-&gt;file);</span>
+<span class="lineNum">     595 </span><span class="lineCov">      15671 :                ident_write(attrs-&gt;table[i].name, ctx-&gt;ident_ctx);</span>
+<span class="lineNum">     596 </span>            : 
+<span class="lineNum">     597 </span><span class="lineCov">      15671 :                switch (attrs-&gt;table[i].kind) {</span>
+<span class="lineNum">     598 </span>            :                case A_STRING:
+<span class="lineNum">     599 </span><span class="lineCov">       9038 :                   ident_write(attrs-&gt;table[i].sval, ctx-&gt;ident_ctx);</span>
+<span class="lineNum">     600 </span><span class="lineCov">       9038 :                   break;</span>
+<span class="lineNum">     601 </span>            : 
+<span class="lineNum">     602 </span>            :                case A_INT:
+<span class="lineNum">     603 </span><span class="lineCov">       6382 :                   write_u32(attrs-&gt;table[i].ival, ctx-&gt;file);</span>
+<span class="lineNum">     604 </span><span class="lineCov">       6382 :                   break;</span>
+<span class="lineNum">     605 </span>            : 
+<span class="lineNum">     606 </span>            :                case A_TREE:
+<span class="lineNum">     607 </span><span class="lineCov">        251 :                   object_write((object_t *)attrs-&gt;table[i].tval, ctx);</span>
+<span class="lineNum">     608 </span><span class="lineCov">        251 :                   break;</span>
+<span class="lineNum">     609 </span>            : 
+<span class="lineNum">     610 </span>            :                case A_PTR:
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :                   fatal(&quot;pointer attributes cannot be saved&quot;);</span>
+<span class="lineNum">     612 </span>            :                }
+<span class="lineNum">     613 </span>            :             }
+<span class="lineNum">     614 </span>            :          }
+<span class="lineNum">     615 </span><span class="lineCov">      20500 :          else if (ITEM_RANGE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     616 </span><span class="lineCov">      10691 :             range_array_t *a = &amp;(object-&gt;items[n].range_array);</span>
+<span class="lineNum">     617 </span><span class="lineCov">      10691 :             write_u16(a-&gt;count, ctx-&gt;file);</span>
+<span class="lineNum">     618 </span><span class="lineCov">      21446 :             for (unsigned i = 0; i &lt; a-&gt;count; i++) {</span>
+<span class="lineNum">     619 </span><span class="lineCov">      10755 :                write_u8(a-&gt;items[i].kind, ctx-&gt;file);</span>
+<span class="lineNum">     620 </span><span class="lineCov">      10755 :                object_write((object_t *)a-&gt;items[i].left, ctx);</span>
+<span class="lineNum">     621 </span><span class="lineCov">      10755 :                object_write((object_t *)a-&gt;items[i].right, ctx);</span>
+<span class="lineNum">     622 </span>            :             }
+<span class="lineNum">     623 </span>            :          }
+<span class="lineNum">     624 </span><span class="lineCov">       9809 :          else if (ITEM_TEXT_BUF &amp; mask)</span>
+<span class="lineNum">     625 </span>            :             ;
+<span class="lineNum">     626 </span>            :          else
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 :             item_without_type(mask);</span>
+<span class="lineNum">     628 </span><span class="lineCov">    1370581 :          n++;</span>
+<span class="lineNum">     629 </span>            :       }
+<span class="lineNum">     630 </span>            :    }
+<a name="631"><span class="lineNum">     631 </span>            : }</a>
+<span class="lineNum">     632 </span>            : 
+<span class="lineNum">     633 </span><span class="lineCov">       1262 : object_wr_ctx_t *object_write_begin(fbuf_t *f)</span>
+<span class="lineNum">     634 </span>            : {
+<span class="lineNum">     635 </span><span class="lineCov">       1262 :    write_u32(format_digest, f);</span>
+<span class="lineNum">     636 </span><span class="lineCov">       1262 :    write_u8(standard(), f);</span>
+<span class="lineNum">     637 </span>            : 
+<span class="lineNum">     638 </span><span class="lineCov">       1262 :    object_wr_ctx_t *ctx = xmalloc(sizeof(object_wr_ctx_t));</span>
+<span class="lineNum">     639 </span><span class="lineCov">       1262 :    ctx-&gt;file       = f;</span>
+<span class="lineNum">     640 </span><span class="lineCov">       1262 :    ctx-&gt;generation = next_generation++;</span>
+<span class="lineNum">     641 </span><span class="lineCov">       1262 :    ctx-&gt;n_objects  = 0;</span>
+<span class="lineNum">     642 </span><span class="lineCov">       1262 :    ctx-&gt;ident_ctx  = ident_write_begin(f);</span>
+<span class="lineNum">     643 </span>            : 
+<span class="lineNum">     644 </span><span class="lineCov">       1262 :    return ctx;</span>
+<a name="645"><span class="lineNum">     645 </span>            : }</a>
+<span class="lineNum">     646 </span>            : 
+<span class="lineNum">     647 </span><span class="lineCov">       1262 : void object_write_end(object_wr_ctx_t *ctx)</span>
+<span class="lineNum">     648 </span>            : {
+<span class="lineNum">     649 </span><span class="lineCov">       1262 :    ident_write_end(ctx-&gt;ident_ctx);</span>
+<span class="lineNum">     650 </span><span class="lineCov">       1262 :    free(ctx);</span>
+<a name="651"><span class="lineNum">     651 </span><span class="lineCov">       1262 : }</span></a>
+<span class="lineNum">     652 </span>            : 
+<span class="lineNum">     653 </span><span class="lineCov">    2410309 : object_t *object_read(object_rd_ctx_t *ctx, int tag)</span>
+<span class="lineNum">     654 </span>            : {
+<span class="lineNum">     655 </span><span class="lineCov">    2410309 :    uint16_t marker = read_u16(ctx-&gt;file);</span>
+<span class="lineNum">     656 </span><span class="lineCov">    2410309 :    if (marker == UINT16_C(0xffff))</span>
+<span class="lineNum">     657 </span>            :       return NULL;    // Null marker
+<span class="lineNum">     658 </span><span class="lineCov">    2045447 :    else if (marker == UINT16_C(0xfffe)) {</span>
+<span class="lineNum">     659 </span>            :       // Back reference marker
+<span class="lineNum">     660 </span><span class="lineCov">    1096813 :       index_t index = read_u32(ctx-&gt;file);</span>
+<span class="lineNum">     661 </span><span class="lineCov">    1096813 :       assert(index &lt; ctx-&gt;n_objects);</span>
+<span class="lineNum">     662 </span><span class="lineCov">    1096813 :       return ctx-&gt;store[index];</span>
+<span class="lineNum">     663 </span>            :    }
+<span class="lineNum">     664 </span>            : 
+<span class="lineNum">     665 </span><span class="lineCov">     948634 :    const object_class_t *class = classes[tag];</span>
+<span class="lineNum">     666 </span>            : 
+<span class="lineNum">     667 </span><span class="lineCov">     948634 :    assert(marker &lt; class-&gt;last_kind);</span>
+<span class="lineNum">     668 </span>            : 
+<span class="lineNum">     669 </span><span class="lineCov">     948634 :    object_t *object = object_new(class, marker);</span>
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span><span class="lineCov">     948634 :    if (tag == OBJECT_TAG_TREE)</span>
+<span class="lineNum">     672 </span><span class="lineCov">     832507 :       loc_read(&amp;(object-&gt;loc), ctx-&gt;file, ctx-&gt;ident_ctx);</span>
+<span class="lineNum">     673 </span>            : 
+<span class="lineNum">     674 </span>            :    // Stash pointer for later back references
+<span class="lineNum">     675 </span>            :    // This must be done early as a child node of this type may
+<span class="lineNum">     676 </span>            :    // reference upwards
+<span class="lineNum">     677 </span><span class="lineCov">     948634 :    object-&gt;index = ctx-&gt;n_objects++;</span>
+<span class="lineNum">     678 </span><span class="lineCov">     948634 :    if (ctx-&gt;n_objects == ctx-&gt;store_sz) {</span>
+<span class="lineNum">     679 </span><span class="lineCov">       1719 :       ctx-&gt;store_sz *= 2;</span>
+<span class="lineNum">     680 </span><span class="lineCov">       1719 :       ctx-&gt;store = xrealloc(ctx-&gt;store, ctx-&gt;store_sz * sizeof(tree_t));</span>
+<span class="lineNum">     681 </span>            :    }
+<span class="lineNum">     682 </span><span class="lineCov">     948634 :    ctx-&gt;store[object-&gt;index] = object;</span>
+<span class="lineNum">     683 </span>            : 
+<span class="lineNum">     684 </span><span class="lineCov">     948634 :    const imask_t has = class-&gt;has_map[object-&gt;kind];</span>
+<span class="lineNum">     685 </span><span class="lineCov">     948634 :    const int nitems = class-&gt;object_nitems[object-&gt;kind];</span>
+<span class="lineNum">     686 </span><span class="lineCov">     948634 :    imask_t mask = 1;</span>
+<span class="lineNum">     687 </span><span class="lineCov">   44901603 :    for (int n = 0; n &lt; nitems; mask &lt;&lt;= 1) {</span>
+<span class="lineNum">     688 </span><span class="lineCov">   43952969 :       if (has &amp; mask) {</span>
+<span class="lineNum">     689 </span><span class="lineCov">    4828718 :          if (ITEM_IDENT &amp; mask)</span>
+<span class="lineNum">     690 </span><span class="lineCov">     810596 :             object-&gt;items[n].ident = ident_read(ctx-&gt;ident_ctx);</span>
+<span class="lineNum">     691 </span><span class="lineCov">    4018122 :          else if (ITEM_TREE &amp; mask)</span>
+<span class="lineNum">     692 </span><span class="lineCov">     706276 :             object-&gt;items[n].tree = (tree_t)object_read(ctx, OBJECT_TAG_TREE);</span>
+<span class="lineNum">     693 </span><span class="lineCov">    3311846 :          else if (ITEM_TYPE &amp; mask)</span>
+<span class="lineNum">     694 </span><span class="lineCov">     826940 :             object-&gt;items[n].tree = (tree_t)object_read(ctx, OBJECT_TAG_TYPE);</span>
+<span class="lineNum">     695 </span><span class="lineCov">    2484906 :          else if (ITEM_TREE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     696 </span><span class="lineCov">     234594 :             tree_array_t *a = &amp;(object-&gt;items[n].tree_array);</span>
+<span class="lineNum">     697 </span><span class="lineCov">     234594 :             tree_array_resize(a, read_u32(ctx-&gt;file), 0);</span>
+<span class="lineNum">     698 </span><span class="lineCov">     886727 :             for (unsigned i = 0; i &lt; a-&gt;count; i++)</span>
+<span class="lineNum">     699 </span><span class="lineCov">     652133 :                a-&gt;items[i] = (tree_t)object_read(ctx, OBJECT_TAG_TREE);</span>
+<span class="lineNum">     700 </span>            :          }
+<span class="lineNum">     701 </span><span class="lineCov">    2250312 :          else if (ITEM_TYPE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     702 </span><span class="lineCov">      92349 :             type_array_t *a = &amp;(object-&gt;items[n].type_array);</span>
+<span class="lineNum">     703 </span><span class="lineCov">      92349 :             type_array_resize(a, read_u16(ctx-&gt;file), 0);</span>
+<span class="lineNum">     704 </span><span class="lineCov">     266848 :             for (unsigned i = 0; i &lt; a-&gt;count; i++)</span>
+<span class="lineNum">     705 </span><span class="lineCov">     174499 :                a-&gt;items[i] = (type_t)object_read(ctx, OBJECT_TAG_TYPE);</span>
+<span class="lineNum">     706 </span>            :          }
+<span class="lineNum">     707 </span><span class="lineCov">    2157963 :          else if (ITEM_INT64 &amp; mask)</span>
+<span class="lineNum">     708 </span><span class="lineCov">     293784 :             object-&gt;items[n].ival = read_u64(ctx-&gt;file);</span>
+<span class="lineNum">     709 </span><span class="lineCov">    1864179 :          else if (ITEM_INT32 &amp; mask)</span>
+<span class="lineNum">     710 </span><span class="lineCov">     993328 :             object-&gt;items[n].ival = read_u32(ctx-&gt;file);</span>
+<span class="lineNum">     711 </span><span class="lineCov">     870851 :          else if (ITEM_RANGE &amp; mask) {</span>
+<span class="lineNum">     712 </span><span class="lineCov">      20879 :             const uint8_t rmarker = read_u8(ctx-&gt;file);</span>
+<span class="lineNum">     713 </span><span class="lineCov">      20879 :             if (rmarker != UINT8_C(0xff)) {</span>
+<span class="lineNum">     714 </span><span class="lineCov">       2021 :                object-&gt;items[n].range = xmalloc(sizeof(range_t));</span>
+<span class="lineNum">     715 </span><span class="lineCov">       2021 :                object-&gt;items[n].range-&gt;kind = rmarker;</span>
+<span class="lineNum">     716 </span><span class="lineCov">       4042 :                object-&gt;items[n].range-&gt;left =</span>
+<span class="lineNum">     717 </span><span class="lineCov">       2021 :                   (tree_t)object_read(ctx, OBJECT_TAG_TREE);</span>
+<span class="lineNum">     718 </span><span class="lineCov">       4042 :                object-&gt;items[n].range-&gt;right =</span>
+<span class="lineNum">     719 </span><span class="lineCov">       2021 :                   (tree_t)object_read(ctx, OBJECT_TAG_TREE);</span>
+<span class="lineNum">     720 </span>            :             }
+<span class="lineNum">     721 </span>            :          }
+<span class="lineNum">     722 </span><span class="lineCov">     849972 :          else if (ITEM_RANGE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     723 </span><span class="lineCov">      21813 :             range_array_t *a = &amp;(object-&gt;items[n].range_array);</span>
+<span class="lineNum">     724 </span><span class="lineCov">      21813 :             range_array_resize(a, read_u16(ctx-&gt;file), 0);</span>
+<span class="lineNum">     725 </span>            : 
+<span class="lineNum">     726 </span><span class="lineCov">      43701 :             for (unsigned i = 0; i &lt; a-&gt;count; i++) {</span>
+<span class="lineNum">     727 </span><span class="lineCov">      21888 :                a-&gt;items[i].kind  = read_u8(ctx-&gt;file);</span>
+<span class="lineNum">     728 </span><span class="lineCov">      43776 :                a-&gt;items[i].left  =</span>
+<span class="lineNum">     729 </span><span class="lineCov">      21888 :                   (tree_t)object_read(ctx, OBJECT_TAG_TREE);</span>
+<span class="lineNum">     730 </span><span class="lineCov">      43776 :                a-&gt;items[i].right =</span>
+<span class="lineNum">     731 </span><span class="lineCov">      21888 :                   (tree_t)object_read(ctx, OBJECT_TAG_TREE);</span>
+<span class="lineNum">     732 </span>            :             }
+<span class="lineNum">     733 </span>            :          }
+<span class="lineNum">     734 </span><span class="lineCov">     828159 :          else if (ITEM_TEXT_BUF &amp; mask)</span>
+<span class="lineNum">     735 </span>            :             ;
+<span class="lineNum">     736 </span><span class="lineCov">     738173 :          else if (ITEM_NETID_ARRAY &amp; mask) {</span>
+<span class="lineNum">     737 </span><span class="lineCov">        305 :             netid_array_t *a = &amp;(object-&gt;items[n].netid_array);</span>
+<span class="lineNum">     738 </span><span class="lineCov">        305 :             netid_array_resize(a, read_u32(ctx-&gt;file), 0xff);</span>
+<span class="lineNum">     739 </span><span class="lineCov">        339 :             for (unsigned i = 0; i &lt; a-&gt;count; i++)</span>
+<span class="lineNum">     740 </span><span class="lineCov">         34 :                a-&gt;items[i] = read_u32(ctx-&gt;file);</span>
+<span class="lineNum">     741 </span>            :          }
+<span class="lineNum">     742 </span><span class="lineCov">     737868 :          else if (ITEM_DOUBLE &amp; mask)</span>
+<span class="lineNum">     743 </span><span class="lineCov">      50605 :             object-&gt;items[n].dval = read_double(ctx-&gt;file);</span>
+<span class="lineNum">     744 </span><span class="lineCov">     687263 :          else if (ITEM_ATTRS &amp; mask) {</span>
+<span class="lineNum">     745 </span><span class="lineCov">     687263 :             attr_tab_t *attrs = &amp;(object-&gt;items[n].attrs);</span>
+<span class="lineNum">     746 </span>            : 
+<span class="lineNum">     747 </span><span class="lineCov">     687263 :             attrs-&gt;num = read_u16(ctx-&gt;file);</span>
+<span class="lineNum">     748 </span><span class="lineCov">     687263 :             if (attrs-&gt;num &gt; 0) {</span>
+<span class="lineNum">     749 </span><span class="lineCov">      92211 :                attrs-&gt;alloc = next_power_of_2(attrs-&gt;num);</span>
+<span class="lineNum">     750 </span><span class="lineCov">      92211 :                attrs-&gt;table = xmalloc(sizeof(attr_t) * attrs-&gt;alloc);</span>
+<span class="lineNum">     751 </span>            :             }
+<span class="lineNum">     752 </span>            : 
+<span class="lineNum">     753 </span><span class="lineCov">      92541 :             for (unsigned i = 0; i &lt; attrs-&gt;num; i++) {</span>
+<span class="lineNum">     754 </span><span class="lineCov">      92541 :                attrs-&gt;table[i].kind = read_u16(ctx-&gt;file);</span>
+<span class="lineNum">     755 </span><span class="lineCov">      92541 :                attrs-&gt;table[i].name = ident_read(ctx-&gt;ident_ctx);</span>
+<span class="lineNum">     756 </span>            : 
+<span class="lineNum">     757 </span><span class="lineCov">      92541 :                switch (attrs-&gt;table[i].kind) {</span>
+<span class="lineNum">     758 </span>            :                case A_STRING:
+<span class="lineNum">     759 </span><span class="lineCov">      79452 :                   attrs-&gt;table[i].sval = ident_read(ctx-&gt;ident_ctx);</span>
+<span class="lineNum">     760 </span><span class="lineCov">      79452 :                   break;</span>
+<span class="lineNum">     761 </span>            : 
+<span class="lineNum">     762 </span>            :                case A_INT:
+<span class="lineNum">     763 </span><span class="lineCov">      11543 :                   attrs-&gt;table[i].ival = read_u32(ctx-&gt;file);</span>
+<span class="lineNum">     764 </span><span class="lineCov">      11543 :                   break;</span>
+<span class="lineNum">     765 </span>            : 
+<span class="lineNum">     766 </span>            :                case A_TREE:
+<span class="lineNum">     767 </span><span class="lineCov">       1546 :                   attrs-&gt;table[i].tval =</span>
+<span class="lineNum">     768 </span><span class="lineCov">       1546 :                      (tree_t)object_read(ctx, OBJECT_TAG_TREE);</span>
+<span class="lineNum">     769 </span><span class="lineCov">       1546 :                   break;</span>
+<span class="lineNum">     770 </span>            : 
+<span class="lineNum">     771 </span>            :                default:
+<span class="lineNum">     772 </span><span class="lineNoCov">          0 :                   abort();</span>
+<span class="lineNum">     773 </span>            :                }
+<span class="lineNum">     774 </span>            :             }
+<span class="lineNum">     775 </span>            :          }
+<span class="lineNum">     776 </span>            :          else
+<span class="lineNum">     777 </span><span class="lineNoCov">          0 :             item_without_type(mask);</span>
+<span class="lineNum">     778 </span><span class="lineCov">    4828718 :          n++;</span>
+<span class="lineNum">     779 </span>            :       }
+<span class="lineNum">     780 </span>            :    }
+<span class="lineNum">     781 </span>            : 
+<span class="lineNum">     782 </span>            :    return object;
+<a name="783"><span class="lineNum">     783 </span>            : }</a>
+<span class="lineNum">     784 </span>            : 
+<span class="lineNum">     785 </span><span class="lineCov">       1097 : object_rd_ctx_t *object_read_begin(fbuf_t *f, const char *fname)</span>
+<span class="lineNum">     786 </span>            : {
+<span class="lineNum">     787 </span><span class="lineCov">       1097 :    object_one_time_init();</span>
+<span class="lineNum">     788 </span>            : 
+<span class="lineNum">     789 </span><span class="lineCov">       1097 :    const uint32_t ver = read_u32(f);</span>
+<span class="lineNum">     790 </span><span class="lineCov">       1097 :    if (ver != format_digest)</span>
+<span class="lineNum">     791 </span><span class="lineNoCov">          0 :       fatal(&quot;%s: serialised format digest is %x expected %x. This design &quot;</span>
+<span class="lineNum">     792 </span>            :             &quot;unit uses a library format from an earlier version of &quot;
+<span class="lineNum">     793 </span>            :             PACKAGE_NAME &quot; and should be reanalysed.&quot;,
+<span class="lineNum">     794 </span>            :             fname, ver, format_digest);
+<span class="lineNum">     795 </span>            : 
+<span class="lineNum">     796 </span><span class="lineCov">       1097 :    const vhdl_standard_t std = read_u8(f);</span>
+<span class="lineNum">     797 </span><span class="lineCov">       1097 :    if (std &gt; standard())</span>
+<span class="lineNum">     798 </span><span class="lineNoCov">          0 :       fatal(&quot;%s: design unit was analysed using standard revision %s which &quot;</span>
+<span class="lineNum">     799 </span>            :             &quot;is more recent that the currently selected standard %s&quot;,
+<span class="lineNum">     800 </span>            :             fname, standard_text(std), standard_text(standard()));
+<span class="lineNum">     801 </span>            : 
+<span class="lineNum">     802 </span><span class="lineCov">       1097 :    object_rd_ctx_t *ctx = xcalloc(sizeof(object_rd_ctx_t));</span>
+<span class="lineNum">     803 </span><span class="lineCov">       1097 :    ctx-&gt;file      = f;</span>
+<span class="lineNum">     804 </span><span class="lineCov">       1097 :    ctx-&gt;ident_ctx = ident_read_begin(f);</span>
+<span class="lineNum">     805 </span><span class="lineCov">       1097 :    ctx-&gt;store_sz  = 256;</span>
+<span class="lineNum">     806 </span><span class="lineCov">       1097 :    ctx-&gt;store     = xmalloc(ctx-&gt;store_sz * sizeof(object_t *));</span>
+<span class="lineNum">     807 </span><span class="lineCov">       1097 :    ctx-&gt;n_objects = 0;</span>
+<span class="lineNum">     808 </span><span class="lineCov">       1097 :    ctx-&gt;db_fname  = xstrdup(fname);</span>
+<span class="lineNum">     809 </span>            : 
+<span class="lineNum">     810 </span><span class="lineCov">       1097 :    return ctx;</span>
+<a name="811"><span class="lineNum">     811 </span>            : }</a>
+<span class="lineNum">     812 </span>            : 
+<span class="lineNum">     813 </span><span class="lineCov">       1097 : void object_read_end(object_rd_ctx_t *ctx)</span>
+<span class="lineNum">     814 </span>            : {
+<span class="lineNum">     815 </span><span class="lineCov">       1097 :    if (ctx-&gt;ident_ctx != NULL)</span>
+<span class="lineNum">     816 </span><span class="lineCov">       1097 :       ident_read_end(ctx-&gt;ident_ctx);</span>
+<span class="lineNum">     817 </span><span class="lineCov">       1097 :    free(ctx-&gt;store);</span>
+<span class="lineNum">     818 </span><span class="lineCov">       1097 :    free(ctx-&gt;db_fname);</span>
+<span class="lineNum">     819 </span><span class="lineCov">       1097 :    free(ctx);</span>
+<a name="820"><span class="lineNum">     820 </span><span class="lineCov">       1097 : }</span></a>
+<span class="lineNum">     821 </span>            : 
+<span class="lineNum">     822 </span><span class="lineCov">       9247 : unsigned object_next_generation(void)</span>
+<span class="lineNum">     823 </span>            : {
+<span class="lineNum">     824 </span><span class="lineCov">       9247 :    return next_generation++;</span>
+<a name="825"><span class="lineNum">     825 </span>            : }</a>
+<span class="lineNum">     826 </span>            : 
+<span class="lineNum">     827 </span><span class="lineCov">      69719 : bool object_copy_mark(object_t *object, object_copy_ctx_t *ctx)</span>
+<span class="lineNum">     828 </span>            : {
+<span class="lineNum">     829 </span><span class="lineCov">      69719 :    if (object == NULL)</span>
+<span class="lineNum">     830 </span>            :       return false;
+<span class="lineNum">     831 </span>            : 
+<span class="lineNum">     832 </span><span class="lineCov">      59617 :    if (object-&gt;generation == ctx-&gt;generation)</span>
+<span class="lineNum">     833 </span><span class="lineCov">      27128 :       return (object-&gt;index != UINT32_MAX);</span>
+<span class="lineNum">     834 </span>            : 
+<span class="lineNum">     835 </span><span class="lineCov">      32489 :    object-&gt;generation = ctx-&gt;generation;</span>
+<span class="lineNum">     836 </span><span class="lineCov">      32489 :    object-&gt;index      = UINT32_MAX;</span>
+<span class="lineNum">     837 </span>            : 
+<span class="lineNum">     838 </span><span class="lineCov">      32489 :    const object_class_t *class = classes[object-&gt;tag];</span>
+<span class="lineNum">     839 </span>            : 
+<span class="lineNum">     840 </span><span class="lineCov">      32489 :    bool marked = false;</span>
+<span class="lineNum">     841 </span><span class="lineCov">      32489 :    if (object-&gt;tag == OBJECT_TAG_TREE) {</span>
+<span class="lineNum">     842 </span><span class="lineCov">      29094 :       if ((marked = (*ctx-&gt;callback)((tree_t)object, ctx-&gt;context)))</span>
+<span class="lineNum">     843 </span><span class="lineCov">       1690 :          object-&gt;index = (ctx-&gt;index)++;</span>
+<span class="lineNum">     844 </span>            :    }
+<span class="lineNum">     845 </span>            : 
+<span class="lineNum">     846 </span><span class="lineCov">      32489 :    int type_item = -1;</span>
+<span class="lineNum">     847 </span><span class="lineCov">      32489 :    const imask_t has = class-&gt;has_map[object-&gt;kind];</span>
+<span class="lineNum">     848 </span><span class="lineCov">      32489 :    const int nitems = class-&gt;object_nitems[object-&gt;kind];</span>
+<span class="lineNum">     849 </span><span class="lineCov">      32489 :    imask_t mask = 1;</span>
+<span class="lineNum">     850 </span><span class="lineCov">    1432800 :    for (int n = 0; n &lt; nitems; mask &lt;&lt;= 1) {</span>
+<span class="lineNum">     851 </span><span class="lineCov">    1400311 :       if (has &amp; mask) {</span>
+<span class="lineNum">     852 </span><span class="lineCov">     153872 :          if (ITEM_IDENT &amp; mask)</span>
+<span class="lineNum">     853 </span>            :             ;
+<span class="lineNum">     854 </span><span class="lineCov">     130749 :          else if (ITEM_TREE &amp; mask)</span>
+<span class="lineNum">     855 </span><span class="lineCov">      43708 :             marked = object_copy_mark((object_t *)object-&gt;items[n].tree, ctx)</span>
+<span class="lineNum">     856 </span><span class="lineCov">      21854 :                || marked;</span>
+<span class="lineNum">     857 </span><span class="lineCov">     108895 :          else if (ITEM_DOUBLE &amp; mask)</span>
+<span class="lineNum">     858 </span>            :             ;
+<span class="lineNum">     859 </span><span class="lineCov">     103953 :          else if (ITEM_TREE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     860 </span><span class="lineCov">      14549 :             tree_array_t *a = &amp;(object-&gt;items[n].tree_array);</span>
+<span class="lineNum">     861 </span><span class="lineCov">      31998 :             for (unsigned i = 0; i &lt; a-&gt;count; i++)</span>
+<span class="lineNum">     862 </span><span class="lineCov">      34898 :                marked = object_copy_mark((object_t *)a-&gt;items[i], ctx)</span>
+<span class="lineNum">     863 </span><span class="lineCov">      17449 :                   || marked;</span>
+<span class="lineNum">     864 </span>            :          }
+<span class="lineNum">     865 </span><span class="lineCov">      89404 :          else if (ITEM_TYPE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     866 </span><span class="lineCov">       1050 :             type_array_t *a = &amp;(object-&gt;items[n].type_array);</span>
+<span class="lineNum">     867 </span><span class="lineCov">       2835 :             for (unsigned i = 0; i &lt; a-&gt;count; i++)</span>
+<span class="lineNum">     868 </span><span class="lineCov">       3570 :                marked = object_copy_mark((object_t *)a-&gt;items[i], ctx)</span>
+<span class="lineNum">     869 </span><span class="lineCov">       1785 :                   || marked;</span>
+<span class="lineNum">     870 </span>            :          }
+<span class="lineNum">     871 </span><span class="lineCov">      88354 :          else if (ITEM_TYPE &amp; mask)</span>
+<span class="lineNum">     872 </span>            :             type_item = n;
+<span class="lineNum">     873 </span><span class="lineCov">      65482 :          else if (ITEM_INT64 &amp; mask)</span>
+<span class="lineNum">     874 </span>            :             ;
+<span class="lineNum">     875 </span><span class="lineCov">      51139 :          else if (ITEM_INT32 &amp; mask)</span>
+<span class="lineNum">     876 </span>            :             ;
+<span class="lineNum">     877 </span><span class="lineCov">      22332 :          else if (ITEM_RANGE &amp; mask) {</span>
+<span class="lineNum">     878 </span><span class="lineCov">        571 :             range_t *r = object-&gt;items[n].range;</span>
+<span class="lineNum">     879 </span><span class="lineCov">        571 :             if (r != NULL) {</span>
+<span class="lineNum">     880 </span><span class="lineCov">        249 :                marked = object_copy_mark((object_t *)r-&gt;left, ctx) || marked;</span>
+<span class="lineNum">     881 </span><span class="lineCov">        249 :                marked = object_copy_mark((object_t *)r-&gt;right, ctx) || marked;</span>
+<span class="lineNum">     882 </span>            :             }
+<span class="lineNum">     883 </span>            :          }
+<span class="lineNum">     884 </span><span class="lineCov">      21761 :          else if (ITEM_RANGE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     885 </span><span class="lineCov">       2336 :             range_array_t *a = &amp;(object-&gt;items[n].range_array);</span>
+<span class="lineNum">     886 </span><span class="lineCov">       4745 :             for (unsigned i = 0; i &lt; a-&gt;count; i++) {</span>
+<span class="lineNum">     887 </span><span class="lineCov">       4818 :                marked = object_copy_mark((object_t *)a-&gt;items[i].left, ctx)</span>
+<span class="lineNum">     888 </span><span class="lineCov">       2409 :                   || marked;</span>
+<span class="lineNum">     889 </span><span class="lineCov">       4818 :                marked = object_copy_mark((object_t *)a-&gt;items[i].right, ctx)</span>
+<span class="lineNum">     890 </span><span class="lineCov">       2409 :                   || marked;</span>
+<span class="lineNum">     891 </span>            :             }
+<span class="lineNum">     892 </span>            :          }
+<span class="lineNum">     893 </span><span class="lineCov">      19425 :          else if (ITEM_NETID_ARRAY &amp; mask)</span>
+<span class="lineNum">     894 </span>            :             ;
+<span class="lineNum">     895 </span><span class="lineCov">      18827 :          else if (ITEM_ATTRS &amp; mask)</span>
+<span class="lineNum">     896 </span>            :             ;
+<span class="lineNum">     897 </span><span class="lineCov">        802 :          else if (ITEM_TEXT_BUF &amp; mask)</span>
+<span class="lineNum">     898 </span>            :             ;
+<span class="lineNum">     899 </span>            :          else
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :             item_without_type(mask);</span>
+<span class="lineNum">     901 </span><span class="lineCov">     153872 :          n++;</span>
+<span class="lineNum">     902 </span>            :       }
+<span class="lineNum">     903 </span>            :    }
+<span class="lineNum">     904 </span>            : 
+<span class="lineNum">     905 </span>            :    // Check type last as it may contain a circular reference
+<span class="lineNum">     906 </span><span class="lineCov">      32489 :    if (type_item != -1)</span>
+<span class="lineNum">     907 </span><span class="lineCov">      45744 :       marked = object_copy_mark((object_t *)object-&gt;items[type_item].type, ctx)</span>
+<span class="lineNum">     908 </span><span class="lineCov">      22872 :          || marked;</span>
+<span class="lineNum">     909 </span>            : 
+<span class="lineNum">     910 </span><span class="lineCov">      32489 :    if (marked &amp;&amp; (object-&gt;index == UINT32_MAX))</span>
+<span class="lineNum">     911 </span><span class="lineCov">       8042 :       object-&gt;index = (ctx-&gt;index)++;</span>
+<span class="lineNum">     912 </span>            : 
+<span class="lineNum">     913 </span><span class="lineCov">      32489 :    return marked;</span>
+<a name="914"><span class="lineNum">     914 </span>            : }</a>
+<span class="lineNum">     915 </span>            : 
+<span class="lineNum">     916 </span><span class="lineCov">      26529 : object_t *object_copy_sweep(object_t *object, object_copy_ctx_t *ctx)</span>
+<span class="lineNum">     917 </span>            : {
+<span class="lineNum">     918 </span><span class="lineCov">      26529 :    if (object == NULL)</span>
+<span class="lineNum">     919 </span>            :       return NULL;
+<span class="lineNum">     920 </span>            : 
+<span class="lineNum">     921 </span><span class="lineCov">      22083 :    assert(object-&gt;generation == ctx-&gt;generation);</span>
+<span class="lineNum">     922 </span>            : 
+<span class="lineNum">     923 </span><span class="lineCov">      22083 :    if (object-&gt;index == UINT32_MAX)</span>
+<span class="lineNum">     924 </span>            :       return object;
+<span class="lineNum">     925 </span>            : 
+<span class="lineNum">     926 </span><span class="lineCov">      12674 :    assert(object-&gt;index &lt; ctx-&gt;index);</span>
+<span class="lineNum">     927 </span>            : 
+<span class="lineNum">     928 </span><span class="lineCov">      12674 :    if (ctx-&gt;copied[object-&gt;index] != NULL) {</span>
+<span class="lineNum">     929 </span>            :       // Already copied this object
+<span class="lineNum">     930 </span>            :       return ctx-&gt;copied[object-&gt;index];
+<span class="lineNum">     931 </span>            :    }
+<span class="lineNum">     932 </span>            : 
+<span class="lineNum">     933 </span><span class="lineCov">       9732 :    const object_class_t *class = classes[object-&gt;tag];</span>
+<span class="lineNum">     934 </span>            : 
+<span class="lineNum">     935 </span><span class="lineCov">       9732 :    object_t *copy = object_new(class, object-&gt;kind);</span>
+<span class="lineNum">     936 </span><span class="lineCov">       9732 :    ctx-&gt;copied[object-&gt;index] = copy;</span>
+<span class="lineNum">     937 </span>            : 
+<span class="lineNum">     938 </span><span class="lineCov">       9732 :    copy-&gt;loc = object-&gt;loc;</span>
+<span class="lineNum">     939 </span>            : 
+<span class="lineNum">     940 </span><span class="lineCov">       9732 :    const imask_t has = class-&gt;has_map[object-&gt;kind];</span>
+<span class="lineNum">     941 </span><span class="lineCov">       9732 :    const int nitems = class-&gt;object_nitems[object-&gt;kind];</span>
+<span class="lineNum">     942 </span><span class="lineCov">       9732 :    imask_t mask = 1;</span>
+<span class="lineNum">     943 </span><span class="lineCov">     422725 :    for (int n = 0; n &lt; nitems; mask &lt;&lt;= 1) {</span>
+<span class="lineNum">     944 </span><span class="lineCov">     412993 :       if (has &amp; mask) {</span>
+<span class="lineNum">     945 </span><span class="lineCov">      49463 :          if (ITEM_IDENT &amp; mask)</span>
+<span class="lineNum">     946 </span><span class="lineCov">       7139 :             copy-&gt;items[n].ident = object-&gt;items[n].ident;</span>
+<span class="lineNum">     947 </span><span class="lineCov">      42324 :          else if (ITEM_TREE &amp; mask)</span>
+<span class="lineNum">     948 </span><span class="lineCov">      12377 :             copy-&gt;items[n].tree = (tree_t)</span>
+<span class="lineNum">     949 </span><span class="lineCov">      12377 :                object_copy_sweep((object_t *)object-&gt;items[n].tree, ctx);</span>
+<span class="lineNum">     950 </span><span class="lineCov">      29947 :          else if (ITEM_DOUBLE &amp; mask)</span>
+<span class="lineNum">     951 </span><span class="lineNoCov">          0 :             copy-&gt;items[n].dval = object-&gt;items[n].dval;</span>
+<span class="lineNum">     952 </span><span class="lineCov">      29947 :          else if (ITEM_TREE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     953 </span><span class="lineCov">       6968 :             const tree_array_t *from = &amp;(object-&gt;items[n].tree_array);</span>
+<span class="lineNum">     954 </span><span class="lineCov">       6968 :             tree_array_t *to = &amp;(copy-&gt;items[n].tree_array);</span>
+<span class="lineNum">     955 </span>            : 
+<span class="lineNum">     956 </span><span class="lineCov">       6968 :             tree_array_resize(to, from-&gt;count, 0);</span>
+<span class="lineNum">     957 </span>            : 
+<span class="lineNum">     958 </span><span class="lineCov">      15234 :             for (size_t i = 0; i &lt; from-&gt;count; i++)</span>
+<span class="lineNum">     959 </span><span class="lineCov">      16532 :                to-&gt;items[i] = (tree_t)</span>
+<span class="lineNum">     960 </span><span class="lineCov">       8266 :                   object_copy_sweep((object_t *)from-&gt;items[i], ctx);</span>
+<span class="lineNum">     961 </span>            :          }
+<span class="lineNum">     962 </span><span class="lineCov">      22979 :          else if (ITEM_TYPE &amp; mask)</span>
+<span class="lineNum">     963 </span><span class="lineCov">       4779 :             copy-&gt;items[n].type = (type_t)</span>
+<span class="lineNum">     964 </span><span class="lineCov">       4779 :                object_copy_sweep((object_t *)object-&gt;items[n].type, ctx);</span>
+<span class="lineNum">     965 </span><span class="lineCov">      18200 :          else if ((ITEM_INT64 &amp; mask) || (ITEM_INT32 &amp; mask))</span>
+<span class="lineNum">     966 </span><span class="lineCov">      10860 :             copy-&gt;items[n].ival = object-&gt;items[n].ival;</span>
+<span class="lineNum">     967 </span><span class="lineCov">       7340 :          else if (ITEM_RANGE &amp; mask) {</span>
+<span class="lineNum">     968 </span><span class="lineCov">        259 :             const range_t *from = object-&gt;items[n].range;</span>
+<span class="lineNum">     969 </span><span class="lineCov">        259 :             if (from != NULL) {</span>
+<span class="lineNum">     970 </span><span class="lineCov">        244 :                range_t *to = copy-&gt;items[n].range = xmalloc(sizeof(range_t));</span>
+<span class="lineNum">     971 </span><span class="lineCov">        244 :                to-&gt;kind  = from-&gt;kind;</span>
+<span class="lineNum">     972 </span><span class="lineCov">        244 :                to-&gt;left  =</span>
+<span class="lineNum">     973 </span><span class="lineCov">        244 :                   (tree_t)object_copy_sweep((object_t *)from-&gt;left, ctx);</span>
+<span class="lineNum">     974 </span><span class="lineCov">        244 :                to-&gt;right =</span>
+<span class="lineNum">     975 </span><span class="lineCov">        244 :                   (tree_t)object_copy_sweep((object_t *)from-&gt;right, ctx);</span>
+<span class="lineNum">     976 </span>            :             }
+<span class="lineNum">     977 </span>            :          }
+<span class="lineNum">     978 </span><span class="lineCov">       7081 :          else if (ITEM_NETID_ARRAY &amp; mask) {</span>
+<span class="lineNum">     979 </span><span class="lineCov">        135 :             const netid_array_t *from = &amp;(object-&gt;items[n].netid_array);</span>
+<span class="lineNum">     980 </span><span class="lineCov">        135 :             netid_array_t *to = &amp;(copy-&gt;items[n].netid_array);</span>
+<span class="lineNum">     981 </span>            : 
+<span class="lineNum">     982 </span><span class="lineCov">        135 :             netid_array_resize(to, from-&gt;count, 0xff);</span>
+<span class="lineNum">     983 </span>            : 
+<span class="lineNum">     984 </span><span class="lineCov">        135 :             for (unsigned i = 0; i &lt; from-&gt;count; i++)</span>
+<span class="lineNum">     985 </span><span class="lineNoCov">          0 :                to-&gt;items[i] = from-&gt;items[i];</span>
+<span class="lineNum">     986 </span>            :          }
+<span class="lineNum">     987 </span><span class="lineCov">       6946 :          else if (ITEM_ATTRS &amp; mask) {</span>
+<span class="lineNum">     988 </span><span class="lineCov">       6824 :             if ((copy-&gt;items[n].attrs.num = object-&gt;items[n].attrs.num) &gt; 0) {</span>
+<span class="lineNum">     989 </span><span class="lineCov">        986 :                copy-&gt;items[n].attrs.alloc = object-&gt;items[n].attrs.alloc;</span>
+<span class="lineNum">     990 </span><span class="lineCov">        986 :                copy-&gt;items[n].attrs.table =</span>
+<span class="lineNum">     991 </span><span class="lineCov">        986 :                   xmalloc(sizeof(attr_t) * copy-&gt;items[n].attrs.alloc);</span>
+<span class="lineNum">     992 </span><span class="lineCov">       1972 :                for (unsigned i = 0; i &lt; object-&gt;items[n].attrs.num; i++)</span>
+<span class="lineNum">     993 </span><span class="lineCov">       1972 :                   copy-&gt;items[n].attrs.table[i] =</span>
+<span class="lineNum">     994 </span><span class="lineCov">        986 :                      object-&gt;items[n].attrs.table[i];</span>
+<span class="lineNum">     995 </span>            :             }
+<span class="lineNum">     996 </span>            :          }
+<span class="lineNum">     997 </span><span class="lineCov">        122 :          else if (ITEM_RANGE_ARRAY &amp; mask) {</span>
+<span class="lineNum">     998 </span><span class="lineCov">         55 :             const range_array_t *from = &amp;(object-&gt;items[n].range_array);</span>
+<span class="lineNum">     999 </span><span class="lineCov">         55 :             range_array_t *to = &amp;(copy-&gt;items[n].range_array);</span>
+<span class="lineNum">    1000 </span><span class="lineCov">         55 :             range_array_resize(to, from-&gt;count, 0);</span>
+<span class="lineNum">    1001 </span>            : 
+<span class="lineNum">    1002 </span><span class="lineCov">        110 :             for (unsigned i = 0; i &lt; from-&gt;count; i++) {</span>
+<span class="lineNum">    1003 </span><span class="lineCov">         55 :                to-&gt;items[i].kind = from-&gt;items[i].kind;</span>
+<span class="lineNum">    1004 </span><span class="lineCov">         55 :                to-&gt;items[i].left = (tree_t)</span>
+<span class="lineNum">    1005 </span><span class="lineCov">         55 :                   object_copy_sweep((object_t *)from-&gt;items[i].left, ctx);</span>
+<span class="lineNum">    1006 </span><span class="lineCov">        110 :                to-&gt;items[i].right = (tree_t)</span>
+<span class="lineNum">    1007 </span><span class="lineCov">         55 :                   object_copy_sweep((object_t *)from-&gt;items[i].right, ctx);</span>
+<span class="lineNum">    1008 </span>            :             }
+<span class="lineNum">    1009 </span>            :          }
+<span class="lineNum">    1010 </span><span class="lineCov">         67 :          else if (ITEM_TYPE_ARRAY &amp; mask) {</span>
+<span class="lineNum">    1011 </span><span class="lineCov">         36 :             const type_array_t *from = &amp;(object-&gt;items[n].type_array);</span>
+<span class="lineNum">    1012 </span><span class="lineCov">         36 :             type_array_t *to = &amp;(copy-&gt;items[n].type_array);</span>
+<span class="lineNum">    1013 </span>            : 
+<span class="lineNum">    1014 </span><span class="lineCov">         36 :             type_array_resize(to, from-&gt;count, 0);</span>
+<span class="lineNum">    1015 </span>            : 
+<span class="lineNum">    1016 </span><span class="lineCov">        102 :             for (unsigned i = 0; i &lt; from-&gt;count; i++)</span>
+<span class="lineNum">    1017 </span><span class="lineCov">        132 :                to-&gt;items[i] = (type_t)</span>
+<span class="lineNum">    1018 </span><span class="lineCov">         66 :                   object_copy_sweep((object_t *)from-&gt;items[i], ctx);</span>
+<span class="lineNum">    1019 </span>            :          }
+<span class="lineNum">    1020 </span><span class="lineCov">         31 :          else if (ITEM_TEXT_BUF &amp; mask)</span>
+<span class="lineNum">    1021 </span>            :             ;
+<span class="lineNum">    1022 </span>            :          else
+<span class="lineNum">    1023 </span><span class="lineNoCov">          0 :             item_without_type(mask);</span>
+<span class="lineNum">    1024 </span><span class="lineCov">      49463 :          n++;</span>
+<span class="lineNum">    1025 </span>            :       }
+<span class="lineNum">    1026 </span>            :    }
+<span class="lineNum">    1027 </span>            : 
+<span class="lineNum">    1028 </span>            :    return copy;
+<a name="1029"><span class="lineNum">    1029 </span>            : }</a>
+<span class="lineNum">    1030 </span>            : 
+<span class="lineNum">    1031 </span><span class="lineCov">       4722 : void object_replace(object_t *t, object_t *a)</span>
+<span class="lineNum">    1032 </span>            : {
+<span class="lineNum">    1033 </span><span class="lineCov">       4722 :    const object_class_t *class = classes[t-&gt;tag];</span>
+<span class="lineNum">    1034 </span>            : 
+<span class="lineNum">    1035 </span><span class="lineCov">       4722 :    object_change_kind(class, t, a-&gt;kind);</span>
+<span class="lineNum">    1036 </span>            : 
+<span class="lineNum">    1037 </span><span class="lineCov">       4722 :    const imask_t has = class-&gt;has_map[t-&gt;kind];</span>
+<span class="lineNum">    1038 </span><span class="lineCov">       4722 :    const int nitems = class-&gt;object_nitems[t-&gt;kind];</span>
+<span class="lineNum">    1039 </span><span class="lineCov">       4722 :    imask_t mask = 1;</span>
+<span class="lineNum">    1040 </span><span class="lineCov">     196764 :    for (int n = 0; n &lt; nitems; mask &lt;&lt;= 1) {</span>
+<span class="lineNum">    1041 </span><span class="lineCov">     192042 :       if (has &amp; mask) {</span>
+<span class="lineNum">    1042 </span><span class="lineCov">      11016 :          if (ITEM_TYPE_ARRAY &amp; mask) {</span>
+<span class="lineNum">    1043 </span><span class="lineCov">       1572 :             const type_array_t *from = &amp;(a-&gt;items[n].type_array);</span>
+<span class="lineNum">    1044 </span><span class="lineCov">       1572 :             type_array_t *to = &amp;(t-&gt;items[n].type_array);</span>
+<span class="lineNum">    1045 </span>            : 
+<span class="lineNum">    1046 </span><span class="lineCov">       1572 :             type_array_resize(to, from-&gt;count, 0);</span>
+<span class="lineNum">    1047 </span>            : 
+<span class="lineNum">    1048 </span><span class="lineCov">       3144 :             for (unsigned i = 0; i &lt; from-&gt;count; i++)</span>
+<span class="lineNum">    1049 </span><span class="lineCov">       1572 :                to-&gt;items[i] = from-&gt;items[i];</span>
+<span class="lineNum">    1050 </span>            :          }
+<span class="lineNum">    1051 </span><span class="lineCov">       9444 :          else if (ITEM_TYPE &amp; mask)</span>
+<span class="lineNum">    1052 </span><span class="lineCov">       1573 :             t-&gt;items[n].type = a-&gt;items[n].type;</span>
+<span class="lineNum">    1053 </span><span class="lineCov">       7871 :          else if (ITEM_TREE &amp; mask)</span>
+<span class="lineNum">    1054 </span><span class="lineNoCov">          0 :             t-&gt;items[n].tree = a-&gt;items[n].tree;</span>
+<span class="lineNum">    1055 </span><span class="lineCov">       7871 :          else if (ITEM_TREE_ARRAY &amp; mask) {</span>
+<span class="lineNum">    1056 </span><span class="lineCov">          5 :             const tree_array_t *from = &amp;(a-&gt;items[n].tree_array);</span>
+<span class="lineNum">    1057 </span><span class="lineCov">          5 :             tree_array_t *to = &amp;(t-&gt;items[n].tree_array);</span>
+<span class="lineNum">    1058 </span>            : 
+<span class="lineNum">    1059 </span><span class="lineCov">          5 :             tree_array_resize(to, from-&gt;count, 0);</span>
+<span class="lineNum">    1060 </span>            : 
+<span class="lineNum">    1061 </span><span class="lineCov">         13 :             for (size_t i = 0; i &lt; from-&gt;count; i++)</span>
+<span class="lineNum">    1062 </span><span class="lineCov">          8 :                to-&gt;items[i] = from-&gt;items[i];</span>
+<span class="lineNum">    1063 </span>            :          }
+<span class="lineNum">    1064 </span><span class="lineCov">       7866 :          else if (ITEM_RANGE_ARRAY &amp; mask) {</span>
+<span class="lineNum">    1065 </span><span class="lineCov">       3144 :             const range_array_t *from = &amp;(a-&gt;items[n].range_array);</span>
+<span class="lineNum">    1066 </span><span class="lineCov">       3144 :             range_array_t *to = &amp;(t-&gt;items[n].range_array);</span>
+<span class="lineNum">    1067 </span>            : 
+<span class="lineNum">    1068 </span><span class="lineCov">       3144 :             range_array_resize(to, from-&gt;count, 0);</span>
+<span class="lineNum">    1069 </span>            : 
+<span class="lineNum">    1070 </span><span class="lineCov">       6288 :             for (unsigned i = 0; i &lt; from-&gt;count; i++)</span>
+<span class="lineNum">    1071 </span><span class="lineCov">       3144 :                to-&gt;items[i] = from-&gt;items[i];</span>
+<span class="lineNum">    1072 </span>            :          }
+<span class="lineNum">    1073 </span><span class="lineCov">       4722 :          else if (ITEM_TEXT_BUF &amp; mask)</span>
+<span class="lineNum">    1074 </span>            :             ;
+<span class="lineNum">    1075 </span><span class="lineCov">       4722 :          else if (ITEM_IDENT &amp; mask)</span>
+<span class="lineNum">    1076 </span><span class="lineCov">       4722 :             t-&gt;items[n].ident = a-&gt;items[n].ident;</span>
+<span class="lineNum">    1077 </span>            :          else
+<span class="lineNum">    1078 </span><span class="lineNoCov">          0 :             item_without_type(mask);</span>
+<span class="lineNum">    1079 </span><span class="lineCov">      11016 :          n++;</span>
+<span class="lineNum">    1080 </span>            :       }
+<span class="lineNum">    1081 </span>            :    }
+<span class="lineNum">    1082 </span><span class="lineCov">       4722 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
