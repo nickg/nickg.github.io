@@ -88,505 +88,508 @@
 <span class="lineNum">      26 </span>            : #include &lt;limits.h&gt;
 <span class="lineNum">      27 </span>            : #include &lt;string.h&gt;
 <span class="lineNum">      28 </span>            : #include &lt;sys/types.h&gt;
-<span class="lineNum">      29 </span>            : #include &lt;sys/wait.h&gt;
-<span class="lineNum">      30 </span>            : #include &lt;sys/stat.h&gt;
-<span class="lineNum">      31 </span>            : 
-<span class="lineNum">      32 </span>            : #ifdef __CYGWIN__
-<span class="lineNum">      33 </span>            : #include &lt;process.h&gt;
-<span class="lineNum">      34 </span>            : #endif
-<span class="lineNum">      35 </span>            : 
-<span class="lineNum">      36 </span>            : #include &lt;llvm-c/Core.h&gt;
-<span class="lineNum">      37 </span>            : #include &lt;llvm-c/Linker.h&gt;
-<span class="lineNum">      38 </span>            : #include &lt;llvm-c/BitReader.h&gt;
-<span class="lineNum">      39 </span>            : #include &lt;llvm-c/BitWriter.h&gt;
-<span class="lineNum">      40 </span>            : #include &lt;llvm-c/TargetMachine.h&gt;
-<span class="lineNum">      41 </span>            : #include &lt;llvm-c/Transforms/PassManagerBuilder.h&gt;
-<span class="lineNum">      42 </span>            : 
-<span class="lineNum">      43 </span>            : #undef NDEBUG
-<span class="lineNum">      44 </span>            : #include &lt;assert.h&gt;
+<span class="lineNum">      29 </span>            : #include &lt;sys/stat.h&gt;
+<span class="lineNum">      30 </span>            : 
+<span class="lineNum">      31 </span>            : #ifndef __MINGW32__
+<span class="lineNum">      32 </span>            : #include &lt;sys/wait.h&gt;
+<span class="lineNum">      33 </span>            : #endif
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #if defined __CYGWIN__ || defined __MINGW32__
+<span class="lineNum">      36 </span>            : #include &lt;process.h&gt;
+<span class="lineNum">      37 </span>            : #endif
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : #include &lt;llvm-c/Core.h&gt;
+<span class="lineNum">      40 </span>            : #include &lt;llvm-c/Linker.h&gt;
+<span class="lineNum">      41 </span>            : #include &lt;llvm-c/BitReader.h&gt;
+<span class="lineNum">      42 </span>            : #include &lt;llvm-c/BitWriter.h&gt;
+<span class="lineNum">      43 </span>            : #include &lt;llvm-c/TargetMachine.h&gt;
+<span class="lineNum">      44 </span>            : #include &lt;llvm-c/Transforms/PassManagerBuilder.h&gt;
 <span class="lineNum">      45 </span>            : 
-<span class="lineNum">      46 </span>            : #define MAX_ARGS          64
-<span class="lineNum">      47 </span>            : #define LINK_NATIVE_BYTES (100 * 1024)
+<span class="lineNum">      46 </span>            : #undef NDEBUG
+<span class="lineNum">      47 </span>            : #include &lt;assert.h&gt;
 <span class="lineNum">      48 </span>            : 
-<span class="lineNum">      49 </span>            : static char        **args = NULL;
-<span class="lineNum">      50 </span>            : static int           n_args = 0;
-<span class="lineNum">      51 </span>            : static tree_t        linked[MAX_ARGS];
-<span class="lineNum">      52 </span>            : static int           n_linked = 0;
-<span class="lineNum">      53 </span>            : static LLVMModuleRef module = NULL;
-<span class="lineNum">      54 </span>            : 
-<span class="lineNum">      55 </span>            : typedef void (*context_fn_t)(lib_t lib, tree_t unit, FILE *deps);
-<span class="lineNum">      56 </span>            : 
-<span class="lineNum">      57 </span>            : typedef struct {
-<span class="lineNum">      58 </span>            :    lib_t        lib;
-<span class="lineNum">      59 </span>            :    FILE        *deps;
-<span class="lineNum">      60 </span>            :    context_fn_t fn;
-<span class="lineNum">      61 </span>            : } lib_walk_params_t;
-<span class="lineNum">      62 </span>            : 
-<span class="lineNum">      63 </span>            : static void link_all_context(tree_t unit, FILE *deps, context_fn_t fn);
-<a name="64"><span class="lineNum">      64 </span>            : </a>
-<span class="lineNum">      65 </span>            : __attribute__((format(printf, 1, 2)))
-<span class="lineNum">      66 </span><span class="lineCov">        120 : static void link_arg_f(const char *fmt, ...)</span>
-<span class="lineNum">      67 </span>            : {
-<span class="lineNum">      68 </span>            :    va_list ap;
-<span class="lineNum">      69 </span><span class="lineCov">        120 :    assert(n_args &lt; MAX_ARGS);</span>
-<span class="lineNum">      70 </span><span class="lineCov">        120 :    va_start(ap, fmt);</span>
-<span class="lineNum">      71 </span><span class="lineCov">        120 :    args[n_args] = xvasprintf(fmt, ap);</span>
-<span class="lineNum">      72 </span><span class="lineCov">        120 :    va_end(ap);</span>
-<span class="lineNum">      73 </span><span class="lineCov">        120 :    args[++n_args] = NULL;</span>
-<a name="74"><span class="lineNum">      74 </span><span class="lineCov">        120 : }</span></a>
-<span class="lineNum">      75 </span>            : 
-<span class="lineNum">      76 </span><span class="lineCov">         48 : static void link_product(lib_t lib, ident_t name,</span>
-<span class="lineNum">      77 </span>            :                          const char *prefix, const char *ext)
-<span class="lineNum">      78 </span>            : {
-<span class="lineNum">      79 </span>            :    char path[PATH_MAX];
-<span class="lineNum">      80 </span><span class="lineCov">         48 :    lib_realpath(lib, NULL, path, sizeof(path));</span>
-<span class="lineNum">      81 </span>            : 
-<span class="lineNum">      82 </span><span class="lineCov">         48 :    link_arg_f(&quot;%s%s/_%s.%s&quot;, prefix, path, istr(name), ext);</span>
-<a name="83"><span class="lineNum">      83 </span><span class="lineCov">         48 : }</span></a>
+<span class="lineNum">      49 </span>            : #define MAX_ARGS          64
+<span class="lineNum">      50 </span>            : #define LINK_NATIVE_BYTES (100 * 1024)
+<span class="lineNum">      51 </span>            : 
+<span class="lineNum">      52 </span>            : static char        **args = NULL;
+<span class="lineNum">      53 </span>            : static int           n_args = 0;
+<span class="lineNum">      54 </span>            : static tree_t        linked[MAX_ARGS];
+<span class="lineNum">      55 </span>            : static int           n_linked = 0;
+<span class="lineNum">      56 </span>            : static LLVMModuleRef module = NULL;
+<span class="lineNum">      57 </span>            : 
+<span class="lineNum">      58 </span>            : typedef void (*context_fn_t)(lib_t lib, tree_t unit, FILE *deps);
+<span class="lineNum">      59 </span>            : 
+<span class="lineNum">      60 </span>            : typedef struct {
+<span class="lineNum">      61 </span>            :    lib_t        lib;
+<span class="lineNum">      62 </span>            :    FILE        *deps;
+<span class="lineNum">      63 </span>            :    context_fn_t fn;
+<span class="lineNum">      64 </span>            : } lib_walk_params_t;
+<span class="lineNum">      65 </span>            : 
+<span class="lineNum">      66 </span>            : static void link_all_context(tree_t unit, FILE *deps, context_fn_t fn);
+<a name="67"><span class="lineNum">      67 </span>            : </a>
+<span class="lineNum">      68 </span>            : __attribute__((format(printf, 1, 2)))
+<span class="lineNum">      69 </span><span class="lineCov">        120 : static void link_arg_f(const char *fmt, ...)</span>
+<span class="lineNum">      70 </span>            : {
+<span class="lineNum">      71 </span>            :    va_list ap;
+<span class="lineNum">      72 </span><span class="lineCov">        120 :    assert(n_args &lt; MAX_ARGS);</span>
+<span class="lineNum">      73 </span><span class="lineCov">        120 :    va_start(ap, fmt);</span>
+<span class="lineNum">      74 </span><span class="lineCov">        120 :    args[n_args] = xvasprintf(fmt, ap);</span>
+<span class="lineNum">      75 </span><span class="lineCov">        120 :    va_end(ap);</span>
+<span class="lineNum">      76 </span><span class="lineCov">        120 :    args[++n_args] = NULL;</span>
+<a name="77"><span class="lineNum">      77 </span><span class="lineCov">        120 : }</span></a>
+<span class="lineNum">      78 </span>            : 
+<span class="lineNum">      79 </span><span class="lineCov">         48 : static void link_product(lib_t lib, ident_t name,</span>
+<span class="lineNum">      80 </span>            :                          const char *prefix, const char *ext)
+<span class="lineNum">      81 </span>            : {
+<span class="lineNum">      82 </span>            :    char path[PATH_MAX];
+<span class="lineNum">      83 </span><span class="lineCov">         48 :    lib_realpath(lib, NULL, path, sizeof(path));</span>
 <span class="lineNum">      84 </span>            : 
-<span class="lineNum">      85 </span><span class="lineCov">         19 : static bool link_needs_body(tree_t pack)</span>
-<span class="lineNum">      86 </span>            : {
-<span class="lineNum">      87 </span><span class="lineCov">         19 :    return false;   // TODO</span>
-<a name="88"><span class="lineNum">      88 </span>            : }</a>
-<span class="lineNum">      89 </span>            : 
-<span class="lineNum">      90 </span><span class="lineCov">        126 : static bool link_find_native_library(lib_t lib, tree_t unit, FILE *deps)</span>
-<span class="lineNum">      91 </span>            : {
-<span class="lineNum">      92 </span>            : #ifdef ENABLE_NATIVE
-<span class="lineNum">      93 </span><span class="lineCov">        126 :    ident_t name = tree_ident(unit);</span>
-<span class="lineNum">      94 </span>            : 
-<span class="lineNum">      95 </span><span class="lineCov">        126 :    char *so_name = xasprintf(&quot;_%s.so&quot;, istr(name));</span>
-<span class="lineNum">      96 </span>            : 
-<span class="lineNum">      97 </span>            :    lib_mtime_t so_mt;
-<span class="lineNum">      98 </span><span class="lineCov">        126 :    if (!lib_stat(lib, so_name, &amp;so_mt)) {</span>
-<span class="lineNum">      99 </span><span class="lineCov">         58 :       free(so_name);</span>
-<span class="lineNum">     100 </span><span class="lineCov">         58 :       return false;</span>
-<span class="lineNum">     101 </span>            :    }
-<span class="lineNum">     102 </span>            : 
-<span class="lineNum">     103 </span><span class="lineCov">         68 :    lib_mtime_t unit_mt = lib_mtime(lib, name);</span>
-<span class="lineNum">     104 </span>            : 
-<span class="lineNum">     105 </span><span class="lineCov">         68 :    if (unit_mt &gt; so_mt) {</span>
-<span class="lineNum">     106 </span><span class="lineNoCov">          0 :       warnf(&quot;unit %s has stale native shared library&quot;, istr(name));</span>
-<span class="lineNum">     107 </span><span class="lineNoCov">          0 :       free(so_name);</span>
-<span class="lineNum">     108 </span><span class="lineNoCov">          0 :       return false;</span>
-<span class="lineNum">     109 </span>            :    }
-<span class="lineNum">     110 </span>            : 
-<span class="lineNum">     111 </span><span class="lineCov">         68 :    if (deps != NULL) {</span>
-<span class="lineNum">     112 </span>            :       char path[PATH_MAX];
-<span class="lineNum">     113 </span><span class="lineCov">         68 :       lib_realpath(lib, so_name, path, sizeof(path));</span>
-<span class="lineNum">     114 </span>            : 
-<span class="lineNum">     115 </span>            :       fprintf(deps, &quot;%s\n&quot;, path);
-<span class="lineNum">     116 </span>            :    }
+<span class="lineNum">      85 </span><span class="lineCov">         48 :    link_arg_f(&quot;%s%s/_%s.%s&quot;, prefix, path, istr(name), ext);</span>
+<a name="86"><span class="lineNum">      86 </span><span class="lineCov">         48 : }</span></a>
+<span class="lineNum">      87 </span>            : 
+<span class="lineNum">      88 </span><span class="lineCov">         19 : static bool link_needs_body(tree_t pack)</span>
+<span class="lineNum">      89 </span>            : {
+<span class="lineNum">      90 </span><span class="lineCov">         19 :    return false;   // TODO</span>
+<a name="91"><span class="lineNum">      91 </span>            : }</a>
+<span class="lineNum">      92 </span>            : 
+<span class="lineNum">      93 </span><span class="lineCov">        126 : static bool link_find_native_library(lib_t lib, tree_t unit, FILE *deps)</span>
+<span class="lineNum">      94 </span>            : {
+<span class="lineNum">      95 </span>            : #ifdef ENABLE_NATIVE
+<span class="lineNum">      96 </span><span class="lineCov">        126 :    ident_t name = tree_ident(unit);</span>
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span><span class="lineCov">        126 :    char *so_name = xasprintf(&quot;_%s.so&quot;, istr(name));</span>
+<span class="lineNum">      99 </span>            : 
+<span class="lineNum">     100 </span>            :    lib_mtime_t so_mt;
+<span class="lineNum">     101 </span><span class="lineCov">        126 :    if (!lib_stat(lib, so_name, &amp;so_mt)) {</span>
+<span class="lineNum">     102 </span><span class="lineCov">         58 :       free(so_name);</span>
+<span class="lineNum">     103 </span><span class="lineCov">         58 :       return false;</span>
+<span class="lineNum">     104 </span>            :    }
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineCov">         68 :    lib_mtime_t unit_mt = lib_mtime(lib, name);</span>
+<span class="lineNum">     107 </span>            : 
+<span class="lineNum">     108 </span><span class="lineCov">         68 :    if (unit_mt &gt; so_mt) {</span>
+<span class="lineNum">     109 </span><span class="lineNoCov">          0 :       warnf(&quot;unit %s has stale native shared library&quot;, istr(name));</span>
+<span class="lineNum">     110 </span><span class="lineNoCov">          0 :       free(so_name);</span>
+<span class="lineNum">     111 </span><span class="lineNoCov">          0 :       return false;</span>
+<span class="lineNum">     112 </span>            :    }
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span><span class="lineCov">         68 :    if (deps != NULL) {</span>
+<span class="lineNum">     115 </span>            :       char path[PATH_MAX];
+<span class="lineNum">     116 </span><span class="lineCov">         68 :       lib_realpath(lib, so_name, path, sizeof(path));</span>
 <span class="lineNum">     117 </span>            : 
-<span class="lineNum">     118 </span><span class="lineCov">         68 :    free(so_name);</span>
-<span class="lineNum">     119 </span><span class="lineCov">         68 :    return true;</span>
-<span class="lineNum">     120 </span>            : #else   // ENABLE_NATIVE
-<span class="lineNum">     121 </span>            :    return false;
-<span class="lineNum">     122 </span>            : #endif  // ENABLE_NATIVE
-<a name="123"><span class="lineNum">     123 </span>            : }</a>
-<span class="lineNum">     124 </span>            : 
-<span class="lineNum">     125 </span><span class="lineCov">        189 : static bool link_already_have(tree_t unit)</span>
-<span class="lineNum">     126 </span>            : {
-<span class="lineNum">     127 </span><span class="lineCov">        296 :    for (int i = 0; i &lt; n_linked; i++) {</span>
-<span class="lineNum">     128 </span><span class="lineCov">        170 :       if (linked[i] == unit)</span>
-<span class="lineNum">     129 </span>            :          return true;
-<span class="lineNum">     130 </span>            :    }
-<span class="lineNum">     131 </span>            : 
-<span class="lineNum">     132 </span>            :    return false;
-<a name="133"><span class="lineNum">     133 </span>            : }</a>
+<span class="lineNum">     118 </span>            :       fprintf(deps, &quot;%s\n&quot;, path);
+<span class="lineNum">     119 </span>            :    }
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span><span class="lineCov">         68 :    free(so_name);</span>
+<span class="lineNum">     122 </span><span class="lineCov">         68 :    return true;</span>
+<span class="lineNum">     123 </span>            : #else   // ENABLE_NATIVE
+<span class="lineNum">     124 </span>            :    return false;
+<span class="lineNum">     125 </span>            : #endif  // ENABLE_NATIVE
+<a name="126"><span class="lineNum">     126 </span>            : }</a>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineCov">        189 : static bool link_already_have(tree_t unit)</span>
+<span class="lineNum">     129 </span>            : {
+<span class="lineNum">     130 </span><span class="lineCov">        296 :    for (int i = 0; i &lt; n_linked; i++) {</span>
+<span class="lineNum">     131 </span><span class="lineCov">        170 :       if (linked[i] == unit)</span>
+<span class="lineNum">     132 </span>            :          return true;
+<span class="lineNum">     133 </span>            :    }
 <span class="lineNum">     134 </span>            : 
-<span class="lineNum">     135 </span><span class="lineCov">        126 : static void link_context_bc_fn(lib_t lib, tree_t unit, FILE *deps)</span>
-<span class="lineNum">     136 </span>            : {
-<span class="lineNum">     137 </span><span class="lineCov">        126 :    if (!link_find_native_library(lib, unit, deps)) {</span>
-<span class="lineNum">     138 </span><span class="lineCov">         58 :       LLVMModuleRef src = tree_attr_ptr(unit, llvm_i);</span>
-<span class="lineNum">     139 </span><span class="lineCov">         58 :       if (src == NULL) {</span>
-<span class="lineNum">     140 </span>            :          char lib_path[PATH_MAX];
-<span class="lineNum">     141 </span><span class="lineNoCov">          0 :          lib_realpath(lib, NULL, lib_path, sizeof(lib_path));</span>
-<span class="lineNum">     142 </span>            : 
-<span class="lineNum">     143 </span><span class="lineNoCov">          0 :          char *path LOCAL =</span>
-<span class="lineNum">     144 </span><span class="lineNoCov">          0 :             xasprintf(&quot;%s/_%s.bc&quot;, lib_path, istr(tree_ident(unit)));</span>
+<span class="lineNum">     135 </span>            :    return false;
+<a name="136"><span class="lineNum">     136 </span>            : }</a>
+<span class="lineNum">     137 </span>            : 
+<span class="lineNum">     138 </span><span class="lineCov">        126 : static void link_context_bc_fn(lib_t lib, tree_t unit, FILE *deps)</span>
+<span class="lineNum">     139 </span>            : {
+<span class="lineNum">     140 </span><span class="lineCov">        126 :    if (!link_find_native_library(lib, unit, deps)) {</span>
+<span class="lineNum">     141 </span><span class="lineCov">         58 :       LLVMModuleRef src = tree_attr_ptr(unit, llvm_i);</span>
+<span class="lineNum">     142 </span><span class="lineCov">         58 :       if (src == NULL) {</span>
+<span class="lineNum">     143 </span>            :          char lib_path[PATH_MAX];
+<span class="lineNum">     144 </span><span class="lineNoCov">          0 :          lib_realpath(lib, NULL, lib_path, sizeof(lib_path));</span>
 <span class="lineNum">     145 </span>            : 
-<span class="lineNum">     146 </span>            :          char *error;
-<span class="lineNum">     147 </span>            :          LLVMMemoryBufferRef buf;
-<span class="lineNum">     148 </span><span class="lineNoCov">          0 :          if (LLVMCreateMemoryBufferWithContentsOfFile(path, &amp;buf, &amp;error))</span>
-<span class="lineNum">     149 </span><span class="lineNoCov">          0 :             fatal(&quot;error reading bitcode from %s: %s&quot;, path, error);</span>
-<span class="lineNum">     150 </span>            : 
-<span class="lineNum">     151 </span><span class="lineNoCov">          0 :          if (LLVMParseBitcode(buf, &amp;src, &amp;error))</span>
-<span class="lineNum">     152 </span><span class="lineNoCov">          0 :             fatal(&quot;error parsing bitcode: %s&quot;, error);</span>
+<span class="lineNum">     146 </span><span class="lineNoCov">          0 :          char *path LOCAL =</span>
+<span class="lineNum">     147 </span><span class="lineNoCov">          0 :             xasprintf(&quot;%s/_%s.bc&quot;, lib_path, istr(tree_ident(unit)));</span>
+<span class="lineNum">     148 </span>            : 
+<span class="lineNum">     149 </span>            :          char *error;
+<span class="lineNum">     150 </span>            :          LLVMMemoryBufferRef buf;
+<span class="lineNum">     151 </span><span class="lineNoCov">          0 :          if (LLVMCreateMemoryBufferWithContentsOfFile(path, &amp;buf, &amp;error))</span>
+<span class="lineNum">     152 </span><span class="lineNoCov">          0 :             fatal(&quot;error reading bitcode from %s: %s&quot;, path, error);</span>
 <span class="lineNum">     153 </span>            : 
-<span class="lineNum">     154 </span><span class="lineNoCov">          0 :          LLVMDisposeMemoryBuffer(buf);</span>
-<span class="lineNum">     155 </span>            :       }
-<span class="lineNum">     156 </span>            :       else
-<span class="lineNum">     157 </span><span class="lineCov">         58 :          tree_remove_attr(unit, llvm_i);</span>
-<span class="lineNum">     158 </span>            : 
-<span class="lineNum">     159 </span>            : #ifdef LLVM_HAS_LINK_MODULES2
-<span class="lineNum">     160 </span>            :       if (LLVMLinkModules2(module, src))
-<span class="lineNum">     161 </span>            :          fatal(&quot;LLVM link failed&quot;);
-<span class="lineNum">     162 </span>            : #else
-<span class="lineNum">     163 </span>            :       char *outmsg;
-<span class="lineNum">     164 </span><span class="lineCov">         58 :       if (LLVMLinkModules(module, src, LLVMLinkerDestroySource, &amp;outmsg))</span>
-<span class="lineNum">     165 </span><span class="lineNoCov">          0 :          fatal(&quot;LLVM link failed: %s&quot;, outmsg);</span>
-<span class="lineNum">     166 </span>            : #endif
-<span class="lineNum">     167 </span>            :    }
-<span class="lineNum">     168 </span><span class="lineCov">        126 : }</span>
-<span class="lineNum">     169 </span>            : 
-<span class="lineNum">     170 </span>            : #ifdef IMPLIB_REQUIRED
-<span class="lineNum">     171 </span>            : static void link_context_cyg_fn(lib_t lib, tree_t unit, FILE *deps)
-<span class="lineNum">     172 </span>            : {
-<span class="lineNum">     173 </span>            :    if (link_find_native_library(lib, unit, deps))
-<span class="lineNum">     174 </span>            :       link_product(lib, tree_ident(unit), &quot;&quot;, &quot;a&quot;);
-<span class="lineNum">     175 </span>            : }
-<a name="176"><span class="lineNum">     176 </span>            : #endif  // IMPLIB_REQUIRED</a>
-<span class="lineNum">     177 </span>            : 
-<span class="lineNum">     178 </span><span class="lineCov">        131 : static void link_context_package(tree_t unit, FILE *deps, context_fn_t fn)</span>
-<span class="lineNum">     179 </span>            : {
-<span class="lineNum">     180 </span><span class="lineCov">        131 :    assert(n_linked &lt; MAX_ARGS - 1);</span>
-<span class="lineNum">     181 </span>            : 
-<span class="lineNum">     182 </span><span class="lineCov">        131 :    if (pack_needs_cgen(unit) &amp;&amp; !link_already_have(unit)) {</span>
-<span class="lineNum">     183 </span><span class="lineCov">         40 :       (*fn)(lib_work(), unit, deps);</span>
-<span class="lineNum">     184 </span><span class="lineCov">         40 :       linked[n_linked++] = unit;</span>
-<span class="lineNum">     185 </span>            :    }
-<span class="lineNum">     186 </span>            : 
-<span class="lineNum">     187 </span><span class="lineCov">        131 :    ident_t name = tree_ident(unit);</span>
-<span class="lineNum">     188 </span>            : 
-<span class="lineNum">     189 </span><span class="lineCov">        131 :    ident_t body_i = ident_prefix(name, ident_new(&quot;body&quot;), '-');</span>
-<span class="lineNum">     190 </span><span class="lineCov">        131 :    tree_t body = lib_get(lib_work(), body_i);</span>
-<span class="lineNum">     191 </span><span class="lineCov">        131 :    if (body == NULL) {</span>
-<span class="lineNum">     192 </span><span class="lineCov">         19 :       if (link_needs_body(unit))</span>
-<span class="lineNum">     193 </span><span class="lineNoCov">          0 :          fatal(&quot;missing body for package %s&quot;, istr(name));</span>
-<span class="lineNum">     194 </span>            :       else
-<span class="lineNum">     195 </span><span class="lineCov">        131 :          return;</span>
-<span class="lineNum">     196 </span>            :    }
-<span class="lineNum">     197 </span>            : 
-<span class="lineNum">     198 </span><span class="lineCov">        112 :    if (!link_already_have(body)) {</span>
-<span class="lineNum">     199 </span><span class="lineCov">         86 :       (*fn)(lib_work(), body, deps);</span>
-<span class="lineNum">     200 </span><span class="lineCov">         86 :       linked[n_linked++] = body;</span>
-<span class="lineNum">     201 </span>            : 
-<span class="lineNum">     202 </span><span class="lineCov">         86 :       link_all_context(body, deps, fn);</span>
-<span class="lineNum">     203 </span>            :    }
-<a name="204"><span class="lineNum">     204 </span>            : }</a>
-<span class="lineNum">     205 </span>            : 
-<span class="lineNum">     206 </span><span class="lineCov">        921 : static void link_context(tree_t ctx, FILE *deps, context_fn_t fn)</span>
-<span class="lineNum">     207 </span>            : {
-<span class="lineNum">     208 </span><span class="lineCov">        921 :    ident_t cname = tree_ident(ctx);</span>
-<span class="lineNum">     209 </span><span class="lineCov">        921 :    ident_t lname = ident_until(cname, '.');</span>
-<span class="lineNum">     210 </span>            : 
-<span class="lineNum">     211 </span><span class="lineCov">        921 :    lib_t lib = lib_find(lname, true);</span>
-<span class="lineNum">     212 </span>            : 
-<span class="lineNum">     213 </span><span class="lineCov">        921 :    lib_t tmp = lib_work();</span>
-<span class="lineNum">     214 </span><span class="lineCov">        921 :    lib_set_work(lib);</span>
+<span class="lineNum">     154 </span><span class="lineNoCov">          0 :          if (LLVMParseBitcode(buf, &amp;src, &amp;error))</span>
+<span class="lineNum">     155 </span><span class="lineNoCov">          0 :             fatal(&quot;error parsing bitcode: %s&quot;, error);</span>
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineNoCov">          0 :          LLVMDisposeMemoryBuffer(buf);</span>
+<span class="lineNum">     158 </span>            :       }
+<span class="lineNum">     159 </span>            :       else
+<span class="lineNum">     160 </span><span class="lineCov">         58 :          tree_remove_attr(unit, llvm_i);</span>
+<span class="lineNum">     161 </span>            : 
+<span class="lineNum">     162 </span>            : #ifdef LLVM_HAS_LINK_MODULES2
+<span class="lineNum">     163 </span>            :       if (LLVMLinkModules2(module, src))
+<span class="lineNum">     164 </span>            :          fatal(&quot;LLVM link failed&quot;);
+<span class="lineNum">     165 </span>            : #else
+<span class="lineNum">     166 </span>            :       char *outmsg;
+<span class="lineNum">     167 </span><span class="lineCov">         58 :       if (LLVMLinkModules(module, src, LLVMLinkerDestroySource, &amp;outmsg))</span>
+<span class="lineNum">     168 </span><span class="lineNoCov">          0 :          fatal(&quot;LLVM link failed: %s&quot;, outmsg);</span>
+<span class="lineNum">     169 </span>            : #endif
+<span class="lineNum">     170 </span>            :    }
+<span class="lineNum">     171 </span><span class="lineCov">        126 : }</span>
+<span class="lineNum">     172 </span>            : 
+<span class="lineNum">     173 </span>            : #ifdef IMPLIB_REQUIRED
+<span class="lineNum">     174 </span>            : static void link_context_implib_fn(lib_t lib, tree_t unit, FILE *deps)
+<span class="lineNum">     175 </span>            : {
+<span class="lineNum">     176 </span>            :    if (link_find_native_library(lib, unit, deps))
+<span class="lineNum">     177 </span>            :       link_product(lib, tree_ident(unit), &quot;&quot;, &quot;a&quot;);
+<span class="lineNum">     178 </span>            : }
+<a name="179"><span class="lineNum">     179 </span>            : #endif  // IMPLIB_REQUIRED</a>
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span><span class="lineCov">        131 : static void link_context_package(tree_t unit, FILE *deps, context_fn_t fn)</span>
+<span class="lineNum">     182 </span>            : {
+<span class="lineNum">     183 </span><span class="lineCov">        131 :    assert(n_linked &lt; MAX_ARGS - 1);</span>
+<span class="lineNum">     184 </span>            : 
+<span class="lineNum">     185 </span><span class="lineCov">        131 :    if (pack_needs_cgen(unit) &amp;&amp; !link_already_have(unit)) {</span>
+<span class="lineNum">     186 </span><span class="lineCov">         40 :       (*fn)(lib_work(), unit, deps);</span>
+<span class="lineNum">     187 </span><span class="lineCov">         40 :       linked[n_linked++] = unit;</span>
+<span class="lineNum">     188 </span>            :    }
+<span class="lineNum">     189 </span>            : 
+<span class="lineNum">     190 </span><span class="lineCov">        131 :    ident_t name = tree_ident(unit);</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span><span class="lineCov">        131 :    ident_t body_i = ident_prefix(name, ident_new(&quot;body&quot;), '-');</span>
+<span class="lineNum">     193 </span><span class="lineCov">        131 :    tree_t body = lib_get(lib_work(), body_i);</span>
+<span class="lineNum">     194 </span><span class="lineCov">        131 :    if (body == NULL) {</span>
+<span class="lineNum">     195 </span><span class="lineCov">         19 :       if (link_needs_body(unit))</span>
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :          fatal(&quot;missing body for package %s&quot;, istr(name));</span>
+<span class="lineNum">     197 </span>            :       else
+<span class="lineNum">     198 </span><span class="lineCov">        131 :          return;</span>
+<span class="lineNum">     199 </span>            :    }
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineCov">        112 :    if (!link_already_have(body)) {</span>
+<span class="lineNum">     202 </span><span class="lineCov">         86 :       (*fn)(lib_work(), body, deps);</span>
+<span class="lineNum">     203 </span><span class="lineCov">         86 :       linked[n_linked++] = body;</span>
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span><span class="lineCov">         86 :       link_all_context(body, deps, fn);</span>
+<span class="lineNum">     206 </span>            :    }
+<a name="207"><span class="lineNum">     207 </span>            : }</a>
+<span class="lineNum">     208 </span>            : 
+<span class="lineNum">     209 </span><span class="lineCov">        921 : static void link_context(tree_t ctx, FILE *deps, context_fn_t fn)</span>
+<span class="lineNum">     210 </span>            : {
+<span class="lineNum">     211 </span><span class="lineCov">        921 :    ident_t cname = tree_ident(ctx);</span>
+<span class="lineNum">     212 </span><span class="lineCov">        921 :    ident_t lname = ident_until(cname, '.');</span>
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span><span class="lineCov">        921 :    lib_t lib = lib_find(lname, true);</span>
 <span class="lineNum">     215 </span>            : 
-<span class="lineNum">     216 </span><span class="lineCov">        921 :    tree_t unit = lib_get(lib, cname);</span>
-<span class="lineNum">     217 </span><span class="lineCov">        921 :    if (unit == NULL)</span>
-<span class="lineNum">     218 </span><span class="lineNoCov">          0 :       fatal(&quot;cannot find unit %s&quot;, istr(cname));</span>
-<span class="lineNum">     219 </span><span class="lineCov">        921 :    else if (tree_kind(unit) == T_PACKAGE)</span>
-<span class="lineNum">     220 </span><span class="lineCov">        131 :       link_context_package(unit, deps, fn);</span>
-<span class="lineNum">     221 </span>            : 
-<span class="lineNum">     222 </span><span class="lineCov">        921 :    lib_set_work(tmp);</span>
-<a name="223"><span class="lineNum">     223 </span><span class="lineCov">        921 : }</span></a>
+<span class="lineNum">     216 </span><span class="lineCov">        921 :    lib_t tmp = lib_work();</span>
+<span class="lineNum">     217 </span><span class="lineCov">        921 :    lib_set_work(lib);</span>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineCov">        921 :    tree_t unit = lib_get(lib, cname);</span>
+<span class="lineNum">     220 </span><span class="lineCov">        921 :    if (unit == NULL)</span>
+<span class="lineNum">     221 </span><span class="lineNoCov">          0 :       fatal(&quot;cannot find unit %s&quot;, istr(cname));</span>
+<span class="lineNum">     222 </span><span class="lineCov">        921 :    else if (tree_kind(unit) == T_PACKAGE)</span>
+<span class="lineNum">     223 </span><span class="lineCov">        131 :       link_context_package(unit, deps, fn);</span>
 <span class="lineNum">     224 </span>            : 
-<span class="lineNum">     225 </span><span class="lineCov">        503 : static void link_all_context(tree_t unit, FILE *deps, context_fn_t fn)</span>
-<span class="lineNum">     226 </span>            : {
-<span class="lineNum">     227 </span><span class="lineCov">        503 :    if (tree_kind(unit) == T_PACK_BODY) {</span>
-<span class="lineNum">     228 </span><span class="lineCov">         86 :       tree_t pack = lib_get(lib_work(), ident_strip(tree_ident(unit),</span>
-<span class="lineNum">     229 </span>            :                                                     ident_new(&quot;-body&quot;)));
-<span class="lineNum">     230 </span><span class="lineCov">         86 :       if (pack != NULL) {</span>
-<span class="lineNum">     231 </span><span class="lineCov">         86 :          assert(tree_kind(pack) == T_PACKAGE);</span>
-<span class="lineNum">     232 </span>            : 
-<span class="lineNum">     233 </span><span class="lineCov">         86 :          if (pack_needs_cgen(pack) &amp;&amp; !link_already_have(pack)) {</span>
-<span class="lineNum">     234 </span><span class="lineNoCov">          0 :             (*fn)(lib_work(), pack, deps);</span>
-<span class="lineNum">     235 </span><span class="lineNoCov">          0 :             linked[n_linked++] = pack;</span>
-<span class="lineNum">     236 </span>            :          }
-<span class="lineNum">     237 </span>            : 
-<span class="lineNum">     238 </span><span class="lineCov">         86 :          link_all_context(pack, NULL, fn);</span>
-<span class="lineNum">     239 </span>            :       }
-<span class="lineNum">     240 </span>            :    }
-<span class="lineNum">     241 </span>            : 
-<span class="lineNum">     242 </span><span class="lineCov">        503 :    const int ncontext = tree_contexts(unit);</span>
-<span class="lineNum">     243 </span><span class="lineCov">       1783 :    for (int i = 0; i &lt; ncontext; i++) {</span>
-<span class="lineNum">     244 </span><span class="lineCov">       1280 :       tree_t c = tree_context(unit, i);</span>
-<span class="lineNum">     245 </span><span class="lineCov">       1280 :       if (tree_kind(c) == T_USE)</span>
-<span class="lineNum">     246 </span><span class="lineCov">        921 :          link_context(c, deps, fn);</span>
-<span class="lineNum">     247 </span>            :    }
-<a name="248"><span class="lineNum">     248 </span><span class="lineCov">        503 : }</span></a>
-<span class="lineNum">     249 </span>            : 
-<span class="lineNum">     250 </span><span class="lineCov">        332 : static ident_t link_elab_final(tree_t top)</span>
-<span class="lineNum">     251 </span>            : {
-<span class="lineNum">     252 </span><span class="lineCov">        332 :    return ident_prefix(ident_strip(tree_ident(top), ident_new(&quot;.elab&quot;)),</span>
-<span class="lineNum">     253 </span>            :                        ident_new(&quot;final&quot;), '.');
-<a name="254"><span class="lineNum">     254 </span>            : }</a>
-<span class="lineNum">     255 </span>            : 
-<span class="lineNum">     256 </span><span class="lineCov">         48 : static void link_output(tree_t top, const char *ext)</span>
-<span class="lineNum">     257 </span>            : {
-<span class="lineNum">     258 </span>            :    ident_t product;
-<span class="lineNum">     259 </span><span class="lineCov">         48 :    if (tree_kind(top) == T_ELAB)</span>
-<span class="lineNum">     260 </span><span class="lineNoCov">          0 :       product = link_elab_final(top);</span>
-<span class="lineNum">     261 </span>            :    else
-<span class="lineNum">     262 </span><span class="lineCov">         48 :       product = tree_ident(top);</span>
-<span class="lineNum">     263 </span><span class="lineCov">         48 :    link_product(lib_work(), product, &quot;&quot;, ext);</span>
-<a name="264"><span class="lineNum">     264 </span><span class="lineCov">         48 : }</span></a>
-<span class="lineNum">     265 </span>            : 
-<span class="lineNum">     266 </span><span class="lineCov">         24 : static void link_args_begin(void)</span>
-<span class="lineNum">     267 </span>            : {
-<span class="lineNum">     268 </span><span class="lineCov">         24 :    args = xmalloc(MAX_ARGS * sizeof(char*));</span>
-<span class="lineNum">     269 </span><span class="lineCov">         24 :    n_args = 0;</span>
-<a name="270"><span class="lineNum">     270 </span><span class="lineCov">         24 : }</span></a>
-<span class="lineNum">     271 </span>            : 
-<span class="lineNum">     272 </span><span class="lineCov">         24 : static void link_args_end(void)</span>
-<span class="lineNum">     273 </span>            : {
-<span class="lineNum">     274 </span><span class="lineCov">        144 :    for (int i = 0; i &lt; n_args; i++)</span>
-<span class="lineNum">     275 </span><span class="lineCov">        120 :       free(args[i]);</span>
-<span class="lineNum">     276 </span><span class="lineCov">         24 :    free(args);</span>
-<a name="277"><span class="lineNum">     277 </span><span class="lineCov">         24 : }</span></a>
-<span class="lineNum">     278 </span>            : 
-<span class="lineNum">     279 </span><span class="lineCov">         24 : static void link_exec(void)</span>
-<span class="lineNum">     280 </span>            : {
-<span class="lineNum">     281 </span><span class="lineCov">         24 :    const bool quiet = (getenv(&quot;NVC_LINK_QUIET&quot;) != NULL);</span>
-<span class="lineNum">     282 </span>            : 
-<span class="lineNum">     283 </span><span class="lineCov">         24 :    if (!quiet) {</span>
-<span class="lineNum">     284 </span><span class="lineNoCov">          0 :       for (int i = 0; i &lt; n_args; i++)</span>
-<span class="lineNum">     285 </span><span class="lineNoCov">          0 :          printf(&quot;%s%c&quot;, args[i], (i + 1 == n_args ? '\n' : ' '));</span>
-<span class="lineNum">     286 </span>            :    }
-<span class="lineNum">     287 </span>            : 
-<span class="lineNum">     288 </span>            : #ifdef __CYGWIN__
-<span class="lineNum">     289 </span>            :    int status = spawnv(_P_WAIT, args[0], (const char * const *)args);
-<span class="lineNum">     290 </span>            :    if (status != 0)
-<span class="lineNum">     291 </span>            :       fatal(&quot;%s failed with status %d&quot;, args[0], status);
-<span class="lineNum">     292 </span>            : #else  // __CYGWIN__
-<span class="lineNum">     293 </span><span class="lineCov">         24 :    pid_t pid = fork();</span>
-<span class="lineNum">     294 </span><span class="lineCov">         48 :    if (pid == 0) {</span>
-<span class="lineNum">     295 </span><span class="lineCov">         24 :       execv(args[0], args);</span>
-<span class="lineNum">     296 </span><span class="lineCov">         24 :       fatal_errno(&quot;execv&quot;);</span>
-<span class="lineNum">     297 </span>            :    }
-<span class="lineNum">     298 </span><span class="lineCov">         24 :    else if (pid &gt; 0) {</span>
-<span class="lineNum">     299 </span>            :       int status;
-<span class="lineNum">     300 </span><span class="lineCov">         24 :       if (waitpid(pid, &amp;status, 0) != pid)</span>
-<span class="lineNum">     301 </span><span class="lineNoCov">          0 :          fatal_errno(&quot;waitpid&quot;);</span>
-<span class="lineNum">     302 </span>            : 
-<span class="lineNum">     303 </span><span class="lineCov">         24 :       if (WEXITSTATUS(status) != 0)</span>
-<span class="lineNum">     304 </span><span class="lineNoCov">          0 :          fatal(&quot;%s failed with status %d&quot;, args[0], WEXITSTATUS(status));</span>
-<span class="lineNum">     305 </span>            :    }
-<span class="lineNum">     306 </span>            :    else
-<span class="lineNum">     307 </span><span class="lineNoCov">          0 :       fatal_errno(&quot;fork&quot;);</span>
-<span class="lineNum">     308 </span>            : #endif  // __CYGWIN__
-<span class="lineNum">     309 </span>            : 
-<span class="lineNum">     310 </span><span class="lineCov">         24 :    n_linked = 0;</span>
-<span class="lineNum">     311 </span><span class="lineCov">         24 : }</span>
-<a name="312"><span class="lineNum">     312 </span>            : </a>
-<span class="lineNum">     313 </span>            : #ifdef ENABLE_NATIVE
-<span class="lineNum">     314 </span><span class="lineCov">         24 : static void link_assembly(tree_t top)</span>
-<span class="lineNum">     315 </span>            : {
-<span class="lineNum">     316 </span><span class="lineCov">         24 :    LLVMInitializeNativeTarget();</span>
-<span class="lineNum">     317 </span><span class="lineCov">         24 :    LLVMInitializeNativeAsmPrinter();</span>
-<span class="lineNum">     318 </span>            : 
-<span class="lineNum">     319 </span><span class="lineCov">         24 :    char *def_triple = LLVMGetDefaultTargetTriple();</span>
-<span class="lineNum">     320 </span>            :    char *error;
-<span class="lineNum">     321 </span>            :    LLVMTargetRef target_ref;
-<span class="lineNum">     322 </span><span class="lineCov">         24 :    if (LLVMGetTargetFromTriple(def_triple, &amp;target_ref, &amp;error))</span>
-<span class="lineNum">     323 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to get LLVM target for %s: %s&quot;, def_triple, error);</span>
-<span class="lineNum">     324 </span>            : 
-<span class="lineNum">     325 </span><span class="lineCov">         24 :    LLVMTargetMachineRef tm_ref =</span>
-<span class="lineNum">     326 </span><span class="lineCov">         24 :       LLVMCreateTargetMachine(target_ref, def_triple, &quot;&quot;, &quot;&quot;,</span>
-<span class="lineNum">     327 </span>            :                               LLVMCodeGenLevelDefault,
-<span class="lineNum">     328 </span>            :                               LLVMRelocPIC,
-<span class="lineNum">     329 </span>            :                               LLVMCodeModelJITDefault);
-<span class="lineNum">     330 </span>            : 
-<span class="lineNum">     331 </span>            :    ident_t product;
-<span class="lineNum">     332 </span><span class="lineCov">         24 :    if (tree_kind(top) == T_ELAB)</span>
-<span class="lineNum">     333 </span><span class="lineNoCov">          0 :       product = link_elab_final(top);</span>
-<span class="lineNum">     334 </span>            :    else
-<span class="lineNum">     335 </span><span class="lineCov">         24 :       product = tree_ident(top);</span>
-<span class="lineNum">     336 </span>            : 
-<span class="lineNum">     337 </span><span class="lineCov">         48 :    char *obj_name LOCAL = xasprintf(&quot;_%s.&quot; LLVM_OBJ_EXT, istr(product));</span>
-<span class="lineNum">     338 </span>            : 
-<span class="lineNum">     339 </span>            :    char path[PATH_MAX];
-<span class="lineNum">     340 </span><span class="lineCov">         24 :    lib_realpath(lib_work(), obj_name, path, sizeof(path));</span>
+<span class="lineNum">     225 </span><span class="lineCov">        921 :    lib_set_work(tmp);</span>
+<a name="226"><span class="lineNum">     226 </span><span class="lineCov">        921 : }</span></a>
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span><span class="lineCov">        503 : static void link_all_context(tree_t unit, FILE *deps, context_fn_t fn)</span>
+<span class="lineNum">     229 </span>            : {
+<span class="lineNum">     230 </span><span class="lineCov">        503 :    if (tree_kind(unit) == T_PACK_BODY) {</span>
+<span class="lineNum">     231 </span><span class="lineCov">         86 :       tree_t pack = lib_get(lib_work(), ident_strip(tree_ident(unit),</span>
+<span class="lineNum">     232 </span>            :                                                     ident_new(&quot;-body&quot;)));
+<span class="lineNum">     233 </span><span class="lineCov">         86 :       if (pack != NULL) {</span>
+<span class="lineNum">     234 </span><span class="lineCov">         86 :          assert(tree_kind(pack) == T_PACKAGE);</span>
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span><span class="lineCov">         86 :          if (pack_needs_cgen(pack) &amp;&amp; !link_already_have(pack)) {</span>
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :             (*fn)(lib_work(), pack, deps);</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :             linked[n_linked++] = pack;</span>
+<span class="lineNum">     239 </span>            :          }
+<span class="lineNum">     240 </span>            : 
+<span class="lineNum">     241 </span><span class="lineCov">         86 :          link_all_context(pack, NULL, fn);</span>
+<span class="lineNum">     242 </span>            :       }
+<span class="lineNum">     243 </span>            :    }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineCov">        503 :    const int ncontext = tree_contexts(unit);</span>
+<span class="lineNum">     246 </span><span class="lineCov">       1783 :    for (int i = 0; i &lt; ncontext; i++) {</span>
+<span class="lineNum">     247 </span><span class="lineCov">       1280 :       tree_t c = tree_context(unit, i);</span>
+<span class="lineNum">     248 </span><span class="lineCov">       1280 :       if (tree_kind(c) == T_USE)</span>
+<span class="lineNum">     249 </span><span class="lineCov">        921 :          link_context(c, deps, fn);</span>
+<span class="lineNum">     250 </span>            :    }
+<a name="251"><span class="lineNum">     251 </span><span class="lineCov">        503 : }</span></a>
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span><span class="lineCov">        332 : static ident_t link_elab_final(tree_t top)</span>
+<span class="lineNum">     254 </span>            : {
+<span class="lineNum">     255 </span><span class="lineCov">        332 :    return ident_prefix(ident_strip(tree_ident(top), ident_new(&quot;.elab&quot;)),</span>
+<span class="lineNum">     256 </span>            :                        ident_new(&quot;final&quot;), '.');
+<a name="257"><span class="lineNum">     257 </span>            : }</a>
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineCov">         48 : static void link_output(tree_t top, const char *ext)</span>
+<span class="lineNum">     260 </span>            : {
+<span class="lineNum">     261 </span>            :    ident_t product;
+<span class="lineNum">     262 </span><span class="lineCov">         48 :    if (tree_kind(top) == T_ELAB)</span>
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :       product = link_elab_final(top);</span>
+<span class="lineNum">     264 </span>            :    else
+<span class="lineNum">     265 </span><span class="lineCov">         48 :       product = tree_ident(top);</span>
+<span class="lineNum">     266 </span><span class="lineCov">         48 :    link_product(lib_work(), product, &quot;&quot;, ext);</span>
+<a name="267"><span class="lineNum">     267 </span><span class="lineCov">         48 : }</span></a>
+<span class="lineNum">     268 </span>            : 
+<span class="lineNum">     269 </span><span class="lineCov">         24 : static void link_args_begin(void)</span>
+<span class="lineNum">     270 </span>            : {
+<span class="lineNum">     271 </span><span class="lineCov">         24 :    args = xmalloc(MAX_ARGS * sizeof(char*));</span>
+<span class="lineNum">     272 </span><span class="lineCov">         24 :    n_args = 0;</span>
+<a name="273"><span class="lineNum">     273 </span><span class="lineCov">         24 : }</span></a>
+<span class="lineNum">     274 </span>            : 
+<span class="lineNum">     275 </span><span class="lineCov">         24 : static void link_args_end(void)</span>
+<span class="lineNum">     276 </span>            : {
+<span class="lineNum">     277 </span><span class="lineCov">        144 :    for (int i = 0; i &lt; n_args; i++)</span>
+<span class="lineNum">     278 </span><span class="lineCov">        120 :       free(args[i]);</span>
+<span class="lineNum">     279 </span><span class="lineCov">         24 :    free(args);</span>
+<a name="280"><span class="lineNum">     280 </span><span class="lineCov">         24 : }</span></a>
+<span class="lineNum">     281 </span>            : 
+<span class="lineNum">     282 </span><span class="lineCov">         24 : static void link_exec(void)</span>
+<span class="lineNum">     283 </span>            : {
+<span class="lineNum">     284 </span><span class="lineCov">         24 :    const bool quiet = (getenv(&quot;NVC_LINK_QUIET&quot;) != NULL);</span>
+<span class="lineNum">     285 </span>            : 
+<span class="lineNum">     286 </span><span class="lineCov">         24 :    if (!quiet) {</span>
+<span class="lineNum">     287 </span><span class="lineNoCov">          0 :       for (int i = 0; i &lt; n_args; i++)</span>
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :          printf(&quot;%s%c&quot;, args[i], (i + 1 == n_args ? '\n' : ' '));</span>
+<span class="lineNum">     289 </span>            :    }
+<span class="lineNum">     290 </span>            : 
+<span class="lineNum">     291 </span>            : #if defined __CYGWIN__ || defined __MINGW32__
+<span class="lineNum">     292 </span>            :    int status = spawnv(_P_WAIT, args[0], (char * const *)args);
+<span class="lineNum">     293 </span>            :    if (status != 0)
+<span class="lineNum">     294 </span>            :       fatal(&quot;%s failed with status %d&quot;, args[0], status);
+<span class="lineNum">     295 </span>            : #else  // __CYGWIN__ || __MINGW32__
+<span class="lineNum">     296 </span><span class="lineCov">         24 :    pid_t pid = fork();</span>
+<span class="lineNum">     297 </span><span class="lineCov">         48 :    if (pid == 0) {</span>
+<span class="lineNum">     298 </span><span class="lineCov">         24 :       execv(args[0], args);</span>
+<span class="lineNum">     299 </span><span class="lineCov">         24 :       fatal_errno(&quot;execv&quot;);</span>
+<span class="lineNum">     300 </span>            :    }
+<span class="lineNum">     301 </span><span class="lineCov">         24 :    else if (pid &gt; 0) {</span>
+<span class="lineNum">     302 </span>            :       int status;
+<span class="lineNum">     303 </span><span class="lineCov">         24 :       if (waitpid(pid, &amp;status, 0) != pid)</span>
+<span class="lineNum">     304 </span><span class="lineNoCov">          0 :          fatal_errno(&quot;waitpid&quot;);</span>
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span><span class="lineCov">         24 :       if (WEXITSTATUS(status) != 0)</span>
+<span class="lineNum">     307 </span><span class="lineNoCov">          0 :          fatal(&quot;%s failed with status %d&quot;, args[0], WEXITSTATUS(status));</span>
+<span class="lineNum">     308 </span>            :    }
+<span class="lineNum">     309 </span>            :    else
+<span class="lineNum">     310 </span><span class="lineNoCov">          0 :       fatal_errno(&quot;fork&quot;);</span>
+<span class="lineNum">     311 </span>            : #endif  // __CYGWIN__ || __MINGW32__
+<span class="lineNum">     312 </span>            : 
+<span class="lineNum">     313 </span><span class="lineCov">         24 :    n_linked = 0;</span>
+<span class="lineNum">     314 </span><span class="lineCov">         24 : }</span>
+<a name="315"><span class="lineNum">     315 </span>            : </a>
+<span class="lineNum">     316 </span>            : #ifdef ENABLE_NATIVE
+<span class="lineNum">     317 </span><span class="lineCov">         24 : static void link_assembly(tree_t top)</span>
+<span class="lineNum">     318 </span>            : {
+<span class="lineNum">     319 </span><span class="lineCov">         24 :    LLVMInitializeNativeTarget();</span>
+<span class="lineNum">     320 </span><span class="lineCov">         24 :    LLVMInitializeNativeAsmPrinter();</span>
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span><span class="lineCov">         24 :    char *def_triple = LLVMGetDefaultTargetTriple();</span>
+<span class="lineNum">     323 </span>            :    char *error;
+<span class="lineNum">     324 </span>            :    LLVMTargetRef target_ref;
+<span class="lineNum">     325 </span><span class="lineCov">         24 :    if (LLVMGetTargetFromTriple(def_triple, &amp;target_ref, &amp;error))</span>
+<span class="lineNum">     326 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to get LLVM target for %s: %s&quot;, def_triple, error);</span>
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineCov">         24 :    LLVMTargetMachineRef tm_ref =</span>
+<span class="lineNum">     329 </span><span class="lineCov">         24 :       LLVMCreateTargetMachine(target_ref, def_triple, &quot;&quot;, &quot;&quot;,</span>
+<span class="lineNum">     330 </span>            :                               LLVMCodeGenLevelDefault,
+<span class="lineNum">     331 </span>            :                               LLVMRelocPIC,
+<span class="lineNum">     332 </span>            :                               LLVMCodeModelJITDefault);
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span>            :    ident_t product;
+<span class="lineNum">     335 </span><span class="lineCov">         24 :    if (tree_kind(top) == T_ELAB)</span>
+<span class="lineNum">     336 </span><span class="lineNoCov">          0 :       product = link_elab_final(top);</span>
+<span class="lineNum">     337 </span>            :    else
+<span class="lineNum">     338 </span><span class="lineCov">         24 :       product = tree_ident(top);</span>
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span><span class="lineCov">         48 :    char *obj_name LOCAL = xasprintf(&quot;_%s.&quot; LLVM_OBJ_EXT, istr(product));</span>
 <span class="lineNum">     341 </span>            : 
-<span class="lineNum">     342 </span><span class="lineCov">         24 :    if (LLVMTargetMachineEmitToFile(tm_ref, module, path,</span>
-<span class="lineNum">     343 </span>            :                                    LLVMObjectFile, &amp;error))
-<span class="lineNum">     344 </span><span class="lineNoCov">          0 :       fatal(&quot;Failed to write object file: %s&quot;, error);</span>
-<span class="lineNum">     345 </span><span class="lineCov">         24 : }</span>
-<span class="lineNum">     346 </span>            : #endif
-<a name="347"><span class="lineNum">     347 </span>            : </a>
-<span class="lineNum">     348 </span>            : #ifdef ENABLE_NATIVE
-<span class="lineNum">     349 </span><span class="lineCov">         24 : static void link_shared(tree_t top)</span>
-<span class="lineNum">     350 </span>            : {
-<span class="lineNum">     351 </span><span class="lineCov">         24 :    link_args_begin();</span>
-<span class="lineNum">     352 </span>            : 
-<span class="lineNum">     353 </span><span class="lineCov">         24 :    link_arg_f(&quot;%s&quot;, SYSTEM_CC);</span>
-<span class="lineNum">     354 </span>            : #if defined __APPLE__
-<span class="lineNum">     355 </span>            :    link_arg_f(&quot;-bundle&quot;);
-<span class="lineNum">     356 </span>            :    link_arg_f(&quot;-flat_namespace&quot;);
-<span class="lineNum">     357 </span>            :    link_arg_f(&quot;-undefined&quot;);
-<span class="lineNum">     358 </span>            :    link_arg_f(&quot;dynamic_lookup&quot;);
-<span class="lineNum">     359 </span>            : #else
-<span class="lineNum">     360 </span><span class="lineCov">         24 :    link_arg_f(&quot;-shared&quot;);</span>
-<span class="lineNum">     361 </span>            : #endif
-<span class="lineNum">     362 </span>            : 
-<span class="lineNum">     363 </span>            : #if defined __CYGWIN__
-<span class="lineNum">     364 </span>            :    link_arg_f(&quot;-Wl,--export-all-symbols&quot;);
-<span class="lineNum">     365 </span>            :    link_product(lib_work(), tree_ident(top), &quot;-Wl,--out-implib=&quot;, &quot;a&quot;);
-<span class="lineNum">     366 </span>            : #endif
-<span class="lineNum">     367 </span>            : 
-<span class="lineNum">     368 </span><span class="lineCov">         24 :    link_arg_f(&quot;-o&quot;);</span>
-<span class="lineNum">     369 </span><span class="lineCov">         24 :    link_output(top, &quot;so&quot;);</span>
-<span class="lineNum">     370 </span><span class="lineCov">         24 :    link_output(top, LLVM_OBJ_EXT);</span>
-<span class="lineNum">     371 </span>            : 
-<span class="lineNum">     372 </span><span class="lineCov">         24 :    const char *obj = getenv(&quot;NVC_FOREIGN_OBJ&quot;);</span>
-<span class="lineNum">     373 </span><span class="lineCov">         24 :    if (obj != NULL)</span>
-<span class="lineNum">     374 </span><span class="lineNoCov">          0 :       link_arg_f(&quot;%s&quot;, obj);</span>
-<span class="lineNum">     375 </span>            : 
-<span class="lineNum">     376 </span>            : #ifdef IMPLIB_REQUIRED
-<span class="lineNum">     377 </span>            :    const char *cyglib = getenv(&quot;NVC_CYG_LIB&quot;);
-<span class="lineNum">     378 </span>            :    link_arg_f(&quot;-L%s&quot;, (cyglib != NULL) ? cyglib : DATADIR);
-<span class="lineNum">     379 </span>            :    link_arg_f(&quot;-lnvcimp&quot;);
-<span class="lineNum">     380 </span>            : 
-<span class="lineNum">     381 </span>            :    link_all_context(top, NULL, link_context_cyg_fn);
-<span class="lineNum">     382 </span>            : #endif
+<span class="lineNum">     342 </span>            :    char path[PATH_MAX];
+<span class="lineNum">     343 </span><span class="lineCov">         24 :    lib_realpath(lib_work(), obj_name, path, sizeof(path));</span>
+<span class="lineNum">     344 </span>            : 
+<span class="lineNum">     345 </span><span class="lineCov">         24 :    if (LLVMTargetMachineEmitToFile(tm_ref, module, path,</span>
+<span class="lineNum">     346 </span>            :                                    LLVMObjectFile, &amp;error))
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :       fatal(&quot;Failed to write object file: %s&quot;, error);</span>
+<span class="lineNum">     348 </span><span class="lineCov">         24 : }</span>
+<span class="lineNum">     349 </span>            : #endif
+<a name="350"><span class="lineNum">     350 </span>            : </a>
+<span class="lineNum">     351 </span>            : #ifdef ENABLE_NATIVE
+<span class="lineNum">     352 </span><span class="lineCov">         24 : static void link_shared(tree_t top)</span>
+<span class="lineNum">     353 </span>            : {
+<span class="lineNum">     354 </span><span class="lineCov">         24 :    link_args_begin();</span>
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span><span class="lineCov">         24 :    link_arg_f(&quot;%s&quot;, SYSTEM_CC);</span>
+<span class="lineNum">     357 </span>            : #if defined __APPLE__
+<span class="lineNum">     358 </span>            :    link_arg_f(&quot;-bundle&quot;);
+<span class="lineNum">     359 </span>            :    link_arg_f(&quot;-flat_namespace&quot;);
+<span class="lineNum">     360 </span>            :    link_arg_f(&quot;-undefined&quot;);
+<span class="lineNum">     361 </span>            :    link_arg_f(&quot;dynamic_lookup&quot;);
+<span class="lineNum">     362 </span>            : #else
+<span class="lineNum">     363 </span><span class="lineCov">         24 :    link_arg_f(&quot;-shared&quot;);</span>
+<span class="lineNum">     364 </span>            : #endif
+<span class="lineNum">     365 </span>            : 
+<span class="lineNum">     366 </span>            : #if defined IMPLIB_REQUIRED
+<span class="lineNum">     367 </span>            :    link_arg_f(&quot;-Wl,--export-all-symbols&quot;);
+<span class="lineNum">     368 </span>            :    link_product(lib_work(), tree_ident(top), &quot;-Wl,--out-implib=&quot;, &quot;a&quot;);
+<span class="lineNum">     369 </span>            : #endif
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span><span class="lineCov">         24 :    link_arg_f(&quot;-o&quot;);</span>
+<span class="lineNum">     372 </span><span class="lineCov">         24 :    link_output(top, &quot;so&quot;);</span>
+<span class="lineNum">     373 </span><span class="lineCov">         24 :    link_output(top, LLVM_OBJ_EXT);</span>
+<span class="lineNum">     374 </span>            : 
+<span class="lineNum">     375 </span><span class="lineCov">         24 :    const char *obj = getenv(&quot;NVC_FOREIGN_OBJ&quot;);</span>
+<span class="lineNum">     376 </span><span class="lineCov">         24 :    if (obj != NULL)</span>
+<span class="lineNum">     377 </span><span class="lineNoCov">          0 :       link_arg_f(&quot;%s&quot;, obj);</span>
+<span class="lineNum">     378 </span>            : 
+<span class="lineNum">     379 </span>            : #ifdef IMPLIB_REQUIRED
+<span class="lineNum">     380 </span>            :    const char *implib = getenv(&quot;NVC_IMP_LIB&quot;);
+<span class="lineNum">     381 </span>            :    link_arg_f(&quot;-L%s&quot;, (implib != NULL) ? implib : DATADIR);
+<span class="lineNum">     382 </span>            :    link_arg_f(&quot;-lnvcimp&quot;);
 <span class="lineNum">     383 </span>            : 
-<span class="lineNum">     384 </span><span class="lineCov">         24 :    link_exec();</span>
-<span class="lineNum">     385 </span>            : 
-<span class="lineNum">     386 </span><span class="lineCov">         24 :    link_args_end();</span>
-<span class="lineNum">     387 </span><span class="lineCov">         24 : }</span>
-<a name="388"><span class="lineNum">     388 </span>            : #endif</a>
-<span class="lineNum">     389 </span>            : 
-<span class="lineNum">     390 </span><span class="lineCov">         24 : static void link_native(tree_t top)</span>
-<span class="lineNum">     391 </span>            : {
-<span class="lineNum">     392 </span>            : #ifdef ENABLE_NATIVE
-<span class="lineNum">     393 </span><span class="lineCov">         24 :    link_assembly(top);</span>
-<span class="lineNum">     394 </span><span class="lineCov">         24 :    link_shared(top);</span>
-<span class="lineNum">     395 </span>            : #else
-<span class="lineNum">     396 </span>            :    fatal(&quot;native code generation is not available on this system&quot;);
-<span class="lineNum">     397 </span>            : #endif
-<a name="398"><span class="lineNum">     398 </span><span class="lineCov">         24 : }</span></a>
-<span class="lineNum">     399 </span>            : 
-<span class="lineNum">     400 </span><span class="lineCov">        331 : static void link_write_module(tree_t top)</span>
-<span class="lineNum">     401 </span>            : {
-<span class="lineNum">     402 </span>            :    ident_t product;
-<span class="lineNum">     403 </span><span class="lineCov">        331 :    if (tree_kind(top) == T_ELAB)</span>
-<span class="lineNum">     404 </span><span class="lineCov">        331 :       product = link_elab_final(top);</span>
-<span class="lineNum">     405 </span>            :    else
-<span class="lineNum">     406 </span><span class="lineNoCov">          0 :       product = tree_ident(top);</span>
-<span class="lineNum">     407 </span>            : 
-<span class="lineNum">     408 </span>            :    char lib_path[PATH_MAX];
-<span class="lineNum">     409 </span><span class="lineCov">        331 :    lib_realpath(lib_work(), NULL, lib_path, sizeof(lib_path));</span>
+<span class="lineNum">     384 </span>            :    link_all_context(top, NULL, link_context_implib_fn);
+<span class="lineNum">     385 </span>            : #endif
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span><span class="lineCov">         24 :    link_exec();</span>
+<span class="lineNum">     388 </span>            : 
+<span class="lineNum">     389 </span><span class="lineCov">         24 :    link_args_end();</span>
+<span class="lineNum">     390 </span><span class="lineCov">         24 : }</span>
+<a name="391"><span class="lineNum">     391 </span>            : #endif</a>
+<span class="lineNum">     392 </span>            : 
+<span class="lineNum">     393 </span><span class="lineCov">         24 : static void link_native(tree_t top)</span>
+<span class="lineNum">     394 </span>            : {
+<span class="lineNum">     395 </span>            : #ifdef ENABLE_NATIVE
+<span class="lineNum">     396 </span><span class="lineCov">         24 :    link_assembly(top);</span>
+<span class="lineNum">     397 </span><span class="lineCov">         24 :    link_shared(top);</span>
+<span class="lineNum">     398 </span>            : #else
+<span class="lineNum">     399 </span>            :    fatal(&quot;native code generation is not available on this system&quot;);
+<span class="lineNum">     400 </span>            : #endif
+<a name="401"><span class="lineNum">     401 </span><span class="lineCov">         24 : }</span></a>
+<span class="lineNum">     402 </span>            : 
+<span class="lineNum">     403 </span><span class="lineCov">        331 : static void link_write_module(tree_t top)</span>
+<span class="lineNum">     404 </span>            : {
+<span class="lineNum">     405 </span>            :    ident_t product;
+<span class="lineNum">     406 </span><span class="lineCov">        331 :    if (tree_kind(top) == T_ELAB)</span>
+<span class="lineNum">     407 </span><span class="lineCov">        331 :       product = link_elab_final(top);</span>
+<span class="lineNum">     408 </span>            :    else
+<span class="lineNum">     409 </span><span class="lineNoCov">          0 :       product = tree_ident(top);</span>
 <span class="lineNum">     410 </span>            : 
-<span class="lineNum">     411 </span><span class="lineCov">        662 :    char *fname LOCAL = xasprintf(&quot;%s/_%s.bc&quot;, lib_path, istr(product));</span>
-<span class="lineNum">     412 </span>            : 
-<span class="lineNum">     413 </span><span class="lineCov">        331 :    FILE *f = fopen(fname, &quot;w&quot;);</span>
-<span class="lineNum">     414 </span><span class="lineCov">        331 :    if (f == NULL)</span>
-<span class="lineNum">     415 </span><span class="lineNoCov">          0 :       fatal_errno(&quot;%s&quot;, fname);</span>
-<span class="lineNum">     416 </span><span class="lineCov">        331 :    else if (LLVMWriteBitcodeToFD(module, fileno(f), 0, 0) != 0)</span>
-<span class="lineNum">     417 </span><span class="lineNoCov">          0 :       fatal(&quot;error writing LLVM bitcode&quot;);</span>
-<span class="lineNum">     418 </span><span class="lineCov">        331 :    fclose(f);</span>
-<a name="419"><span class="lineNum">     419 </span><span class="lineCov">        331 : }</span></a>
-<span class="lineNum">     420 </span>            : 
-<span class="lineNum">     421 </span><span class="lineCov">        355 : static void link_opt(tree_t top)</span>
-<span class="lineNum">     422 </span>            : {
-<span class="lineNum">     423 </span><span class="lineCov">        355 :    LLVMPassManagerBuilderRef builder = LLVMPassManagerBuilderCreate();</span>
-<span class="lineNum">     424 </span><span class="lineCov">        355 :    LLVMPassManagerRef pm = LLVMCreatePassManager();</span>
-<span class="lineNum">     425 </span>            : 
-<span class="lineNum">     426 </span><span class="lineCov">        355 :    LLVMPassManagerBuilderSetOptLevel(builder, opt_get_int(&quot;optimise&quot;));</span>
-<span class="lineNum">     427 </span>            : 
-<span class="lineNum">     428 </span><span class="lineCov">        355 :    LLVMPassManagerBuilderPopulateModulePassManager(builder, pm);</span>
-<span class="lineNum">     429 </span><span class="lineCov">        355 :    LLVMRunPassManager(pm, module);</span>
-<span class="lineNum">     430 </span><span class="lineCov">        355 :    LLVMPassManagerBuilderDispose(builder);</span>
-<span class="lineNum">     431 </span><span class="lineCov">        355 :    LLVMDisposePassManager(pm);</span>
-<a name="432"><span class="lineNum">     432 </span><span class="lineCov">        355 : }</span></a>
-<span class="lineNum">     433 </span>            : 
-<span class="lineNum">     434 </span><span class="lineCov">        331 : static FILE *link_deps_file(tree_t top)</span>
-<span class="lineNum">     435 </span>            : {
-<span class="lineNum">     436 </span><span class="lineCov">        331 :    char *deps_name = xasprintf(&quot;_%s.deps.txt&quot;, istr(tree_ident(top)));</span>
-<span class="lineNum">     437 </span><span class="lineCov">        331 :    FILE *fp = lib_fopen(lib_work(), deps_name, &quot;w&quot;);</span>
-<span class="lineNum">     438 </span><span class="lineCov">        331 :    free(deps_name);</span>
-<span class="lineNum">     439 </span><span class="lineCov">        331 :    return fp;</span>
-<a name="440"><span class="lineNum">     440 </span>            : }</a>
-<span class="lineNum">     441 </span>            : 
-<span class="lineNum">     442 </span><span class="lineCov">        331 : void link_bc(tree_t top)</span>
-<span class="lineNum">     443 </span>            : {
-<span class="lineNum">     444 </span><span class="lineCov">        331 :    module = tree_attr_ptr(top, llvm_i);</span>
-<span class="lineNum">     445 </span><span class="lineCov">        331 :    assert(module != NULL);</span>
-<span class="lineNum">     446 </span>            : 
-<span class="lineNum">     447 </span><span class="lineCov">        331 :    FILE *deps = link_deps_file(top);</span>
-<span class="lineNum">     448 </span><span class="lineCov">        331 :    link_all_context(top, deps, link_context_bc_fn);</span>
-<span class="lineNum">     449 </span><span class="lineCov">        331 :    fclose(deps);</span>
-<span class="lineNum">     450 </span>            : 
-<span class="lineNum">     451 </span><span class="lineCov">        331 :    link_opt(top);</span>
-<span class="lineNum">     452 </span><span class="lineCov">        331 :    link_write_module(top);</span>
+<span class="lineNum">     411 </span>            :    char lib_path[PATH_MAX];
+<span class="lineNum">     412 </span><span class="lineCov">        331 :    lib_realpath(lib_work(), NULL, lib_path, sizeof(lib_path));</span>
+<span class="lineNum">     413 </span>            : 
+<span class="lineNum">     414 </span><span class="lineCov">        662 :    char *fname LOCAL = xasprintf(&quot;%s/_%s.bc&quot;, lib_path, istr(product));</span>
+<span class="lineNum">     415 </span>            : 
+<span class="lineNum">     416 </span><span class="lineCov">        331 :    FILE *f = fopen(fname, &quot;wb&quot;);</span>
+<span class="lineNum">     417 </span><span class="lineCov">        331 :    if (f == NULL)</span>
+<span class="lineNum">     418 </span><span class="lineNoCov">          0 :       fatal_errno(&quot;%s&quot;, fname);</span>
+<span class="lineNum">     419 </span><span class="lineCov">        331 :    else if (LLVMWriteBitcodeToFD(module, fileno(f), 0, 0) != 0)</span>
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :       fatal(&quot;error writing LLVM bitcode&quot;);</span>
+<span class="lineNum">     421 </span><span class="lineCov">        331 :    fclose(f);</span>
+<a name="422"><span class="lineNum">     422 </span><span class="lineCov">        331 : }</span></a>
+<span class="lineNum">     423 </span>            : 
+<span class="lineNum">     424 </span><span class="lineCov">        355 : static void link_opt(tree_t top)</span>
+<span class="lineNum">     425 </span>            : {
+<span class="lineNum">     426 </span><span class="lineCov">        355 :    LLVMPassManagerBuilderRef builder = LLVMPassManagerBuilderCreate();</span>
+<span class="lineNum">     427 </span><span class="lineCov">        355 :    LLVMPassManagerRef pm = LLVMCreatePassManager();</span>
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span><span class="lineCov">        355 :    LLVMPassManagerBuilderSetOptLevel(builder, opt_get_int(&quot;optimise&quot;));</span>
+<span class="lineNum">     430 </span>            : 
+<span class="lineNum">     431 </span><span class="lineCov">        355 :    LLVMPassManagerBuilderPopulateModulePassManager(builder, pm);</span>
+<span class="lineNum">     432 </span><span class="lineCov">        355 :    LLVMRunPassManager(pm, module);</span>
+<span class="lineNum">     433 </span><span class="lineCov">        355 :    LLVMPassManagerBuilderDispose(builder);</span>
+<span class="lineNum">     434 </span><span class="lineCov">        355 :    LLVMDisposePassManager(pm);</span>
+<a name="435"><span class="lineNum">     435 </span><span class="lineCov">        355 : }</span></a>
+<span class="lineNum">     436 </span>            : 
+<span class="lineNum">     437 </span><span class="lineCov">        331 : static FILE *link_deps_file(tree_t top)</span>
+<span class="lineNum">     438 </span>            : {
+<span class="lineNum">     439 </span><span class="lineCov">        331 :    char *deps_name = xasprintf(&quot;_%s.deps.txt&quot;, istr(tree_ident(top)));</span>
+<span class="lineNum">     440 </span><span class="lineCov">        331 :    FILE *fp = lib_fopen(lib_work(), deps_name, &quot;w&quot;);</span>
+<span class="lineNum">     441 </span><span class="lineCov">        331 :    free(deps_name);</span>
+<span class="lineNum">     442 </span><span class="lineCov">        331 :    return fp;</span>
+<a name="443"><span class="lineNum">     443 </span>            : }</a>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineCov">        331 : void link_bc(tree_t top)</span>
+<span class="lineNum">     446 </span>            : {
+<span class="lineNum">     447 </span><span class="lineCov">        331 :    module = tree_attr_ptr(top, llvm_i);</span>
+<span class="lineNum">     448 </span><span class="lineCov">        331 :    assert(module != NULL);</span>
+<span class="lineNum">     449 </span>            : 
+<span class="lineNum">     450 </span><span class="lineCov">        331 :    FILE *deps = link_deps_file(top);</span>
+<span class="lineNum">     451 </span><span class="lineCov">        331 :    link_all_context(top, deps, link_context_bc_fn);</span>
+<span class="lineNum">     452 </span><span class="lineCov">        331 :    fclose(deps);</span>
 <span class="lineNum">     453 </span>            : 
-<span class="lineNum">     454 </span><span class="lineCov">        331 :    bool native = opt_get_int(&quot;native&quot;);</span>
-<span class="lineNum">     455 </span>            : 
-<span class="lineNum">     456 </span><span class="lineCov">        331 :    if (!native &amp;&amp; opt_get_int(&quot;optimise&quot;) &gt; 0) {</span>
-<span class="lineNum">     457 </span>            :       // Use a heuristic to decide if the generated bitcode file is large
-<span class="lineNum">     458 </span>            :       // enough to benefit from native complilation
-<span class="lineNum">     459 </span>            : #ifdef ENABLE_NATIVE
-<span class="lineNum">     460 </span><span class="lineCov">          1 :       ident_t final = link_elab_final(top);</span>
-<span class="lineNum">     461 </span>            : 
-<span class="lineNum">     462 </span>            :       char path[PATH_MAX];
-<span class="lineNum">     463 </span><span class="lineCov">          1 :       lib_realpath(lib_work(), NULL, path, sizeof(path));</span>
+<span class="lineNum">     454 </span><span class="lineCov">        331 :    link_opt(top);</span>
+<span class="lineNum">     455 </span><span class="lineCov">        331 :    link_write_module(top);</span>
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span><span class="lineCov">        331 :    bool native = opt_get_int(&quot;native&quot;);</span>
+<span class="lineNum">     458 </span>            : 
+<span class="lineNum">     459 </span><span class="lineCov">        331 :    if (!native &amp;&amp; opt_get_int(&quot;optimise&quot;) &gt; 0) {</span>
+<span class="lineNum">     460 </span>            :       // Use a heuristic to decide if the generated bitcode file is large
+<span class="lineNum">     461 </span>            :       // enough to benefit from native complilation
+<span class="lineNum">     462 </span>            : #ifdef ENABLE_NATIVE
+<span class="lineNum">     463 </span><span class="lineCov">          1 :       ident_t final = link_elab_final(top);</span>
 <span class="lineNum">     464 </span>            : 
-<span class="lineNum">     465 </span><span class="lineCov">          1 :       const size_t libpath_len = strlen(path);</span>
-<span class="lineNum">     466 </span>            : 
-<span class="lineNum">     467 </span><span class="lineCov">          1 :       checked_sprintf(path + libpath_len, PATH_MAX - libpath_len,</span>
-<span class="lineNum">     468 </span>            :                       &quot;/_%s.bc&quot;, istr(final));
+<span class="lineNum">     465 </span>            :       char path[PATH_MAX];
+<span class="lineNum">     466 </span><span class="lineCov">          1 :       lib_realpath(lib_work(), NULL, path, sizeof(path));</span>
+<span class="lineNum">     467 </span>            : 
+<span class="lineNum">     468 </span><span class="lineCov">          1 :       const size_t libpath_len = strlen(path);</span>
 <span class="lineNum">     469 </span>            : 
-<span class="lineNum">     470 </span>            :       struct stat st;
-<span class="lineNum">     471 </span><span class="lineCov">          1 :       if (stat(path, &amp;st) != 0)</span>
-<span class="lineNum">     472 </span><span class="lineNoCov">          0 :          fatal_errno(&quot;stat: %s&quot;, path);</span>
-<span class="lineNum">     473 </span>            : 
-<span class="lineNum">     474 </span><span class="lineCov">          1 :       native = (st.st_size &gt; LINK_NATIVE_BYTES);</span>
-<span class="lineNum">     475 </span>            : #endif  // ENABLE_NATIVE
-<span class="lineNum">     476 </span>            :    }
-<span class="lineNum">     477 </span>            : 
-<span class="lineNum">     478 </span><span class="lineCov">        331 :    if (native)</span>
-<span class="lineNum">     479 </span><span class="lineNoCov">          0 :       link_native(top);</span>
-<a name="480"><span class="lineNum">     480 </span><span class="lineCov">        331 : }</span></a>
-<span class="lineNum">     481 </span>            : 
-<span class="lineNum">     482 </span><span class="lineCov">         24 : void link_package(tree_t pack)</span>
-<span class="lineNum">     483 </span>            : {
-<span class="lineNum">     484 </span><span class="lineCov">         48 :    char *name LOCAL = xasprintf(&quot;_%s.bc&quot;, istr(tree_ident(pack)));</span>
-<span class="lineNum">     485 </span>            : 
-<span class="lineNum">     486 </span>            :    char input[PATH_MAX];
-<span class="lineNum">     487 </span><span class="lineCov">         24 :    lib_realpath(lib_work(), name, input, sizeof(input));</span>
+<span class="lineNum">     470 </span><span class="lineCov">          1 :       checked_sprintf(path + libpath_len, PATH_MAX - libpath_len,</span>
+<span class="lineNum">     471 </span>            :                       &quot;/_%s.bc&quot;, istr(final));
+<span class="lineNum">     472 </span>            : 
+<span class="lineNum">     473 </span>            :       struct stat st;
+<span class="lineNum">     474 </span><span class="lineCov">          1 :       if (stat(path, &amp;st) != 0)</span>
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :          fatal_errno(&quot;stat: %s&quot;, path);</span>
+<span class="lineNum">     476 </span>            : 
+<span class="lineNum">     477 </span><span class="lineCov">          1 :       native = (st.st_size &gt; LINK_NATIVE_BYTES);</span>
+<span class="lineNum">     478 </span>            : #endif  // ENABLE_NATIVE
+<span class="lineNum">     479 </span>            :    }
+<span class="lineNum">     480 </span>            : 
+<span class="lineNum">     481 </span><span class="lineCov">        331 :    if (native)</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :       link_native(top);</span>
+<a name="483"><span class="lineNum">     483 </span><span class="lineCov">        331 : }</span></a>
+<span class="lineNum">     484 </span>            : 
+<span class="lineNum">     485 </span><span class="lineCov">         24 : void link_package(tree_t pack)</span>
+<span class="lineNum">     486 </span>            : {
+<span class="lineNum">     487 </span><span class="lineCov">         48 :    char *name LOCAL = xasprintf(&quot;_%s.bc&quot;, istr(tree_ident(pack)));</span>
 <span class="lineNum">     488 </span>            : 
-<span class="lineNum">     489 </span>            :    char *error;
-<span class="lineNum">     490 </span>            :    LLVMMemoryBufferRef buf;
-<span class="lineNum">     491 </span><span class="lineCov">         24 :    if (LLVMCreateMemoryBufferWithContentsOfFile(input, &amp;buf, &amp;error))</span>
-<span class="lineNum">     492 </span><span class="lineNoCov">          0 :       fatal(&quot;error reading bitcode from %s: %s&quot;, input, error);</span>
-<span class="lineNum">     493 </span>            : 
-<span class="lineNum">     494 </span><span class="lineCov">         24 :    if (LLVMParseBitcode(buf, &amp;module, &amp;error))</span>
-<span class="lineNum">     495 </span><span class="lineNoCov">          0 :       fatal(&quot;error parsing bitcode: %s&quot;, error);</span>
+<span class="lineNum">     489 </span>            :    char input[PATH_MAX];
+<span class="lineNum">     490 </span><span class="lineCov">         24 :    lib_realpath(lib_work(), name, input, sizeof(input));</span>
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span>            :    char *error;
+<span class="lineNum">     493 </span>            :    LLVMMemoryBufferRef buf;
+<span class="lineNum">     494 </span><span class="lineCov">         24 :    if (LLVMCreateMemoryBufferWithContentsOfFile(input, &amp;buf, &amp;error))</span>
+<span class="lineNum">     495 </span><span class="lineNoCov">          0 :       fatal(&quot;error reading bitcode from %s: %s&quot;, input, error);</span>
 <span class="lineNum">     496 </span>            : 
-<span class="lineNum">     497 </span><span class="lineCov">         24 :    LLVMDisposeMemoryBuffer(buf);</span>
-<span class="lineNum">     498 </span>            : 
-<span class="lineNum">     499 </span><span class="lineCov">         24 :    link_opt(pack);</span>
-<span class="lineNum">     500 </span><span class="lineCov">         24 :    link_native(pack);</span>
-<a name="501"><span class="lineNum">     501 </span><span class="lineCov">         24 : }</span></a>
-<span class="lineNum">     502 </span>            : 
-<span class="lineNum">     503 </span><span class="lineCov">        310 : bool pack_needs_cgen(tree_t t)</span>
-<span class="lineNum">     504 </span>            : {
-<span class="lineNum">     505 </span><span class="lineCov">        310 :    const int ndecls = tree_decls(t);</span>
-<span class="lineNum">     506 </span><span class="lineCov">       5372 :    for (int i = 0; i &lt; ndecls; i++) {</span>
-<span class="lineNum">     507 </span><span class="lineCov">       5172 :       tree_t decl = tree_decl(t, i);</span>
-<span class="lineNum">     508 </span><span class="lineCov">       5172 :       switch (tree_kind(decl)) {</span>
-<span class="lineNum">     509 </span>            :       case T_VAR_DECL:
-<span class="lineNum">     510 </span>            :       case T_SIGNAL_DECL:
-<span class="lineNum">     511 </span>            :       case T_FILE_DECL:
-<span class="lineNum">     512 </span>            :          return true;
-<span class="lineNum">     513 </span>            :       case T_CONST_DECL:
-<span class="lineNum">     514 </span><span class="lineCov">         78 :          if (type_is_array(tree_type(decl)))</span>
-<span class="lineNum">     515 </span>            :             return true;
-<span class="lineNum">     516 </span><span class="lineCov">         22 :          else if (tree_has_value(decl)) {</span>
-<span class="lineNum">     517 </span><span class="lineCov">         22 :             if (tree_kind(tree_value(decl)) != T_LITERAL)</span>
-<span class="lineNum">     518 </span>            :                return true;
-<span class="lineNum">     519 </span>            :          }
-<span class="lineNum">     520 </span>            :          break;
-<span class="lineNum">     521 </span>            :       default:
-<span class="lineNum">     522 </span>            :          break;
-<span class="lineNum">     523 </span>            :       }
-<span class="lineNum">     524 </span>            :    }
-<span class="lineNum">     525 </span>            : 
-<span class="lineNum">     526 </span>            :    return false;
-<span class="lineNum">     527 </span>            : }
+<span class="lineNum">     497 </span><span class="lineCov">         24 :    if (LLVMParseBitcode(buf, &amp;module, &amp;error))</span>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :       fatal(&quot;error parsing bitcode: %s&quot;, error);</span>
+<span class="lineNum">     499 </span>            : 
+<span class="lineNum">     500 </span><span class="lineCov">         24 :    LLVMDisposeMemoryBuffer(buf);</span>
+<span class="lineNum">     501 </span>            : 
+<span class="lineNum">     502 </span><span class="lineCov">         24 :    link_opt(pack);</span>
+<span class="lineNum">     503 </span><span class="lineCov">         24 :    link_native(pack);</span>
+<a name="504"><span class="lineNum">     504 </span><span class="lineCov">         24 : }</span></a>
+<span class="lineNum">     505 </span>            : 
+<span class="lineNum">     506 </span><span class="lineCov">        310 : bool pack_needs_cgen(tree_t t)</span>
+<span class="lineNum">     507 </span>            : {
+<span class="lineNum">     508 </span><span class="lineCov">        310 :    const int ndecls = tree_decls(t);</span>
+<span class="lineNum">     509 </span><span class="lineCov">       5372 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">     510 </span><span class="lineCov">       5172 :       tree_t decl = tree_decl(t, i);</span>
+<span class="lineNum">     511 </span><span class="lineCov">       5172 :       switch (tree_kind(decl)) {</span>
+<span class="lineNum">     512 </span>            :       case T_VAR_DECL:
+<span class="lineNum">     513 </span>            :       case T_SIGNAL_DECL:
+<span class="lineNum">     514 </span>            :       case T_FILE_DECL:
+<span class="lineNum">     515 </span>            :          return true;
+<span class="lineNum">     516 </span>            :       case T_CONST_DECL:
+<span class="lineNum">     517 </span><span class="lineCov">         78 :          if (type_is_array(tree_type(decl)))</span>
+<span class="lineNum">     518 </span>            :             return true;
+<span class="lineNum">     519 </span><span class="lineCov">         22 :          else if (tree_has_value(decl)) {</span>
+<span class="lineNum">     520 </span><span class="lineCov">         22 :             if (tree_kind(tree_value(decl)) != T_LITERAL)</span>
+<span class="lineNum">     521 </span>            :                return true;
+<span class="lineNum">     522 </span>            :          }
+<span class="lineNum">     523 </span>            :          break;
+<span class="lineNum">     524 </span>            :       default:
+<span class="lineNum">     525 </span>            :          break;
+<span class="lineNum">     526 </span>            :       }
+<span class="lineNum">     527 </span>            :    }
+<span class="lineNum">     528 </span>            : 
+<span class="lineNum">     529 </span>            :    return false;
+<span class="lineNum">     530 </span>            : }
 </pre>
       </td>
     </tr>
