@@ -489,16 +489,16 @@
 <span class="lineNum">     427 </span>            :    }
 <a name="428"><span class="lineNum">     428 </span><span class="lineCov">       1301 : }</span></a>
 <span class="lineNum">     429 </span>            : 
-<span class="lineNum">     430 </span><span class="lineCov">        273 : static void ungroup_proc_params(tree_t t, group_nets_ctx_t *ctx)</span>
+<span class="lineNum">     430 </span><span class="lineCov">        286 : static void ungroup_proc_params(tree_t t, group_nets_ctx_t *ctx)</span>
 <span class="lineNum">     431 </span>            : {
 <span class="lineNum">     432 </span>            :    // Ungroup any signal that is passed to a procedure as in general we
 <span class="lineNum">     433 </span>            :    // cannot guarantee anything about the procedure's behaviour
 <span class="lineNum">     434 </span>            : 
-<span class="lineNum">     435 </span><span class="lineCov">        273 :    const int nparams = tree_params(t);</span>
-<span class="lineNum">     436 </span><span class="lineCov">        301 :    for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">     437 </span><span class="lineCov">        282 :       tree_t value = tree_value(tree_param(t, i));</span>
+<span class="lineNum">     435 </span><span class="lineCov">        286 :    const int nparams = tree_params(t);</span>
+<span class="lineNum">     436 </span><span class="lineCov">        314 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">     437 </span><span class="lineCov">        295 :       tree_t value = tree_value(tree_param(t, i));</span>
 <span class="lineNum">     438 </span>            : 
-<span class="lineNum">     439 </span><span class="lineCov">        566 :       while (tree_kind(value) != T_REF) {</span>
+<span class="lineNum">     439 </span><span class="lineCov">        592 :       while (tree_kind(value) != T_REF) {</span>
 <span class="lineNum">     440 </span><span class="lineCov">         67 :          switch (tree_kind(value)) {</span>
 <span class="lineNum">     441 </span>            :          case T_ARRAY_REF:
 <span class="lineNum">     442 </span>            :          case T_ARRAY_SLICE:
@@ -510,9 +510,9 @@
 <span class="lineNum">     448 </span>            :          }
 <span class="lineNum">     449 </span>            :       }
 <span class="lineNum">     450 </span>            : 
-<span class="lineNum">     451 </span><span class="lineCov">        217 :       tree_t decl = tree_ref(value);</span>
+<span class="lineNum">     451 </span><span class="lineCov">        230 :       tree_t decl = tree_ref(value);</span>
 <span class="lineNum">     452 </span>            : 
-<span class="lineNum">     453 </span><span class="lineCov">        217 :       if (tree_kind(decl) != T_SIGNAL_DECL)</span>
+<span class="lineNum">     453 </span><span class="lineCov">        230 :       if (tree_kind(decl) != T_SIGNAL_DECL)</span>
 <span class="lineNum">     454 </span>            :          return;
 <span class="lineNum">     455 </span>            : 
 <span class="lineNum">     456 </span><span class="lineCov">         28 :       const int nnets = tree_nets(decl);</span>
@@ -521,11 +521,11 @@
 <span class="lineNum">     459 </span>            :    }
 <a name="460"><span class="lineNum">     460 </span>            : }</a>
 <span class="lineNum">     461 </span>            : 
-<span class="lineNum">     462 </span><span class="lineCov">      32663 : static void group_nets_visit_fn(tree_t t, void *_ctx)</span>
+<span class="lineNum">     462 </span><span class="lineCov">      33125 : static void group_nets_visit_fn(tree_t t, void *_ctx)</span>
 <span class="lineNum">     463 </span>            : {
-<span class="lineNum">     464 </span><span class="lineCov">      32663 :    group_nets_ctx_t *ctx = _ctx;</span>
+<span class="lineNum">     464 </span><span class="lineCov">      33125 :    group_nets_ctx_t *ctx = _ctx;</span>
 <span class="lineNum">     465 </span>            : 
-<span class="lineNum">     466 </span><span class="lineCov">      32663 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     466 </span><span class="lineCov">      33125 :    switch (tree_kind(t)) {</span>
 <span class="lineNum">     467 </span>            :    case T_SIGNAL_ASSIGN:
 <span class="lineNum">     468 </span><span class="lineCov">        785 :       group_target(tree_target(t), ctx);</span>
 <span class="lineNum">     469 </span><span class="lineCov">        785 :       break;</span>
@@ -539,8 +539,8 @@
 <span class="lineNum">     477 </span>            :       break;
 <span class="lineNum">     478 </span>            : 
 <span class="lineNum">     479 </span>            :    case T_PCALL:
-<span class="lineNum">     480 </span><span class="lineCov">        273 :       ungroup_proc_params(t, ctx);</span>
-<span class="lineNum">     481 </span><span class="lineCov">        273 :       break;</span>
+<span class="lineNum">     480 </span><span class="lineCov">        286 :       ungroup_proc_params(t, ctx);</span>
+<span class="lineNum">     481 </span><span class="lineCov">        286 :       break;</span>
 <span class="lineNum">     482 </span>            : 
 <span class="lineNum">     483 </span>            :    case T_SIGNAL_DECL:
 <span class="lineNum">     484 </span>            :       // Ensure that no group is larger than a signal declaration
@@ -550,7 +550,7 @@
 <span class="lineNum">     488 </span>            :    default:
 <span class="lineNum">     489 </span>            :       break;
 <span class="lineNum">     490 </span>            :    }
-<a name="491"><span class="lineNum">     491 </span><span class="lineCov">      32663 : }</span></a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineCov">      33125 : }</span></a>
 <span class="lineNum">     492 </span>            : 
 <span class="lineNum">     493 </span><span class="lineCov">        331 : static void group_write_netdb(tree_t top, group_nets_ctx_t *ctx)</span>
 <span class="lineNum">     494 </span>            : {

@@ -116,230 +116,228 @@
 <span class="lineNum">      54 </span>            : {
 <span class="lineNum">      55 </span><span class="lineCov">       2997 :    dlerror();   // Clear any previous error</span>
 <span class="lineNum">      56 </span>            : 
-<span class="lineNum">      57 </span>            : #ifdef __MINGW32__
-<span class="lineNum">      58 </span>            :    if (*name == '_')
-<span class="lineNum">      59 </span>            :       name++;   // Remove leading underscore on Windows
-<span class="lineNum">      60 </span>            : #endif
-<span class="lineNum">      61 </span>            : 
-<span class="lineNum">      62 </span><span class="lineCov">       2997 :    void *sym = dlsym(dl_handle, name);</span>
-<span class="lineNum">      63 </span><span class="lineCov">       2997 :    const char *error = dlerror();</span>
-<span class="lineNum">      64 </span><span class="lineCov">       2997 :    if (error != NULL) {</span>
-<span class="lineNum">      65 </span><span class="lineCov">       2929 :       sym = dlsym(RTLD_DEFAULT, name);</span>
-<span class="lineNum">      66 </span><span class="lineCov">       2929 :       error = dlerror();</span>
-<span class="lineNum">      67 </span><span class="lineCov">       2929 :       if ((error != NULL) &amp;&amp; required)</span>
-<span class="lineNum">      68 </span><span class="lineNoCov">          0 :          fatal(&quot;%s&quot;, error);</span>
-<span class="lineNum">      69 </span>            :    }
-<span class="lineNum">      70 </span><span class="lineCov">       2997 :    return sym;</span>
-<a name="71"><span class="lineNum">      71 </span>            : }</a>
-<span class="lineNum">      72 </span>            : 
-<span class="lineNum">      73 </span><span class="lineCov">       2916 : void *jit_fun_ptr(const char *name, bool required)</span>
-<span class="lineNum">      74 </span>            : {
-<span class="lineNum">      75 </span><span class="lineCov">       2916 :    if (using_jit) {</span>
-<span class="lineNum">      76 </span>            : #if LLVM_HAS_ORC
-<span class="lineNum">      77 </span>            :       return jit_var_ptr(name, required);
-<span class="lineNum">      78 </span>            : #else
-<span class="lineNum">      79 </span>            :       LLVMValueRef fn;
-<span class="lineNum">      80 </span><span class="lineCov">       2916 :       if (LLVMFindFunction(exec_engine, name, &amp;fn)) {</span>
-<span class="lineNum">      81 </span><span class="lineCov">       1723 :          if (required)</span>
-<span class="lineNum">      82 </span><span class="lineNoCov">          0 :             fatal(&quot;cannot find function %s&quot;, name);</span>
-<span class="lineNum">      83 </span>            :          else
-<span class="lineNum">      84 </span><span class="lineCov">       1723 :             return jit_search_loaded_syms(name, required);</span>
-<span class="lineNum">      85 </span>            :       }
-<span class="lineNum">      86 </span>            : 
-<span class="lineNum">      87 </span><span class="lineCov">       1193 :       return LLVMGetPointerToGlobal(exec_engine, fn);</span>
-<span class="lineNum">      88 </span>            : #endif
-<span class="lineNum">      89 </span>            :    }
-<span class="lineNum">      90 </span>            :    else
-<span class="lineNum">      91 </span><span class="lineNoCov">          0 :       return jit_var_ptr(name, required);</span>
-<a name="92"><span class="lineNum">      92 </span>            : }</a>
-<span class="lineNum">      93 </span>            : 
-<span class="lineNum">      94 </span><span class="lineCov">       1278 : void *jit_var_ptr(const char *name, bool required)</span>
-<span class="lineNum">      95 </span>            : {
-<span class="lineNum">      96 </span><span class="lineCov">       1278 :    if (using_jit) {</span>
-<span class="lineNum">      97 </span>            : #if LLVM_HAS_ORC
-<span class="lineNum">      98 </span>            :       void *ptr = (void *)(uintptr_t)LLVMOrcGetSymbolAddress(orc_ref, name);
-<span class="lineNum">      99 </span>            : #elif LLVM_HAS_MCJIT
-<span class="lineNum">     100 </span>            :       void *ptr = (void *)(uintptr_t)LLVMGetGlobalValueAddress(exec_engine, name);
-<span class="lineNum">     101 </span>            : #else
-<span class="lineNum">     102 </span><span class="lineCov">       1278 :       void *ptr = NULL;</span>
-<span class="lineNum">     103 </span><span class="lineCov">       1278 :       LLVMValueRef var = LLVMGetNamedGlobal(module, name);</span>
-<span class="lineNum">     104 </span><span class="lineCov">       1278 :       if (var != NULL)</span>
-<span class="lineNum">     105 </span><span class="lineCov">          4 :          ptr = LLVMGetPointerToGlobal(exec_engine, var);</span>
-<span class="lineNum">     106 </span>            : #endif
-<span class="lineNum">     107 </span>            : 
-<span class="lineNum">     108 </span><span class="lineCov">       1278 :       if (ptr == NULL) {</span>
-<span class="lineNum">     109 </span><span class="lineCov">       1274 :          if (required)</span>
-<span class="lineNum">     110 </span><span class="lineNoCov">          0 :             fatal(&quot;cannot find global %s&quot;, name);</span>
-<span class="lineNum">     111 </span>            :          else
-<span class="lineNum">     112 </span><span class="lineCov">       1274 :             return jit_search_loaded_syms(name, required);</span>
-<span class="lineNum">     113 </span>            :       }
-<span class="lineNum">     114 </span>            :       else
-<span class="lineNum">     115 </span>            :          return ptr;
-<span class="lineNum">     116 </span>            :    }
-<span class="lineNum">     117 </span>            :    else
-<span class="lineNum">     118 </span><span class="lineNoCov">          0 :       return jit_search_loaded_syms(name, required);</span>
-<a name="119"><span class="lineNum">     119 </span>            : }</a>
-<span class="lineNum">     120 </span>            : 
-<span class="lineNum">     121 </span><span class="lineCov">       6951 : void jit_bind_fn(const char *name, void *ptr)</span>
-<span class="lineNum">     122 </span>            : {
-<span class="lineNum">     123 </span><span class="lineCov">       6951 :    if (using_jit) {</span>
-<span class="lineNum">     124 </span>            : #if !LLVM_HAS_ORC
-<span class="lineNum">     125 </span>            :       LLVMValueRef fn;
-<span class="lineNum">     126 </span><span class="lineCov">       6951 :       if (LLVMFindFunction(exec_engine, name, &amp;fn))</span>
-<span class="lineNum">     127 </span><span class="lineCov">       5685 :          return;</span>
-<span class="lineNum">     128 </span>            : 
-<span class="lineNum">     129 </span><span class="lineCov">       1266 :       LLVMAddGlobalMapping(exec_engine, fn, ptr);</span>
-<span class="lineNum">     130 </span>            : #endif
-<span class="lineNum">     131 </span>            :    }
-<span class="lineNum">     132 </span>            : }
-<span class="lineNum">     133 </span>            : 
-<span class="lineNum">     134 </span>            : #if LLVM_HAS_ORC
-<span class="lineNum">     135 </span>            : static uint64_t jit_orc_sym_resolver(const char *name, void *ctx)
-<span class="lineNum">     136 </span>            : {
-<span class="lineNum">     137 </span>            :    return (uintptr_t)jit_search_loaded_syms(name, true);
-<span class="lineNum">     138 </span>            : }
-<a name="139"><span class="lineNum">     139 </span>            : #endif  // LLVM_HAS_ORC</a>
-<span class="lineNum">     140 </span>            : 
-<span class="lineNum">     141 </span><span class="lineCov">        331 : static void jit_init_llvm(const char *path)</span>
-<span class="lineNum">     142 </span>            : {
-<span class="lineNum">     143 </span><span class="lineCov">        331 :    if (module == NULL) {</span>
-<span class="lineNum">     144 </span>            :       char *error;
-<span class="lineNum">     145 </span>            :       LLVMMemoryBufferRef buf;
-<span class="lineNum">     146 </span><span class="lineCov">         21 :       if (LLVMCreateMemoryBufferWithContentsOfFile(path, &amp;buf, &amp;error))</span>
-<span class="lineNum">     147 </span><span class="lineNoCov">          0 :          fatal(&quot;error reading bitcode from %s: %s&quot;, path, error);</span>
-<span class="lineNum">     148 </span>            : 
-<span class="lineNum">     149 </span><span class="lineCov">         21 :       if (LLVMParseBitcode(buf, &amp;module, &amp;error))</span>
-<span class="lineNum">     150 </span><span class="lineNoCov">          0 :          fatal(&quot;error parsing bitcode: %s&quot;, error);</span>
-<span class="lineNum">     151 </span>            : 
-<span class="lineNum">     152 </span><span class="lineCov">         21 :       LLVMDisposeMemoryBuffer(buf);</span>
-<span class="lineNum">     153 </span>            :    }
-<span class="lineNum">     154 </span>            : 
-<span class="lineNum">     155 </span><span class="lineCov">        331 :    LLVMInitializeNativeTarget();</span>
-<span class="lineNum">     156 </span>            : #if LLVM_HAS_ORC
-<span class="lineNum">     157 </span>            :    LLVMInitializeNativeAsmPrinter();
-<span class="lineNum">     158 </span>            :    LLVMLinkInMCJIT();
-<span class="lineNum">     159 </span>            : 
-<span class="lineNum">     160 </span>            :    char *def_triple = LLVMGetDefaultTargetTriple();
-<span class="lineNum">     161 </span>            :    char *error;
-<span class="lineNum">     162 </span>            :    LLVMTargetRef target_ref;
-<span class="lineNum">     163 </span>            :    if (LLVMGetTargetFromTriple(def_triple, &amp;target_ref, &amp;error))
-<span class="lineNum">     164 </span>            :       fatal(&quot;failed to get LLVM target for %s: %s&quot;, def_triple, error);
-<span class="lineNum">     165 </span>            : 
-<span class="lineNum">     166 </span>            :    if (!LLVMTargetHasJIT(target_ref))
-<span class="lineNum">     167 </span>            :       fatal(&quot;LLVM target %s has no JIT&quot;, LLVMGetTargetName(target_ref));
-<span class="lineNum">     168 </span>            : 
-<span class="lineNum">     169 </span>            :    LLVMTargetMachineRef tm_ref =
-<span class="lineNum">     170 </span>            :       LLVMCreateTargetMachine(target_ref, def_triple, &quot;&quot;, &quot;&quot;,
-<span class="lineNum">     171 </span>            :                               LLVMCodeGenLevelDefault,
-<span class="lineNum">     172 </span>            :                               LLVMRelocDefault,
-<span class="lineNum">     173 </span>            :                               LLVMCodeModelJITDefault);
-<span class="lineNum">     174 </span>            :    assert(tm_ref);
-<span class="lineNum">     175 </span>            :    LLVMDisposeMessage(def_triple);
-<span class="lineNum">     176 </span>            : 
-<span class="lineNum">     177 </span>            :    orc_ref = LLVMOrcCreateInstance(tm_ref);
-<span class="lineNum">     178 </span>            :    LLVMOrcAddLazilyCompiledIR(orc_ref, module, jit_orc_sym_resolver, NULL);
-<span class="lineNum">     179 </span>            : #elif LLVM_HAS_MCJIT
-<span class="lineNum">     180 </span>            :    LLVMInitializeNativeAsmPrinter();
-<span class="lineNum">     181 </span>            :    LLVMLinkInMCJIT();
-<span class="lineNum">     182 </span>            : 
-<span class="lineNum">     183 </span>            :    struct LLVMMCJITCompilerOptions options;
-<span class="lineNum">     184 </span>            :    LLVMInitializeMCJITCompilerOptions(&amp;options, sizeof(options));
-<span class="lineNum">     185 </span>            : 
-<span class="lineNum">     186 </span>            :    char *error;
-<span class="lineNum">     187 </span>            :    if (LLVMCreateMCJITCompilerForModule(&amp;exec_engine, module, &amp;options,
-<span class="lineNum">     188 </span>            :                                         sizeof(options), &amp;error))
-<span class="lineNum">     189 </span>            :       fatal(&quot;error creating MCJIT compiler: %s&quot;, error);
-<span class="lineNum">     190 </span>            : #else
-<span class="lineNum">     191 </span><span class="lineCov">        331 :    LLVMInitializeNativeTarget();</span>
-<span class="lineNum">     192 </span><span class="lineCov">        331 :    LLVMLinkInJIT();</span>
-<span class="lineNum">     193 </span>            : 
-<span class="lineNum">     194 </span>            :    char *error;
-<span class="lineNum">     195 </span><span class="lineCov">        331 :    if (LLVMCreateExecutionEngineForModule(&amp;exec_engine, module, &amp;error))</span>
-<span class="lineNum">     196 </span><span class="lineNoCov">          0 :       fatal(&quot;error creating execution engine: %s&quot;, error);</span>
-<span class="lineNum">     197 </span>            : #endif
-<a name="198"><span class="lineNum">     198 </span><span class="lineCov">        331 : }</span></a>
-<span class="lineNum">     199 </span>            : 
-<span class="lineNum">     200 </span><span class="lineCov">        331 : static void jit_load_deps(tree_t top)</span>
-<span class="lineNum">     201 </span>            : {
-<span class="lineNum">     202 </span><span class="lineCov">        662 :    char *deps_name LOCAL = xasprintf(&quot;_%s.deps.txt&quot;, istr(tree_ident(top)));</span>
-<span class="lineNum">     203 </span><span class="lineCov">        331 :    FILE *deps = lib_fopen(lib_work(), deps_name, &quot;r&quot;);</span>
-<span class="lineNum">     204 </span><span class="lineCov">        331 :    if (deps != NULL) {</span>
-<span class="lineNum">     205 </span>            :       char line[PATH_MAX];
-<span class="lineNum">     206 </span><span class="lineCov">        798 :       while (!feof(deps) &amp;&amp; (fgets(line, sizeof(line), deps) != NULL)) {</span>
-<span class="lineNum">     207 </span><span class="lineCov">         68 :          strtok(line, &quot;\r\n&quot;);</span>
-<span class="lineNum">     208 </span><span class="lineCov">         68 :          if (dlopen(line, RTLD_LAZY | RTLD_GLOBAL) == NULL)</span>
-<span class="lineNum">     209 </span><span class="lineNoCov">          0 :             fatal(&quot;%s: %s&quot;, line, dlerror());</span>
-<span class="lineNum">     210 </span>            :       }
-<span class="lineNum">     211 </span>            : 
-<span class="lineNum">     212 </span><span class="lineCov">        331 :       fclose(deps);</span>
-<span class="lineNum">     213 </span>            :    }
-<a name="214"><span class="lineNum">     214 </span><span class="lineCov">        331 : }</span></a>
-<span class="lineNum">     215 </span>            : 
-<span class="lineNum">     216 </span><span class="lineNoCov">          0 : static void jit_init_native(const char *path)</span>
-<span class="lineNum">     217 </span>            : {
-<span class="lineNum">     218 </span><span class="lineNoCov">          0 :    if ((dl_handle = dlopen(path, RTLD_LAZY)) == NULL)</span>
-<span class="lineNum">     219 </span><span class="lineNoCov">          0 :       fatal(&quot;%s: %s&quot;, path, dlerror());</span>
-<a name="220"><span class="lineNum">     220 </span><span class="lineNoCov">          0 : }</span></a>
-<span class="lineNum">     221 </span>            : 
-<span class="lineNum">     222 </span><span class="lineCov">        662 : static time_t jit_mod_time(const char *path)</span>
-<span class="lineNum">     223 </span>            : {
-<span class="lineNum">     224 </span>            :    struct stat st;
-<span class="lineNum">     225 </span><span class="lineCov">        662 :    if (stat(path, &amp;st) == -1) {</span>
-<span class="lineNum">     226 </span><span class="lineCov">        331 :       if (errno == ENOENT)</span>
-<span class="lineNum">     227 </span>            :          return 0;
-<span class="lineNum">     228 </span>            :       else
-<span class="lineNum">     229 </span><span class="lineNoCov">          0 :          fatal_errno(&quot;%s&quot;, path);</span>
-<span class="lineNum">     230 </span>            :    }
-<span class="lineNum">     231 </span><span class="lineCov">        331 :    return st.st_mtime;</span>
-<a name="232"><span class="lineNum">     232 </span>            : }</a>
-<span class="lineNum">     233 </span>            : 
-<span class="lineNum">     234 </span><span class="lineCov">        331 : void jit_init(tree_t top)</span>
-<span class="lineNum">     235 </span>            : {
-<span class="lineNum">     236 </span><span class="lineCov">        331 :    ident_t orig = ident_strip(tree_ident(top), ident_new(&quot;.elab&quot;));</span>
-<span class="lineNum">     237 </span><span class="lineCov">        331 :    ident_t final = ident_prefix(orig, ident_new(&quot;final&quot;), '.');</span>
-<span class="lineNum">     238 </span>            : 
-<span class="lineNum">     239 </span><span class="lineCov">        331 :    char *bc_fname = xasprintf(&quot;_%s.bc&quot;, istr(final));</span>
-<span class="lineNum">     240 </span><span class="lineCov">        331 :    char *so_fname = xasprintf(&quot;_%s.so&quot;, istr(final));</span>
+<span class="lineNum">      57 </span><span class="lineCov">       2997 :    void *sym = dlsym(dl_handle, name);</span>
+<span class="lineNum">      58 </span><span class="lineCov">       2997 :    const char *error = dlerror();</span>
+<span class="lineNum">      59 </span><span class="lineCov">       2997 :    if (error != NULL) {</span>
+<span class="lineNum">      60 </span><span class="lineCov">       2929 :       sym = dlsym(RTLD_DEFAULT, name);</span>
+<span class="lineNum">      61 </span><span class="lineCov">       2929 :       error = dlerror();</span>
+<span class="lineNum">      62 </span><span class="lineCov">       2929 :       if ((error != NULL) &amp;&amp; required)</span>
+<span class="lineNum">      63 </span><span class="lineNoCov">          0 :          fatal(&quot;%s&quot;, error);</span>
+<span class="lineNum">      64 </span>            :    }
+<span class="lineNum">      65 </span><span class="lineCov">       2997 :    return sym;</span>
+<a name="66"><span class="lineNum">      66 </span>            : }</a>
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span><span class="lineCov">       2916 : void *jit_fun_ptr(const char *name, bool required)</span>
+<span class="lineNum">      69 </span>            : {
+<span class="lineNum">      70 </span><span class="lineCov">       2916 :    if (using_jit) {</span>
+<span class="lineNum">      71 </span>            : #if LLVM_HAS_ORC
+<span class="lineNum">      72 </span>            :       return jit_var_ptr(name, required);
+<span class="lineNum">      73 </span>            : #else
+<span class="lineNum">      74 </span>            :       LLVMValueRef fn;
+<span class="lineNum">      75 </span><span class="lineCov">       2916 :       if (LLVMFindFunction(exec_engine, name, &amp;fn)) {</span>
+<span class="lineNum">      76 </span><span class="lineCov">       1723 :          if (required)</span>
+<span class="lineNum">      77 </span><span class="lineNoCov">          0 :             fatal(&quot;cannot find function %s&quot;, name);</span>
+<span class="lineNum">      78 </span>            :          else
+<span class="lineNum">      79 </span><span class="lineCov">       1723 :             return jit_search_loaded_syms(name, required);</span>
+<span class="lineNum">      80 </span>            :       }
+<span class="lineNum">      81 </span>            : 
+<span class="lineNum">      82 </span><span class="lineCov">       1193 :       return LLVMGetPointerToGlobal(exec_engine, fn);</span>
+<span class="lineNum">      83 </span>            : #endif
+<span class="lineNum">      84 </span>            :    }
+<span class="lineNum">      85 </span>            :    else
+<span class="lineNum">      86 </span><span class="lineNoCov">          0 :       return jit_var_ptr(name, required);</span>
+<a name="87"><span class="lineNum">      87 </span>            : }</a>
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span><span class="lineCov">       1278 : void *jit_var_ptr(const char *name, bool required)</span>
+<span class="lineNum">      90 </span>            : {
+<span class="lineNum">      91 </span><span class="lineCov">       1278 :    if (using_jit) {</span>
+<span class="lineNum">      92 </span>            : #if LLVM_HAS_ORC
+<span class="lineNum">      93 </span>            :       char *mangled;
+<span class="lineNum">      94 </span>            :       LLVMOrcGetMangledSymbol(orc_ref, &amp;mangled, name);
+<span class="lineNum">      95 </span>            :       void *ptr = (void *)LLVMOrcGetSymbolAddress(orc_ref, mangled);
+<span class="lineNum">      96 </span>            :       LLVMOrcDisposeMangledSymbol(mangled);
+<span class="lineNum">      97 </span>            : #elif LLVM_HAS_MCJIT
+<span class="lineNum">      98 </span>            :       void *ptr = (void *)(uintptr_t)LLVMGetGlobalValueAddress(exec_engine, name);
+<span class="lineNum">      99 </span>            : #else
+<span class="lineNum">     100 </span><span class="lineCov">       1278 :       void *ptr = NULL;</span>
+<span class="lineNum">     101 </span><span class="lineCov">       1278 :       LLVMValueRef var = LLVMGetNamedGlobal(module, name);</span>
+<span class="lineNum">     102 </span><span class="lineCov">       1278 :       if (var != NULL)</span>
+<span class="lineNum">     103 </span><span class="lineCov">          4 :          ptr = LLVMGetPointerToGlobal(exec_engine, var);</span>
+<span class="lineNum">     104 </span>            : #endif
+<span class="lineNum">     105 </span>            : 
+<span class="lineNum">     106 </span><span class="lineCov">       1278 :       if (ptr == NULL) {</span>
+<span class="lineNum">     107 </span><span class="lineCov">       1274 :          if (required)</span>
+<span class="lineNum">     108 </span><span class="lineNoCov">          0 :             fatal(&quot;cannot find global %s&quot;, name);</span>
+<span class="lineNum">     109 </span>            :          else
+<span class="lineNum">     110 </span><span class="lineCov">       1274 :             return jit_search_loaded_syms(name, required);</span>
+<span class="lineNum">     111 </span>            :       }
+<span class="lineNum">     112 </span>            :       else
+<span class="lineNum">     113 </span>            :          return ptr;
+<span class="lineNum">     114 </span>            :    }
+<span class="lineNum">     115 </span>            :    else
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :       return jit_search_loaded_syms(name, required);</span>
+<a name="117"><span class="lineNum">     117 </span>            : }</a>
+<span class="lineNum">     118 </span>            : 
+<span class="lineNum">     119 </span><span class="lineCov">       6951 : void jit_bind_fn(const char *name, void *ptr)</span>
+<span class="lineNum">     120 </span>            : {
+<span class="lineNum">     121 </span><span class="lineCov">       6951 :    if (using_jit) {</span>
+<span class="lineNum">     122 </span>            : #if !LLVM_HAS_ORC
+<span class="lineNum">     123 </span>            :       LLVMValueRef fn;
+<span class="lineNum">     124 </span><span class="lineCov">       6951 :       if (LLVMFindFunction(exec_engine, name, &amp;fn))</span>
+<span class="lineNum">     125 </span><span class="lineCov">       5684 :          return;</span>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineCov">       1267 :       LLVMAddGlobalMapping(exec_engine, fn, ptr);</span>
+<span class="lineNum">     128 </span>            : #endif
+<span class="lineNum">     129 </span>            :    }
+<span class="lineNum">     130 </span>            : }
+<span class="lineNum">     131 </span>            : 
+<span class="lineNum">     132 </span>            : #if LLVM_HAS_ORC
+<span class="lineNum">     133 </span>            : static uint64_t jit_orc_sym_resolver(const char *name, void *ctx)
+<span class="lineNum">     134 </span>            : {
+<span class="lineNum">     135 </span>            :    return (uintptr_t)jit_search_loaded_syms(name, true);
+<span class="lineNum">     136 </span>            : }
+<a name="137"><span class="lineNum">     137 </span>            : #endif  // LLVM_HAS_ORC</a>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span><span class="lineCov">        331 : static void jit_init_llvm(const char *path)</span>
+<span class="lineNum">     140 </span>            : {
+<span class="lineNum">     141 </span><span class="lineCov">        331 :    if (module == NULL) {</span>
+<span class="lineNum">     142 </span>            :       char *error;
+<span class="lineNum">     143 </span>            :       LLVMMemoryBufferRef buf;
+<span class="lineNum">     144 </span><span class="lineCov">         21 :       if (LLVMCreateMemoryBufferWithContentsOfFile(path, &amp;buf, &amp;error))</span>
+<span class="lineNum">     145 </span><span class="lineNoCov">          0 :          fatal(&quot;error reading bitcode from %s: %s&quot;, path, error);</span>
+<span class="lineNum">     146 </span>            : 
+<span class="lineNum">     147 </span><span class="lineCov">         21 :       if (LLVMParseBitcode(buf, &amp;module, &amp;error))</span>
+<span class="lineNum">     148 </span><span class="lineNoCov">          0 :          fatal(&quot;error parsing bitcode: %s&quot;, error);</span>
+<span class="lineNum">     149 </span>            : 
+<span class="lineNum">     150 </span><span class="lineCov">         21 :       LLVMDisposeMemoryBuffer(buf);</span>
+<span class="lineNum">     151 </span>            :    }
+<span class="lineNum">     152 </span>            : 
+<span class="lineNum">     153 </span><span class="lineCov">        331 :    LLVMInitializeNativeTarget();</span>
+<span class="lineNum">     154 </span>            : #if LLVM_HAS_ORC
+<span class="lineNum">     155 </span>            :    LLVMInitializeNativeAsmPrinter();
+<span class="lineNum">     156 </span>            :    LLVMLinkInMCJIT();
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span>            :    char *def_triple = LLVMGetDefaultTargetTriple();
+<span class="lineNum">     159 </span>            :    char *error;
+<span class="lineNum">     160 </span>            :    LLVMTargetRef target_ref;
+<span class="lineNum">     161 </span>            :    if (LLVMGetTargetFromTriple(def_triple, &amp;target_ref, &amp;error))
+<span class="lineNum">     162 </span>            :       fatal(&quot;failed to get LLVM target for %s: %s&quot;, def_triple, error);
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span>            :    if (!LLVMTargetHasJIT(target_ref))
+<span class="lineNum">     165 </span>            :       fatal(&quot;LLVM target %s has no JIT&quot;, LLVMGetTargetName(target_ref));
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span>            :    LLVMTargetMachineRef tm_ref =
+<span class="lineNum">     168 </span>            :       LLVMCreateTargetMachine(target_ref, def_triple, &quot;&quot;, &quot;&quot;,
+<span class="lineNum">     169 </span>            :                               LLVMCodeGenLevelDefault,
+<span class="lineNum">     170 </span>            :                               LLVMRelocDefault,
+<span class="lineNum">     171 </span>            :                               LLVMCodeModelJITDefault);
+<span class="lineNum">     172 </span>            :    assert(tm_ref);
+<span class="lineNum">     173 </span>            :    LLVMDisposeMessage(def_triple);
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            :    orc_ref = LLVMOrcCreateInstance(tm_ref);
+<span class="lineNum">     176 </span>            :    LLVMOrcAddLazilyCompiledIR(orc_ref, module, jit_orc_sym_resolver, NULL);
+<span class="lineNum">     177 </span>            : #elif LLVM_HAS_MCJIT
+<span class="lineNum">     178 </span>            :    LLVMInitializeNativeAsmPrinter();
+<span class="lineNum">     179 </span>            :    LLVMLinkInMCJIT();
+<span class="lineNum">     180 </span>            : 
+<span class="lineNum">     181 </span>            :    struct LLVMMCJITCompilerOptions options;
+<span class="lineNum">     182 </span>            :    LLVMInitializeMCJITCompilerOptions(&amp;options, sizeof(options));
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :    char *error;
+<span class="lineNum">     185 </span>            :    if (LLVMCreateMCJITCompilerForModule(&amp;exec_engine, module, &amp;options,
+<span class="lineNum">     186 </span>            :                                         sizeof(options), &amp;error))
+<span class="lineNum">     187 </span>            :       fatal(&quot;error creating MCJIT compiler: %s&quot;, error);
+<span class="lineNum">     188 </span>            : #else
+<span class="lineNum">     189 </span><span class="lineCov">        331 :    LLVMInitializeNativeTarget();</span>
+<span class="lineNum">     190 </span><span class="lineCov">        331 :    LLVMLinkInJIT();</span>
+<span class="lineNum">     191 </span>            : 
+<span class="lineNum">     192 </span>            :    char *error;
+<span class="lineNum">     193 </span><span class="lineCov">        331 :    if (LLVMCreateExecutionEngineForModule(&amp;exec_engine, module, &amp;error))</span>
+<span class="lineNum">     194 </span><span class="lineNoCov">          0 :       fatal(&quot;error creating execution engine: %s&quot;, error);</span>
+<span class="lineNum">     195 </span>            : #endif
+<a name="196"><span class="lineNum">     196 </span><span class="lineCov">        331 : }</span></a>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span><span class="lineCov">        331 : static void jit_load_deps(tree_t top)</span>
+<span class="lineNum">     199 </span>            : {
+<span class="lineNum">     200 </span><span class="lineCov">        662 :    char *deps_name LOCAL = xasprintf(&quot;_%s.deps.txt&quot;, istr(tree_ident(top)));</span>
+<span class="lineNum">     201 </span><span class="lineCov">        331 :    FILE *deps = lib_fopen(lib_work(), deps_name, &quot;r&quot;);</span>
+<span class="lineNum">     202 </span><span class="lineCov">        331 :    if (deps != NULL) {</span>
+<span class="lineNum">     203 </span>            :       char line[PATH_MAX];
+<span class="lineNum">     204 </span><span class="lineCov">        798 :       while (!feof(deps) &amp;&amp; (fgets(line, sizeof(line), deps) != NULL)) {</span>
+<span class="lineNum">     205 </span><span class="lineCov">         68 :          strtok(line, &quot;\r\n&quot;);</span>
+<span class="lineNum">     206 </span><span class="lineCov">         68 :          if (dlopen(line, RTLD_LAZY | RTLD_GLOBAL) == NULL)</span>
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :             fatal(&quot;%s: %s&quot;, line, dlerror());</span>
+<span class="lineNum">     208 </span>            :       }
+<span class="lineNum">     209 </span>            : 
+<span class="lineNum">     210 </span><span class="lineCov">        331 :       fclose(deps);</span>
+<span class="lineNum">     211 </span>            :    }
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">        331 : }</span></a>
+<span class="lineNum">     213 </span>            : 
+<span class="lineNum">     214 </span><span class="lineNoCov">          0 : static void jit_init_native(const char *path)</span>
+<span class="lineNum">     215 </span>            : {
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :    if ((dl_handle = dlopen(path, RTLD_LAZY)) == NULL)</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :       fatal(&quot;%s: %s&quot;, path, dlerror());</span>
+<a name="218"><span class="lineNum">     218 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     219 </span>            : 
+<span class="lineNum">     220 </span><span class="lineCov">        662 : static time_t jit_mod_time(const char *path)</span>
+<span class="lineNum">     221 </span>            : {
+<span class="lineNum">     222 </span>            :    struct stat st;
+<span class="lineNum">     223 </span><span class="lineCov">        662 :    if (stat(path, &amp;st) == -1) {</span>
+<span class="lineNum">     224 </span><span class="lineCov">        331 :       if (errno == ENOENT)</span>
+<span class="lineNum">     225 </span>            :          return 0;
+<span class="lineNum">     226 </span>            :       else
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :          fatal_errno(&quot;%s&quot;, path);</span>
+<span class="lineNum">     228 </span>            :    }
+<span class="lineNum">     229 </span><span class="lineCov">        331 :    return st.st_mtime;</span>
+<a name="230"><span class="lineNum">     230 </span>            : }</a>
+<span class="lineNum">     231 </span>            : 
+<span class="lineNum">     232 </span><span class="lineCov">        331 : void jit_init(tree_t top)</span>
+<span class="lineNum">     233 </span>            : {
+<span class="lineNum">     234 </span><span class="lineCov">        331 :    ident_t orig = ident_strip(tree_ident(top), ident_new(&quot;.elab&quot;));</span>
+<span class="lineNum">     235 </span><span class="lineCov">        331 :    ident_t final = ident_prefix(orig, ident_new(&quot;final&quot;), '.');</span>
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span><span class="lineCov">        331 :    char *bc_fname = xasprintf(&quot;_%s.bc&quot;, istr(final));</span>
+<span class="lineNum">     238 </span><span class="lineCov">        331 :    char *so_fname = xasprintf(&quot;_%s.so&quot;, istr(final));</span>
+<span class="lineNum">     239 </span>            : 
+<span class="lineNum">     240 </span><span class="lineCov">        331 :    jit_load_deps(top);</span>
 <span class="lineNum">     241 </span>            : 
-<span class="lineNum">     242 </span><span class="lineCov">        331 :    jit_load_deps(top);</span>
-<span class="lineNum">     243 </span>            : 
-<span class="lineNum">     244 </span><span class="lineCov">        331 :    lib_t work = lib_work();</span>
-<span class="lineNum">     245 </span>            :    char bc_path[PATH_MAX], so_path[PATH_MAX];
-<span class="lineNum">     246 </span><span class="lineCov">        331 :    lib_realpath(work, bc_fname, bc_path, sizeof(bc_path));</span>
-<span class="lineNum">     247 </span><span class="lineCov">        331 :    lib_realpath(work, so_fname, so_path, sizeof(so_path));</span>
-<span class="lineNum">     248 </span><span class="lineCov">        331 :    free(bc_fname);</span>
-<span class="lineNum">     249 </span><span class="lineCov">        331 :    free(so_fname);</span>
+<span class="lineNum">     242 </span><span class="lineCov">        331 :    lib_t work = lib_work();</span>
+<span class="lineNum">     243 </span>            :    char bc_path[PATH_MAX], so_path[PATH_MAX];
+<span class="lineNum">     244 </span><span class="lineCov">        331 :    lib_realpath(work, bc_fname, bc_path, sizeof(bc_path));</span>
+<span class="lineNum">     245 </span><span class="lineCov">        331 :    lib_realpath(work, so_fname, so_path, sizeof(so_path));</span>
+<span class="lineNum">     246 </span><span class="lineCov">        331 :    free(bc_fname);</span>
+<span class="lineNum">     247 </span><span class="lineCov">        331 :    free(so_fname);</span>
+<span class="lineNum">     248 </span>            : 
+<span class="lineNum">     249 </span><span class="lineCov">        331 :    using_jit = (jit_mod_time(bc_path) &gt; jit_mod_time(so_path));</span>
 <span class="lineNum">     250 </span>            : 
-<span class="lineNum">     251 </span><span class="lineCov">        331 :    using_jit = (jit_mod_time(bc_path) &gt; jit_mod_time(so_path));</span>
+<span class="lineNum">     251 </span><span class="lineCov">        331 :    module = tree_attr_ptr(top, llvm_i);</span>
 <span class="lineNum">     252 </span>            : 
-<span class="lineNum">     253 </span><span class="lineCov">        331 :    module = tree_attr_ptr(top, llvm_i);</span>
-<span class="lineNum">     254 </span>            : 
-<span class="lineNum">     255 </span><span class="lineCov">        331 :    if (using_jit)</span>
-<span class="lineNum">     256 </span><span class="lineCov">        331 :       jit_init_llvm(bc_path);</span>
-<span class="lineNum">     257 </span>            :    else {
-<span class="lineNum">     258 </span><span class="lineNoCov">          0 :       jit_init_native(so_path);</span>
-<span class="lineNum">     259 </span>            : 
-<span class="lineNum">     260 </span><span class="lineNoCov">          0 :       if (module != NULL) {</span>
-<span class="lineNum">     261 </span>            :          // Free LLVM module as we no longer need it
-<span class="lineNum">     262 </span><span class="lineNoCov">          0 :          LLVMDisposeModule(module);</span>
-<span class="lineNum">     263 </span><span class="lineNoCov">          0 :          tree_remove_attr(top, llvm_i);</span>
-<span class="lineNum">     264 </span><span class="lineNoCov">          0 :          module = NULL;</span>
-<span class="lineNum">     265 </span>            :       }
-<span class="lineNum">     266 </span>            :    }
-<a name="267"><span class="lineNum">     267 </span><span class="lineCov">        331 : }</span></a>
-<span class="lineNum">     268 </span>            : 
-<span class="lineNum">     269 </span><span class="lineCov">        308 : void jit_shutdown(void)</span>
-<span class="lineNum">     270 </span>            : {
-<span class="lineNum">     271 </span><span class="lineCov">        308 :    if (using_jit) {</span>
-<span class="lineNum">     272 </span>            : #if LLVM_HAS_ORC
-<span class="lineNum">     273 </span>            :       LLVMOrcDisposeInstance(orc_ref);
-<span class="lineNum">     274 </span>            : #else
-<span class="lineNum">     275 </span><span class="lineCov">        308 :       LLVMDisposeExecutionEngine(exec_engine);</span>
-<span class="lineNum">     276 </span>            : #endif
-<span class="lineNum">     277 </span>            :    }
-<span class="lineNum">     278 </span>            :    else
-<span class="lineNum">     279 </span><span class="lineNoCov">          0 :       dlclose(dl_handle);</span>
-<span class="lineNum">     280 </span><span class="lineCov">        308 : }</span>
+<span class="lineNum">     253 </span><span class="lineCov">        331 :    if (using_jit)</span>
+<span class="lineNum">     254 </span><span class="lineCov">        331 :       jit_init_llvm(bc_path);</span>
+<span class="lineNum">     255 </span>            :    else {
+<span class="lineNum">     256 </span><span class="lineNoCov">          0 :       jit_init_native(so_path);</span>
+<span class="lineNum">     257 </span>            : 
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :       if (module != NULL) {</span>
+<span class="lineNum">     259 </span>            :          // Free LLVM module as we no longer need it
+<span class="lineNum">     260 </span><span class="lineNoCov">          0 :          LLVMDisposeModule(module);</span>
+<span class="lineNum">     261 </span><span class="lineNoCov">          0 :          tree_remove_attr(top, llvm_i);</span>
+<span class="lineNum">     262 </span><span class="lineNoCov">          0 :          module = NULL;</span>
+<span class="lineNum">     263 </span>            :       }
+<span class="lineNum">     264 </span>            :    }
+<a name="265"><span class="lineNum">     265 </span><span class="lineCov">        331 : }</span></a>
+<span class="lineNum">     266 </span>            : 
+<span class="lineNum">     267 </span><span class="lineCov">        308 : void jit_shutdown(void)</span>
+<span class="lineNum">     268 </span>            : {
+<span class="lineNum">     269 </span><span class="lineCov">        308 :    if (using_jit) {</span>
+<span class="lineNum">     270 </span>            : #if LLVM_HAS_ORC
+<span class="lineNum">     271 </span>            :       LLVMOrcDisposeInstance(orc_ref);
+<span class="lineNum">     272 </span>            : #else
+<span class="lineNum">     273 </span><span class="lineCov">        308 :       LLVMDisposeExecutionEngine(exec_engine);</span>
+<span class="lineNum">     274 </span>            : #endif
+<span class="lineNum">     275 </span>            :    }
+<span class="lineNum">     276 </span>            :    else
+<span class="lineNum">     277 </span><span class="lineNoCov">          0 :       dlclose(dl_handle);</span>
+<span class="lineNum">     278 </span><span class="lineCov">        308 : }</span>
 </pre>
       </td>
     </tr>
