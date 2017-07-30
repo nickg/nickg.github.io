@@ -489,16 +489,16 @@
 <span class="lineNum">     427 </span>            :    }
 <a name="428"><span class="lineNum">     428 </span><span class="lineCov">       1301 : }</span></a>
 <span class="lineNum">     429 </span>            : 
-<span class="lineNum">     430 </span><span class="lineCov">        302 : static void ungroup_proc_params(tree_t t, group_nets_ctx_t *ctx)</span>
+<span class="lineNum">     430 </span><span class="lineCov">        312 : static void ungroup_proc_params(tree_t t, group_nets_ctx_t *ctx)</span>
 <span class="lineNum">     431 </span>            : {
 <span class="lineNum">     432 </span>            :    // Ungroup any signal that is passed to a procedure as in general we
 <span class="lineNum">     433 </span>            :    // cannot guarantee anything about the procedure's behaviour
 <span class="lineNum">     434 </span>            : 
-<span class="lineNum">     435 </span><span class="lineCov">        302 :    const int nparams = tree_params(t);</span>
-<span class="lineNum">     436 </span><span class="lineCov">        330 :    for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">     437 </span><span class="lineCov">        311 :       tree_t value = tree_value(tree_param(t, i));</span>
+<span class="lineNum">     435 </span><span class="lineCov">        312 :    const int nparams = tree_params(t);</span>
+<span class="lineNum">     436 </span><span class="lineCov">        340 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">     437 </span><span class="lineCov">        321 :       tree_t value = tree_value(tree_param(t, i));</span>
 <span class="lineNum">     438 </span>            : 
-<span class="lineNum">     439 </span><span class="lineCov">        624 :       while (tree_kind(value) != T_REF) {</span>
+<span class="lineNum">     439 </span><span class="lineCov">        644 :       while (tree_kind(value) != T_REF) {</span>
 <span class="lineNum">     440 </span><span class="lineCov">         75 :          switch (tree_kind(value)) {</span>
 <span class="lineNum">     441 </span>            :          case T_ARRAY_REF:
 <span class="lineNum">     442 </span>            :          case T_ARRAY_SLICE:
@@ -510,9 +510,9 @@
 <span class="lineNum">     448 </span>            :          }
 <span class="lineNum">     449 </span>            :       }
 <span class="lineNum">     450 </span>            : 
-<span class="lineNum">     451 </span><span class="lineCov">        238 :       tree_t decl = tree_ref(value);</span>
+<span class="lineNum">     451 </span><span class="lineCov">        248 :       tree_t decl = tree_ref(value);</span>
 <span class="lineNum">     452 </span>            : 
-<span class="lineNum">     453 </span><span class="lineCov">        238 :       if (tree_kind(decl) != T_SIGNAL_DECL)</span>
+<span class="lineNum">     453 </span><span class="lineCov">        248 :       if (tree_kind(decl) != T_SIGNAL_DECL)</span>
 <span class="lineNum">     454 </span>            :          return;
 <span class="lineNum">     455 </span>            : 
 <span class="lineNum">     456 </span><span class="lineCov">         28 :       const int nnets = tree_nets(decl);</span>
@@ -521,26 +521,26 @@
 <span class="lineNum">     459 </span>            :    }
 <a name="460"><span class="lineNum">     460 </span>            : }</a>
 <span class="lineNum">     461 </span>            : 
-<span class="lineNum">     462 </span><span class="lineCov">      34701 : static void group_nets_visit_fn(tree_t t, void *_ctx)</span>
+<span class="lineNum">     462 </span><span class="lineCov">      34822 : static void group_nets_visit_fn(tree_t t, void *_ctx)</span>
 <span class="lineNum">     463 </span>            : {
-<span class="lineNum">     464 </span><span class="lineCov">      34701 :    group_nets_ctx_t *ctx = _ctx;</span>
+<span class="lineNum">     464 </span><span class="lineCov">      34822 :    group_nets_ctx_t *ctx = _ctx;</span>
 <span class="lineNum">     465 </span>            : 
-<span class="lineNum">     466 </span><span class="lineCov">      34701 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     466 </span><span class="lineCov">      34822 :    switch (tree_kind(t)) {</span>
 <span class="lineNum">     467 </span>            :    case T_SIGNAL_ASSIGN:
 <span class="lineNum">     468 </span><span class="lineCov">        785 :       group_target(tree_target(t), ctx);</span>
 <span class="lineNum">     469 </span><span class="lineCov">        785 :       break;</span>
 <span class="lineNum">     470 </span>            : 
 <span class="lineNum">     471 </span>            :    case T_WAIT:
 <span class="lineNum">     472 </span>            :       {
-<span class="lineNum">     473 </span><span class="lineCov">       1082 :          const int ntriggers = tree_triggers(t);</span>
-<span class="lineNum">     474 </span><span class="lineCov">       1575 :          for (int i = 0; i &lt; ntriggers; i++)</span>
+<span class="lineNum">     473 </span><span class="lineCov">       1083 :          const int ntriggers = tree_triggers(t);</span>
+<span class="lineNum">     474 </span><span class="lineCov">       1576 :          for (int i = 0; i &lt; ntriggers; i++)</span>
 <span class="lineNum">     475 </span><span class="lineCov">        493 :             group_target(tree_trigger(t, i), ctx);</span>
 <span class="lineNum">     476 </span>            :       }
 <span class="lineNum">     477 </span>            :       break;
 <span class="lineNum">     478 </span>            : 
 <span class="lineNum">     479 </span>            :    case T_PCALL:
-<span class="lineNum">     480 </span><span class="lineCov">        302 :       ungroup_proc_params(t, ctx);</span>
-<span class="lineNum">     481 </span><span class="lineCov">        302 :       break;</span>
+<span class="lineNum">     480 </span><span class="lineCov">        312 :       ungroup_proc_params(t, ctx);</span>
+<span class="lineNum">     481 </span><span class="lineCov">        312 :       break;</span>
 <span class="lineNum">     482 </span>            : 
 <span class="lineNum">     483 </span>            :    case T_SIGNAL_DECL:
 <span class="lineNum">     484 </span>            :       // Ensure that no group is larger than a signal declaration
@@ -550,57 +550,57 @@
 <span class="lineNum">     488 </span>            :    default:
 <span class="lineNum">     489 </span>            :       break;
 <span class="lineNum">     490 </span>            :    }
-<a name="491"><span class="lineNum">     491 </span><span class="lineCov">      34701 : }</span></a>
+<a name="491"><span class="lineNum">     491 </span><span class="lineCov">      34822 : }</span></a>
 <span class="lineNum">     492 </span>            : 
-<span class="lineNum">     493 </span><span class="lineCov">        334 : static void group_write_netdb(tree_t top, group_nets_ctx_t *ctx)</span>
+<span class="lineNum">     493 </span><span class="lineCov">        335 : static void group_write_netdb(tree_t top, group_nets_ctx_t *ctx)</span>
 <span class="lineNum">     494 </span>            : {
-<span class="lineNum">     495 </span><span class="lineCov">        334 :    char *name = xasprintf(&quot;_%s.netdb&quot;, istr(tree_ident(top)));</span>
+<span class="lineNum">     495 </span><span class="lineCov">        335 :    char *name = xasprintf(&quot;_%s.netdb&quot;, istr(tree_ident(top)));</span>
 <span class="lineNum">     496 </span>            : 
-<span class="lineNum">     497 </span><span class="lineCov">        334 :    fbuf_t *f = lib_fbuf_open(lib_work(), name, FBUF_OUT);</span>
-<span class="lineNum">     498 </span><span class="lineCov">        334 :    if (f == NULL)</span>
+<span class="lineNum">     497 </span><span class="lineCov">        335 :    fbuf_t *f = lib_fbuf_open(lib_work(), name, FBUF_OUT);</span>
+<span class="lineNum">     498 </span><span class="lineCov">        335 :    if (f == NULL)</span>
 <span class="lineNum">     499 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to create net database file %s&quot;, name);</span>
 <span class="lineNum">     500 </span>            : 
-<span class="lineNum">     501 </span><span class="lineCov">        334 :    free(name);</span>
+<span class="lineNum">     501 </span><span class="lineCov">        335 :    free(name);</span>
 <span class="lineNum">     502 </span>            : 
-<span class="lineNum">     503 </span><span class="lineCov">       1332 :    for (group_t *it = ctx-&gt;groups; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">     503 </span><span class="lineCov">       1333 :    for (group_t *it = ctx-&gt;groups; it != NULL; it = it-&gt;next) {</span>
 <span class="lineNum">     504 </span><span class="lineCov">        998 :       write_u32(it-&gt;gid, f);</span>
 <span class="lineNum">     505 </span><span class="lineCov">        998 :       write_u32(it-&gt;first, f);</span>
 <span class="lineNum">     506 </span><span class="lineCov">        998 :       write_u32(it-&gt;length, f);</span>
 <span class="lineNum">     507 </span>            :    }
-<span class="lineNum">     508 </span><span class="lineCov">        334 :    write_u32(GROUPID_INVALID, f);</span>
+<span class="lineNum">     508 </span><span class="lineCov">        335 :    write_u32(GROUPID_INVALID, f);</span>
 <span class="lineNum">     509 </span>            : 
-<span class="lineNum">     510 </span><span class="lineCov">        334 :    fbuf_close(f);</span>
-<a name="511"><span class="lineNum">     511 </span><span class="lineCov">        334 : }</span></a>
+<span class="lineNum">     510 </span><span class="lineCov">        335 :    fbuf_close(f);</span>
+<a name="511"><span class="lineNum">     511 </span><span class="lineCov">        335 : }</span></a>
 <span class="lineNum">     512 </span>            : 
-<span class="lineNum">     513 </span><span class="lineCov">        668 : static void group_free_list(group_t *list)</span>
+<span class="lineNum">     513 </span><span class="lineCov">        670 : static void group_free_list(group_t *list)</span>
 <span class="lineNum">     514 </span>            : {
-<span class="lineNum">     515 </span><span class="lineCov">       2335 :    while (list != NULL) {</span>
+<span class="lineNum">     515 </span><span class="lineCov">       2339 :    while (list != NULL) {</span>
 <span class="lineNum">     516 </span><span class="lineCov">        999 :       group_t *tmp = list-&gt;next;</span>
 <span class="lineNum">     517 </span><span class="lineCov">        999 :       free(list);</span>
 <span class="lineNum">     518 </span><span class="lineCov">        999 :       list = tmp;</span>
 <span class="lineNum">     519 </span>            :    }
-<a name="520"><span class="lineNum">     520 </span><span class="lineCov">        668 : }</span></a>
+<a name="520"><span class="lineNum">     520 </span><span class="lineCov">        670 : }</span></a>
 <span class="lineNum">     521 </span>            : 
-<span class="lineNum">     522 </span><span class="lineCov">        334 : static void group_init_context(group_nets_ctx_t *ctx, int nnets)</span>
+<span class="lineNum">     522 </span><span class="lineCov">        335 : static void group_init_context(group_nets_ctx_t *ctx, int nnets)</span>
 <span class="lineNum">     523 </span>            : {
-<span class="lineNum">     524 </span><span class="lineCov">        334 :    ctx-&gt;groups    = NULL;</span>
-<span class="lineNum">     525 </span><span class="lineCov">        334 :    ctx-&gt;next_gid  = 0;</span>
-<span class="lineNum">     526 </span><span class="lineCov">        334 :    ctx-&gt;lookup    = xcalloc(nnets * sizeof(group_t *));</span>
-<span class="lineNum">     527 </span><span class="lineCov">        334 :    ctx-&gt;nnets     = nnets;</span>
-<span class="lineNum">     528 </span><span class="lineCov">        334 :    ctx-&gt;free_list = NULL;</span>
-<a name="529"><span class="lineNum">     529 </span><span class="lineCov">        334 : }</span></a>
+<span class="lineNum">     524 </span><span class="lineCov">        335 :    ctx-&gt;groups    = NULL;</span>
+<span class="lineNum">     525 </span><span class="lineCov">        335 :    ctx-&gt;next_gid  = 0;</span>
+<span class="lineNum">     526 </span><span class="lineCov">        335 :    ctx-&gt;lookup    = xcalloc(nnets * sizeof(group_t *));</span>
+<span class="lineNum">     527 </span><span class="lineCov">        335 :    ctx-&gt;nnets     = nnets;</span>
+<span class="lineNum">     528 </span><span class="lineCov">        335 :    ctx-&gt;free_list = NULL;</span>
+<a name="529"><span class="lineNum">     529 </span><span class="lineCov">        335 : }</span></a>
 <span class="lineNum">     530 </span>            : 
-<span class="lineNum">     531 </span><span class="lineCov">        334 : void group_nets(tree_t top)</span>
+<span class="lineNum">     531 </span><span class="lineCov">        335 : void group_nets(tree_t top)</span>
 <span class="lineNum">     532 </span>            : {
-<span class="lineNum">     533 </span><span class="lineCov">        334 :    const int nnets = tree_attr_int(top, nnets_i, 0);</span>
+<span class="lineNum">     533 </span><span class="lineCov">        335 :    const int nnets = tree_attr_int(top, nnets_i, 0);</span>
 <span class="lineNum">     534 </span>            : 
 <span class="lineNum">     535 </span>            :    group_nets_ctx_t ctx;
-<span class="lineNum">     536 </span><span class="lineCov">        334 :    group_init_context(&amp;ctx, nnets);</span>
-<span class="lineNum">     537 </span><span class="lineCov">        334 :    tree_visit(top, group_nets_visit_fn, &amp;ctx);</span>
+<span class="lineNum">     536 </span><span class="lineCov">        335 :    group_init_context(&amp;ctx, nnets);</span>
+<span class="lineNum">     537 </span><span class="lineCov">        335 :    tree_visit(top, group_nets_visit_fn, &amp;ctx);</span>
 <span class="lineNum">     538 </span>            : 
-<span class="lineNum">     539 </span><span class="lineCov">        334 :    group_write_netdb(top, &amp;ctx);</span>
+<span class="lineNum">     539 </span><span class="lineCov">        335 :    group_write_netdb(top, &amp;ctx);</span>
 <span class="lineNum">     540 </span>            : 
-<span class="lineNum">     541 </span><span class="lineCov">        334 :    if (opt_get_int(&quot;verbose&quot;)) {</span>
+<span class="lineNum">     541 </span><span class="lineCov">        335 :    if (opt_get_int(&quot;verbose&quot;)) {</span>
 <span class="lineNum">     542 </span><span class="lineNoCov">          0 :       int ngroups = 0;</span>
 <span class="lineNum">     543 </span><span class="lineNoCov">          0 :       for (group_t *it = ctx.groups; it != NULL; it = it-&gt;next)</span>
 <span class="lineNum">     544 </span><span class="lineNoCov">          0 :          ngroups++;</span>
@@ -609,10 +609,10 @@
 <span class="lineNum">     547 </span><span class="lineNoCov">          0 :       notef(&quot;nets:groups ratio %.3f&quot;, (float)nnets / (float)ngroups);</span>
 <span class="lineNum">     548 </span>            :    }
 <span class="lineNum">     549 </span>            : 
-<span class="lineNum">     550 </span><span class="lineCov">        334 :    group_free_list(ctx.groups);</span>
-<span class="lineNum">     551 </span><span class="lineCov">        334 :    group_free_list(ctx.free_list);</span>
-<span class="lineNum">     552 </span><span class="lineCov">        334 :    free(ctx.lookup);</span>
-<span class="lineNum">     553 </span><span class="lineCov">        334 : }</span>
+<span class="lineNum">     550 </span><span class="lineCov">        335 :    group_free_list(ctx.groups);</span>
+<span class="lineNum">     551 </span><span class="lineCov">        335 :    group_free_list(ctx.free_list);</span>
+<span class="lineNum">     552 </span><span class="lineCov">        335 :    free(ctx.lookup);</span>
+<span class="lineNum">     553 </span><span class="lineCov">        335 : }</span>
 </pre>
       </td>
     </tr>
