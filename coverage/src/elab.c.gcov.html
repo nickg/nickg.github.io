@@ -146,35 +146,35 @@
 <span class="lineNum">      84 </span>            : 
 <a name="85"><span class="lineNum">      85 </span>            : static generic_list_t *generic_override = NULL;</a>
 <span class="lineNum">      86 </span>            : 
-<span class="lineNum">      87 </span><span class="lineCov">       7557 : static ident_t hpathf(ident_t path, char sep, const char *fmt, ...)</span>
+<span class="lineNum">      87 </span><span class="lineCov">       7559 : static ident_t hpathf(ident_t path, char sep, const char *fmt, ...)</span>
 <span class="lineNum">      88 </span>            : {
 <span class="lineNum">      89 </span>            :    va_list ap;
-<span class="lineNum">      90 </span><span class="lineCov">       7557 :    va_start(ap, fmt);</span>
-<span class="lineNum">      91 </span><span class="lineCov">       7557 :    char *buf = xvasprintf(fmt, ap);</span>
-<span class="lineNum">      92 </span><span class="lineCov">       7557 :    va_end(ap);</span>
+<span class="lineNum">      90 </span><span class="lineCov">       7559 :    va_start(ap, fmt);</span>
+<span class="lineNum">      91 </span><span class="lineCov">       7559 :    char *buf = xvasprintf(fmt, ap);</span>
+<span class="lineNum">      92 </span><span class="lineCov">       7559 :    va_end(ap);</span>
 <span class="lineNum">      93 </span>            : 
 <span class="lineNum">      94 </span>            :    // LRM specifies instance path is lowercase
-<span class="lineNum">      95 </span><span class="lineCov">       7557 :    char *p = buf;</span>
-<span class="lineNum">      96 </span><span class="lineCov">      54866 :    while (*p != '\0') {</span>
-<span class="lineNum">      97 </span><span class="lineCov">      39752 :       *p = tolower((int)*p);</span>
-<span class="lineNum">      98 </span><span class="lineCov">      39752 :       ++p;</span>
+<span class="lineNum">      95 </span><span class="lineCov">       7559 :    char *p = buf;</span>
+<span class="lineNum">      96 </span><span class="lineCov">      54874 :    while (*p != '\0') {</span>
+<span class="lineNum">      97 </span><span class="lineCov">      39756 :       *p = tolower((int)*p);</span>
+<span class="lineNum">      98 </span><span class="lineCov">      39756 :       ++p;</span>
 <span class="lineNum">      99 </span>            :    }
 <span class="lineNum">     100 </span>            : 
-<span class="lineNum">     101 </span><span class="lineCov">       7557 :    ident_t id = ident_new(buf);</span>
-<span class="lineNum">     102 </span><span class="lineCov">       7557 :    free(buf);</span>
-<span class="lineNum">     103 </span><span class="lineCov">       7557 :    return ident_prefix(path, id, sep);</span>
+<span class="lineNum">     101 </span><span class="lineCov">       7559 :    ident_t id = ident_new(buf);</span>
+<span class="lineNum">     102 </span><span class="lineCov">       7559 :    free(buf);</span>
+<span class="lineNum">     103 </span><span class="lineCov">       7559 :    return ident_prefix(path, id, sep);</span>
 <a name="104"><span class="lineNum">     104 </span>            : }</a>
 <span class="lineNum">     105 </span>            : 
-<span class="lineNum">     106 </span><span class="lineCov">       3116 : static const char *simple_name(const char *full)</span>
+<span class="lineNum">     106 </span><span class="lineCov">       3117 : static const char *simple_name(const char *full)</span>
 <span class="lineNum">     107 </span>            : {
 <span class="lineNum">     108 </span>            :    // Strip off any library or entity prefix from the parameter
-<span class="lineNum">     109 </span><span class="lineCov">       3116 :    const char *start = full;</span>
-<span class="lineNum">     110 </span><span class="lineCov">      26856 :    for (const char *p = full; *p != '\0'; p++) {</span>
-<span class="lineNum">     111 </span><span class="lineCov">      23740 :       if (*p == '.' || *p == '-')</span>
+<span class="lineNum">     109 </span><span class="lineCov">       3117 :    const char *start = full;</span>
+<span class="lineNum">     110 </span><span class="lineCov">      26859 :    for (const char *p = full; *p != '\0'; p++) {</span>
+<span class="lineNum">     111 </span><span class="lineCov">      23742 :       if (*p == '.' || *p == '-')</span>
 <span class="lineNum">     112 </span><span class="lineCov">       2032 :          start = p + 1;</span>
 <span class="lineNum">     113 </span>            :    }
 <span class="lineNum">     114 </span>            : 
-<span class="lineNum">     115 </span><span class="lineCov">       3116 :    return start;</span>
+<span class="lineNum">     115 </span><span class="lineCov">       3117 :    return start;</span>
 <a name="116"><span class="lineNum">     116 </span>            : }</a>
 <span class="lineNum">     117 </span>            : 
 <span class="lineNum">     118 </span><span class="lineCov">       2181 : static lib_t elab_find_lib(ident_t name, const elab_ctx_t *ctx)</span>
@@ -246,17 +246,17 @@
 <span class="lineNum">     184 </span><span class="lineCov">        679 :    return arch;</span>
 <a name="185"><span class="lineNum">     185 </span>            : }</a>
 <span class="lineNum">     186 </span>            : 
-<span class="lineNum">     187 </span><span class="lineCov">      86219 : static tree_t fixup_entity_refs(tree_t t, void *context)</span>
+<span class="lineNum">     187 </span><span class="lineCov">      86227 : static tree_t fixup_entity_refs(tree_t t, void *context)</span>
 <span class="lineNum">     188 </span>            : {
 <span class="lineNum">     189 </span>            :    // Rewrite references to an entity to point at the selected architecture
 <span class="lineNum">     190 </span>            :    // so attributes like 'PATH_NAME are correct
 <span class="lineNum">     191 </span>            : 
-<span class="lineNum">     192 </span><span class="lineCov">      86219 :    if (tree_kind(t) != T_REF)</span>
+<span class="lineNum">     192 </span><span class="lineCov">      86227 :    if (tree_kind(t) != T_REF)</span>
 <span class="lineNum">     193 </span>            :       return t;
 <span class="lineNum">     194 </span>            : 
-<span class="lineNum">     195 </span><span class="lineCov">      12291 :    tree_t arch = context;</span>
+<span class="lineNum">     195 </span><span class="lineCov">      12292 :    tree_t arch = context;</span>
 <span class="lineNum">     196 </span>            : 
-<span class="lineNum">     197 </span><span class="lineCov">      12291 :    if (tree_ref(t) == tree_ref(arch))</span>
+<span class="lineNum">     197 </span><span class="lineCov">      12292 :    if (tree_ref(t) == tree_ref(arch))</span>
 <span class="lineNum">     198 </span><span class="lineCov">         12 :       tree_set_ref(t, arch);</span>
 <span class="lineNum">     199 </span>            : 
 <span class="lineNum">     200 </span>            :    return t;
@@ -1138,16 +1138,16 @@
 <span class="lineNum">    1076 </span>            :                      ident_prefix(ctx-&gt;inst, ident_new(&quot;:&quot;), '\0'));
 <span class="lineNum">    1077 </span>            : 
 <span class="lineNum">    1078 </span><span class="lineCov">       1599 :    const int ndecls = tree_decls(t);</span>
-<span class="lineNum">    1079 </span><span class="lineCov">       3361 :    for (int i = 0; i &lt; ndecls; i++) {</span>
-<span class="lineNum">    1080 </span><span class="lineCov">       1762 :       tree_t d = tree_decl(t, i);</span>
-<span class="lineNum">    1081 </span><span class="lineCov">       1762 :       const char *label = simple_name(istr(tree_ident(d)));</span>
-<span class="lineNum">    1082 </span><span class="lineCov">       1762 :       ident_t ninst = hpathf(ctx-&gt;inst, ':', &quot;%s&quot;, label);</span>
-<span class="lineNum">    1083 </span><span class="lineCov">       1762 :       ident_t npath = hpathf(ctx-&gt;path, ':', &quot;%s&quot;, label);</span>
+<span class="lineNum">    1079 </span><span class="lineCov">       3362 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">    1080 </span><span class="lineCov">       1763 :       tree_t d = tree_decl(t, i);</span>
+<span class="lineNum">    1081 </span><span class="lineCov">       1763 :       const char *label = simple_name(istr(tree_ident(d)));</span>
+<span class="lineNum">    1082 </span><span class="lineCov">       1763 :       ident_t ninst = hpathf(ctx-&gt;inst, ':', &quot;%s&quot;, label);</span>
+<span class="lineNum">    1083 </span><span class="lineCov">       1763 :       ident_t npath = hpathf(ctx-&gt;path, ':', &quot;%s&quot;, label);</span>
 <span class="lineNum">    1084 </span>            : 
-<span class="lineNum">    1085 </span><span class="lineCov">       1762 :       if (label[0] == ':')</span>
+<span class="lineNum">    1085 </span><span class="lineCov">       1763 :       if (label[0] == ':')</span>
 <span class="lineNum">    1086 </span><span class="lineCov">          1 :          continue;  // Already named one instance of this</span>
 <span class="lineNum">    1087 </span>            : 
-<span class="lineNum">    1088 </span><span class="lineCov">       1761 :       switch (tree_kind(d)) {</span>
+<span class="lineNum">    1088 </span><span class="lineCov">       1762 :       switch (tree_kind(d)) {</span>
 <span class="lineNum">    1089 </span>            :       case T_SIGNAL_DECL:
 <span class="lineNum">    1090 </span><span class="lineCov">       1057 :          elab_signal_nets(d, ctx);</span>
 <span class="lineNum">    1091 </span>            :          // Fall-through
@@ -1156,10 +1156,10 @@
 <span class="lineNum">    1094 </span>            :       case T_ALIAS:
 <span class="lineNum">    1095 </span>            :       case T_FILE_DECL:
 <span class="lineNum">    1096 </span>            :       case T_VAR_DECL:
-<span class="lineNum">    1097 </span><span class="lineCov">       1276 :          tree_set_ident(d, npath);</span>
-<span class="lineNum">    1098 </span><span class="lineCov">       1276 :          tree_add_decl(ctx-&gt;out, d);</span>
-<span class="lineNum">    1099 </span><span class="lineCov">       1276 :          tree_add_attr_str(d, inst_name_i, ninst);</span>
-<span class="lineNum">    1100 </span><span class="lineCov">       1276 :          break;</span>
+<span class="lineNum">    1097 </span><span class="lineCov">       1277 :          tree_set_ident(d, npath);</span>
+<span class="lineNum">    1098 </span><span class="lineCov">       1277 :          tree_add_decl(ctx-&gt;out, d);</span>
+<span class="lineNum">    1099 </span><span class="lineCov">       1277 :          tree_add_attr_str(d, inst_name_i, ninst);</span>
+<span class="lineNum">    1100 </span><span class="lineCov">       1277 :          break;</span>
 <span class="lineNum">    1101 </span>            :       case T_PROT_BODY:
 <span class="lineNum">    1102 </span><span class="lineCov">          6 :          tree_set_ident(d, npath);</span>
 <span class="lineNum">    1103 </span><span class="lineCov">          6 :          elab_prot_body_decls(d);</span>

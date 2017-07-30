@@ -190,44 +190,44 @@
 <span class="lineNum">     128 </span>            :       return false;                                   \
 <a name="129"><span class="lineNum">     129 </span>            :    } while (0)</a>
 <span class="lineNum">     130 </span>            : 
-<span class="lineNum">     131 </span><span class="lineCov">       6998 : static void scope_push(ident_t prefix)</span>
+<span class="lineNum">     131 </span><span class="lineCov">       6999 : static void scope_push(ident_t prefix)</span>
 <span class="lineNum">     132 </span>            : {
-<span class="lineNum">     133 </span><span class="lineCov">       6998 :    scope_t *s = xmalloc(sizeof(scope_t));</span>
-<span class="lineNum">     134 </span><span class="lineCov">       6998 :    s-&gt;decls      = hash_new(1024, false);</span>
-<span class="lineNum">     135 </span><span class="lineCov">       6998 :    s-&gt;prefix     = prefix;</span>
-<span class="lineNum">     136 </span><span class="lineCov">       6998 :    s-&gt;imported   = NULL;</span>
-<span class="lineNum">     137 </span><span class="lineCov">       6998 :    s-&gt;down       = top_scope;</span>
-<span class="lineNum">     138 </span><span class="lineCov">       6998 :    s-&gt;subprog    = (top_scope ? top_scope-&gt;subprog : NULL) ;</span>
-<span class="lineNum">     139 </span><span class="lineCov">       6998 :    s-&gt;flags      = (top_scope ? top_scope-&gt;flags : 0);</span>
-<span class="lineNum">     140 </span><span class="lineCov">       6998 :    s-&gt;deferred   = NULL;</span>
-<span class="lineNum">     141 </span><span class="lineCov">       6998 :    s-&gt;wait_level = WAITS_NO;</span>
-<span class="lineNum">     142 </span><span class="lineCov">       6998 :    s-&gt;impure_io  = 0;</span>
+<span class="lineNum">     133 </span><span class="lineCov">       6999 :    scope_t *s = xmalloc(sizeof(scope_t));</span>
+<span class="lineNum">     134 </span><span class="lineCov">       6999 :    s-&gt;decls      = hash_new(1024, false);</span>
+<span class="lineNum">     135 </span><span class="lineCov">       6999 :    s-&gt;prefix     = prefix;</span>
+<span class="lineNum">     136 </span><span class="lineCov">       6999 :    s-&gt;imported   = NULL;</span>
+<span class="lineNum">     137 </span><span class="lineCov">       6999 :    s-&gt;down       = top_scope;</span>
+<span class="lineNum">     138 </span><span class="lineCov">       6999 :    s-&gt;subprog    = (top_scope ? top_scope-&gt;subprog : NULL) ;</span>
+<span class="lineNum">     139 </span><span class="lineCov">       6999 :    s-&gt;flags      = (top_scope ? top_scope-&gt;flags : 0);</span>
+<span class="lineNum">     140 </span><span class="lineCov">       6999 :    s-&gt;deferred   = NULL;</span>
+<span class="lineNum">     141 </span><span class="lineCov">       6999 :    s-&gt;wait_level = WAITS_NO;</span>
+<span class="lineNum">     142 </span><span class="lineCov">       6999 :    s-&gt;impure_io  = 0;</span>
 <span class="lineNum">     143 </span>            : 
-<span class="lineNum">     144 </span><span class="lineCov">       6998 :    top_scope = s;</span>
-<a name="145"><span class="lineNum">     145 </span><span class="lineCov">       6998 : }</span></a>
+<span class="lineNum">     144 </span><span class="lineCov">       6999 :    top_scope = s;</span>
+<a name="145"><span class="lineNum">     145 </span><span class="lineCov">       6999 : }</span></a>
 <span class="lineNum">     146 </span>            : 
-<span class="lineNum">     147 </span><span class="lineCov">       6998 : static void scope_pop(void)</span>
+<span class="lineNum">     147 </span><span class="lineCov">       6999 : static void scope_pop(void)</span>
 <span class="lineNum">     148 </span>            : {
-<span class="lineNum">     149 </span><span class="lineCov">       6998 :    assert(top_scope != NULL);</span>
-<span class="lineNum">     150 </span><span class="lineCov">       6998 :    assert(top_scope-&gt;deferred == NULL);</span>
+<span class="lineNum">     149 </span><span class="lineCov">       6999 :    assert(top_scope != NULL);</span>
+<span class="lineNum">     150 </span><span class="lineCov">       6999 :    assert(top_scope-&gt;deferred == NULL);</span>
 <span class="lineNum">     151 </span>            : 
-<span class="lineNum">     152 </span><span class="lineCov">       9693 :    while (top_scope-&gt;imported != NULL) {</span>
+<span class="lineNum">     152 </span><span class="lineCov">       9694 :    while (top_scope-&gt;imported != NULL) {</span>
 <span class="lineNum">     153 </span><span class="lineCov">       2695 :       import_list_t *tmp = top_scope-&gt;imported-&gt;next;</span>
 <span class="lineNum">     154 </span><span class="lineCov">       2695 :       free(top_scope-&gt;imported);</span>
 <span class="lineNum">     155 </span><span class="lineCov">       2695 :       top_scope-&gt;imported = tmp;</span>
 <span class="lineNum">     156 </span>            :    }
 <span class="lineNum">     157 </span>            : 
-<span class="lineNum">     158 </span><span class="lineCov">       6998 :    hash_free(top_scope-&gt;decls);</span>
+<span class="lineNum">     158 </span><span class="lineCov">       6999 :    hash_free(top_scope-&gt;decls);</span>
 <span class="lineNum">     159 </span>            : 
-<span class="lineNum">     160 </span><span class="lineCov">       6998 :    scope_t *s = top_scope;</span>
-<span class="lineNum">     161 </span><span class="lineCov">       6998 :    if (s-&gt;down != NULL &amp;&amp; s-&gt;down-&gt;subprog == s-&gt;subprog) {</span>
+<span class="lineNum">     160 </span><span class="lineCov">       6999 :    scope_t *s = top_scope;</span>
+<span class="lineNum">     161 </span><span class="lineCov">       6999 :    if (s-&gt;down != NULL &amp;&amp; s-&gt;down-&gt;subprog == s-&gt;subprog) {</span>
 <span class="lineNum">     162 </span><span class="lineCov">       3941 :       s-&gt;down-&gt;wait_level |= s-&gt;wait_level;</span>
 <span class="lineNum">     163 </span>            :       s-&gt;down-&gt;impure_io  |= s-&gt;down-&gt;impure_io;
 <span class="lineNum">     164 </span>            :    }
 <span class="lineNum">     165 </span>            : 
-<span class="lineNum">     166 </span><span class="lineCov">       6998 :    top_scope = s-&gt;down;</span>
-<span class="lineNum">     167 </span><span class="lineCov">       6998 :    free(s);</span>
-<a name="168"><span class="lineNum">     168 </span><span class="lineCov">       6998 : }</span></a>
+<span class="lineNum">     166 </span><span class="lineCov">       6999 :    top_scope = s-&gt;down;</span>
+<span class="lineNum">     167 </span><span class="lineCov">       6999 :    free(s);</span>
+<a name="168"><span class="lineNum">     168 </span><span class="lineCov">       6999 : }</span></a>
 <span class="lineNum">     169 </span>            : 
 <span class="lineNum">     170 </span><span class="lineCov">         14 : static void scope_defer_check(defer_fn_t fn, tree_t arg)</span>
 <span class="lineNum">     171 </span>            : {
@@ -266,12 +266,12 @@
 <span class="lineNum">     204 </span><span class="lineCov">       1177 :    return result;</span>
 <a name="205"><span class="lineNum">     205 </span>            : }</a>
 <span class="lineNum">     206 </span>            : 
-<span class="lineNum">     207 </span><span class="lineCov">       7085 : static void scope_apply_prefix(tree_t t)</span>
+<span class="lineNum">     207 </span><span class="lineCov">       7086 : static void scope_apply_prefix(tree_t t)</span>
 <span class="lineNum">     208 </span>            : {
-<span class="lineNum">     209 </span><span class="lineCov">       7085 :    if (top_scope-&gt;prefix)</span>
+<span class="lineNum">     209 </span><span class="lineCov">       7086 :    if (top_scope-&gt;prefix)</span>
 <span class="lineNum">     210 </span><span class="lineCov">       3125 :       tree_set_ident(t, ident_prefix(top_scope-&gt;prefix,</span>
 <span class="lineNum">     211 </span>            :                                      tree_ident(t), '.'));
-<a name="212"><span class="lineNum">     212 </span><span class="lineCov">       7085 : }</span></a>
+<a name="212"><span class="lineNum">     212 </span><span class="lineCov">       7086 : }</span></a>
 <span class="lineNum">     213 </span>            : 
 <span class="lineNum">     214 </span><span class="lineCov">       3963 : static scope_t *scope_containing(scope_t *s, tree_t decl)</span>
 <span class="lineNum">     215 </span>            : {
@@ -285,37 +285,37 @@
 <span class="lineNum">     223 </span><span class="lineCov">        793 :    return s-&gt;down == NULL ? NULL : scope_containing(s-&gt;down, decl);</span>
 <a name="224"><span class="lineNum">     224 </span>            : }</a>
 <span class="lineNum">     225 </span>            : 
-<span class="lineNum">     226 </span><span class="lineCov">    2706459 : static tree_t scope_find_in(ident_t i, scope_t *s, bool recur, int k)</span>
+<span class="lineNum">     226 </span><span class="lineCov">    2706541 : static tree_t scope_find_in(ident_t i, scope_t *s, bool recur, int k)</span>
 <span class="lineNum">     227 </span>            : {
-<span class="lineNum">     228 </span><span class="lineCov">    2706459 :    if (s == NULL)</span>
+<span class="lineNum">     228 </span><span class="lineCov">    2706541 :    if (s == NULL)</span>
 <span class="lineNum">     229 </span>            :       return NULL;
 <span class="lineNum">     230 </span>            :    else {
-<span class="lineNum">     231 </span><span class="lineCov">    2653027 :       void *value = hash_get_nth(s-&gt;decls, i, &amp;k);</span>
-<span class="lineNum">     232 </span><span class="lineCov">    2653027 :       if (value != NULL)</span>
+<span class="lineNum">     231 </span><span class="lineCov">    2653106 :       void *value = hash_get_nth(s-&gt;decls, i, &amp;k);</span>
+<span class="lineNum">     232 </span><span class="lineCov">    2653106 :       if (value != NULL)</span>
 <span class="lineNum">     233 </span>            :          return (tree_t)value;
 <span class="lineNum">     234 </span>            :       else
-<span class="lineNum">     235 </span><span class="lineCov">    1500433 :          return (recur ? scope_find_in(i, s-&gt;down, true, k) : NULL);</span>
+<span class="lineNum">     235 </span><span class="lineCov">    1500472 :          return (recur ? scope_find_in(i, s-&gt;down, true, k) : NULL);</span>
 <span class="lineNum">     236 </span>            :    }
 <a name="237"><span class="lineNum">     237 </span>            : }</a>
 <span class="lineNum">     238 </span>            : 
-<span class="lineNum">     239 </span><span class="lineCov">     125777 : static tree_t scope_find(ident_t i)</span>
+<span class="lineNum">     239 </span><span class="lineCov">     125782 : static tree_t scope_find(ident_t i)</span>
 <span class="lineNum">     240 </span>            : {
-<span class="lineNum">     241 </span><span class="lineCov">     125777 :    return scope_find_in(i, top_scope, true, 0);</span>
+<span class="lineNum">     241 </span><span class="lineCov">     125782 :    return scope_find_in(i, top_scope, true, 0);</span>
 <a name="242"><span class="lineNum">     242 </span>            : }</a>
 <span class="lineNum">     243 </span>            : 
-<span class="lineNum">     244 </span><span class="lineCov">     198692 : static tree_t scope_find_nth(ident_t i, int n)</span>
+<span class="lineNum">     244 </span><span class="lineCov">     198702 : static tree_t scope_find_nth(ident_t i, int n)</span>
 <span class="lineNum">     245 </span>            : {
-<span class="lineNum">     246 </span><span class="lineCov">     198692 :    return scope_find_in(i, top_scope, true, n);</span>
+<span class="lineNum">     246 </span><span class="lineCov">     198702 :    return scope_find_in(i, top_scope, true, n);</span>
 <a name="247"><span class="lineNum">     247 </span>            : }</a>
 <span class="lineNum">     248 </span>            : 
-<span class="lineNum">     249 </span><span class="lineCov">       1583 : static bool scope_walk(scope_t **where, hash_iter_t *now, tree_t *decl)</span>
+<span class="lineNum">     249 </span><span class="lineCov">       1582 : static bool scope_walk(scope_t **where, hash_iter_t *now, tree_t *decl)</span>
 <span class="lineNum">     250 </span>            : {
 <span class="lineNum">     251 </span>            :    const void *key;
 <span class="lineNum">     252 </span>            :    void *value;
-<span class="lineNum">     253 </span><span class="lineCov">       1583 :    scope_t *w = where == NULL ? top_scope : *where;</span>
-<span class="lineNum">     254 </span><span class="lineCov">       4130 :    while (hash_iter(w-&gt;decls, now, &amp;key, &amp;value)) {</span>
-<span class="lineNum">     255 </span><span class="lineCov">       2529 :       *decl = value;</span>
-<span class="lineNum">     256 </span><span class="lineCov">       2529 :       if (tree_ident(*decl) != key)</span>
+<span class="lineNum">     253 </span><span class="lineCov">       1582 :    scope_t *w = where == NULL ? top_scope : *where;</span>
+<span class="lineNum">     254 </span><span class="lineCov">       4128 :    while (hash_iter(w-&gt;decls, now, &amp;key, &amp;value)) {</span>
+<span class="lineNum">     255 </span><span class="lineCov">       2528 :       *decl = value;</span>
+<span class="lineNum">     256 </span><span class="lineCov">       2528 :       if (tree_ident(*decl) != key)</span>
 <span class="lineNum">     257 </span><span class="lineCov">        964 :          continue;   // Skip aliases</span>
 <span class="lineNum">     258 </span>            :       else
 <span class="lineNum">     259 </span>            :          return true;
@@ -330,27 +330,27 @@
 <span class="lineNum">     268 </span>            :    }
 <a name="269"><span class="lineNum">     269 </span>            : }</a>
 <span class="lineNum">     270 </span>            : 
-<span class="lineNum">     271 </span><span class="lineCov">     639216 : static bool scope_can_overload(tree_t t)</span>
+<span class="lineNum">     271 </span><span class="lineCov">     639221 : static bool scope_can_overload(tree_t t)</span>
 <span class="lineNum">     272 </span>            : {
-<span class="lineNum">     273 </span><span class="lineCov">     639216 :    const tree_kind_t kind = tree_kind(t);</span>
-<span class="lineNum">     274 </span><span class="lineCov">    1278432 :    return kind == T_ENUM_LIT</span>
-<span class="lineNum">     275 </span><span class="lineCov">     639216 :       || kind == T_FUNC_DECL</span>
-<span class="lineNum">     276 </span><span class="lineCov">      92493 :       || kind == T_FUNC_BODY</span>
-<span class="lineNum">     277 </span><span class="lineCov">      92493 :       || kind == T_PROC_DECL</span>
-<span class="lineNum">     278 </span><span class="lineCov">      89301 :       || kind == T_PROC_BODY</span>
-<span class="lineNum">     279 </span><span class="lineCov">      89301 :       || kind == T_LIBRARY   // Allow multiple redundant library declarations</span>
-<span class="lineNum">     280 </span><span class="lineCov">     723315 :       || (kind == T_ALIAS &amp;&amp; type_is_subprogram(tree_type(t)));</span>
+<span class="lineNum">     273 </span><span class="lineCov">     639221 :    const tree_kind_t kind = tree_kind(t);</span>
+<span class="lineNum">     274 </span><span class="lineCov">    1278442 :    return kind == T_ENUM_LIT</span>
+<span class="lineNum">     275 </span><span class="lineCov">     639221 :       || kind == T_FUNC_DECL</span>
+<span class="lineNum">     276 </span><span class="lineCov">      92497 :       || kind == T_FUNC_BODY</span>
+<span class="lineNum">     277 </span><span class="lineCov">      92497 :       || kind == T_PROC_DECL</span>
+<span class="lineNum">     278 </span><span class="lineCov">      89304 :       || kind == T_PROC_BODY</span>
+<span class="lineNum">     279 </span><span class="lineCov">      89304 :       || kind == T_LIBRARY   // Allow multiple redundant library declarations</span>
+<span class="lineNum">     280 </span><span class="lineCov">     723323 :       || (kind == T_ALIAS &amp;&amp; type_is_subprogram(tree_type(t)));</span>
 <a name="281"><span class="lineNum">     281 </span>            : }</a>
 <span class="lineNum">     282 </span>            : 
-<span class="lineNum">     283 </span><span class="lineCov">     249165 : static void scope_insert_fields(type_t type, ident_t prefix)</span>
+<span class="lineNum">     283 </span><span class="lineCov">     249167 : static void scope_insert_fields(type_t type, ident_t prefix)</span>
 <span class="lineNum">     284 </span>            : {
 <span class="lineNum">     285 </span>            :    // When adding an object R with record type to the scope make all its
 <span class="lineNum">     286 </span>            :    // fields visible as R.X, R.Y, etc.
 <span class="lineNum">     287 </span>            : 
-<span class="lineNum">     288 </span><span class="lineCov">     249178 :    if (type_kind(type) == T_FUNC)</span>
-<span class="lineNum">     289 </span><span class="lineCov">     240708 :       type = type_result(type);</span>
+<span class="lineNum">     288 </span><span class="lineCov">     249180 :    if (type_kind(type) == T_FUNC)</span>
+<span class="lineNum">     289 </span><span class="lineCov">     240709 :       type = type_result(type);</span>
 <span class="lineNum">     290 </span>            : 
-<span class="lineNum">     291 </span><span class="lineCov">     249178 :    switch (type_base_kind(type)) {</span>
+<span class="lineNum">     291 </span><span class="lineCov">     249180 :    switch (type_base_kind(type)) {</span>
 <span class="lineNum">     292 </span>            :    case T_RECORD:
 <span class="lineNum">     293 </span>            :       {
 <span class="lineNum">     294 </span>            :          // Insert a name into the scope for each field
@@ -395,27 +395,27 @@
 <span class="lineNum">     333 </span>            :    default:
 <span class="lineNum">     334 </span>            :       break;
 <span class="lineNum">     335 </span>            :    }
-<a name="336"><span class="lineNum">     336 </span><span class="lineCov">     249165 : }</span></a>
+<a name="336"><span class="lineNum">     336 </span><span class="lineCov">     249167 : }</span></a>
 <span class="lineNum">     337 </span>            : 
-<span class="lineNum">     338 </span><span class="lineCov">    1027337 : static bool scope_insert_hiding(tree_t t, ident_t name, bool overload)</span>
+<span class="lineNum">     338 </span><span class="lineCov">    1027340 : static bool scope_insert_hiding(tree_t t, ident_t name, bool overload)</span>
 <span class="lineNum">     339 </span>            : {
-<span class="lineNum">     340 </span><span class="lineCov">    1027337 :    assert(top_scope != NULL);</span>
+<span class="lineNum">     340 </span><span class="lineCov">    1027340 :    assert(top_scope != NULL);</span>
 <span class="lineNum">     341 </span>            : 
 <span class="lineNum">     342 </span>            :    tree_t existing;
 <span class="lineNum">     343 </span>            :    int n = 0;
 <span class="lineNum">     344 </span>            :    do {
-<span class="lineNum">     345 </span><span class="lineCov">    1898438 :       if ((existing = scope_find_in(name, top_scope, false, n++))) {</span>
-<span class="lineNum">     346 </span><span class="lineCov">     881459 :          if (existing == t)</span>
+<span class="lineNum">     345 </span><span class="lineCov">    1898469 :       if ((existing = scope_find_in(name, top_scope, false, n++))) {</span>
+<span class="lineNum">     346 </span><span class="lineCov">     881487 :          if (existing == t)</span>
 <span class="lineNum">     347 </span>            :             return true;
-<span class="lineNum">     348 </span><span class="lineCov">     871563 :          else if (!overload)</span>
+<span class="lineNum">     348 </span><span class="lineCov">     871591 :          else if (!overload)</span>
 <span class="lineNum">     349 </span><span class="lineCov">          3 :             sem_error(t, &quot;%s already declared in this region&quot;, istr(name));</span>
 <span class="lineNum">     350 </span>            : 
-<span class="lineNum">     351 </span><span class="lineCov">     871560 :          const tree_kind_t ekind = tree_kind(existing);</span>
-<span class="lineNum">     352 </span><span class="lineCov">     871560 :          if (ekind == T_UNIT_DECL || ekind == T_LIBRARY)</span>
+<span class="lineNum">     351 </span><span class="lineCov">     871588 :          const tree_kind_t ekind = tree_kind(existing);</span>
+<span class="lineNum">     352 </span><span class="lineCov">     871588 :          if (ekind == T_UNIT_DECL || ekind == T_LIBRARY)</span>
 <span class="lineNum">     353 </span><span class="lineCov">       1593 :             continue;</span>
 <span class="lineNum">     354 </span>            : 
-<span class="lineNum">     355 </span><span class="lineCov">     869967 :          const bool builtin = (tree_attr_str(existing, builtin_i) != NULL);</span>
-<span class="lineNum">     356 </span><span class="lineCov">     869967 :          if (builtin &amp;&amp; type_eq(tree_type(t), tree_type(existing))) {</span>
+<span class="lineNum">     355 </span><span class="lineCov">     869995 :          const bool builtin = (tree_attr_str(existing, builtin_i) != NULL);</span>
+<span class="lineNum">     356 </span><span class="lineCov">     869995 :          if (builtin &amp;&amp; type_eq(tree_type(t), tree_type(existing))) {</span>
 <span class="lineNum">     357 </span><span class="lineCov">       2772 :             type_t arg0_type = type_param(tree_type(existing), 0);</span>
 <span class="lineNum">     358 </span>            : 
 <span class="lineNum">     359 </span><span class="lineCov">       2772 :             ident_t t_region = ident_runtil(tree_ident(t), '.');</span>
@@ -431,28 +431,28 @@
 <span class="lineNum">     369 </span>            :             }
 <span class="lineNum">     370 </span>            :          }
 <span class="lineNum">     371 </span>            :       }
-<span class="lineNum">     372 </span><span class="lineCov">    1888080 :    } while (existing != NULL);</span>
+<span class="lineNum">     372 </span><span class="lineCov">    1888111 :    } while (existing != NULL);</span>
 <span class="lineNum">     373 </span>            : 
-<span class="lineNum">     374 </span><span class="lineCov">    1016979 :    hash_put(top_scope-&gt;decls, name, t);</span>
+<span class="lineNum">     374 </span><span class="lineCov">    1016982 :    hash_put(top_scope-&gt;decls, name, t);</span>
 <span class="lineNum">     375 </span>            : 
-<span class="lineNum">     376 </span><span class="lineCov">    1016979 :    const tree_kind_t kind = tree_kind(t);</span>
-<span class="lineNum">     377 </span><span class="lineCov">    1016979 :    const bool may_have_fields =</span>
-<span class="lineNum">     378 </span><span class="lineCov">    1016979 :       kind == T_VAR_DECL</span>
-<span class="lineNum">     379 </span><span class="lineCov">    1016979 :       || kind == T_CONST_DECL</span>
-<span class="lineNum">     380 </span><span class="lineCov">    1012802 :       || kind == T_SIGNAL_DECL</span>
-<span class="lineNum">     381 </span><span class="lineCov">    1012802 :       || kind == T_PORT_DECL</span>
-<span class="lineNum">     382 </span><span class="lineCov">    1008557 :       || kind == T_FUNC_BODY</span>
-<span class="lineNum">     383 </span><span class="lineCov">    2025536 :       || kind == T_FUNC_DECL;</span>
+<span class="lineNum">     376 </span><span class="lineCov">    1016982 :    const tree_kind_t kind = tree_kind(t);</span>
+<span class="lineNum">     377 </span><span class="lineCov">    1016982 :    const bool may_have_fields =</span>
+<span class="lineNum">     378 </span><span class="lineCov">    1016982 :       kind == T_VAR_DECL</span>
+<span class="lineNum">     379 </span><span class="lineCov">    1016982 :       || kind == T_CONST_DECL</span>
+<span class="lineNum">     380 </span><span class="lineCov">    1012805 :       || kind == T_SIGNAL_DECL</span>
+<span class="lineNum">     381 </span><span class="lineCov">    1012805 :       || kind == T_PORT_DECL</span>
+<span class="lineNum">     382 </span><span class="lineCov">    1008559 :       || kind == T_FUNC_BODY</span>
+<span class="lineNum">     383 </span><span class="lineCov">    2025541 :       || kind == T_FUNC_DECL;</span>
 <span class="lineNum">     384 </span>            : 
-<span class="lineNum">     385 </span><span class="lineCov">    1016979 :    if (may_have_fields)</span>
-<span class="lineNum">     386 </span><span class="lineCov">     249130 :       scope_insert_fields(tree_type(t), name);</span>
+<span class="lineNum">     385 </span><span class="lineCov">    1016982 :    if (may_have_fields)</span>
+<span class="lineNum">     386 </span><span class="lineCov">     249132 :       scope_insert_fields(tree_type(t), name);</span>
 <span class="lineNum">     387 </span>            : 
 <span class="lineNum">     388 </span>            :    return true;
 <a name="389"><span class="lineNum">     389 </span>            : }</a>
 <span class="lineNum">     390 </span>            : 
-<span class="lineNum">     391 </span><span class="lineCov">     605562 : static bool scope_insert(tree_t t)</span>
+<span class="lineNum">     391 </span><span class="lineCov">     605565 : static bool scope_insert(tree_t t)</span>
 <span class="lineNum">     392 </span>            : {
-<span class="lineNum">     393 </span><span class="lineCov">     605562 :    return scope_insert_hiding(t, tree_ident(t), scope_can_overload(t));</span>
+<span class="lineNum">     393 </span><span class="lineCov">     605565 :    return scope_insert_hiding(t, tree_ident(t), scope_can_overload(t));</span>
 <a name="394"><span class="lineNum">     394 </span>            : }</a>
 <span class="lineNum">     395 </span>            : 
 <span class="lineNum">     396 </span><span class="lineCov">     421775 : static void scope_insert_alias(tree_t t, ident_t name)</span>
@@ -712,39 +712,39 @@
 <span class="lineNum">     650 </span>            :    return true;
 <a name="651"><span class="lineNum">     651 </span>            : }</a>
 <span class="lineNum">     652 </span>            : 
-<span class="lineNum">     653 </span><span class="lineCov">      56693 : static void type_set_push(void)</span>
+<span class="lineNum">     653 </span><span class="lineCov">      56696 : static void type_set_push(void)</span>
 <span class="lineNum">     654 </span>            : {
-<span class="lineNum">     655 </span><span class="lineCov">      56693 :    type_set_t *t = xmalloc(sizeof(type_set_t));</span>
-<span class="lineNum">     656 </span><span class="lineCov">      56693 :    t-&gt;n_members = 0;</span>
-<span class="lineNum">     657 </span><span class="lineCov">      56693 :    t-&gt;alloc     = 32;</span>
-<span class="lineNum">     658 </span><span class="lineCov">      56693 :    t-&gt;members   = xmalloc(t-&gt;alloc * sizeof(type_t));</span>
-<span class="lineNum">     659 </span><span class="lineCov">      56693 :    t-&gt;down      = top_type_set;</span>
+<span class="lineNum">     655 </span><span class="lineCov">      56696 :    type_set_t *t = xmalloc(sizeof(type_set_t));</span>
+<span class="lineNum">     656 </span><span class="lineCov">      56696 :    t-&gt;n_members = 0;</span>
+<span class="lineNum">     657 </span><span class="lineCov">      56696 :    t-&gt;alloc     = 32;</span>
+<span class="lineNum">     658 </span><span class="lineCov">      56696 :    t-&gt;members   = xmalloc(t-&gt;alloc * sizeof(type_t));</span>
+<span class="lineNum">     659 </span><span class="lineCov">      56696 :    t-&gt;down      = top_type_set;</span>
 <span class="lineNum">     660 </span>            : 
-<span class="lineNum">     661 </span><span class="lineCov">      56693 :    top_type_set = t;</span>
-<a name="662"><span class="lineNum">     662 </span><span class="lineCov">      56693 : }</span></a>
+<span class="lineNum">     661 </span><span class="lineCov">      56696 :    top_type_set = t;</span>
+<a name="662"><span class="lineNum">     662 </span><span class="lineCov">      56696 : }</span></a>
 <span class="lineNum">     663 </span>            : 
-<span class="lineNum">     664 </span><span class="lineCov">      56693 : static void type_set_pop(void)</span>
+<span class="lineNum">     664 </span><span class="lineCov">      56696 : static void type_set_pop(void)</span>
 <span class="lineNum">     665 </span>            : {
-<span class="lineNum">     666 </span><span class="lineCov">      56693 :    assert(top_type_set != NULL);</span>
+<span class="lineNum">     666 </span><span class="lineCov">      56696 :    assert(top_type_set != NULL);</span>
 <span class="lineNum">     667 </span>            : 
-<span class="lineNum">     668 </span><span class="lineCov">      56693 :    type_set_t *old = top_type_set;</span>
-<span class="lineNum">     669 </span><span class="lineCov">      56693 :    top_type_set = old-&gt;down;</span>
-<span class="lineNum">     670 </span><span class="lineCov">      56693 :    free(old-&gt;members);</span>
-<span class="lineNum">     671 </span><span class="lineCov">      56693 :    free(old);</span>
-<a name="672"><span class="lineNum">     672 </span><span class="lineCov">      56693 : }</span></a>
+<span class="lineNum">     668 </span><span class="lineCov">      56696 :    type_set_t *old = top_type_set;</span>
+<span class="lineNum">     669 </span><span class="lineCov">      56696 :    top_type_set = old-&gt;down;</span>
+<span class="lineNum">     670 </span><span class="lineCov">      56696 :    free(old-&gt;members);</span>
+<span class="lineNum">     671 </span><span class="lineCov">      56696 :    free(old);</span>
+<a name="672"><span class="lineNum">     672 </span><span class="lineCov">      56696 : }</span></a>
 <span class="lineNum">     673 </span>            : 
-<span class="lineNum">     674 </span><span class="lineCov">     117993 : static void type_set_add(type_t t)</span>
+<span class="lineNum">     674 </span><span class="lineCov">     117996 : static void type_set_add(type_t t)</span>
 <span class="lineNum">     675 </span>            : {
-<span class="lineNum">     676 </span><span class="lineCov">     117993 :    assert(top_type_set != NULL);</span>
-<span class="lineNum">     677 </span><span class="lineCov">     117993 :    assert(t != NULL);</span>
-<span class="lineNum">     678 </span><span class="lineCov">     117993 :    assert(type_kind(t) != T_UNRESOLVED);</span>
+<span class="lineNum">     676 </span><span class="lineCov">     117996 :    assert(top_type_set != NULL);</span>
+<span class="lineNum">     677 </span><span class="lineCov">     117996 :    assert(t != NULL);</span>
+<span class="lineNum">     678 </span><span class="lineCov">     117996 :    assert(type_kind(t) != T_UNRESOLVED);</span>
 <span class="lineNum">     679 </span>            : 
-<span class="lineNum">     680 </span><span class="lineCov">     867423 :    for (unsigned i = 0; i &lt; top_type_set-&gt;n_members; i++) {</span>
-<span class="lineNum">     681 </span><span class="lineCov">     874221 :       if (type_eq(top_type_set-&gt;members[i], t))</span>
-<span class="lineNum">     682 </span><span class="lineCov">     117993 :          return;</span>
+<span class="lineNum">     680 </span><span class="lineCov">     867556 :    for (unsigned i = 0; i &lt; top_type_set-&gt;n_members; i++) {</span>
+<span class="lineNum">     681 </span><span class="lineCov">     874354 :       if (type_eq(top_type_set-&gt;members[i], t))</span>
+<span class="lineNum">     682 </span><span class="lineCov">     117996 :          return;</span>
 <span class="lineNum">     683 </span>            :    }
 <span class="lineNum">     684 </span>            : 
-<span class="lineNum">     685 </span><span class="lineCov">     111195 :    ARRAY_APPEND(top_type_set-&gt;members, t, top_type_set-&gt;n_members,</span>
+<span class="lineNum">     685 </span><span class="lineCov">     111198 :    ARRAY_APPEND(top_type_set-&gt;members, t, top_type_set-&gt;n_members,</span>
 <span class="lineNum">     686 </span>            :                 top_type_set-&gt;alloc);
 <a name="687"><span class="lineNum">     687 </span>            : }</a>
 <span class="lineNum">     688 </span>            : 
@@ -804,13 +804,13 @@
 <span class="lineNum">     742 </span><span class="lineCov">          9 :    return tb;</span>
 <a name="743"><span class="lineNum">     743 </span>            : }</a>
 <span class="lineNum">     744 </span>            : 
-<span class="lineNum">     745 </span><span class="lineCov">     142809 : static bool type_set_member(type_t t)</span>
+<span class="lineNum">     745 </span><span class="lineCov">     142815 : static bool type_set_member(type_t t)</span>
 <span class="lineNum">     746 </span>            : {
-<span class="lineNum">     747 </span><span class="lineCov">     142809 :    if (top_type_set == NULL || top_type_set-&gt;n_members == 0)</span>
+<span class="lineNum">     747 </span><span class="lineCov">     142815 :    if (top_type_set == NULL || top_type_set-&gt;n_members == 0)</span>
 <span class="lineNum">     748 </span>            :       return true;
 <span class="lineNum">     749 </span>            : 
-<span class="lineNum">     750 </span><span class="lineCov">      62771 :    for (unsigned n = 0; n &lt; top_type_set-&gt;n_members; n++) {</span>
-<span class="lineNum">     751 </span><span class="lineCov">     156195 :       if (type_eq(top_type_set-&gt;members[n], t))</span>
+<span class="lineNum">     750 </span><span class="lineCov">      62740 :    for (unsigned n = 0; n &lt; top_type_set-&gt;n_members; n++) {</span>
+<span class="lineNum">     751 </span><span class="lineCov">     156167 :       if (type_eq(top_type_set-&gt;members[n], t))</span>
 <span class="lineNum">     752 </span>            :          return true;
 <span class="lineNum">     753 </span>            :    }
 <span class="lineNum">     754 </span>            : 
@@ -1565,31 +1565,31 @@
 <span class="lineNum">    1503 </span>            :    return ok;
 <a name="1504"><span class="lineNum">    1504 </span>            : }</a>
 <span class="lineNum">    1505 </span>            : 
-<span class="lineNum">    1506 </span><span class="lineCov">      34604 : static bool sem_check_constrained(tree_t t, type_t type)</span>
+<span class="lineNum">    1506 </span><span class="lineCov">      34605 : static bool sem_check_constrained(tree_t t, type_t type)</span>
 <span class="lineNum">    1507 </span>            : {
-<span class="lineNum">    1508 </span><span class="lineCov">      34604 :    if ((type != NULL) &amp;&amp; (type_kind(type) == T_UNRESOLVED))</span>
+<span class="lineNum">    1508 </span><span class="lineCov">      34605 :    if ((type != NULL) &amp;&amp; (type_kind(type) == T_UNRESOLVED))</span>
 <span class="lineNum">    1509 </span>            :       return false;
 <span class="lineNum">    1510 </span>            : 
-<span class="lineNum">    1511 </span><span class="lineCov">      34604 :    type_set_push();</span>
-<span class="lineNum">    1512 </span><span class="lineCov">      34604 :    if (type != NULL)</span>
-<span class="lineNum">    1513 </span><span class="lineCov">      29226 :       type_set_add(type);</span>
-<span class="lineNum">    1514 </span><span class="lineCov">      34604 :    bool ok = sem_check(t);</span>
-<span class="lineNum">    1515 </span><span class="lineCov">      34604 :    type_set_pop();</span>
-<span class="lineNum">    1516 </span><span class="lineCov">      34604 :    return ok;</span>
+<span class="lineNum">    1511 </span><span class="lineCov">      34605 :    type_set_push();</span>
+<span class="lineNum">    1512 </span><span class="lineCov">      34605 :    if (type != NULL)</span>
+<span class="lineNum">    1513 </span><span class="lineCov">      29227 :       type_set_add(type);</span>
+<span class="lineNum">    1514 </span><span class="lineCov">      34605 :    bool ok = sem_check(t);</span>
+<span class="lineNum">    1515 </span><span class="lineCov">      34605 :    type_set_pop();</span>
+<span class="lineNum">    1516 </span><span class="lineCov">      34605 :    return ok;</span>
 <a name="1517"><span class="lineNum">    1517 </span>            : }</a>
 <span class="lineNum">    1518 </span>            : 
-<span class="lineNum">    1519 </span><span class="lineCov">      25854 : static bool sem_readable(tree_t t)</span>
+<span class="lineNum">    1519 </span><span class="lineCov">      25856 : static bool sem_readable(tree_t t)</span>
 <span class="lineNum">    1520 </span>            : {
 <span class="lineNum">    1521 </span>            :    // Outputs may be read in LRM 08
-<span class="lineNum">    1522 </span><span class="lineCov">      26158 :    if (standard() &gt;= STD_08)</span>
+<span class="lineNum">    1522 </span><span class="lineCov">      26160 :    if (standard() &gt;= STD_08)</span>
 <span class="lineNum">    1523 </span>            :       return true;
 <span class="lineNum">    1524 </span>            : 
-<span class="lineNum">    1525 </span><span class="lineCov">      25577 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">    1525 </span><span class="lineCov">      25579 :    switch (tree_kind(t)) {</span>
 <span class="lineNum">    1526 </span>            :    case T_REF:
 <span class="lineNum">    1527 </span>            :       {
-<span class="lineNum">    1528 </span><span class="lineCov">      12341 :          tree_t decl = tree_ref(t);</span>
-<span class="lineNum">    1529 </span><span class="lineCov">      12341 :          if ((tree_kind(decl) == T_PORT_DECL)</span>
-<span class="lineNum">    1530 </span><span class="lineCov">       4691 :              &amp;&amp; (tree_subkind(decl) == PORT_OUT)</span>
+<span class="lineNum">    1528 </span><span class="lineCov">      12342 :          tree_t decl = tree_ref(t);</span>
+<span class="lineNum">    1529 </span><span class="lineCov">      12342 :          if ((tree_kind(decl) == T_PORT_DECL)</span>
+<span class="lineNum">    1530 </span><span class="lineCov">       4692 :              &amp;&amp; (tree_subkind(decl) == PORT_OUT)</span>
 <span class="lineNum">    1531 </span><span class="lineCov">          6 :              &amp;&amp; !(top_scope-&gt;flags &amp; SCOPE_FORMAL))</span>
 <span class="lineNum">    1532 </span><span class="lineCov">          4 :             sem_error(t, &quot;cannot read output port %s&quot;,</span>
 <span class="lineNum">    1533 </span>            :                       istr(tree_ident(t)));
@@ -1686,29 +1686,29 @@
 <span class="lineNum">    1624 </span><span class="lineCov">         28 :       return sem_check_field_name(name, next, where, tree_type(found), pdecl);</span>
 <a name="1625"><span class="lineNum">    1625 </span>            : }</a>
 <span class="lineNum">    1626 </span>            : 
-<span class="lineNum">    1627 </span><span class="lineCov">      57402 : static bool sem_check_selected_name(ident_t name, tree_t where, tree_t *pdecl)</span>
+<span class="lineNum">    1627 </span><span class="lineCov">      57407 : static bool sem_check_selected_name(ident_t name, tree_t where, tree_t *pdecl)</span>
 <span class="lineNum">    1628 </span>            : {
-<span class="lineNum">    1629 </span><span class="lineCov">      57402 :    lib_t lib = NULL;</span>
-<span class="lineNum">    1630 </span><span class="lineCov">      57402 :    ident_t prefix = NULL;</span>
+<span class="lineNum">    1629 </span><span class="lineCov">      57407 :    lib_t lib = NULL;</span>
+<span class="lineNum">    1630 </span><span class="lineCov">      57407 :    ident_t prefix = NULL;</span>
 <span class="lineNum">    1631 </span>            :    do {
-<span class="lineNum">    1632 </span><span class="lineCov">      57509 :       prefix = ident_suffix_until(name, '.', prefix);</span>
-<span class="lineNum">    1633 </span><span class="lineCov">      57509 :       if (ident_char(prefix, 0) == '\'')</span>
+<span class="lineNum">    1632 </span><span class="lineCov">      57514 :       prefix = ident_suffix_until(name, '.', prefix);</span>
+<span class="lineNum">    1633 </span><span class="lineCov">      57514 :       if (ident_char(prefix, 0) == '\'')</span>
 <span class="lineNum">    1634 </span><span class="lineCov">       3178 :          continue;</span>
 <span class="lineNum">    1635 </span>            : 
-<span class="lineNum">    1636 </span><span class="lineCov">      54331 :       if (prefix == work_i) {</span>
+<span class="lineNum">    1636 </span><span class="lineCov">      54336 :       if (prefix == work_i) {</span>
 <span class="lineNum">    1637 </span><span class="lineCov">         18 :          lib = lib_work();   // Work library is always visible</span>
 <span class="lineNum">    1638 </span><span class="lineCov">         18 :          continue;</span>
 <span class="lineNum">    1639 </span>            :       }
 <span class="lineNum">    1640 </span>            : 
-<span class="lineNum">    1641 </span><span class="lineCov">      54313 :       tree_t decl = scope_find(prefix);</span>
-<span class="lineNum">    1642 </span><span class="lineCov">      54313 :       if (decl == NULL &amp;&amp; lib != NULL) {</span>
+<span class="lineNum">    1641 </span><span class="lineCov">      54318 :       tree_t decl = scope_find(prefix);</span>
+<span class="lineNum">    1642 </span><span class="lineCov">      54318 :       if (decl == NULL &amp;&amp; lib != NULL) {</span>
 <span class="lineNum">    1643 </span><span class="lineCov">          3 :          if (!scope_import_unit(prefix, lib, false, false, tree_loc(where)))</span>
 <span class="lineNum">    1644 </span>            :             return false;
 <span class="lineNum">    1645 </span><span class="lineCov">          3 :          lib = NULL;</span>
 <span class="lineNum">    1646 </span><span class="lineCov">          3 :          decl = scope_find(prefix);</span>
 <span class="lineNum">    1647 </span>            :       }
 <span class="lineNum">    1648 </span>            : 
-<span class="lineNum">    1649 </span><span class="lineCov">      54313 :       if (decl == NULL) {</span>
+<span class="lineNum">    1649 </span><span class="lineCov">      54318 :       if (decl == NULL) {</span>
 <span class="lineNum">    1650 </span><span class="lineCov">         26 :          if (prefix == name)</span>
 <span class="lineNum">    1651 </span><span class="lineCov">         25 :             sem_error(where, &quot;no visible declaration for %s&quot;, istr(name));</span>
 <span class="lineNum">    1652 </span>            :          else
@@ -1716,38 +1716,38 @@
 <span class="lineNum">    1654 </span>            :                       istr(prefix), istr(name));
 <span class="lineNum">    1655 </span>            :       }
 <span class="lineNum">    1656 </span>            : 
-<span class="lineNum">    1657 </span><span class="lineCov">      54287 :       if (tree_kind(decl) == T_LIBRARY)</span>
+<span class="lineNum">    1657 </span><span class="lineCov">      54292 :       if (tree_kind(decl) == T_LIBRARY)</span>
 <span class="lineNum">    1658 </span><span class="lineCov">          3 :          lib = lib_find(tree_ident(decl), true);</span>
 <span class="lineNum">    1659 </span>            :       else
 <span class="lineNum">    1660 </span>            :          lib = NULL;
 <span class="lineNum">    1661 </span>            : 
-<span class="lineNum">    1662 </span><span class="lineCov">      54287 :       if (pdecl != NULL)</span>
-<span class="lineNum">    1663 </span><span class="lineCov">      14699 :          *pdecl = decl;</span>
+<span class="lineNum">    1662 </span><span class="lineCov">      54292 :       if (pdecl != NULL)</span>
+<span class="lineNum">    1663 </span><span class="lineCov">      14701 :          *pdecl = decl;</span>
 <span class="lineNum">    1664 </span>            : 
-<span class="lineNum">    1665 </span><span class="lineCov">      54287 :       if (!class_has_type(class_of(decl)))</span>
+<span class="lineNum">    1665 </span><span class="lineCov">      54292 :       if (!class_has_type(class_of(decl)))</span>
 <span class="lineNum">    1666 </span><span class="lineCov">         67 :          continue;</span>
 <span class="lineNum">    1667 </span>            : 
-<span class="lineNum">    1668 </span><span class="lineCov">      54220 :       type_t type = tree_type(decl);</span>
+<span class="lineNum">    1668 </span><span class="lineCov">      54225 :       type_t type = tree_type(decl);</span>
 <span class="lineNum">    1669 </span>            : 
-<span class="lineNum">    1670 </span><span class="lineCov">      54220 :       const bool is_record_field =</span>
+<span class="lineNum">    1670 </span><span class="lineCov">      54225 :       const bool is_record_field =</span>
 <span class="lineNum">    1671 </span>            :          prefix != name
-<span class="lineNum">    1672 </span><span class="lineCov">      54220 :           &amp;&amp; (type_is_record(type)</span>
+<span class="lineNum">    1672 </span><span class="lineCov">      54225 :           &amp;&amp; (type_is_record(type)</span>
 <span class="lineNum">    1673 </span><span class="lineCov">         49 :               || (type_kind(type) == T_FUNC</span>
 <span class="lineNum">    1674 </span><span class="lineCov">          5 :                   &amp;&amp; type_is_record(type_result(type))));</span>
 <span class="lineNum">    1675 </span>            : 
-<span class="lineNum">    1676 </span><span class="lineCov">      54220 :       if (is_record_field)</span>
+<span class="lineNum">    1676 </span><span class="lineCov">      54225 :       if (is_record_field)</span>
 <span class="lineNum">    1677 </span><span class="lineCov">       1181 :          return sem_check_field_name(name, prefix, where, type, pdecl);</span>
 <span class="lineNum">    1678 </span>            : 
-<span class="lineNum">    1679 </span><span class="lineCov">      56302 :    } while (prefix != name);</span>
+<span class="lineNum">    1679 </span><span class="lineCov">      56307 :    } while (prefix != name);</span>
 <span class="lineNum">    1680 </span>            : 
 <span class="lineNum">    1681 </span>            :    return true;
 <a name="1682"><span class="lineNum">    1682 </span>            : }</a>
 <span class="lineNum">    1683 </span>            : 
-<span class="lineNum">    1684 </span><span class="lineCov">      12190 : static bool sem_check_type(tree_t t, type_t *ptype)</span>
+<span class="lineNum">    1684 </span><span class="lineCov">      12192 : static bool sem_check_type(tree_t t, type_t *ptype)</span>
 <span class="lineNum">    1685 </span>            : {
 <span class="lineNum">    1686 </span>            :    // Check a type at the point where it is used not declared
 <span class="lineNum">    1687 </span>            : 
-<span class="lineNum">    1688 </span><span class="lineCov">      12190 :    switch (type_kind(*ptype)) {</span>
+<span class="lineNum">    1688 </span><span class="lineCov">      12192 :    switch (type_kind(*ptype)) {</span>
 <span class="lineNum">    1689 </span>            :    case T_SUBTYPE:
 <span class="lineNum">    1690 </span>            :       {
 <span class="lineNum">    1691 </span>            :          type_t base;
@@ -1762,12 +1762,12 @@
 <span class="lineNum">    1700 </span>            : 
 <span class="lineNum">    1701 </span>            :    case T_UNRESOLVED:
 <span class="lineNum">    1702 </span>            :       {
-<span class="lineNum">    1703 </span><span class="lineCov">      10804 :          ident_t name = type_ident(*ptype);</span>
+<span class="lineNum">    1703 </span><span class="lineCov">      10806 :          ident_t name = type_ident(*ptype);</span>
 <span class="lineNum">    1704 </span>            :          tree_t type_decl;
-<span class="lineNum">    1705 </span><span class="lineCov">      10804 :          if (!sem_check_selected_name(name, t, &amp;type_decl))</span>
+<span class="lineNum">    1705 </span><span class="lineCov">      10806 :          if (!sem_check_selected_name(name, t, &amp;type_decl))</span>
 <span class="lineNum">    1706 </span><span class="lineCov">         14 :             return false;</span>
 <span class="lineNum">    1707 </span>            : 
-<span class="lineNum">    1708 </span><span class="lineCov">      10797 :          while (tree_kind(type_decl) == T_ALIAS) {</span>
+<span class="lineNum">    1708 </span><span class="lineCov">      10799 :          while (tree_kind(type_decl) == T_ALIAS) {</span>
 <span class="lineNum">    1709 </span><span class="lineCov">          4 :             tree_t value = tree_value(type_decl);</span>
 <span class="lineNum">    1710 </span><span class="lineCov">          4 :             if (tree_kind(value) != T_REF)</span>
 <span class="lineNum">    1711 </span>            :                break;
@@ -1775,13 +1775,13 @@
 <span class="lineNum">    1713 </span><span class="lineCov">          4 :             type_decl = tree_ref(value);</span>
 <span class="lineNum">    1714 </span>            :          }
 <span class="lineNum">    1715 </span>            : 
-<span class="lineNum">    1716 </span><span class="lineCov">      10793 :          if (tree_kind(type_decl) != T_TYPE_DECL)</span>
+<span class="lineNum">    1716 </span><span class="lineCov">      10795 :          if (tree_kind(type_decl) != T_TYPE_DECL)</span>
 <span class="lineNum">    1717 </span><span class="lineCov">          3 :             sem_error(t, &quot;name %s does not refer to a type&quot;,</span>
 <span class="lineNum">    1718 </span>            :                       istr(tree_ident(type_decl)));
 <span class="lineNum">    1719 </span>            : 
-<span class="lineNum">    1720 </span><span class="lineCov">      10790 :          *ptype = tree_type(type_decl);</span>
+<span class="lineNum">    1720 </span><span class="lineCov">      10792 :          *ptype = tree_type(type_decl);</span>
 <span class="lineNum">    1721 </span>            :       }
-<span class="lineNum">    1722 </span><span class="lineCov">      10790 :       return true;</span>
+<span class="lineNum">    1722 </span><span class="lineCov">      10792 :       return true;</span>
 <span class="lineNum">    1723 </span>            : 
 <span class="lineNum">    1724 </span>            :    case T_FUNC:
 <span class="lineNum">    1725 </span>            :       {
@@ -1809,19 +1809,19 @@
 <span class="lineNum">    1747 </span>            :    }
 <a name="1748"><span class="lineNum">    1748 </span>            : }</a>
 <span class="lineNum">    1749 </span>            : 
-<span class="lineNum">    1750 </span><span class="lineCov">       8756 : static bool sem_has_access(type_t t)</span>
+<span class="lineNum">    1750 </span><span class="lineCov">       8757 : static bool sem_has_access(type_t t)</span>
 <span class="lineNum">    1751 </span>            : {
 <span class="lineNum">    1752 </span>            :    // returns true if the type is an access type or is a composite
 <span class="lineNum">    1753 </span>            :    // type that contains a subelement of an access type
-<span class="lineNum">    1754 </span><span class="lineCov">      11909 :    type_t base = type_base_recur(t);</span>
+<span class="lineNum">    1754 </span><span class="lineCov">      11910 :    type_t base = type_base_recur(t);</span>
 <span class="lineNum">    1755 </span>            : 
-<span class="lineNum">    1756 </span><span class="lineCov">      11909 :    if (type_is_access(base))</span>
+<span class="lineNum">    1756 </span><span class="lineCov">      11910 :    if (type_is_access(base))</span>
 <span class="lineNum">    1757 </span>            :       return true;
 <span class="lineNum">    1758 </span>            : 
-<span class="lineNum">    1759 </span><span class="lineCov">      11690 :    if (type_is_array(base))</span>
+<span class="lineNum">    1759 </span><span class="lineCov">      11691 :    if (type_is_array(base))</span>
 <span class="lineNum">    1760 </span><span class="lineCov">       3153 :       return sem_has_access(type_elem(base));</span>
 <span class="lineNum">    1761 </span>            : 
-<span class="lineNum">    1762 </span><span class="lineCov">       8537 :    if (type_is_record(base)) {</span>
+<span class="lineNum">    1762 </span><span class="lineCov">       8538 :    if (type_is_record(base)) {</span>
 <span class="lineNum">    1763 </span><span class="lineCov">        424 :       const int nfields = type_fields(base);</span>
 <span class="lineNum">    1764 </span><span class="lineCov">       1864 :       for (int i = 0; i &lt; nfields; i++) {</span>
 <span class="lineNum">    1765 </span><span class="lineCov">       1465 :          if (sem_has_access(tree_type(type_field(base, i))))</span>
@@ -2134,15 +2134,15 @@
 <span class="lineNum">    2072 </span>            :    }
 <a name="2073"><span class="lineNum">    2073 </span>            : }</a>
 <span class="lineNum">    2074 </span>            : 
-<span class="lineNum">    2075 </span><span class="lineCov">       3496 : static bool sem_make_visible(tree_t container, get_nth_fn_t get, int count)</span>
+<span class="lineNum">    2075 </span><span class="lineCov">       3497 : static bool sem_make_visible(tree_t container, get_nth_fn_t get, int count)</span>
 <span class="lineNum">    2076 </span>            : {
-<span class="lineNum">    2077 </span><span class="lineCov">       3496 :    bool ok = true;</span>
-<span class="lineNum">    2078 </span><span class="lineCov">       6879 :    for (int i = 0; i &lt; count; i++) {</span>
-<span class="lineNum">    2079 </span><span class="lineCov">       3383 :       tree_t t = (*get)(container, i);</span>
-<span class="lineNum">    2080 </span><span class="lineCov">       3383 :       ok = scope_insert(t) &amp;&amp; ok;</span>
+<span class="lineNum">    2077 </span><span class="lineCov">       3497 :    bool ok = true;</span>
+<span class="lineNum">    2078 </span><span class="lineCov">       6881 :    for (int i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">    2079 </span><span class="lineCov">       3384 :       tree_t t = (*get)(container, i);</span>
+<span class="lineNum">    2080 </span><span class="lineCov">       3384 :       ok = scope_insert(t) &amp;&amp; ok;</span>
 <span class="lineNum">    2081 </span>            :    }
 <span class="lineNum">    2082 </span>            : 
-<span class="lineNum">    2083 </span><span class="lineCov">       3496 :    return ok;</span>
+<span class="lineNum">    2083 </span><span class="lineCov">       3497 :    return ok;</span>
 <a name="2084"><span class="lineNum">    2084 </span>            : }</a>
 <span class="lineNum">    2085 </span>            : 
 <span class="lineNum">    2086 </span><span class="lineCov">       1744 : static bool sem_no_access_file_or_protected(tree_t t, type_t type, const char *what)</span>
@@ -2268,15 +2268,15 @@
 <span class="lineNum">    2206 </span><span class="lineCov">       3113 :       return scope_insert(t);</span>
 <a name="2207"><span class="lineNum">    2207 </span>            : }</a>
 <span class="lineNum">    2208 </span>            : 
-<span class="lineNum">    2209 </span><span class="lineCov">       5966 : static bool sem_check_port_decl(tree_t t)</span>
+<span class="lineNum">    2209 </span><span class="lineCov">       5967 : static bool sem_check_port_decl(tree_t t)</span>
 <span class="lineNum">    2210 </span>            : {
-<span class="lineNum">    2211 </span><span class="lineCov">       5966 :    type_t type = tree_type(t);</span>
-<span class="lineNum">    2212 </span><span class="lineCov">       5966 :    if (!sem_check_type(t, &amp;type))</span>
+<span class="lineNum">    2211 </span><span class="lineCov">       5967 :    type_t type = tree_type(t);</span>
+<span class="lineNum">    2212 </span><span class="lineCov">       5967 :    if (!sem_check_type(t, &amp;type))</span>
 <span class="lineNum">    2213 </span>            :       return false;
 <span class="lineNum">    2214 </span>            : 
-<span class="lineNum">    2215 </span><span class="lineCov">       5962 :    tree_set_type(t, type);</span>
+<span class="lineNum">    2215 </span><span class="lineCov">       5963 :    tree_set_type(t, type);</span>
 <span class="lineNum">    2216 </span>            : 
-<span class="lineNum">    2217 </span><span class="lineCov">       5962 :    if (tree_has_value(t)) {</span>
+<span class="lineNum">    2217 </span><span class="lineCov">       5963 :    if (tree_has_value(t)) {</span>
 <span class="lineNum">    2218 </span><span class="lineCov">       1063 :       tree_t value = tree_value(t);</span>
 <span class="lineNum">    2219 </span><span class="lineCov">       1063 :       if (!sem_check_constrained(value, type))</span>
 <span class="lineNum">    2220 </span>            :          return false;
@@ -2403,16 +2403,16 @@
 <span class="lineNum">    2341 </span><span class="lineCov">        241 :    return scope_insert(t);</span>
 <a name="2342"><span class="lineNum">    2342 </span>            : }</a>
 <span class="lineNum">    2343 </span>            : 
-<span class="lineNum">    2344 </span><span class="lineCov">       5543 : static bool sem_check_interface_class(tree_t port)</span>
+<span class="lineNum">    2344 </span><span class="lineCov">       5544 : static bool sem_check_interface_class(tree_t port)</span>
 <span class="lineNum">    2345 </span>            : {
 <span class="lineNum">    2346 </span>            :    // See LRM 93 section 3.3 for restrictions
 <span class="lineNum">    2347 </span>            : 
-<span class="lineNum">    2348 </span><span class="lineCov">       5543 :    const type_t type = tree_type(port);</span>
-<span class="lineNum">    2349 </span><span class="lineCov">       5543 :    const type_kind_t kind = type_base_kind(type);</span>
-<span class="lineNum">    2350 </span><span class="lineCov">       5543 :    const class_t class = tree_class(port);</span>
-<span class="lineNum">    2351 </span><span class="lineCov">       5543 :    const port_mode_t mode = tree_subkind(port);</span>
+<span class="lineNum">    2348 </span><span class="lineCov">       5544 :    const type_t type = tree_type(port);</span>
+<span class="lineNum">    2349 </span><span class="lineCov">       5544 :    const type_kind_t kind = type_base_kind(type);</span>
+<span class="lineNum">    2350 </span><span class="lineCov">       5544 :    const class_t class = tree_class(port);</span>
+<span class="lineNum">    2351 </span><span class="lineCov">       5544 :    const port_mode_t mode = tree_subkind(port);</span>
 <span class="lineNum">    2352 </span>            : 
-<span class="lineNum">    2353 </span><span class="lineCov">       5543 :    if (tree_has_value(port)) {</span>
+<span class="lineNum">    2353 </span><span class="lineCov">       5544 :    if (tree_has_value(port)) {</span>
 <span class="lineNum">    2354 </span><span class="lineCov">       1012 :        if (class == C_SIGNAL)</span>
 <span class="lineNum">    2355 </span><span class="lineCov">          1 :           sem_error(port, &quot;parameter of class SIGNAL can not have a default value&quot;);</span>
 <span class="lineNum">    2356 </span>            : 
@@ -2429,24 +2429,24 @@
 <span class="lineNum">    2367 </span><span class="lineCov">          1 :           sem_error(port, &quot;parameter with protected type can not have a default value&quot;);</span>
 <span class="lineNum">    2368 </span>            :    }
 <span class="lineNum">    2369 </span>            : 
-<span class="lineNum">    2370 </span><span class="lineCov">       5537 :    if (kind == T_FILE &amp;&amp; class != C_FILE)</span>
+<span class="lineNum">    2370 </span><span class="lineCov">       5538 :    if (kind == T_FILE &amp;&amp; class != C_FILE)</span>
 <span class="lineNum">    2371 </span><span class="lineCov">          1 :       sem_error(port, &quot;object %s with file type must have class FILE&quot;,</span>
 <span class="lineNum">    2372 </span>            :                 istr(tree_ident(port)));
 <span class="lineNum">    2373 </span>            : 
-<span class="lineNum">    2374 </span><span class="lineCov">       5536 :    if (kind != T_FILE &amp;&amp; class == C_FILE)</span>
+<span class="lineNum">    2374 </span><span class="lineCov">       5537 :    if (kind != T_FILE &amp;&amp; class == C_FILE)</span>
 <span class="lineNum">    2375 </span><span class="lineCov">          1 :       sem_error(port, &quot;object %s with class FILE must have file type&quot;,</span>
 <span class="lineNum">    2376 </span>            :                 istr(tree_ident(port)));
 <span class="lineNum">    2377 </span>            : 
-<span class="lineNum">    2378 </span><span class="lineCov">       5535 :    if ((kind == T_ACCESS || kind == T_PROTECTED) &amp;&amp; class != C_VARIABLE)</span>
+<span class="lineNum">    2378 </span><span class="lineCov">       5536 :    if ((kind == T_ACCESS || kind == T_PROTECTED) &amp;&amp; class != C_VARIABLE)</span>
 <span class="lineNum">    2379 </span><span class="lineCov">          5 :       sem_error(port, &quot;object %s with %s type must have class VARIABLE&quot;,</span>
 <span class="lineNum">    2380 </span>            :                 istr(tree_ident(port)),
 <span class="lineNum">    2381 </span>            :                 kind == T_ACCESS ? &quot;access&quot; : &quot;protected&quot;);
 <span class="lineNum">    2382 </span>            : 
-<span class="lineNum">    2383 </span><span class="lineCov">       5530 :    if (sem_has_access(type) &amp;&amp; class != C_VARIABLE)</span>
+<span class="lineNum">    2383 </span><span class="lineCov">       5531 :    if (sem_has_access(type) &amp;&amp; class != C_VARIABLE)</span>
 <span class="lineNum">    2384 </span><span class="lineCov">          4 :       sem_error(port, &quot;object %s with type containing an access type must have class VARIABLE&quot;,</span>
 <span class="lineNum">    2385 </span>            :                 istr(tree_ident(port)));
 <span class="lineNum">    2386 </span>            : 
-<span class="lineNum">    2387 </span><span class="lineCov">       5526 :    if (class == C_CONSTANT &amp;&amp; mode != PORT_IN)</span>
+<span class="lineNum">    2387 </span><span class="lineCov">       5527 :    if (class == C_CONSTANT &amp;&amp; mode != PORT_IN)</span>
 <span class="lineNum">    2388 </span><span class="lineCov">          2 :       sem_error(port, &quot;parameter of class CONSTANT must have mode IN&quot;);</span>
 <span class="lineNum">    2389 </span>            : 
 <span class="lineNum">    2390 </span>            :    return true;
@@ -2467,47 +2467,47 @@
 <span class="lineNum">    2405 </span><span class="lineCov">         73 :    tree_add_attr_int(port, protected_i, 1);</span>
 <a name="2406"><span class="lineNum">    2406 </span><span class="lineCov">         73 : }</span></a>
 <span class="lineNum">    2407 </span>            : 
-<span class="lineNum">    2408 </span><span class="lineCov">       1829 : static bool sem_check_func_ports(tree_t t)</span>
+<span class="lineNum">    2408 </span><span class="lineCov">       1830 : static bool sem_check_func_ports(tree_t t)</span>
 <span class="lineNum">    2409 </span>            : {
-<span class="lineNum">    2410 </span><span class="lineCov">       1829 :    type_t ftype = tree_type(t);</span>
+<span class="lineNum">    2410 </span><span class="lineCov">       1830 :    type_t ftype = tree_type(t);</span>
 <span class="lineNum">    2411 </span>            : 
-<span class="lineNum">    2412 </span><span class="lineCov">       1829 :    const int nports = tree_ports(t);</span>
-<span class="lineNum">    2413 </span><span class="lineCov">       4993 :    for (int i = 0; i &lt; nports; i++) {</span>
-<span class="lineNum">    2414 </span><span class="lineCov">       3170 :       tree_t p = tree_port(t, i);</span>
-<span class="lineNum">    2415 </span><span class="lineCov">       3170 :       if (tree_subkind(p) != PORT_IN)</span>
+<span class="lineNum">    2412 </span><span class="lineCov">       1830 :    const int nports = tree_ports(t);</span>
+<span class="lineNum">    2413 </span><span class="lineCov">       4995 :    for (int i = 0; i &lt; nports; i++) {</span>
+<span class="lineNum">    2414 </span><span class="lineCov">       3171 :       tree_t p = tree_port(t, i);</span>
+<span class="lineNum">    2415 </span><span class="lineCov">       3171 :       if (tree_subkind(p) != PORT_IN)</span>
 <span class="lineNum">    2416 </span><span class="lineCov">          2 :          sem_error(p, &quot;function arguments must have mode IN&quot;);</span>
 <span class="lineNum">    2417 </span>            : 
 <span class="lineNum">    2418 </span>            :       // See LRM 93 section 2.1.1 for default class
-<span class="lineNum">    2419 </span><span class="lineCov">       3168 :       if (tree_class(p) == C_VARIABLE)</span>
+<span class="lineNum">    2419 </span><span class="lineCov">       3169 :       if (tree_class(p) == C_VARIABLE)</span>
 <span class="lineNum">    2420 </span><span class="lineCov">          1 :          sem_error(p, &quot;function arguments may not have VARIABLE class&quot;);</span>
 <span class="lineNum">    2421 </span>            : 
-<span class="lineNum">    2422 </span><span class="lineCov">       3167 :       if (!sem_check(p))</span>
+<span class="lineNum">    2422 </span><span class="lineCov">       3168 :       if (!sem_check(p))</span>
 <span class="lineNum">    2423 </span>            :          return false;
 <span class="lineNum">    2424 </span>            : 
-<span class="lineNum">    2425 </span><span class="lineCov">       3166 :       if (!sem_check_interface_class(p))</span>
+<span class="lineNum">    2425 </span><span class="lineCov">       3167 :       if (!sem_check_interface_class(p))</span>
 <span class="lineNum">    2426 </span>            :          return false;
 <span class="lineNum">    2427 </span>            : 
-<span class="lineNum">    2428 </span><span class="lineCov">       3164 :       type_add_param(ftype, tree_type(p));</span>
+<span class="lineNum">    2428 </span><span class="lineCov">       3165 :       type_add_param(ftype, tree_type(p));</span>
 <span class="lineNum">    2429 </span>            :    }
 <span class="lineNum">    2430 </span>            : 
-<span class="lineNum">    2431 </span><span class="lineCov">       1823 :    type_t rtype = type_result(ftype);</span>
-<span class="lineNum">    2432 </span><span class="lineCov">       1823 :    if (!sem_check_type(t, &amp;rtype))</span>
+<span class="lineNum">    2431 </span><span class="lineCov">       1824 :    type_t rtype = type_result(ftype);</span>
+<span class="lineNum">    2432 </span><span class="lineCov">       1824 :    if (!sem_check_type(t, &amp;rtype))</span>
 <span class="lineNum">    2433 </span>            :       return false;
 <span class="lineNum">    2434 </span>            : 
-<span class="lineNum">    2435 </span><span class="lineCov">       1823 :    type_set_result(ftype, rtype);</span>
+<span class="lineNum">    2435 </span><span class="lineCov">       1824 :    type_set_result(ftype, rtype);</span>
 <span class="lineNum">    2436 </span>            : 
-<span class="lineNum">    2437 </span><span class="lineCov">       1823 :    if (top_scope-&gt;flags &amp; SCOPE_PROTECTED)</span>
+<span class="lineNum">    2437 </span><span class="lineCov">       1824 :    if (top_scope-&gt;flags &amp; SCOPE_PROTECTED)</span>
 <span class="lineNum">    2438 </span><span class="lineCov">         26 :       sem_add_protected_arg(t);</span>
 <span class="lineNum">    2439 </span>            : 
 <span class="lineNum">    2440 </span>            :    return true;
 <a name="2441"><span class="lineNum">    2441 </span>            : }</a>
 <span class="lineNum">    2442 </span>            : 
-<span class="lineNum">    2443 </span><span class="lineCov">       4075 : static tree_t sem_check_duplicate(tree_t t, tree_kind_t kind)</span>
+<span class="lineNum">    2443 </span><span class="lineCov">       4076 : static tree_t sem_check_duplicate(tree_t t, tree_kind_t kind)</span>
 <span class="lineNum">    2444 </span>            : {
 <span class="lineNum">    2445 </span>            :    tree_t decl;
-<span class="lineNum">    2446 </span><span class="lineCov">       4075 :    int n = 0;</span>
+<span class="lineNum">    2446 </span><span class="lineCov">       4076 :    int n = 0;</span>
 <span class="lineNum">    2447 </span>            :    do {
-<span class="lineNum">    2448 </span><span class="lineCov">      16705 :       if ((decl = scope_find_nth(tree_ident(t), n++))) {</span>
+<span class="lineNum">    2448 </span><span class="lineCov">      16706 :       if ((decl = scope_find_nth(tree_ident(t), n++))) {</span>
 <span class="lineNum">    2449 </span><span class="lineCov">      13708 :          if (tree_kind(decl) != kind)</span>
 <span class="lineNum">    2450 </span><span class="lineCov">       5828 :             continue;</span>
 <span class="lineNum">    2451 </span>            : 
@@ -2517,21 +2517,21 @@
 <span class="lineNum">    2455 </span>            :                break;
 <span class="lineNum">    2456 </span>            :          }
 <span class="lineNum">    2457 </span>            :       }
-<span class="lineNum">    2458 </span><span class="lineCov">      15627 :    } while (decl != NULL);</span>
+<span class="lineNum">    2458 </span><span class="lineCov">      15628 :    } while (decl != NULL);</span>
 <span class="lineNum">    2459 </span>            : 
-<span class="lineNum">    2460 </span><span class="lineCov">       4075 :    return decl;</span>
+<span class="lineNum">    2460 </span><span class="lineCov">       4076 :    return decl;</span>
 <a name="2461"><span class="lineNum">    2461 </span>            : }</a>
 <span class="lineNum">    2462 </span>            : 
-<span class="lineNum">    2463 </span><span class="lineCov">       7089 : static bool sem_check_stmts(tree_t t, tree_t (*get_stmt)(tree_t, unsigned),</span>
+<span class="lineNum">    2463 </span><span class="lineCov">       7090 : static bool sem_check_stmts(tree_t t, tree_t (*get_stmt)(tree_t, unsigned),</span>
 <span class="lineNum">    2464 </span>            :                             int nstmts)
 <span class="lineNum">    2465 </span>            : {
-<span class="lineNum">    2466 </span><span class="lineCov">       7089 :    bool ok = true;</span>
-<span class="lineNum">    2467 </span><span class="lineCov">      19416 :    for (int i = 0; i &lt; nstmts; i++) {</span>
-<span class="lineNum">    2468 </span><span class="lineCov">      12327 :       tree_t s = get_stmt(t, i);</span>
-<span class="lineNum">    2469 </span><span class="lineCov">      12327 :       ok = scope_insert(s) &amp;&amp; sem_check(s) &amp;&amp; ok;</span>
+<span class="lineNum">    2466 </span><span class="lineCov">       7090 :    bool ok = true;</span>
+<span class="lineNum">    2467 </span><span class="lineCov">      19418 :    for (int i = 0; i &lt; nstmts; i++) {</span>
+<span class="lineNum">    2468 </span><span class="lineCov">      12328 :       tree_t s = get_stmt(t, i);</span>
+<span class="lineNum">    2469 </span><span class="lineCov">      12328 :       ok = scope_insert(s) &amp;&amp; sem_check(s) &amp;&amp; ok;</span>
 <span class="lineNum">    2470 </span>            :    }
 <span class="lineNum">    2471 </span>            : 
-<span class="lineNum">    2472 </span><span class="lineCov">       7089 :    return ok;</span>
+<span class="lineNum">    2472 </span><span class="lineCov">       7090 :    return ok;</span>
 <a name="2473"><span class="lineNum">    2473 </span>            : }</a>
 <span class="lineNum">    2474 </span>            : 
 <span class="lineNum">    2475 </span><span class="lineCov">        781 : static bool sem_check_func_decl(tree_t t)</span>
@@ -2548,39 +2548,39 @@
 <span class="lineNum">    2486 </span><span class="lineCov">        776 :    return scope_insert(t);</span>
 <a name="2487"><span class="lineNum">    2487 </span>            : }</a>
 <span class="lineNum">    2488 </span>            : 
-<span class="lineNum">    2489 </span><span class="lineCov">       1048 : static bool sem_check_func_body(tree_t t)</span>
+<span class="lineNum">    2489 </span><span class="lineCov">       1049 : static bool sem_check_func_body(tree_t t)</span>
 <span class="lineNum">    2490 </span>            : {
-<span class="lineNum">    2491 </span><span class="lineCov">       1048 :    if (!sem_check_func_ports(t))</span>
+<span class="lineNum">    2491 </span><span class="lineCov">       1049 :    if (!sem_check_func_ports(t))</span>
 <span class="lineNum">    2492 </span>            :       return false;
 <span class="lineNum">    2493 </span>            : 
-<span class="lineNum">    2494 </span><span class="lineCov">       1046 :    ident_t unqual = top_scope-&gt;prefix ? tree_ident(t) : NULL;</span>
-<span class="lineNum">    2495 </span><span class="lineCov">       1046 :    scope_apply_prefix(t);</span>
+<span class="lineNum">    2494 </span><span class="lineCov">       1047 :    ident_t unqual = top_scope-&gt;prefix ? tree_ident(t) : NULL;</span>
+<span class="lineNum">    2495 </span><span class="lineCov">       1047 :    scope_apply_prefix(t);</span>
 <span class="lineNum">    2496 </span>            : 
-<span class="lineNum">    2497 </span><span class="lineCov">       1046 :    if (sem_check_duplicate(t, T_FUNC_BODY))</span>
+<span class="lineNum">    2497 </span><span class="lineCov">       1047 :    if (sem_check_duplicate(t, T_FUNC_BODY))</span>
 <span class="lineNum">    2498 </span><span class="lineCov">          1 :       sem_error(t, &quot;duplicate subprogram body for function %s&quot;,</span>
 <span class="lineNum">    2499 </span>            :                 sem_type_str(tree_type(t)));
 <span class="lineNum">    2500 </span>            : 
-<span class="lineNum">    2501 </span><span class="lineCov">       1045 :    if (!scope_insert(t))</span>
+<span class="lineNum">    2501 </span><span class="lineCov">       1046 :    if (!scope_insert(t))</span>
 <span class="lineNum">    2502 </span>            :       return false;
 <span class="lineNum">    2503 </span>            : 
-<span class="lineNum">    2504 </span><span class="lineCov">       1045 :    scope_push(NULL);</span>
-<span class="lineNum">    2505 </span><span class="lineCov">       1045 :    top_scope-&gt;subprog = t;</span>
+<span class="lineNum">    2504 </span><span class="lineCov">       1046 :    scope_push(NULL);</span>
+<span class="lineNum">    2505 </span><span class="lineCov">       1046 :    top_scope-&gt;subprog = t;</span>
 <span class="lineNum">    2506 </span>            : 
-<span class="lineNum">    2507 </span><span class="lineCov">       1045 :    if (unqual != NULL)</span>
+<span class="lineNum">    2507 </span><span class="lineCov">       1046 :    if (unqual != NULL)</span>
 <span class="lineNum">    2508 </span><span class="lineCov">        874 :       scope_insert_alias(t, unqual);</span>
 <span class="lineNum">    2509 </span>            : 
-<span class="lineNum">    2510 </span><span class="lineCov">       1045 :    bool ok = sem_make_visible(t, tree_port, tree_ports(t));</span>
+<span class="lineNum">    2510 </span><span class="lineCov">       1046 :    bool ok = sem_make_visible(t, tree_port, tree_ports(t));</span>
 <span class="lineNum">    2511 </span>            : 
-<span class="lineNum">    2512 </span><span class="lineCov">       1045 :    const int ndecls = tree_decls(t);</span>
-<span class="lineNum">    2513 </span><span class="lineCov">       2340 :    for (int i = 0; i &lt; ndecls; i++)</span>
+<span class="lineNum">    2512 </span><span class="lineCov">       1046 :    const int ndecls = tree_decls(t);</span>
+<span class="lineNum">    2513 </span><span class="lineCov">       2341 :    for (int i = 0; i &lt; ndecls; i++)</span>
 <span class="lineNum">    2514 </span><span class="lineCov">       1295 :       ok = sem_check(tree_decl(t, i)) &amp;&amp; ok;</span>
 <span class="lineNum">    2515 </span>            : 
-<span class="lineNum">    2516 </span><span class="lineCov">       1045 :    ok = ok &amp;&amp; sem_check_stmts(t, tree_stmt, tree_stmts(t));</span>
+<span class="lineNum">    2516 </span><span class="lineCov">       1046 :    ok = ok &amp;&amp; sem_check_stmts(t, tree_stmt, tree_stmts(t));</span>
 <span class="lineNum">    2517 </span>            : 
-<span class="lineNum">    2518 </span><span class="lineCov">       1045 :    scope_pop();</span>
+<span class="lineNum">    2518 </span><span class="lineCov">       1046 :    scope_pop();</span>
 <span class="lineNum">    2519 </span>            : 
-<span class="lineNum">    2520 </span><span class="lineCov">       1045 :    unsigned nret = tree_visit_only(t, NULL, NULL, T_RETURN);</span>
-<span class="lineNum">    2521 </span><span class="lineCov">       1045 :    if (nret == 0)</span>
+<span class="lineNum">    2520 </span><span class="lineCov">       1046 :    unsigned nret = tree_visit_only(t, NULL, NULL, T_RETURN);</span>
+<span class="lineNum">    2521 </span><span class="lineCov">       1046 :    if (nret == 0)</span>
 <span class="lineNum">    2522 </span><span class="lineCov">          1 :       sem_error(t, &quot;function must contain a return statement&quot;);</span>
 <span class="lineNum">    2523 </span>            : 
 <span class="lineNum">    2524 </span>            :    return ok;
@@ -2729,12 +2729,12 @@
 <span class="lineNum">    2667 </span>            :    }
 <a name="2668"><span class="lineNum">    2668 </span><span class="lineCov">         11 : }</span></a>
 <span class="lineNum">    2669 </span>            : 
-<span class="lineNum">    2670 </span><span class="lineCov">       2990 : static void sem_check_static_elab(tree_t t)</span>
+<span class="lineNum">    2670 </span><span class="lineCov">       2991 : static void sem_check_static_elab(tree_t t)</span>
 <span class="lineNum">    2671 </span>            : {
 <span class="lineNum">    2672 </span>            :    // LRM 93 12.3 forbirds references to signals before the design has been
 <span class="lineNum">    2673 </span>            :    // elaborated
 <span class="lineNum">    2674 </span>            : 
-<span class="lineNum">    2675 </span><span class="lineCov">       4152 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">    2675 </span><span class="lineCov">       4153 :    switch (tree_kind(t)) {</span>
 <span class="lineNum">    2676 </span>            :    case T_VAR_DECL:
 <span class="lineNum">    2677 </span>            :    case T_CONST_DECL:
 <span class="lineNum">    2678 </span>            :    case T_SIGNAL_DECL:
@@ -2767,7 +2767,7 @@
 <span class="lineNum">    2705 </span>            :    default:
 <span class="lineNum">    2706 </span>            :       break;
 <span class="lineNum">    2707 </span>            :    }
-<a name="2708"><span class="lineNum">    2708 </span><span class="lineCov">       2990 : }</span></a>
+<a name="2708"><span class="lineNum">    2708 </span><span class="lineCov">       2991 : }</span></a>
 <span class="lineNum">    2709 </span>            : 
 <span class="lineNum">    2710 </span><span class="lineCov">        646 : static bool sem_check_process(tree_t t)</span>
 <span class="lineNum">    2711 </span>            : {
@@ -2867,11 +2867,11 @@
 <span class="lineNum">    2805 </span>            :    // Check for any subprogram declarations or protected types without bodies
 <span class="lineNum">    2806 </span><span class="lineCov">        920 :    bool ok = true;</span>
 <span class="lineNum">    2807 </span><span class="lineCov">        920 :    const int ndecls = tree_decls(spec);</span>
-<span class="lineNum">    2808 </span><span class="lineCov">       5568 :    for (int i = 0; i &lt; ndecls; i++) {</span>
-<span class="lineNum">    2809 </span><span class="lineCov">       4649 :       tree_t d = tree_decl(spec, i);</span>
-<span class="lineNum">    2810 </span><span class="lineCov">       4649 :       tree_kind_t dkind = tree_kind(d);</span>
+<span class="lineNum">    2808 </span><span class="lineCov">       5569 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">    2809 </span><span class="lineCov">       4650 :       tree_t d = tree_decl(spec, i);</span>
+<span class="lineNum">    2810 </span><span class="lineCov">       4650 :       tree_kind_t dkind = tree_kind(d);</span>
 <span class="lineNum">    2811 </span>            : 
-<span class="lineNum">    2812 </span><span class="lineCov">       4649 :       if (dkind == T_FUNC_DECL || dkind == T_PROC_DECL) {</span>
+<span class="lineNum">    2812 </span><span class="lineCov">       4650 :       if (dkind == T_FUNC_DECL || dkind == T_PROC_DECL) {</span>
 <span class="lineNum">    2813 </span><span class="lineCov">        903 :          type_t dtype = tree_type(d);</span>
 <span class="lineNum">    2814 </span>            : 
 <span class="lineNum">    2815 </span><span class="lineCov">        903 :          bool found = false;</span>
@@ -2893,7 +2893,7 @@
 <span class="lineNum">    2831 </span>            :                     (dkind == T_FUNC_DECL) ? &quot;function&quot; : &quot;procedure&quot;,
 <span class="lineNum">    2832 </span>            :                     sem_type_str(dtype));
 <span class="lineNum">    2833 </span>            :       }
-<span class="lineNum">    2834 </span><span class="lineCov">       3746 :       else if (dkind == T_TYPE_DECL &amp;&amp; type_is_protected(tree_type(d))) {</span>
+<span class="lineNum">    2834 </span><span class="lineCov">       3747 :       else if (dkind == T_TYPE_DECL &amp;&amp; type_is_protected(tree_type(d))) {</span>
 <span class="lineNum">    2835 </span><span class="lineCov">         22 :          if (!type_has_body(tree_type(d)))</span>
 <span class="lineNum">    2836 </span><span class="lineCov">          1 :             sem_error(d, &quot;missing body for protected type %s&quot;,</span>
 <span class="lineNum">    2837 </span>            :                       istr(tree_ident(d)));
@@ -3136,10 +3136,10 @@
 <span class="lineNum">    3074 </span>            : 
 <span class="lineNum">    3075 </span><span class="lineCov">        662 :    if (ok) {</span>
 <span class="lineNum">    3076 </span><span class="lineCov">        660 :       const int ndecls = tree_decls(t);</span>
-<span class="lineNum">    3077 </span><span class="lineCov">       1883 :       for (int n = 0; n &lt; ndecls; n++) {</span>
-<span class="lineNum">    3078 </span><span class="lineCov">       1223 :          tree_t d = tree_decl(t, n);</span>
-<span class="lineNum">    3079 </span><span class="lineCov">       1223 :          if ((ok = sem_check(d) &amp;&amp; ok))</span>
-<span class="lineNum">    3080 </span><span class="lineCov">       1152 :             sem_check_static_elab(d);</span>
+<span class="lineNum">    3077 </span><span class="lineCov">       1884 :       for (int n = 0; n &lt; ndecls; n++) {</span>
+<span class="lineNum">    3078 </span><span class="lineCov">       1224 :          tree_t d = tree_decl(t, n);</span>
+<span class="lineNum">    3079 </span><span class="lineCov">       1224 :          if ((ok = sem_check(d) &amp;&amp; ok))</span>
+<span class="lineNum">    3080 </span><span class="lineCov">       1153 :             sem_check_static_elab(d);</span>
 <span class="lineNum">    3081 </span>            :       }
 <span class="lineNum">    3082 </span>            :    }
 <span class="lineNum">    3083 </span>            : 
@@ -3465,19 +3465,19 @@
 <span class="lineNum">    3403 </span><span class="lineCov">          3 :    sem_error(t, &quot;conversion only allowed between closely related types&quot;);</span>
 <a name="3404"><span class="lineNum">    3404 </span>            : }</a>
 <span class="lineNum">    3405 </span>            : 
-<span class="lineNum">    3406 </span><span class="lineCov">      30246 : static int sem_ambiguous_rate(tree_t t)</span>
+<span class="lineNum">    3406 </span><span class="lineCov">      30248 : static int sem_ambiguous_rate(tree_t t)</span>
 <span class="lineNum">    3407 </span>            : {
-<span class="lineNum">    3408 </span><span class="lineCov">      30246 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">    3408 </span><span class="lineCov">      30248 :    switch (tree_kind(t)) {</span>
 <span class="lineNum">    3409 </span>            :    case T_REF:
 <span class="lineNum">    3410 </span>            :       {
 <span class="lineNum">    3411 </span>            :          int n = 0;
 <span class="lineNum">    3412 </span>            :          tree_t decl;
 <span class="lineNum">    3413 </span>            :          bool have_enum = false;
-<span class="lineNum">    3414 </span><span class="lineCov">      13829 :          while ((decl = scope_find_nth(tree_ident(t), n++))</span>
-<span class="lineNum">    3415 </span><span class="lineCov">      12743 :                  &amp;&amp; tree_kind(decl) == T_ENUM_LIT)</span>
+<span class="lineNum">    3414 </span><span class="lineCov">      13831 :          while ((decl = scope_find_nth(tree_ident(t), n++))</span>
+<span class="lineNum">    3415 </span><span class="lineCov">      12745 :                  &amp;&amp; tree_kind(decl) == T_ENUM_LIT)</span>
 <span class="lineNum">    3416 </span>            :             have_enum = true;
 <span class="lineNum">    3417 </span>            : 
-<span class="lineNum">    3418 </span><span class="lineCov">      12094 :          return have_enum ? 50 + n : 0;</span>
+<span class="lineNum">    3418 </span><span class="lineCov">      12096 :          return have_enum ? 50 + n : 0;</span>
 <span class="lineNum">    3419 </span>            :       }
 <span class="lineNum">    3420 </span>            :    case T_AGGREGATE:
 <span class="lineNum">    3421 </span>            :       return 100;
@@ -3503,34 +3503,34 @@
 <span class="lineNum">    3441 </span>            :    }
 <a name="3442"><span class="lineNum">    3442 </span>            : }</a>
 <span class="lineNum">    3443 </span>            : 
-<span class="lineNum">    3444 </span><span class="lineCov">      11165 : static int sem_ambiguous_cmp(const void *_a, const void *_b)</span>
+<span class="lineNum">    3444 </span><span class="lineCov">      11166 : static int sem_ambiguous_cmp(const void *_a, const void *_b)</span>
 <span class="lineNum">    3445 </span>            : {
-<span class="lineNum">    3446 </span><span class="lineCov">      11165 :    tree_t a = *(tree_t *)_a;</span>
-<span class="lineNum">    3447 </span><span class="lineCov">      11165 :    tree_t b = *(tree_t *)_b;</span>
+<span class="lineNum">    3446 </span><span class="lineCov">      11166 :    tree_t a = *(tree_t *)_a;</span>
+<span class="lineNum">    3447 </span><span class="lineCov">      11166 :    tree_t b = *(tree_t *)_b;</span>
 <span class="lineNum">    3448 </span>            : 
-<span class="lineNum">    3449 </span><span class="lineCov">      11165 :    return sem_ambiguous_rate(tree_value(a)) - sem_ambiguous_rate(tree_value(b));</span>
+<span class="lineNum">    3449 </span><span class="lineCov">      11166 :    return sem_ambiguous_rate(tree_value(a)) - sem_ambiguous_rate(tree_value(b));</span>
 <a name="3450"><span class="lineNum">    3450 </span>            : }</a>
 <span class="lineNum">    3451 </span>            : 
-<span class="lineNum">    3452 </span><span class="lineCov">      10961 : static void sem_sort_ambiguous(tree_t *params, int n)</span>
+<span class="lineNum">    3452 </span><span class="lineCov">      10962 : static void sem_sort_ambiguous(tree_t *params, int n)</span>
 <span class="lineNum">    3453 </span>            : {
 <span class="lineNum">    3454 </span>            :    // Reorder a list of tree so the unambiguous ones such as literals
 <span class="lineNum">    3455 </span>            :    // are checked first
 <span class="lineNum">    3456 </span>            : 
-<span class="lineNum">    3457 </span><span class="lineCov">      10961 :    qsort(params, n, sizeof(tree_t), sem_ambiguous_cmp);</span>
-<a name="3458"><span class="lineNum">    3458 </span><span class="lineCov">      10961 : }</span></a>
+<span class="lineNum">    3457 </span><span class="lineCov">      10962 :    qsort(params, n, sizeof(tree_t), sem_ambiguous_cmp);</span>
+<a name="3458"><span class="lineNum">    3458 </span><span class="lineCov">      10962 : }</span></a>
 <span class="lineNum">    3459 </span>            : 
-<span class="lineNum">    3460 </span><span class="lineCov">     108965 : static type_t sem_find_param_type(tree_t param, tree_t decl)</span>
+<span class="lineNum">    3460 </span><span class="lineCov">     108969 : static type_t sem_find_param_type(tree_t param, tree_t decl)</span>
 <span class="lineNum">    3461 </span>            : {
-<span class="lineNum">    3462 </span><span class="lineCov">     108965 :    type_t decl_type = tree_type(decl);</span>
+<span class="lineNum">    3462 </span><span class="lineCov">     108969 :    type_t decl_type = tree_type(decl);</span>
 <span class="lineNum">    3463 </span>            : 
-<span class="lineNum">    3464 </span><span class="lineCov">     108965 :    switch (tree_subkind(param)) {</span>
+<span class="lineNum">    3464 </span><span class="lineCov">     108969 :    switch (tree_subkind(param)) {</span>
 <span class="lineNum">    3465 </span>            :    case P_POS:
 <span class="lineNum">    3466 </span>            :       // Simple case of positional parameters is just the same index
 <span class="lineNum">    3467 </span>            :       // into the port list
 <span class="lineNum">    3468 </span>            :       {
-<span class="lineNum">    3469 </span><span class="lineCov">     108646 :          const unsigned pos = tree_pos(param);</span>
-<span class="lineNum">    3470 </span><span class="lineCov">     108646 :          if (pos &lt; type_params(decl_type))</span>
-<span class="lineNum">    3471 </span><span class="lineCov">     108644 :             return type_param(decl_type, pos);</span>
+<span class="lineNum">    3469 </span><span class="lineCov">     108650 :          const unsigned pos = tree_pos(param);</span>
+<span class="lineNum">    3470 </span><span class="lineCov">     108650 :          if (pos &lt; type_params(decl_type))</span>
+<span class="lineNum">    3471 </span><span class="lineCov">     108648 :             return type_param(decl_type, pos);</span>
 <span class="lineNum">    3472 </span>            :          else
 <span class="lineNum">    3473 </span>            :             return NULL;
 <span class="lineNum">    3474 </span>            :       }
@@ -3556,48 +3556,48 @@
 <span class="lineNum">    3494 </span>            :    }
 <a name="3495"><span class="lineNum">    3495 </span>            : }</a>
 <span class="lineNum">    3496 </span>            : 
-<span class="lineNum">    3497 </span><span class="lineCov">      10961 : static bool sem_resolve_overload(tree_t t, tree_t *pick, int *matches,</span>
+<span class="lineNum">    3497 </span><span class="lineCov">      10962 : static bool sem_resolve_overload(tree_t t, tree_t *pick, int *matches,</span>
 <span class="lineNum">    3498 </span>            :                                  tree_t *overloads, int n_overloads)
 <span class="lineNum">    3499 </span>            : {
-<span class="lineNum">    3500 </span><span class="lineCov">      10961 :    *pick    = NULL;</span>
-<span class="lineNum">    3501 </span><span class="lineCov">      10961 :    *matches = 0;</span>
+<span class="lineNum">    3500 </span><span class="lineCov">      10962 :    *pick    = NULL;</span>
+<span class="lineNum">    3501 </span><span class="lineCov">      10962 :    *matches = 0;</span>
 <span class="lineNum">    3502 </span>            : 
-<span class="lineNum">    3503 </span><span class="lineCov">      10961 :    const int nparams = tree_params(t);</span>
+<span class="lineNum">    3503 </span><span class="lineCov">      10962 :    const int nparams = tree_params(t);</span>
 <span class="lineNum">    3504 </span>            : 
 <span class="lineNum">    3505 </span>            :    // Work out which parameters have ambiguous interpretations
-<span class="lineNum">    3506 </span><span class="lineCov">      10961 :    tree_t order[nparams];</span>
-<span class="lineNum">    3507 </span><span class="lineCov">      32400 :    for (int i = 0; i &lt; nparams; i++)</span>
-<span class="lineNum">    3508 </span><span class="lineCov">      21439 :       order[i] = tree_param(t, i);</span>
+<span class="lineNum">    3506 </span><span class="lineCov">      10962 :    tree_t order[nparams];</span>
+<span class="lineNum">    3507 </span><span class="lineCov">      32403 :    for (int i = 0; i &lt; nparams; i++)</span>
+<span class="lineNum">    3508 </span><span class="lineCov">      21441 :       order[i] = tree_param(t, i);</span>
 <span class="lineNum">    3509 </span>            : 
-<span class="lineNum">    3510 </span><span class="lineCov">      10961 :    sem_sort_ambiguous(order, nparams);</span>
+<span class="lineNum">    3510 </span><span class="lineCov">      10962 :    sem_sort_ambiguous(order, nparams);</span>
 <span class="lineNum">    3511 </span>            : 
-<span class="lineNum">    3512 </span><span class="lineCov">      32376 :    for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">    3513 </span><span class="lineCov">      21434 :       type_set_push();</span>
+<span class="lineNum">    3512 </span><span class="lineCov">      32379 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">    3513 </span><span class="lineCov">      21436 :       type_set_push();</span>
 <span class="lineNum">    3514 </span>            : 
-<span class="lineNum">    3515 </span><span class="lineCov">      21434 :       tree_t p = order[i];</span>
-<span class="lineNum">    3516 </span><span class="lineCov">      21434 :       type_t param_types[n_overloads];</span>
+<span class="lineNum">    3515 </span><span class="lineCov">      21436 :       tree_t p = order[i];</span>
+<span class="lineNum">    3516 </span><span class="lineCov">      21436 :       type_t param_types[n_overloads];</span>
 <span class="lineNum">    3517 </span>            : 
-<span class="lineNum">    3518 </span><span class="lineCov">     170392 :       for (int j = 0; j &lt; n_overloads; j++) {</span>
-<span class="lineNum">    3519 </span><span class="lineCov">     148958 :          if (overloads[j] != NULL) {</span>
-<span class="lineNum">    3520 </span><span class="lineCov">      87579 :             param_types[j] = sem_find_param_type(p, overloads[j]);</span>
-<span class="lineNum">    3521 </span><span class="lineCov">      87579 :             if (param_types[j] != NULL)</span>
-<span class="lineNum">    3522 </span><span class="lineCov">      87576 :                type_set_add(param_types[j]);</span>
+<span class="lineNum">    3518 </span><span class="lineCov">     170396 :       for (int j = 0; j &lt; n_overloads; j++) {</span>
+<span class="lineNum">    3519 </span><span class="lineCov">     148960 :          if (overloads[j] != NULL) {</span>
+<span class="lineNum">    3520 </span><span class="lineCov">      87581 :             param_types[j] = sem_find_param_type(p, overloads[j]);</span>
+<span class="lineNum">    3521 </span><span class="lineCov">      87581 :             if (param_types[j] != NULL)</span>
+<span class="lineNum">    3522 </span><span class="lineCov">      87578 :                type_set_add(param_types[j]);</span>
 <span class="lineNum">    3523 </span>            :          }
 <span class="lineNum">    3524 </span>            :       }
 <span class="lineNum">    3525 </span>            : 
-<span class="lineNum">    3526 </span><span class="lineCov">      21434 :       bool ok = sem_check(tree_value(p));</span>
+<span class="lineNum">    3526 </span><span class="lineCov">      21436 :       bool ok = sem_check(tree_value(p));</span>
 <span class="lineNum">    3527 </span>            : 
-<span class="lineNum">    3528 </span><span class="lineCov">      21434 :       type_set_pop();</span>
+<span class="lineNum">    3528 </span><span class="lineCov">      21436 :       type_set_pop();</span>
 <span class="lineNum">    3529 </span>            : 
-<span class="lineNum">    3530 </span><span class="lineCov">      21434 :       if (ok) {</span>
+<span class="lineNum">    3530 </span><span class="lineCov">      21436 :       if (ok) {</span>
 <span class="lineNum">    3531 </span>            :          // Delete all overloads which don't match this parameter type
-<span class="lineNum">    3532 </span><span class="lineCov">      21415 :          type_t ptype = tree_type(tree_value(p));</span>
-<span class="lineNum">    3533 </span><span class="lineCov">     170212 :          for (int j = 0; j &lt; n_overloads; j++) {</span>
-<span class="lineNum">    3534 </span><span class="lineCov">     148797 :             if ((overloads[j] != NULL) &amp;&amp; (param_types[j] != NULL)) {</span>
-<span class="lineNum">    3535 </span><span class="lineCov">      87514 :                if (!type_eq(param_types[j], ptype))</span>
+<span class="lineNum">    3532 </span><span class="lineCov">      21417 :          type_t ptype = tree_type(tree_value(p));</span>
+<span class="lineNum">    3533 </span><span class="lineCov">     170216 :          for (int j = 0; j &lt; n_overloads; j++) {</span>
+<span class="lineNum">    3534 </span><span class="lineCov">     148799 :             if ((overloads[j] != NULL) &amp;&amp; (param_types[j] != NULL)) {</span>
+<span class="lineNum">    3535 </span><span class="lineCov">      87516 :                if (!type_eq(param_types[j], ptype))</span>
 <span class="lineNum">    3536 </span><span class="lineCov">      62949 :                   overloads[j] = NULL;</span>
 <span class="lineNum">    3537 </span>            : 
-<span class="lineNum">    3538 </span><span class="lineCov">      87514 :                if (type_is_universal(param_types[j])) {</span>
+<span class="lineNum">    3538 </span><span class="lineCov">      87516 :                if (type_is_universal(param_types[j])) {</span>
 <span class="lineNum">    3539 </span>            :                   // Universal operators only match universal arguments
 <span class="lineNum">    3540 </span><span class="lineCov">        865 :                   if (!type_is_universal(ptype))</span>
 <span class="lineNum">    3541 </span><span class="lineCov">        565 :                      overloads[j] = NULL;</span>
@@ -3613,42 +3613,42 @@
 <span class="lineNum">    3551 </span>            :    // identical signatures
 <span class="lineNum">    3552 </span><span class="lineCov">      63080 :    for (int i = 0; i &lt; n_overloads - 1; i++) {</span>
 <span class="lineNum">    3553 </span><span class="lineCov">      63080 :       if (overloads[i] != NULL) {</span>
-<span class="lineNum">    3554 </span><span class="lineCov">       5158 :          type_t type = tree_type(overloads[i]);</span>
-<span class="lineNum">    3555 </span><span class="lineCov">      33543 :          for (int j = i + 1; j &lt; n_overloads; j++) {</span>
-<span class="lineNum">    3556 </span><span class="lineCov">      28385 :             const bool prune =</span>
-<span class="lineNum">    3557 </span><span class="lineCov">      28385 :                overloads[j] != NULL</span>
+<span class="lineNum">    3554 </span><span class="lineCov">       5163 :          type_t type = tree_type(overloads[i]);</span>
+<span class="lineNum">    3555 </span><span class="lineCov">      33607 :          for (int j = i + 1; j &lt; n_overloads; j++) {</span>
+<span class="lineNum">    3556 </span><span class="lineCov">      28444 :             const bool prune =</span>
+<span class="lineNum">    3557 </span><span class="lineCov">      28444 :                overloads[j] != NULL</span>
 <span class="lineNum">    3558 </span><span class="lineCov">         10 :                &amp;&amp; type_eq(type, tree_type(overloads[j]))</span>
-<span class="lineNum">    3559 </span><span class="lineCov">      28388 :                &amp;&amp; tree_attr_str(overloads[j], builtin_i) == NULL;</span>
+<span class="lineNum">    3559 </span><span class="lineCov">      28447 :                &amp;&amp; tree_attr_str(overloads[j], builtin_i) == NULL;</span>
 <span class="lineNum">    3560 </span>            : 
-<span class="lineNum">    3561 </span><span class="lineCov">      28385 :             if (prune)</span>
+<span class="lineNum">    3561 </span><span class="lineCov">      28444 :             if (prune)</span>
 <span class="lineNum">    3562 </span><span class="lineCov">          2 :                overloads[j] = NULL;</span>
 <span class="lineNum">    3563 </span>            :          }
 <span class="lineNum">    3564 </span>            :       }
 <span class="lineNum">    3565 </span>            :    }
 <span class="lineNum">    3566 </span>            : 
-<span class="lineNum">    3567 </span><span class="lineCov">      73639 :    for (int n = 0; n &lt; n_overloads; n++) {</span>
-<span class="lineNum">    3568 </span><span class="lineCov">      73910 :       if (overloads[n] == NULL)</span>
-<span class="lineNum">    3569 </span><span class="lineCov">      62977 :          continue;</span>
+<span class="lineNum">    3567 </span><span class="lineCov">      73637 :    for (int n = 0; n &lt; n_overloads; n++) {</span>
+<span class="lineNum">    3568 </span><span class="lineCov">      73908 :       if (overloads[n] == NULL)</span>
+<span class="lineNum">    3569 </span><span class="lineCov">      62974 :          continue;</span>
 <span class="lineNum">    3570 </span>            : 
 <span class="lineNum">    3571 </span>            :       // Did argument types match for this overload?
 <span class="lineNum">    3572 </span>            :       bool match = true;
 <span class="lineNum">    3573 </span>            :       bool all_universal = true;
-<span class="lineNum">    3574 </span><span class="lineCov">      21386 :       for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">    3575 </span><span class="lineCov">      21386 :          tree_t p = tree_param(t, i);</span>
-<span class="lineNum">    3576 </span><span class="lineCov">      21386 :          type_t ptype = tree_type(tree_value(p));</span>
-<span class="lineNum">    3577 </span><span class="lineCov">      21386 :          type_t mtype = sem_find_param_type(p, overloads[n]);</span>
-<span class="lineNum">    3578 </span><span class="lineCov">      21386 :          if (mtype == NULL)</span>
+<span class="lineNum">    3574 </span><span class="lineCov">      21388 :       for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">    3575 </span><span class="lineCov">      21388 :          tree_t p = tree_param(t, i);</span>
+<span class="lineNum">    3576 </span><span class="lineCov">      21388 :          type_t ptype = tree_type(tree_value(p));</span>
+<span class="lineNum">    3577 </span><span class="lineCov">      21388 :          type_t mtype = sem_find_param_type(p, overloads[n]);</span>
+<span class="lineNum">    3578 </span><span class="lineCov">      21388 :          if (mtype == NULL)</span>
 <span class="lineNum">    3579 </span>            :             match = false;
 <span class="lineNum">    3580 </span>            :          else {
-<span class="lineNum">    3581 </span><span class="lineCov">      21383 :             match = match &amp;&amp; type_eq(mtype, ptype);</span>
-<span class="lineNum">    3582 </span><span class="lineCov">      21383 :             all_universal = all_universal &amp;&amp; type_is_universal(ptype);</span>
+<span class="lineNum">    3581 </span><span class="lineCov">      21385 :             match = match &amp;&amp; type_eq(mtype, ptype);</span>
+<span class="lineNum">    3582 </span><span class="lineCov">      21385 :             all_universal = all_universal &amp;&amp; type_is_universal(ptype);</span>
 <span class="lineNum">    3583 </span>            :          }
 <span class="lineNum">    3584 </span>            :       }
 <span class="lineNum">    3585 </span>            : 
-<span class="lineNum">    3586 </span><span class="lineCov">      10933 :       if (match) {</span>
-<span class="lineNum">    3587 </span><span class="lineCov">      10930 :          (*matches)++;</span>
-<span class="lineNum">    3588 </span><span class="lineCov">      10930 :          bool builtin = tree_attr_str(overloads[n], builtin_i);</span>
-<span class="lineNum">    3589 </span><span class="lineCov">      10930 :          if (all_universal &amp;&amp; builtin) {</span>
+<span class="lineNum">    3586 </span><span class="lineCov">      10934 :       if (match) {</span>
+<span class="lineNum">    3587 </span><span class="lineCov">      10931 :          (*matches)++;</span>
+<span class="lineNum">    3588 </span><span class="lineCov">      10931 :          bool builtin = tree_attr_str(overloads[n], builtin_i);</span>
+<span class="lineNum">    3589 </span><span class="lineCov">      10931 :          if (all_universal &amp;&amp; builtin) {</span>
 <span class="lineNum">    3590 </span>            :             // If all the arguments are universal integer or real and
 <span class="lineNum">    3591 </span>            :             // this is a builtin function then it doesn't matter which
 <span class="lineNum">    3592 </span>            :             // overload we pick as it will be constant-folded later
@@ -3667,7 +3667,7 @@
 <span class="lineNum">    3605 </span><span class="lineCov">        271 :             return true;</span>
 <span class="lineNum">    3606 </span>            :          }
 <span class="lineNum">    3607 </span>            :          else
-<span class="lineNum">    3608 </span><span class="lineCov">      10659 :             *pick = overloads[n];</span>
+<span class="lineNum">    3608 </span><span class="lineCov">      10660 :             *pick = overloads[n];</span>
 <span class="lineNum">    3609 </span>            :       }
 <span class="lineNum">    3610 </span>            :       else
 <span class="lineNum">    3611 </span><span class="lineCov">          3 :          overloads[n] = NULL;</span>
@@ -3676,29 +3676,29 @@
 <span class="lineNum">    3614 </span>            :    return true;
 <a name="3615"><span class="lineNum">    3615 </span>            : }</a>
 <span class="lineNum">    3616 </span>            : 
-<span class="lineNum">    3617 </span><span class="lineCov">      79020 : static int sem_required_args(tree_t decl)</span>
+<span class="lineNum">    3617 </span><span class="lineCov">      79022 : static int sem_required_args(tree_t decl)</span>
 <span class="lineNum">    3618 </span>            : {
 <span class="lineNum">    3619 </span>            :    // Count the number of non-default arguments
-<span class="lineNum">    3620 </span><span class="lineCov">      79020 :    const int nports = tree_ports(decl);</span>
-<span class="lineNum">    3621 </span><span class="lineCov">      79020 :    int n = 0;</span>
-<span class="lineNum">    3622 </span><span class="lineCov">     237318 :    for (int i = 0; i &lt; nports; i++) {</span>
-<span class="lineNum">    3623 </span><span class="lineCov">     158298 :       tree_t port = tree_port(decl, i);</span>
-<span class="lineNum">    3624 </span><span class="lineCov">     158298 :       if (!tree_has_value(port) &amp;&amp; !tree_attr_int(port, protected_i, 0))</span>
-<span class="lineNum">    3625 </span><span class="lineCov">     155269 :          n++;</span>
+<span class="lineNum">    3620 </span><span class="lineCov">      79022 :    const int nports = tree_ports(decl);</span>
+<span class="lineNum">    3621 </span><span class="lineCov">      79022 :    int n = 0;</span>
+<span class="lineNum">    3622 </span><span class="lineCov">     237322 :    for (int i = 0; i &lt; nports; i++) {</span>
+<span class="lineNum">    3623 </span><span class="lineCov">     158300 :       tree_t port = tree_port(decl, i);</span>
+<span class="lineNum">    3624 </span><span class="lineCov">     158300 :       if (!tree_has_value(port) &amp;&amp; !tree_attr_int(port, protected_i, 0))</span>
+<span class="lineNum">    3625 </span><span class="lineCov">     155271 :          n++;</span>
 <span class="lineNum">    3626 </span>            :    }
 <span class="lineNum">    3627 </span>            : 
-<span class="lineNum">    3628 </span><span class="lineCov">      79020 :    return n;</span>
+<span class="lineNum">    3628 </span><span class="lineCov">      79022 :    return n;</span>
 <a name="3629"><span class="lineNum">    3629 </span>            : }</a>
 <span class="lineNum">    3630 </span>            : 
-<span class="lineNum">    3631 </span><span class="lineCov">      78715 : static bool sem_check_arity(tree_t call, tree_t decl)</span>
+<span class="lineNum">    3631 </span><span class="lineCov">      78716 : static bool sem_check_arity(tree_t call, tree_t decl)</span>
 <span class="lineNum">    3632 </span>            : {
-<span class="lineNum">    3633 </span><span class="lineCov">      78715 :    const int nparams = tree_params(call);</span>
-<span class="lineNum">    3634 </span><span class="lineCov">      78715 :    const int nports  = tree_ports(decl);</span>
-<span class="lineNum">    3635 </span><span class="lineCov">      78715 :    const int nreq    = sem_required_args(decl);</span>
+<span class="lineNum">    3633 </span><span class="lineCov">      78716 :    const int nparams = tree_params(call);</span>
+<span class="lineNum">    3634 </span><span class="lineCov">      78716 :    const int nports  = tree_ports(decl);</span>
+<span class="lineNum">    3635 </span><span class="lineCov">      78716 :    const int nreq    = sem_required_args(decl);</span>
 <span class="lineNum">    3636 </span>            : 
-<span class="lineNum">    3637 </span><span class="lineCov">      78715 :    if (nports &lt; nparams)</span>
+<span class="lineNum">    3637 </span><span class="lineCov">      78716 :    if (nports &lt; nparams)</span>
 <span class="lineNum">    3638 </span>            :       return false;
-<span class="lineNum">    3639 </span><span class="lineCov">      75974 :    else if (nparams == nports)</span>
+<span class="lineNum">    3639 </span><span class="lineCov">      75975 :    else if (nparams == nports)</span>
 <span class="lineNum">    3640 </span>            :       return true;
 <span class="lineNum">    3641 </span><span class="lineCov">       1887 :    else if (nparams &gt;= nreq) {</span>
 <span class="lineNum">    3642 </span>            :       // Count the number of named arguments that match ports with
@@ -3727,23 +3727,23 @@
 <span class="lineNum">    3665 </span>            :       return false;
 <a name="3666"><span class="lineNum">    3666 </span>            : }</a>
 <span class="lineNum">    3667 </span>            : 
-<span class="lineNum">    3668 </span><span class="lineCov">      10952 : static bool sem_copy_default_args(tree_t call, tree_t decl)</span>
+<span class="lineNum">    3668 </span><span class="lineCov">      10954 : static bool sem_copy_default_args(tree_t call, tree_t decl)</span>
 <span class="lineNum">    3669 </span>            : {
-<span class="lineNum">    3670 </span><span class="lineCov">      10952 :    const int nparams = tree_params(call);</span>
-<span class="lineNum">    3671 </span><span class="lineCov">      10952 :    const int nports  = tree_ports(decl);</span>
+<span class="lineNum">    3670 </span><span class="lineCov">      10954 :    const int nparams = tree_params(call);</span>
+<span class="lineNum">    3671 </span><span class="lineCov">      10954 :    const int nports  = tree_ports(decl);</span>
 <span class="lineNum">    3672 </span>            : 
 <span class="lineNum">    3673 </span>            :    // Copy the default values for any unspecified arguments
-<span class="lineNum">    3674 </span><span class="lineCov">      32344 :    for (int i = 0; i &lt; nports; i++) {</span>
-<span class="lineNum">    3675 </span><span class="lineCov">      21393 :       tree_t port  = tree_port(decl, i);</span>
-<span class="lineNum">    3676 </span><span class="lineCov">      21393 :       ident_t name = tree_ident(port);</span>
+<span class="lineNum">    3674 </span><span class="lineCov">      32348 :    for (int i = 0; i &lt; nports; i++) {</span>
+<span class="lineNum">    3675 </span><span class="lineCov">      21395 :       tree_t port  = tree_port(decl, i);</span>
+<span class="lineNum">    3676 </span><span class="lineCov">      21395 :       ident_t name = tree_ident(port);</span>
 <span class="lineNum">    3677 </span>            : 
-<span class="lineNum">    3678 </span><span class="lineCov">      21393 :       tree_t found = NULL;</span>
-<span class="lineNum">    3679 </span><span class="lineCov">      56263 :       for (int j = 0; (j &lt; nparams) &amp;&amp; (found == NULL); j++) {</span>
-<span class="lineNum">    3680 </span><span class="lineCov">      34870 :          tree_t p = tree_param(call, j);</span>
-<span class="lineNum">    3681 </span><span class="lineCov">      34870 :          switch (tree_subkind(p)) {</span>
+<span class="lineNum">    3678 </span><span class="lineCov">      21395 :       tree_t found = NULL;</span>
+<span class="lineNum">    3679 </span><span class="lineCov">      56268 :       for (int j = 0; (j &lt; nparams) &amp;&amp; (found == NULL); j++) {</span>
+<span class="lineNum">    3680 </span><span class="lineCov">      34873 :          tree_t p = tree_param(call, j);</span>
+<span class="lineNum">    3681 </span><span class="lineCov">      34873 :          switch (tree_subkind(p)) {</span>
 <span class="lineNum">    3682 </span>            :          case P_POS:
-<span class="lineNum">    3683 </span><span class="lineCov">      34375 :             if (tree_pos(p) == i)</span>
-<span class="lineNum">    3684 </span><span class="lineCov">      20883 :                found = p;</span>
+<span class="lineNum">    3683 </span><span class="lineCov">      34378 :             if (tree_pos(p) == i)</span>
+<span class="lineNum">    3684 </span><span class="lineCov">      20885 :                found = p;</span>
 <span class="lineNum">    3685 </span>            :             break;
 <span class="lineNum">    3686 </span>            :          case P_NAMED:
 <span class="lineNum">    3687 </span>            :             {
@@ -3759,7 +3759,7 @@
 <span class="lineNum">    3697 </span>            :          }
 <span class="lineNum">    3698 </span>            :       }
 <span class="lineNum">    3699 </span>            : 
-<span class="lineNum">    3700 </span><span class="lineCov">      21393 :       if (found == NULL) {</span>
+<span class="lineNum">    3700 </span><span class="lineCov">      21395 :       if (found == NULL) {</span>
 <span class="lineNum">    3701 </span><span class="lineCov">        355 :          if (tree_has_value(port))</span>
 <span class="lineNum">    3702 </span><span class="lineCov">        316 :             found = add_param(call, tree_value(port), P_NAMED, make_ref(port));</span>
 <span class="lineNum">    3703 </span><span class="lineCov">         39 :          else if (tree_attr_int(port, protected_i, 0)) {</span>
@@ -3788,24 +3788,24 @@
 <span class="lineNum">    3726 </span>            :       }
 <span class="lineNum">    3727 </span>            : 
 <span class="lineNum">    3728 </span>            :       // Constrain the type of any universal arguments
-<span class="lineNum">    3729 </span><span class="lineCov">      21354 :       tree_t value = tree_value(found);</span>
-<span class="lineNum">    3730 </span><span class="lineCov">      21354 :       if (tree_has_type(value) &amp;&amp; type_is_universal(tree_type(value)))</span>
+<span class="lineNum">    3729 </span><span class="lineCov">      21356 :       tree_t value = tree_value(found);</span>
+<span class="lineNum">    3730 </span><span class="lineCov">      21356 :       if (tree_has_type(value) &amp;&amp; type_is_universal(tree_type(value)))</span>
 <span class="lineNum">    3731 </span><span class="lineCov">       3494 :          tree_set_type(value, tree_type(port));</span>
 <span class="lineNum">    3732 </span>            :    }
 <span class="lineNum">    3733 </span>            : 
 <span class="lineNum">    3734 </span>            :    return true;
 <a name="3735"><span class="lineNum">    3735 </span>            : }</a>
 <span class="lineNum">    3736 </span>            : 
-<span class="lineNum">    3737 </span><span class="lineCov">      13549 : static bool sem_check_params(tree_t t)</span>
+<span class="lineNum">    3737 </span><span class="lineCov">      13550 : static bool sem_check_params(tree_t t)</span>
 <span class="lineNum">    3738 </span>            : {
-<span class="lineNum">    3739 </span><span class="lineCov">      13549 :    bool have_named = false;</span>
-<span class="lineNum">    3740 </span><span class="lineCov">      13549 :    const int nparams = tree_params(t);</span>
-<span class="lineNum">    3741 </span><span class="lineCov">      37777 :    for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">    3742 </span><span class="lineCov">      24232 :       tree_t p = tree_param(t, i);</span>
+<span class="lineNum">    3739 </span><span class="lineCov">      13550 :    bool have_named = false;</span>
+<span class="lineNum">    3740 </span><span class="lineCov">      13550 :    const int nparams = tree_params(t);</span>
+<span class="lineNum">    3741 </span><span class="lineCov">      37780 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">    3742 </span><span class="lineCov">      24234 :       tree_t p = tree_param(t, i);</span>
 <span class="lineNum">    3743 </span>            : 
-<span class="lineNum">    3744 </span><span class="lineCov">      24232 :       switch (tree_subkind(p)) {</span>
+<span class="lineNum">    3744 </span><span class="lineCov">      24234 :       switch (tree_subkind(p)) {</span>
 <span class="lineNum">    3745 </span>            :       case P_POS:
-<span class="lineNum">    3746 </span><span class="lineCov">      24068 :          if (have_named)</span>
+<span class="lineNum">    3746 </span><span class="lineCov">      24070 :          if (have_named)</span>
 <span class="lineNum">    3747 </span><span class="lineCov">          2 :             sem_error(p, &quot;positional parameters must precede named &quot;</span>
 <span class="lineNum">    3748 </span>            :                       &quot;parameters&quot;);
 <span class="lineNum">    3749 </span>            :          break;
@@ -3834,15 +3834,15 @@
 <span class="lineNum">    3772 </span>            :    return true;
 <a name="3773"><span class="lineNum">    3773 </span>            : }</a>
 <span class="lineNum">    3774 </span>            : 
-<span class="lineNum">    3775 </span><span class="lineCov">      10656 : static bool sem_check_call_args(tree_t t, tree_t decl)</span>
+<span class="lineNum">    3775 </span><span class="lineCov">      10657 : static bool sem_check_call_args(tree_t t, tree_t decl)</span>
 <span class="lineNum">    3776 </span>            : {
-<span class="lineNum">    3777 </span><span class="lineCov">      10656 :    const int nparams = tree_params(t);</span>
-<span class="lineNum">    3778 </span><span class="lineCov">      10656 :    const int nports  = tree_ports(decl);</span>
-<span class="lineNum">    3779 </span><span class="lineCov">      31695 :    for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">    3780 </span><span class="lineCov">      21046 :       tree_t param = tree_param(t, i);</span>
+<span class="lineNum">    3777 </span><span class="lineCov">      10657 :    const int nparams = tree_params(t);</span>
+<span class="lineNum">    3778 </span><span class="lineCov">      10657 :    const int nports  = tree_ports(decl);</span>
+<span class="lineNum">    3779 </span><span class="lineCov">      31698 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">    3780 </span><span class="lineCov">      21048 :       tree_t param = tree_param(t, i);</span>
 <span class="lineNum">    3781 </span>            : 
-<span class="lineNum">    3782 </span><span class="lineCov">      21046 :       int index = -1;</span>
-<span class="lineNum">    3783 </span><span class="lineCov">      21046 :       if (tree_subkind(param) == P_POS)</span>
+<span class="lineNum">    3782 </span><span class="lineCov">      21048 :       int index = -1;</span>
+<span class="lineNum">    3783 </span><span class="lineCov">      21048 :       if (tree_subkind(param) == P_POS)</span>
 <span class="lineNum">    3784 </span>            :          index = i;
 <span class="lineNum">    3785 </span>            :       else {
 <span class="lineNum">    3786 </span><span class="lineCov">        157 :          assert(tree_subkind(param) == P_NAMED);</span>
@@ -3860,24 +3860,24 @@
 <span class="lineNum">    3798 </span><span class="lineCov">        157 :          tree_set_ref(ref, tree_port(decl, index));</span>
 <span class="lineNum">    3799 </span>            :       }
 <span class="lineNum">    3800 </span>            : 
-<span class="lineNum">    3801 </span><span class="lineCov">      21046 :       tree_t  port     = tree_port(decl, index);</span>
-<span class="lineNum">    3802 </span><span class="lineCov">      21046 :       class_t class    = tree_class(port);</span>
-<span class="lineNum">    3803 </span><span class="lineCov">      21046 :       port_mode_t mode = tree_subkind(port);</span>
+<span class="lineNum">    3801 </span><span class="lineCov">      21048 :       tree_t  port     = tree_port(decl, index);</span>
+<span class="lineNum">    3802 </span><span class="lineCov">      21048 :       class_t class    = tree_class(port);</span>
+<span class="lineNum">    3803 </span><span class="lineCov">      21048 :       port_mode_t mode = tree_subkind(port);</span>
 <span class="lineNum">    3804 </span>            : 
-<span class="lineNum">    3805 </span><span class="lineCov">      21046 :       tree_t value = tree_value(param);</span>
-<span class="lineNum">    3806 </span><span class="lineCov">      21046 :       tree_kind_t kind = tree_kind(value);</span>
-<span class="lineNum">    3807 </span><span class="lineCov">      67044 :       while ((kind == T_ARRAY_REF) || (kind == T_ARRAY_SLICE)</span>
-<span class="lineNum">    3808 </span><span class="lineCov">      44726 :              || (kind == T_ALL) || (kind == T_RECORD_REF)) {</span>
+<span class="lineNum">    3805 </span><span class="lineCov">      21048 :       tree_t value = tree_value(param);</span>
+<span class="lineNum">    3806 </span><span class="lineCov">      21048 :       tree_kind_t kind = tree_kind(value);</span>
+<span class="lineNum">    3807 </span><span class="lineCov">      67050 :       while ((kind == T_ARRAY_REF) || (kind == T_ARRAY_SLICE)</span>
+<span class="lineNum">    3808 </span><span class="lineCov">      44730 :              || (kind == T_ALL) || (kind == T_RECORD_REF)) {</span>
 <span class="lineNum">    3809 </span><span class="lineCov">       1953 :          value = tree_value(value);</span>
 <span class="lineNum">    3810 </span><span class="lineCov">       1953 :          kind  = tree_kind(value);</span>
 <span class="lineNum">    3811 </span>            :       }
 <span class="lineNum">    3812 </span>            : 
-<span class="lineNum">    3813 </span><span class="lineCov">      21046 :       if (kind == T_REF &amp;&amp; tree_kind(tree_ref(value)) == T_ALIAS) {</span>
+<span class="lineNum">    3813 </span><span class="lineCov">      21048 :       if (kind == T_REF &amp;&amp; tree_kind(tree_ref(value)) == T_ALIAS) {</span>
 <span class="lineNum">    3814 </span><span class="lineCov">        265 :           value = tree_value(tree_ref(value));</span>
 <span class="lineNum">    3815 </span><span class="lineCov">        265 :           kind  = tree_kind(value);</span>
 <span class="lineNum">    3816 </span>            :       }
 <span class="lineNum">    3817 </span>            : 
-<span class="lineNum">    3818 </span><span class="lineCov">      21046 :       if (class == C_SIGNAL) {</span>
+<span class="lineNum">    3818 </span><span class="lineCov">      21048 :       if (class == C_SIGNAL) {</span>
 <span class="lineNum">    3819 </span><span class="lineCov">        205 :          if (tree_kind(value) == T_OPEN)</span>
 <span class="lineNum">    3820 </span><span class="lineCov">          1 :             sem_error(value, &quot;actual for formal %s with class SIGNAL must &quot;</span>
 <span class="lineNum">    3821 </span>            :                       &quot;not be OPEN&quot;, istr(tree_ident(port)));
@@ -3891,7 +3891,7 @@
 <span class="lineNum">    3829 </span><span class="lineCov">        203 :          tree_set_flag(tree_ref(value), TREE_F_LAST_VALUE);</span>
 <span class="lineNum">    3830 </span>            :       }
 <span class="lineNum">    3831 </span>            : 
-<span class="lineNum">    3832 </span><span class="lineCov">      21044 :       if (class == C_VARIABLE) {</span>
+<span class="lineNum">    3832 </span><span class="lineCov">      21046 :       if (class == C_VARIABLE) {</span>
 <span class="lineNum">    3833 </span><span class="lineCov">        951 :          if (kind != T_REF)</span>
 <span class="lineNum">    3834 </span><span class="lineCov">          1 :             sem_error(value, &quot;actual for formal %s with class VARIABLE must be &quot;</span>
 <span class="lineNum">    3835 </span>            :                       &quot;a name denoting a variable&quot;, istr(tree_ident(port)));
@@ -3921,10 +3921,10 @@
 <span class="lineNum">    3859 </span>            :       }
 <span class="lineNum">    3860 </span>            : 
 <span class="lineNum">    3861 </span>            :       // Check IN and INOUT parameters can be read
-<span class="lineNum">    3862 </span><span class="lineCov">      21041 :       if (tree_kind(t) != T_ATTR_REF) {</span>
-<span class="lineNum">    3863 </span><span class="lineCov">      21041 :          port_mode_t mode = tree_subkind(port);</span>
-<span class="lineNum">    3864 </span><span class="lineCov">      21041 :          if (mode == PORT_IN || mode == PORT_INOUT) {</span>
-<span class="lineNum">    3865 </span><span class="lineCov">      20638 :             if (!sem_readable(value))</span>
+<span class="lineNum">    3862 </span><span class="lineCov">      21043 :       if (tree_kind(t) != T_ATTR_REF) {</span>
+<span class="lineNum">    3863 </span><span class="lineCov">      21043 :          port_mode_t mode = tree_subkind(port);</span>
+<span class="lineNum">    3864 </span><span class="lineCov">      21043 :          if (mode == PORT_IN || mode == PORT_INOUT) {</span>
+<span class="lineNum">    3865 </span><span class="lineCov">      20640 :             if (!sem_readable(value))</span>
 <span class="lineNum">    3866 </span>            :                return false;
 <span class="lineNum">    3867 </span>            :          }
 <span class="lineNum">    3868 </span>            :       }
@@ -3933,33 +3933,33 @@
 <span class="lineNum">    3871 </span>            :    return true;
 <a name="3872"><span class="lineNum">    3872 </span>            : }</a>
 <span class="lineNum">    3873 </span>            : 
-<span class="lineNum">    3874 </span><span class="lineCov">      12540 : static bool sem_check_fcall(tree_t t)</span>
+<span class="lineNum">    3874 </span><span class="lineCov">      12541 : static bool sem_check_fcall(tree_t t)</span>
 <span class="lineNum">    3875 </span>            : {
-<span class="lineNum">    3876 </span><span class="lineCov">      12540 :    if (!sem_check_params(t))</span>
+<span class="lineNum">    3876 </span><span class="lineCov">      12541 :    if (!sem_check_params(t))</span>
 <span class="lineNum">    3877 </span>            :       return false;
 <span class="lineNum">    3878 </span>            : 
-<span class="lineNum">    3879 </span><span class="lineCov">      12538 :    int n_overloads = 0;</span>
-<span class="lineNum">    3880 </span><span class="lineCov">      12538 :    int max_overloads = 128;</span>
-<span class="lineNum">    3881 </span><span class="lineCov">      25076 :    tree_t *overloads LOCAL = xmalloc(max_overloads * sizeof(tree_t));</span>
+<span class="lineNum">    3879 </span><span class="lineCov">      12539 :    int n_overloads = 0;</span>
+<span class="lineNum">    3880 </span><span class="lineCov">      12539 :    int max_overloads = 128;</span>
+<span class="lineNum">    3881 </span><span class="lineCov">      25078 :    tree_t *overloads LOCAL = xmalloc(max_overloads * sizeof(tree_t));</span>
 <span class="lineNum">    3882 </span>            : 
-<span class="lineNum">    3883 </span><span class="lineCov">      12538 :    const bool prefer_explicit = relax &amp; RELAX_PREFER_EXPLICT;</span>
+<span class="lineNum">    3883 </span><span class="lineCov">      12539 :    const bool prefer_explicit = relax &amp; RELAX_PREFER_EXPLICT;</span>
 <span class="lineNum">    3884 </span>            : 
-<span class="lineNum">    3885 </span><span class="lineCov">      12538 :    ident_t name = tree_ident(t);</span>
-<span class="lineNum">    3886 </span><span class="lineCov">      12538 :    if (!sem_check_selected_name(name, t, NULL))</span>
+<span class="lineNum">    3885 </span><span class="lineCov">      12539 :    ident_t name = tree_ident(t);</span>
+<span class="lineNum">    3886 </span><span class="lineCov">      12539 :    if (!sem_check_selected_name(name, t, NULL))</span>
 <span class="lineNum">    3887 </span>            :       return false;
 <span class="lineNum">    3888 </span>            : 
 <span class="lineNum">    3889 </span>            :    tree_t decl;
 <span class="lineNum">    3890 </span>            :    int n = 0, found_func = 0;
 <span class="lineNum">    3891 </span>            :    do {
-<span class="lineNum">    3892 </span><span class="lineCov">     121688 :       if ((decl = scope_find_nth(name, n++))) {</span>
-<span class="lineNum">    3893 </span><span class="lineCov">     111731 :          if (!class_has_type(class_of(decl)))</span>
+<span class="lineNum">    3892 </span><span class="lineCov">     121692 :       if ((decl = scope_find_nth(name, n++))) {</span>
+<span class="lineNum">    3893 </span><span class="lineCov">     111734 :          if (!class_has_type(class_of(decl)))</span>
 <span class="lineNum">    3894 </span><span class="lineNoCov">          0 :             continue;</span>
 <span class="lineNum">    3895 </span>            : 
-<span class="lineNum">    3896 </span><span class="lineCov">     111731 :          switch (tree_kind(decl)) {</span>
+<span class="lineNum">    3896 </span><span class="lineCov">     111734 :          switch (tree_kind(decl)) {</span>
 <span class="lineNum">    3897 </span>            :          case T_FUNC_DECL:
 <span class="lineNum">    3898 </span>            :          case T_FUNC_BODY:
-<span class="lineNum">    3899 </span><span class="lineCov">     108857 :             found_func++;</span>
-<span class="lineNum">    3900 </span><span class="lineCov">     108857 :             break;</span>
+<span class="lineNum">    3899 </span><span class="lineCov">     108860 :             found_func++;</span>
+<span class="lineNum">    3900 </span><span class="lineCov">     108860 :             break;</span>
 <span class="lineNum">    3901 </span>            :          case T_TYPE_DECL:
 <span class="lineNum">    3902 </span><span class="lineCov">        471 :             tree_change_kind(t, T_TYPE_CONV);</span>
 <span class="lineNum">    3903 </span><span class="lineCov">        471 :             tree_set_ref(t, decl);</span>
@@ -3996,11 +3996,11 @@
 <span class="lineNum">    3934 </span>            :             }
 <span class="lineNum">    3935 </span>            :          }
 <span class="lineNum">    3936 </span>            : 
-<span class="lineNum">    3937 </span><span class="lineCov">     108862 :          type_t func_type = tree_type(decl);</span>
+<span class="lineNum">    3937 </span><span class="lineCov">     108865 :          type_t func_type = tree_type(decl);</span>
 <span class="lineNum">    3938 </span>            : 
-<span class="lineNum">    3939 </span><span class="lineCov">     108862 :          if (type_set_member(type_result(func_type))) {</span>
+<span class="lineNum">    3939 </span><span class="lineCov">     108865 :          if (type_set_member(type_result(func_type))) {</span>
 <span class="lineNum">    3940 </span>            :             // Number of arguments must match
-<span class="lineNum">    3941 </span><span class="lineCov">      74823 :             if (!sem_check_arity(t, decl))</span>
+<span class="lineNum">    3941 </span><span class="lineCov">      74824 :             if (!sem_check_arity(t, decl))</span>
 <span class="lineNum">    3942 </span><span class="lineCov">       2774 :                continue;</span>
 <span class="lineNum">    3943 </span>            : 
 <span class="lineNum">    3944 </span>            :             // Same function may appear multiple times in the symbol
@@ -4023,15 +4023,15 @@
 <span class="lineNum">    3961 </span>            :                }
 <span class="lineNum">    3962 </span>            :             }
 <span class="lineNum">    3963 </span>            : 
-<span class="lineNum">    3964 </span><span class="lineCov">      72049 :             if (!duplicate) {</span>
+<span class="lineNum">    3964 </span><span class="lineCov">      72050 :             if (!duplicate) {</span>
 <span class="lineNum">    3965 </span>            :                // Found a matching function definition
-<span class="lineNum">    3966 </span><span class="lineCov">      71128 :                ARRAY_APPEND(overloads, decl, n_overloads, max_overloads);</span>
+<span class="lineNum">    3966 </span><span class="lineCov">      71129 :                ARRAY_APPEND(overloads, decl, n_overloads, max_overloads);</span>
 <span class="lineNum">    3967 </span>            :             }
 <span class="lineNum">    3968 </span>            :          }
 <span class="lineNum">    3969 </span>            :       }
-<span class="lineNum">    3970 </span><span class="lineCov">     119110 :    } while (decl != NULL);</span>
+<span class="lineNum">    3970 </span><span class="lineCov">     119114 :    } while (decl != NULL);</span>
 <span class="lineNum">    3971 </span>            : 
-<span class="lineNum">    3972 </span><span class="lineCov">       9957 :    if (n_overloads == 0) {</span>
+<span class="lineNum">    3972 </span><span class="lineCov">       9958 :    if (n_overloads == 0) {</span>
 <span class="lineNum">    3973 </span><span class="lineCov">          2 :       if (type_set_restrict(type_is_array)) {</span>
 <span class="lineNum">    3974 </span>            :          // Possible to interpret this as an array reference on the result of
 <span class="lineNum">    3975 </span>            :          // a zero argument function call
@@ -4052,13 +4052,13 @@
 <span class="lineNum">    3990 </span>            :    }
 <span class="lineNum">    3991 </span>            : 
 <span class="lineNum">    3992 </span>            :    int matches;
-<span class="lineNum">    3993 </span><span class="lineCov">       9955 :    if (!sem_resolve_overload(t, &amp;decl, &amp;matches, overloads, n_overloads))</span>
+<span class="lineNum">    3993 </span><span class="lineCov">       9956 :    if (!sem_resolve_overload(t, &amp;decl, &amp;matches, overloads, n_overloads))</span>
 <span class="lineNum">    3994 </span>            :       return false;
 <span class="lineNum">    3995 </span>            : 
-<span class="lineNum">    3996 </span><span class="lineCov">       9937 :    if (matches &gt; 0 &amp;&amp; decl == NULL)</span>
+<span class="lineNum">    3996 </span><span class="lineCov">       9938 :    if (matches &gt; 0 &amp;&amp; decl == NULL)</span>
 <span class="lineNum">    3997 </span>            :       return true;   // Resolved to a builtin function
 <span class="lineNum">    3998 </span>            : 
-<span class="lineNum">    3999 </span><span class="lineCov">       9666 :    if (matches &gt; 1) {</span>
+<span class="lineNum">    3999 </span><span class="lineCov">       9667 :    if (matches &gt; 1) {</span>
 <span class="lineNum">    4000 </span><span class="lineCov">          2 :       LOCAL_TEXT_BUF tb = tb_new();</span>
 <span class="lineNum">    4001 </span>            : 
 <span class="lineNum">    4002 </span><span class="lineCov">          1 :       const bool operator = !isalpha((int)*istr(name));</span>
@@ -4087,7 +4087,7 @@
 <span class="lineNum">    4025 </span>            :                 istr(name), tb_get(tb));
 <span class="lineNum">    4026 </span>            :    }
 <span class="lineNum">    4027 </span>            : 
-<span class="lineNum">    4028 </span><span class="lineCov">       9665 :    if (decl == NULL) {</span>
+<span class="lineNum">    4028 </span><span class="lineCov">       9666 :    if (decl == NULL) {</span>
 <span class="lineNum">    4029 </span><span class="lineCov">         18 :       LOCAL_TEXT_BUF tb = tb_new();</span>
 <span class="lineNum">    4030 </span>            : 
 <span class="lineNum">    4031 </span><span class="lineCov">          9 :       const char *fname = istr(name);</span>
@@ -4117,18 +4117,18 @@
 <span class="lineNum">    4055 </span>            :    }
 <span class="lineNum">    4056 </span>            : 
 <span class="lineNum">    4057 </span>            :    // Pure function may not call an impure function
-<span class="lineNum">    4058 </span><span class="lineCov">       9656 :    tree_t sub = top_scope-&gt;subprog;</span>
-<span class="lineNum">    4059 </span><span class="lineCov">       9656 :    if ((sub != NULL) &amp;&amp; (tree_kind(sub) == T_FUNC_BODY)) {</span>
-<span class="lineNum">    4060 </span><span class="lineCov">       4705 :       if (!(tree_flags(sub) &amp; TREE_F_IMPURE)</span>
-<span class="lineNum">    4061 </span><span class="lineCov">       4618 :           &amp;&amp; (tree_flags(decl) &amp; TREE_F_IMPURE))</span>
+<span class="lineNum">    4058 </span><span class="lineCov">       9657 :    tree_t sub = top_scope-&gt;subprog;</span>
+<span class="lineNum">    4059 </span><span class="lineCov">       9657 :    if ((sub != NULL) &amp;&amp; (tree_kind(sub) == T_FUNC_BODY)) {</span>
+<span class="lineNum">    4060 </span><span class="lineCov">       4706 :       if (!(tree_flags(sub) &amp; TREE_F_IMPURE)</span>
+<span class="lineNum">    4061 </span><span class="lineCov">       4619 :           &amp;&amp; (tree_flags(decl) &amp; TREE_F_IMPURE))</span>
 <span class="lineNum">    4062 </span><span class="lineCov">          1 :          sem_error(t, &quot;pure function %s cannot call impure function %s&quot;,</span>
 <span class="lineNum">    4063 </span>            :                    istr(tree_ident(sub)), istr(tree_ident(decl)));
 <span class="lineNum">    4064 </span>            :    }
 <span class="lineNum">    4065 </span>            : 
-<span class="lineNum">    4066 </span><span class="lineCov">       9655 :    if (!sem_check_call_args(t, decl))</span>
+<span class="lineNum">    4066 </span><span class="lineCov">       9656 :    if (!sem_check_call_args(t, decl))</span>
 <span class="lineNum">    4067 </span>            :       return false;
 <span class="lineNum">    4068 </span>            : 
-<span class="lineNum">    4069 </span><span class="lineCov">       9653 :    if (!sem_copy_default_args(t, decl))</span>
+<span class="lineNum">    4069 </span><span class="lineCov">       9654 :    if (!sem_copy_default_args(t, decl))</span>
 <span class="lineNum">    4070 </span>            :       return false;
 <span class="lineNum">    4071 </span>            : 
 <span class="lineNum">    4072 </span>            : #if 0
@@ -4136,9 +4136,9 @@
 <span class="lineNum">    4074 </span>            :    fmt_loc(stdout, tree_loc(t));
 <span class="lineNum">    4075 </span>            : #endif
 <span class="lineNum">    4076 </span>            : 
-<span class="lineNum">    4077 </span><span class="lineCov">       9652 :    tree_set_ref(t, decl);</span>
-<span class="lineNum">    4078 </span><span class="lineCov">       9652 :    tree_set_type(t, type_result(tree_type(decl)));</span>
-<span class="lineNum">    4079 </span><span class="lineCov">       9652 :    return true;</span>
+<span class="lineNum">    4077 </span><span class="lineCov">       9653 :    tree_set_ref(t, decl);</span>
+<span class="lineNum">    4078 </span><span class="lineCov">       9653 :    tree_set_type(t, type_result(tree_type(decl)));</span>
+<span class="lineNum">    4079 </span><span class="lineCov">       9653 :    return true;</span>
 <a name="4080"><span class="lineNum">    4080 </span>            : }</a>
 <span class="lineNum">    4081 </span>            : 
 <span class="lineNum">    4082 </span><span class="lineCov">       1009 : static bool sem_check_pcall(tree_t t)</span>
@@ -5185,30 +5185,30 @@
 <span class="lineNum">    5123 </span>            :    return true;
 <a name="5124"><span class="lineNum">    5124 </span>            : }</a>
 <span class="lineNum">    5125 </span>            : 
-<span class="lineNum">    5126 </span><span class="lineCov">      29157 : static bool sem_check_ref(tree_t t)</span>
+<span class="lineNum">    5126 </span><span class="lineCov">      29159 : static bool sem_check_ref(tree_t t)</span>
 <span class="lineNum">    5127 </span>            : {
-<span class="lineNum">    5128 </span><span class="lineCov">      29157 :    ident_t name = tree_ident(t);</span>
-<span class="lineNum">    5129 </span><span class="lineCov">      29157 :    if (!sem_check_selected_name(name, t, NULL))</span>
+<span class="lineNum">    5128 </span><span class="lineCov">      29159 :    ident_t name = tree_ident(t);</span>
+<span class="lineNum">    5129 </span><span class="lineCov">      29159 :    if (!sem_check_selected_name(name, t, NULL))</span>
 <span class="lineNum">    5130 </span>            :       return false;
 <span class="lineNum">    5131 </span>            : 
 <span class="lineNum">    5132 </span>            :    tree_t decl = NULL, next;
 <span class="lineNum">    5133 </span>            :    int n = 0;
 <span class="lineNum">    5134 </span>            :    do {
-<span class="lineNum">    5135 </span><span class="lineCov">      41462 :       if ((next = scope_find_nth(name, n))) {</span>
-<span class="lineNum">    5136 </span><span class="lineCov">      33658 :          class_t class = class_of(next);</span>
-<span class="lineNum">    5137 </span><span class="lineCov">      33658 :          if ((class == C_ENTITY) || (class == C_ARCHITECTURE)</span>
-<span class="lineNum">    5138 </span><span class="lineCov">      33642 :              || (class == C_COMPONENT) || (class == C_LABEL))</span>
+<span class="lineNum">    5135 </span><span class="lineCov">      41465 :       if ((next = scope_find_nth(name, n))) {</span>
+<span class="lineNum">    5136 </span><span class="lineCov">      33660 :          class_t class = class_of(next);</span>
+<span class="lineNum">    5137 </span><span class="lineCov">      33660 :          if ((class == C_ENTITY) || (class == C_ARCHITECTURE)</span>
+<span class="lineNum">    5138 </span><span class="lineCov">      33644 :              || (class == C_COMPONENT) || (class == C_LABEL))</span>
 <span class="lineNum">    5139 </span><span class="lineCov">         16 :             continue;</span>
 <span class="lineNum">    5140 </span>            : 
-<span class="lineNum">    5141 </span><span class="lineCov">      33642 :          type_t type = tree_type(next);</span>
+<span class="lineNum">    5141 </span><span class="lineCov">      33644 :          type_t type = tree_type(next);</span>
 <span class="lineNum">    5142 </span>            : 
-<span class="lineNum">    5143 </span><span class="lineCov">      33642 :          const bool zero_arg_fn =</span>
-<span class="lineNum">    5144 </span><span class="lineCov">      33642 :             (type_kind(type) == T_FUNC)</span>
-<span class="lineNum">    5145 </span><span class="lineCov">        305 :             &amp;&amp; (sem_required_args(next) == 0)</span>
-<span class="lineNum">    5146 </span><span class="lineCov">      33947 :             &amp;&amp; type_set_member(type_result(type));</span>
+<span class="lineNum">    5143 </span><span class="lineCov">      33644 :          const bool zero_arg_fn =</span>
+<span class="lineNum">    5144 </span><span class="lineCov">      33644 :             (type_kind(type) == T_FUNC)</span>
+<span class="lineNum">    5145 </span><span class="lineCov">        306 :             &amp;&amp; (sem_required_args(next) == 0)</span>
+<span class="lineNum">    5146 </span><span class="lineCov">      33950 :             &amp;&amp; type_set_member(type_result(type));</span>
 <span class="lineNum">    5147 </span>            : 
-<span class="lineNum">    5148 </span><span class="lineCov">      33642 :          if (type_set_member(type) || zero_arg_fn) {</span>
-<span class="lineNum">    5149 </span><span class="lineCov">      29120 :             if (decl != NULL) {</span>
+<span class="lineNum">    5148 </span><span class="lineCov">      33644 :          if (type_set_member(type) || zero_arg_fn) {</span>
+<span class="lineNum">    5149 </span><span class="lineCov">      29122 :             if (decl != NULL) {</span>
 <span class="lineNum">    5150 </span><span class="lineCov">          5 :                assert(zero_arg_fn || (tree_kind(next) == T_ENUM_LIT));</span>
 <span class="lineNum">    5151 </span><span class="lineCov">          5 :                if (!zero_arg_fn || !type_eq(type, tree_type(decl)))</span>
 <span class="lineNum">    5152 </span><span class="lineCov">          4 :                   sem_error(t, &quot;ambiguous %s %s&quot;,</span>
@@ -5219,17 +5219,17 @@
 <span class="lineNum">    5157 </span>            :                                 : &quot;use of enumeration literal&quot;)),
 <span class="lineNum">    5158 </span>            :                             istr(name));
 <span class="lineNum">    5159 </span>            :             }
-<span class="lineNum">    5160 </span><span class="lineCov">      29116 :             decl = next;</span>
+<span class="lineNum">    5160 </span><span class="lineCov">      29118 :             decl = next;</span>
 <span class="lineNum">    5161 </span>            :          }
 <span class="lineNum">    5162 </span>            : 
-<span class="lineNum">    5163 </span><span class="lineCov">      33638 :          n++;</span>
+<span class="lineNum">    5163 </span><span class="lineCov">      33640 :          n++;</span>
 <span class="lineNum">    5164 </span>            :       }
-<span class="lineNum">    5165 </span><span class="lineCov">      41458 :    } while ((next != NULL) &amp;&amp; scope_can_overload(next));</span>
+<span class="lineNum">    5165 </span><span class="lineCov">      41461 :    } while ((next != NULL) &amp;&amp; scope_can_overload(next));</span>
 <span class="lineNum">    5166 </span>            : 
-<span class="lineNum">    5167 </span><span class="lineCov">      29139 :    if (decl == NULL)</span>
+<span class="lineNum">    5167 </span><span class="lineCov">      29141 :    if (decl == NULL)</span>
 <span class="lineNum">    5168 </span><span class="lineCov">         28 :       decl = next;</span>
 <span class="lineNum">    5169 </span>            : 
-<span class="lineNum">    5170 </span><span class="lineCov">      29139 :    if (decl == NULL) {</span>
+<span class="lineNum">    5170 </span><span class="lineCov">      29141 :    if (decl == NULL) {</span>
 <span class="lineNum">    5171 </span><span class="lineCov">          6 :       if (n == 0)</span>
 <span class="lineNum">    5172 </span><span class="lineNoCov">          0 :          sem_error(t, &quot;no visible declaration for %s&quot;, istr(name));</span>
 <span class="lineNum">    5173 </span><span class="lineCov">          6 :       else if (n == 1) {</span>
@@ -5244,10 +5244,10 @@
 <span class="lineNum">    5182 </span>            :       }
 <span class="lineNum">    5183 </span>            :    }
 <span class="lineNum">    5184 </span>            : 
-<span class="lineNum">    5185 </span><span class="lineCov">      29133 :    const tree_kind_t kind = tree_kind(decl);</span>
-<span class="lineNum">    5186 </span><span class="lineCov">      29133 :    switch (kind) {</span>
+<span class="lineNum">    5185 </span><span class="lineCov">      29135 :    const tree_kind_t kind = tree_kind(decl);</span>
+<span class="lineNum">    5186 </span><span class="lineCov">      29135 :    switch (kind) {</span>
 <span class="lineNum">    5187 </span>            :    case T_PORT_DECL:
-<span class="lineNum">    5188 </span><span class="lineCov">       6898 :       if (tree_class(decl) != C_CONSTANT &amp;&amp; tree_class(decl) != C_DEFAULT) {</span>
+<span class="lineNum">    5188 </span><span class="lineCov">       6899 :       if (tree_class(decl) != C_CONSTANT &amp;&amp; tree_class(decl) != C_DEFAULT) {</span>
 <span class="lineNum">    5189 </span>            :       case T_VAR_DECL:
 <span class="lineNum">    5190 </span>            :       case T_SIGNAL_DECL:
 <span class="lineNum">    5191 </span>            :       case T_FILE_DECL:
@@ -5260,15 +5260,15 @@
 <span class="lineNum">    5198 </span>            :    case T_ALIAS:
 <span class="lineNum">    5199 </span>            :    case T_UNIT_DECL:
 <span class="lineNum">    5200 </span>            :    case T_GENVAR:
-<span class="lineNum">    5201 </span><span class="lineCov">      27659 :       tree_set_type(t, tree_type(decl));</span>
-<span class="lineNum">    5202 </span><span class="lineCov">      27659 :       break;</span>
+<span class="lineNum">    5201 </span><span class="lineCov">      27660 :       tree_set_type(t, tree_type(decl));</span>
+<span class="lineNum">    5202 </span><span class="lineCov">      27660 :       break;</span>
 <span class="lineNum">    5203 </span>            : 
 <span class="lineNum">    5204 </span>            :    case T_FUNC_DECL:
 <span class="lineNum">    5205 </span>            :    case T_FUNC_BODY:
-<span class="lineNum">    5206 </span><span class="lineCov">        301 :       tree_change_kind(t, T_FCALL);</span>
-<span class="lineNum">    5207 </span><span class="lineCov">        301 :       tree_set_type(t, type_result(tree_type(decl)));</span>
-<span class="lineNum">    5208 </span><span class="lineCov">        301 :       sem_copy_default_args(t, decl);</span>
-<span class="lineNum">    5209 </span><span class="lineCov">        301 :       break;</span>
+<span class="lineNum">    5206 </span><span class="lineCov">        302 :       tree_change_kind(t, T_FCALL);</span>
+<span class="lineNum">    5207 </span><span class="lineCov">        302 :       tree_set_type(t, type_result(tree_type(decl)));</span>
+<span class="lineNum">    5208 </span><span class="lineCov">        302 :       sem_copy_default_args(t, decl);</span>
+<span class="lineNum">    5209 </span><span class="lineCov">        302 :       break;</span>
 <span class="lineNum">    5210 </span>            : 
 <span class="lineNum">    5211 </span>            :    case T_FIELD_DECL:
 <span class="lineNum">    5212 </span><span class="lineCov">       1169 :       sem_convert_to_record_ref(t, decl);</span>
@@ -5278,15 +5278,15 @@
 <span class="lineNum">    5216 </span><span class="lineCov">          2 :       sem_error(t, &quot;invalid use of %s&quot;, istr(tree_ident(t)));</span>
 <span class="lineNum">    5217 </span>            :    }
 <span class="lineNum">    5218 </span>            : 
-<span class="lineNum">    5219 </span><span class="lineCov">      27960 :    if (top_scope-&gt;subprog != NULL) {</span>
-<span class="lineNum">    5220 </span><span class="lineCov">      17563 :       if (kind == T_FILE_DECL)</span>
+<span class="lineNum">    5219 </span><span class="lineCov">      27962 :    if (top_scope-&gt;subprog != NULL) {</span>
+<span class="lineNum">    5220 </span><span class="lineCov">      17565 :       if (kind == T_FILE_DECL)</span>
 <span class="lineNum">    5221 </span><span class="lineCov">         32 :          top_scope-&gt;impure_io |= IMPURE_FILE;</span>
-<span class="lineNum">    5222 </span><span class="lineCov">      17531 :       else if (kind == T_VAR_DECL &amp;&amp; (tree_flags(decl) &amp; TREE_F_SHARED))</span>
+<span class="lineNum">    5222 </span><span class="lineCov">      17533 :       else if (kind == T_VAR_DECL &amp;&amp; (tree_flags(decl) &amp; TREE_F_SHARED))</span>
 <span class="lineNum">    5223 </span><span class="lineCov">          3 :          top_scope-&gt;impure_io |= IMPURE_SHARED;</span>
 <span class="lineNum">    5224 </span>            :    }
 <span class="lineNum">    5225 </span>            : 
-<span class="lineNum">    5226 </span><span class="lineCov">      27960 :    tree_set_ref(t, decl);</span>
-<span class="lineNum">    5227 </span><span class="lineCov">      27960 :    return true;</span>
+<span class="lineNum">    5226 </span><span class="lineCov">      27962 :    tree_set_ref(t, decl);</span>
+<span class="lineNum">    5227 </span><span class="lineCov">      27962 :    return true;</span>
 <a name="5228"><span class="lineNum">    5228 </span>            : }</a>
 <span class="lineNum">    5229 </span>            : 
 <span class="lineNum">    5230 </span><span class="lineCov">       1331 : static bool sem_check_record_ref(tree_t t)</span>
@@ -6679,21 +6679,21 @@
 <span class="lineNum">    6617 </span>            :    return ok;
 <a name="6618"><span class="lineNum">    6618 </span>            : }</a>
 <span class="lineNum">    6619 </span>            : 
-<span class="lineNum">    6620 </span><span class="lineCov">       1813 : static bool sem_check_return(tree_t t)</span>
+<span class="lineNum">    6620 </span><span class="lineCov">       1814 : static bool sem_check_return(tree_t t)</span>
 <span class="lineNum">    6621 </span>            : {
-<span class="lineNum">    6622 </span><span class="lineCov">       1813 :    if (top_scope-&gt;subprog == NULL)</span>
+<span class="lineNum">    6622 </span><span class="lineCov">       1814 :    if (top_scope-&gt;subprog == NULL)</span>
 <span class="lineNum">    6623 </span><span class="lineCov">          2 :       sem_error(t, &quot;return statement not allowed outside subprogram&quot;);</span>
 <span class="lineNum">    6624 </span>            : 
-<span class="lineNum">    6625 </span><span class="lineCov">       1811 :    if (tree_has_value(t)) {</span>
-<span class="lineNum">    6626 </span><span class="lineCov">       1759 :       if (tree_kind(top_scope-&gt;subprog) == T_PROC_BODY)</span>
+<span class="lineNum">    6625 </span><span class="lineCov">       1812 :    if (tree_has_value(t)) {</span>
+<span class="lineNum">    6626 </span><span class="lineCov">       1760 :       if (tree_kind(top_scope-&gt;subprog) == T_PROC_BODY)</span>
 <span class="lineNum">    6627 </span><span class="lineCov">          1 :          sem_error(t, &quot;cannot return a value from a procedure&quot;);</span>
 <span class="lineNum">    6628 </span>            : 
-<span class="lineNum">    6629 </span><span class="lineCov">       1758 :       type_t expect = type_result(tree_type(top_scope-&gt;subprog));</span>
+<span class="lineNum">    6629 </span><span class="lineCov">       1759 :       type_t expect = type_result(tree_type(top_scope-&gt;subprog));</span>
 <span class="lineNum">    6630 </span>            : 
-<span class="lineNum">    6631 </span><span class="lineCov">       1758 :       if (!sem_check_constrained(tree_value(t), expect))</span>
+<span class="lineNum">    6631 </span><span class="lineCov">       1759 :       if (!sem_check_constrained(tree_value(t), expect))</span>
 <span class="lineNum">    6632 </span>            :          return false;
 <span class="lineNum">    6633 </span>            : 
-<span class="lineNum">    6634 </span><span class="lineCov">       1755 :       if (!type_eq(tree_type(tree_value(t)), expect))</span>
+<span class="lineNum">    6634 </span><span class="lineCov">       1756 :       if (!type_eq(tree_type(tree_value(t)), expect))</span>
 <span class="lineNum">    6635 </span><span class="lineNoCov">          0 :          sem_error(t, &quot;expected return type %s&quot;, sem_type_str(expect));</span>
 <span class="lineNum">    6636 </span>            :    }
 <span class="lineNum">    6637 </span>            : 
@@ -7184,14 +7184,14 @@
 <span class="lineNum">    7122 </span><span class="lineCov">          3 :       ident_t cname = tree_ident2(t);</span>
 <span class="lineNum">    7123 </span><span class="lineCov">          3 :       hash_iter_t it = HASH_BEGIN;</span>
 <span class="lineNum">    7124 </span>            :       tree_t obj;
-<span class="lineNum">    7125 </span><span class="lineCov">         27 :       while (scope_walk(NULL, &amp;it, &amp;obj)) {</span>
-<span class="lineNum">    7126 </span><span class="lineCov">         22 :          if (tree_kind(obj) != T_INSTANCE)</span>
+<span class="lineNum">    7125 </span><span class="lineCov">         26 :       while (scope_walk(NULL, &amp;it, &amp;obj)) {</span>
+<span class="lineNum">    7126 </span><span class="lineCov">         21 :          if (tree_kind(obj) != T_INSTANCE)</span>
 <span class="lineNum">    7127 </span><span class="lineCov">          7 :             continue;</span>
 <span class="lineNum">    7128 </span>            : 
-<span class="lineNum">    7129 </span><span class="lineCov">         15 :          if (tree_class(obj) != C_COMPONENT)</span>
+<span class="lineNum">    7129 </span><span class="lineCov">         14 :          if (tree_class(obj) != C_COMPONENT)</span>
 <span class="lineNum">    7130 </span><span class="lineCov">          2 :             continue;</span>
 <span class="lineNum">    7131 </span>            : 
-<span class="lineNum">    7132 </span><span class="lineCov">         13 :          if (tree_ident2(obj) == cname) {</span>
+<span class="lineNum">    7132 </span><span class="lineCov">         12 :          if (tree_ident2(obj) == cname) {</span>
 <span class="lineNum">    7133 </span><span class="lineCov">          6 :             if ((kind == ALL) || !tree_has_spec(obj)) {</span>
 <span class="lineNum">    7134 </span><span class="lineCov">          5 :                if (!sem_bind(t, obj))</span>
 <span class="lineNum">    7135 </span>            :                   return false;
@@ -7376,12 +7376,12 @@
 <span class="lineNum">    7314 </span><span class="lineCov">          2 :    return sem_check_context_clause(ctx);</span>
 <a name="7315"><span class="lineNum">    7315 </span>            : }</a>
 <span class="lineNum">    7316 </span>            : 
-<span class="lineNum">    7317 </span><span class="lineCov">      95110 : bool sem_check(tree_t t)</span>
+<span class="lineNum">    7317 </span><span class="lineCov">      95116 : bool sem_check(tree_t t)</span>
 <span class="lineNum">    7318 </span>            : {
-<span class="lineNum">    7319 </span><span class="lineCov">      95110 :    if (relax == -1)</span>
+<span class="lineNum">    7319 </span><span class="lineCov">      95116 :    if (relax == -1)</span>
 <span class="lineNum">    7320 </span><span class="lineCov">        579 :       relax = opt_get_int(&quot;relax&quot;);</span>
 <span class="lineNum">    7321 </span>            : 
-<span class="lineNum">    7322 </span><span class="lineCov">      95110 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">    7322 </span><span class="lineCov">      95116 :    switch (tree_kind(t)) {</span>
 <span class="lineNum">    7323 </span>            :    case T_ARCH:
 <span class="lineNum">    7324 </span><span class="lineCov">        663 :       return sem_check_arch(t);</span>
 <span class="lineNum">    7325 </span>            :    case T_PACKAGE:
@@ -7391,7 +7391,7 @@
 <span class="lineNum">    7329 </span>            :    case T_TYPE_DECL:
 <span class="lineNum">    7330 </span><span class="lineCov">        760 :       return sem_check_type_decl(t);</span>
 <span class="lineNum">    7331 </span>            :    case T_PORT_DECL:
-<span class="lineNum">    7332 </span><span class="lineCov">       5966 :       return sem_check_port_decl(t);</span>
+<span class="lineNum">    7332 </span><span class="lineCov">       5967 :       return sem_check_port_decl(t);</span>
 <span class="lineNum">    7333 </span>            :    case T_SIGNAL_DECL:
 <span class="lineNum">    7334 </span>            :    case T_VAR_DECL:
 <span class="lineNum">    7335 </span>            :    case T_CONST_DECL:
@@ -7403,11 +7403,11 @@
 <span class="lineNum">    7341 </span>            :    case T_SIGNAL_ASSIGN:
 <span class="lineNum">    7342 </span><span class="lineCov">        525 :       return sem_check_signal_assign(t);</span>
 <span class="lineNum">    7343 </span>            :    case T_FCALL:
-<span class="lineNum">    7344 </span><span class="lineCov">      12540 :       return sem_check_fcall(t);</span>
+<span class="lineNum">    7344 </span><span class="lineCov">      12541 :       return sem_check_fcall(t);</span>
 <span class="lineNum">    7345 </span>            :    case T_LITERAL:
 <span class="lineNum">    7346 </span><span class="lineCov">      13391 :       return sem_check_literal(t);</span>
 <span class="lineNum">    7347 </span>            :    case T_REF:
-<span class="lineNum">    7348 </span><span class="lineCov">      29157 :       return sem_check_ref(t);</span>
+<span class="lineNum">    7348 </span><span class="lineCov">      29159 :       return sem_check_ref(t);</span>
 <span class="lineNum">    7349 </span>            :    case T_WAIT:
 <span class="lineNum">    7350 </span><span class="lineCov">        965 :       return sem_check_wait(t);</span>
 <span class="lineNum">    7351 </span>            :    case T_ASSERT:
@@ -7434,9 +7434,9 @@
 <span class="lineNum">    7372 </span>            :    case T_PACK_BODY:
 <span class="lineNum">    7373 </span><span class="lineCov">        104 :       return sem_check_pack_body(t);</span>
 <span class="lineNum">    7374 </span>            :    case T_FUNC_BODY:
-<span class="lineNum">    7375 </span><span class="lineCov">       1048 :       return sem_check_func_body(t);</span>
+<span class="lineNum">    7375 </span><span class="lineCov">       1049 :       return sem_check_func_body(t);</span>
 <span class="lineNum">    7376 </span>            :    case T_RETURN:
-<span class="lineNum">    7377 </span><span class="lineCov">       1813 :       return sem_check_return(t);</span>
+<span class="lineNum">    7377 </span><span class="lineCov">       1814 :       return sem_check_return(t);</span>
 <span class="lineNum">    7378 </span>            :    case T_CASSIGN:
 <span class="lineNum">    7379 </span><span class="lineCov">        212 :       return sem_check_cassign(t);</span>
 <span class="lineNum">    7380 </span>            :    case T_WHILE:
