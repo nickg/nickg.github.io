@@ -102,28 +102,28 @@
 <span class="lineNum">      40 </span>            : #define bounds_error(t, ...) \
 <a name="41"><span class="lineNum">      41 </span>            :    do { errors++; error_at(tree_loc(t), __VA_ARGS__); } while (0)</a>
 <span class="lineNum">      42 </span>            : 
-<span class="lineNum">      43 </span><span class="lineCov">       2310 : static void bounds_check_string_literal(tree_t t)</span>
+<span class="lineNum">      43 </span><span class="lineCov">       2311 : static void bounds_check_string_literal(tree_t t)</span>
 <span class="lineNum">      44 </span>            : {
-<span class="lineNum">      45 </span><span class="lineCov">       2310 :    type_t type = tree_type(t);</span>
-<span class="lineNum">      46 </span><span class="lineCov">       2310 :    if (type_is_unconstrained(type))</span>
+<span class="lineNum">      45 </span><span class="lineCov">       2311 :    type_t type = tree_type(t);</span>
+<span class="lineNum">      46 </span><span class="lineCov">       2311 :    if (type_is_unconstrained(type))</span>
 <span class="lineNum">      47 </span><span class="lineCov">          1 :       return;</span>
 <span class="lineNum">      48 </span>            : 
 <span class="lineNum">      49 </span>            :    int64_t expect;
-<span class="lineNum">      50 </span><span class="lineCov">       2309 :    if (folded_length(type_dim(type, 0), &amp;expect) &amp;&amp; expect != tree_chars(t))</span>
+<span class="lineNum">      50 </span><span class="lineCov">       2310 :    if (folded_length(type_dim(type, 0), &amp;expect) &amp;&amp; expect != tree_chars(t))</span>
 <span class="lineNum">      51 </span><span class="lineCov">          2 :       bounds_error(t, &quot;expected %&quot;PRIi64&quot; elements in string literal but &quot;</span>
 <span class="lineNum">      52 </span>            :                    &quot;have %d&quot;, expect, tree_chars(t));
 <a name="53"><span class="lineNum">      53 </span>            : }</a>
 <span class="lineNum">      54 </span>            : 
-<span class="lineNum">      55 </span><span class="lineCov">      12955 : static void bounds_check_literal(tree_t t)</span>
+<span class="lineNum">      55 </span><span class="lineCov">      12956 : static void bounds_check_literal(tree_t t)</span>
 <span class="lineNum">      56 </span>            : {
-<span class="lineNum">      57 </span><span class="lineCov">      12955 :    switch (tree_subkind(t)) {</span>
+<span class="lineNum">      57 </span><span class="lineCov">      12956 :    switch (tree_subkind(t)) {</span>
 <span class="lineNum">      58 </span>            :    case L_STRING:
-<span class="lineNum">      59 </span><span class="lineCov">       2310 :       bounds_check_string_literal(t);</span>
-<span class="lineNum">      60 </span><span class="lineCov">       2310 :       break;</span>
+<span class="lineNum">      59 </span><span class="lineCov">       2311 :       bounds_check_string_literal(t);</span>
+<span class="lineNum">      60 </span><span class="lineCov">       2311 :       break;</span>
 <span class="lineNum">      61 </span>            :    default:
 <span class="lineNum">      62 </span>            :       break;
 <span class="lineNum">      63 </span>            :    }
-<a name="64"><span class="lineNum">      64 </span><span class="lineCov">      12955 : }</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">      12956 : }</span></a>
 <span class="lineNum">      65 </span>            : 
 <span class="lineNum">      66 </span><span class="lineCov">      24908 : static bool is_out_of_range(tree_t value, range_t range, bool *checked)</span>
 <span class="lineNum">      67 </span>            : {
@@ -981,17 +981,17 @@
 <span class="lineNum">     919 </span>            :    }
 <a name="920"><span class="lineNum">     920 </span><span class="lineCov">       2093 : }</span></a>
 <span class="lineNum">     921 </span>            : 
-<span class="lineNum">     922 </span><span class="lineCov">       2483 : static void bounds_check_wait(tree_t t)</span>
+<span class="lineNum">     922 </span><span class="lineCov">       2484 : static void bounds_check_wait(tree_t t)</span>
 <span class="lineNum">     923 </span>            : {
-<span class="lineNum">     924 </span><span class="lineCov">       2483 :    int64_t delay = 0;</span>
-<span class="lineNum">     925 </span><span class="lineCov">       2483 :    if (tree_has_delay(t) &amp;&amp; folded_int(tree_delay(t), &amp;delay))</span>
+<span class="lineNum">     924 </span><span class="lineCov">       2484 :    int64_t delay = 0;</span>
+<span class="lineNum">     925 </span><span class="lineCov">       2484 :    if (tree_has_delay(t) &amp;&amp; folded_int(tree_delay(t), &amp;delay))</span>
 <span class="lineNum">     926 </span><span class="lineCov">        796 :       if (delay &lt; 0)</span>
 <span class="lineNum">     927 </span><span class="lineCov">          1 :          bounds_error(tree_delay(t), &quot;wait timeout may not be negative&quot;);</span>
-<a name="928"><span class="lineNum">     928 </span><span class="lineCov">       2483 : }</span></a>
+<a name="928"><span class="lineNum">     928 </span><span class="lineCov">       2484 : }</span></a>
 <span class="lineNum">     929 </span>            : 
-<span class="lineNum">     930 </span><span class="lineCov">     176206 : static void bounds_visit_fn(tree_t t, void *context)</span>
+<span class="lineNum">     930 </span><span class="lineCov">     176221 : static void bounds_visit_fn(tree_t t, void *context)</span>
 <span class="lineNum">     931 </span>            : {
-<span class="lineNum">     932 </span><span class="lineCov">     176206 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     932 </span><span class="lineCov">     176221 :    switch (tree_kind(t)) {</span>
 <span class="lineNum">     933 </span>            :    case T_PCALL:
 <span class="lineNum">     934 </span>            :    case T_FCALL:
 <span class="lineNum">     935 </span><span class="lineCov">      11316 :       bounds_check_call_args(t);</span>
@@ -1021,8 +1021,8 @@
 <span class="lineNum">     959 </span><span class="lineCov">        118 :       bounds_check_case(t);</span>
 <span class="lineNum">     960 </span><span class="lineCov">        118 :       break;</span>
 <span class="lineNum">     961 </span>            :    case T_LITERAL:
-<span class="lineNum">     962 </span><span class="lineCov">      12955 :       bounds_check_literal(t);</span>
-<span class="lineNum">     963 </span><span class="lineCov">      12955 :       break;</span>
+<span class="lineNum">     962 </span><span class="lineCov">      12956 :       bounds_check_literal(t);</span>
+<span class="lineNum">     963 </span><span class="lineCov">      12956 :       break;</span>
 <span class="lineNum">     964 </span>            :    case T_TYPE_CONV:
 <span class="lineNum">     965 </span><span class="lineCov">        459 :       bounds_check_type_conv(t);</span>
 <span class="lineNum">     966 </span><span class="lineCov">        459 :       break;</span>
@@ -1030,21 +1030,21 @@
 <span class="lineNum">     968 </span><span class="lineCov">       2093 :       bounds_check_attr_ref(t);</span>
 <span class="lineNum">     969 </span><span class="lineCov">       2093 :       break;</span>
 <span class="lineNum">     970 </span>            :    case T_WAIT:
-<span class="lineNum">     971 </span><span class="lineCov">       2483 :       bounds_check_wait(t);</span>
-<span class="lineNum">     972 </span><span class="lineCov">       2483 :       break;</span>
+<span class="lineNum">     971 </span><span class="lineCov">       2484 :       bounds_check_wait(t);</span>
+<span class="lineNum">     972 </span><span class="lineCov">       2484 :       break;</span>
 <span class="lineNum">     973 </span>            :    default:
 <span class="lineNum">     974 </span>            :       break;
 <span class="lineNum">     975 </span>            :    }
-<a name="976"><span class="lineNum">     976 </span><span class="lineCov">     176206 : }</span></a>
+<a name="976"><span class="lineNum">     976 </span><span class="lineCov">     176221 : }</span></a>
 <span class="lineNum">     977 </span>            : 
-<span class="lineNum">     978 </span><span class="lineCov">       1831 : void bounds_check(tree_t top)</span>
+<span class="lineNum">     978 </span><span class="lineCov">       1832 : void bounds_check(tree_t top)</span>
 <span class="lineNum">     979 </span>            : {
-<span class="lineNum">     980 </span><span class="lineCov">       1831 :    tree_visit(top, bounds_visit_fn, NULL);</span>
-<a name="981"><span class="lineNum">     981 </span><span class="lineCov">       1831 : }</span></a>
+<span class="lineNum">     980 </span><span class="lineCov">       1832 :    tree_visit(top, bounds_visit_fn, NULL);</span>
+<a name="981"><span class="lineNum">     981 </span><span class="lineCov">       1832 : }</span></a>
 <span class="lineNum">     982 </span>            : 
-<span class="lineNum">     983 </span><span class="lineCov">       1494 : int bounds_errors(void)</span>
+<span class="lineNum">     983 </span><span class="lineCov">       1496 : int bounds_errors(void)</span>
 <span class="lineNum">     984 </span>            : {
-<span class="lineNum">     985 </span><span class="lineCov">       1494 :    return errors;</span>
+<span class="lineNum">     985 </span><span class="lineCov">       1496 :    return errors;</span>
 <span class="lineNum">     986 </span>            : }
 </pre>
       </td>
