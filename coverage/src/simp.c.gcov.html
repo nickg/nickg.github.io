@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2017-07-30</td>
+            <td class="headerValue">2017-08-01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">29</td>
@@ -107,78 +107,78 @@
 <span class="lineNum">      45 </span>            : static tree_t simp_tree(tree_t t, void *context);
 <a name="46"><span class="lineNum">      46 </span>            : static void simp_build_wait(tree_t wait, tree_t expr);</a>
 <span class="lineNum">      47 </span>            : 
-<span class="lineNum">      48 </span><span class="lineCov">      15910 : static tree_t simp_call_args(tree_t t)</span>
+<span class="lineNum">      48 </span><span class="lineCov">      15953 : static tree_t simp_call_args(tree_t t)</span>
 <span class="lineNum">      49 </span>            : {
-<span class="lineNum">      50 </span><span class="lineCov">      15910 :    tree_t decl = tree_ref(t);</span>
+<span class="lineNum">      50 </span><span class="lineCov">      15953 :    tree_t decl = tree_ref(t);</span>
 <span class="lineNum">      51 </span>            : 
-<span class="lineNum">      52 </span><span class="lineCov">      15910 :    const int nparams = tree_params(t);</span>
-<span class="lineNum">      53 </span><span class="lineCov">      15910 :    const int nports  = tree_ports(decl);</span>
+<span class="lineNum">      52 </span><span class="lineCov">      15953 :    const int nparams = tree_params(t);</span>
+<span class="lineNum">      53 </span><span class="lineCov">      15953 :    const int nports  = tree_ports(decl);</span>
 <span class="lineNum">      54 </span>            : 
 <span class="lineNum">      55 </span>            :    // Replace named arguments with positional ones
 <span class="lineNum">      56 </span>            : 
-<span class="lineNum">      57 </span><span class="lineCov">      15910 :    int last_pos = -1;</span>
-<span class="lineNum">      58 </span><span class="lineCov">      46653 :    for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">      59 </span><span class="lineCov">      30743 :       if (tree_subkind(tree_param(t, i)) == P_POS)</span>
-<span class="lineNum">      60 </span><span class="lineCov">      30270 :          last_pos = i;</span>
+<span class="lineNum">      57 </span><span class="lineCov">      15953 :    int last_pos = -1;</span>
+<span class="lineNum">      58 </span><span class="lineCov">      46780 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">      59 </span><span class="lineCov">      30827 :       if (tree_subkind(tree_param(t, i)) == P_POS)</span>
+<span class="lineNum">      60 </span><span class="lineCov">      30352 :          last_pos = i;</span>
 <span class="lineNum">      61 </span>            :    }
 <span class="lineNum">      62 </span>            : 
-<span class="lineNum">      63 </span><span class="lineCov">      15910 :    if (last_pos &lt; nparams - 1) {</span>
-<span class="lineNum">      64 </span><span class="lineCov">        261 :       tree_t new = tree_new(tree_kind(t));</span>
-<span class="lineNum">      65 </span><span class="lineCov">        261 :       tree_set_loc(new, tree_loc(t));</span>
-<span class="lineNum">      66 </span><span class="lineCov">        261 :       tree_set_ident(new, tree_ident(t));</span>
-<span class="lineNum">      67 </span><span class="lineCov">        261 :       tree_set_ref(new, tree_ref(t));</span>
+<span class="lineNum">      63 </span><span class="lineCov">      15953 :    if (last_pos &lt; nparams - 1) {</span>
+<span class="lineNum">      64 </span><span class="lineCov">        263 :       tree_t new = tree_new(tree_kind(t));</span>
+<span class="lineNum">      65 </span><span class="lineCov">        263 :       tree_set_loc(new, tree_loc(t));</span>
+<span class="lineNum">      66 </span><span class="lineCov">        263 :       tree_set_ident(new, tree_ident(t));</span>
+<span class="lineNum">      67 </span><span class="lineCov">        263 :       tree_set_ref(new, tree_ref(t));</span>
 <span class="lineNum">      68 </span>            : 
-<span class="lineNum">      69 </span><span class="lineCov">        261 :       tree_kind_t kind = tree_kind(t);</span>
-<span class="lineNum">      70 </span><span class="lineCov">        261 :       if ((kind == T_FCALL) || (kind == T_ATTR_REF))</span>
-<span class="lineNum">      71 </span><span class="lineCov">         77 :          tree_set_type(new, tree_type(t));</span>
+<span class="lineNum">      69 </span><span class="lineCov">        263 :       tree_kind_t kind = tree_kind(t);</span>
+<span class="lineNum">      70 </span><span class="lineCov">        263 :       if ((kind == T_FCALL) || (kind == T_ATTR_REF))</span>
+<span class="lineNum">      71 </span><span class="lineCov">         79 :          tree_set_type(new, tree_type(t));</span>
 <span class="lineNum">      72 </span><span class="lineCov">        184 :       else if (kind == T_CPCALL)</span>
 <span class="lineNum">      73 </span><span class="lineCov">          5 :          tree_set_ident2(new, tree_ident2(t));</span>
 <span class="lineNum">      74 </span>            : 
-<span class="lineNum">      75 </span><span class="lineCov">        570 :       for (int i = 0; i &lt;= last_pos; i++) {</span>
-<span class="lineNum">      76 </span><span class="lineCov">        570 :          tree_t port  = tree_port(decl, i);</span>
-<span class="lineNum">      77 </span><span class="lineCov">        570 :          tree_t param = tree_param(t, i);</span>
-<span class="lineNum">      78 </span><span class="lineCov">        570 :          tree_t value = tree_value(param);</span>
+<span class="lineNum">      75 </span><span class="lineCov">        572 :       for (int i = 0; i &lt;= last_pos; i++) {</span>
+<span class="lineNum">      76 </span><span class="lineCov">        572 :          tree_t port  = tree_port(decl, i);</span>
+<span class="lineNum">      77 </span><span class="lineCov">        572 :          tree_t param = tree_param(t, i);</span>
+<span class="lineNum">      78 </span><span class="lineCov">        572 :          tree_t value = tree_value(param);</span>
 <span class="lineNum">      79 </span>            : 
-<span class="lineNum">      80 </span><span class="lineCov">        570 :          if (tree_kind(value) == T_OPEN)</span>
+<span class="lineNum">      80 </span><span class="lineCov">        572 :          if (tree_kind(value) == T_OPEN)</span>
 <span class="lineNum">      81 </span><span class="lineCov">          3 :             value = tree_value(port);</span>
 <span class="lineNum">      82 </span>            : 
-<span class="lineNum">      83 </span><span class="lineCov">        570 :          add_param(new, value, P_POS, NULL);</span>
+<span class="lineNum">      83 </span><span class="lineCov">        572 :          add_param(new, value, P_POS, NULL);</span>
 <span class="lineNum">      84 </span>            :       }
 <span class="lineNum">      85 </span>            : 
-<span class="lineNum">      86 </span><span class="lineCov">        734 :       for (int i = last_pos + 1; i &lt; nports; i++) {</span>
-<span class="lineNum">      87 </span><span class="lineCov">        473 :          tree_t port  = tree_port(decl, i);</span>
-<span class="lineNum">      88 </span><span class="lineCov">        473 :          ident_t name = tree_ident(port);</span>
+<span class="lineNum">      86 </span><span class="lineCov">        738 :       for (int i = last_pos + 1; i &lt; nports; i++) {</span>
+<span class="lineNum">      87 </span><span class="lineCov">        475 :          tree_t port  = tree_port(decl, i);</span>
+<span class="lineNum">      88 </span><span class="lineCov">        475 :          ident_t name = tree_ident(port);</span>
 <span class="lineNum">      89 </span>            : 
-<span class="lineNum">      90 </span><span class="lineCov">        473 :          bool found = false;</span>
-<span class="lineNum">      91 </span><span class="lineCov">       1397 :          for (int j = last_pos + 1; (j &lt; nparams) &amp;&amp; !found; j++) {</span>
-<span class="lineNum">      92 </span><span class="lineCov">        924 :             tree_t p = tree_param(t, j);</span>
-<span class="lineNum">      93 </span><span class="lineCov">        924 :             assert(tree_subkind(p) == P_NAMED);</span>
+<span class="lineNum">      90 </span><span class="lineCov">        475 :          bool found = false;</span>
+<span class="lineNum">      91 </span><span class="lineCov">       1401 :          for (int j = last_pos + 1; (j &lt; nparams) &amp;&amp; !found; j++) {</span>
+<span class="lineNum">      92 </span><span class="lineCov">        926 :             tree_t p = tree_param(t, j);</span>
+<span class="lineNum">      93 </span><span class="lineCov">        926 :             assert(tree_subkind(p) == P_NAMED);</span>
 <span class="lineNum">      94 </span>            : 
-<span class="lineNum">      95 </span><span class="lineCov">        924 :             tree_t ref = tree_name(p);</span>
-<span class="lineNum">      96 </span><span class="lineCov">        924 :             assert(tree_kind(ref) == T_REF);</span>
+<span class="lineNum">      95 </span><span class="lineCov">        926 :             tree_t ref = tree_name(p);</span>
+<span class="lineNum">      96 </span><span class="lineCov">        926 :             assert(tree_kind(ref) == T_REF);</span>
 <span class="lineNum">      97 </span>            : 
-<span class="lineNum">      98 </span><span class="lineCov">        924 :             if (name == tree_ident(ref)) {</span>
-<span class="lineNum">      99 </span><span class="lineCov">        473 :                tree_t value = tree_value(p);</span>
+<span class="lineNum">      98 </span><span class="lineCov">        926 :             if (name == tree_ident(ref)) {</span>
+<span class="lineNum">      99 </span><span class="lineCov">        475 :                tree_t value = tree_value(p);</span>
 <span class="lineNum">     100 </span>            : 
-<span class="lineNum">     101 </span><span class="lineCov">        473 :                if (tree_kind(value) == T_OPEN)</span>
+<span class="lineNum">     101 </span><span class="lineCov">        475 :                if (tree_kind(value) == T_OPEN)</span>
 <span class="lineNum">     102 </span><span class="lineCov">          3 :                   value = tree_value(port);</span>
 <span class="lineNum">     103 </span>            : 
-<span class="lineNum">     104 </span><span class="lineCov">        473 :                add_param(new, value, P_POS, NULL);</span>
-<span class="lineNum">     105 </span><span class="lineCov">        473 :                found = true;</span>
+<span class="lineNum">     104 </span><span class="lineCov">        475 :                add_param(new, value, P_POS, NULL);</span>
+<span class="lineNum">     105 </span><span class="lineCov">        475 :                found = true;</span>
 <span class="lineNum">     106 </span>            :             }
 <span class="lineNum">     107 </span>            :          }
-<span class="lineNum">     108 </span><span class="lineCov">        473 :          assert(found);</span>
+<span class="lineNum">     108 </span><span class="lineCov">        475 :          assert(found);</span>
 <span class="lineNum">     109 </span>            :       }
 <span class="lineNum">     110 </span>            : 
 <span class="lineNum">     111 </span>            :       t = new;
 <span class="lineNum">     112 </span>            :    }
 <span class="lineNum">     113 </span>            : 
-<span class="lineNum">     114 </span><span class="lineCov">      15910 :    return t;</span>
+<span class="lineNum">     114 </span><span class="lineCov">      15953 :    return t;</span>
 <a name="115"><span class="lineNum">     115 </span>            : }</a>
 <span class="lineNum">     116 </span>            : 
-<span class="lineNum">     117 </span><span class="lineCov">      14600 : static tree_t simp_fcall(tree_t t, simp_ctx_t *ctx)</span>
+<span class="lineNum">     117 </span><span class="lineCov">      14643 : static tree_t simp_fcall(tree_t t, simp_ctx_t *ctx)</span>
 <span class="lineNum">     118 </span>            : {
-<span class="lineNum">     119 </span><span class="lineCov">      14600 :    return eval(simp_call_args(t), EVAL_FCALL | EVAL_FOLDING | ctx-&gt;eval_flags);</span>
+<span class="lineNum">     119 </span><span class="lineCov">      14643 :    return eval(simp_call_args(t), EVAL_FCALL | EVAL_FOLDING | ctx-&gt;eval_flags);</span>
 <a name="120"><span class="lineNum">     120 </span>            : }</a>
 <span class="lineNum">     121 </span>            : 
 <span class="lineNum">     122 </span><span class="lineCov">       1302 : static tree_t simp_pcall(tree_t t)</span>
@@ -235,17 +235,17 @@
 <span class="lineNum">     173 </span>            :    return t;
 <a name="174"><span class="lineNum">     174 </span>            : }</a>
 <span class="lineNum">     175 </span>            : 
-<span class="lineNum">     176 </span><span class="lineCov">      66427 : static tree_t simp_ref(tree_t t)</span>
+<span class="lineNum">     176 </span><span class="lineCov">      66527 : static tree_t simp_ref(tree_t t)</span>
 <span class="lineNum">     177 </span>            : {
-<span class="lineNum">     178 </span><span class="lineCov">      66427 :    tree_t decl = tree_ref(t);</span>
+<span class="lineNum">     178 </span><span class="lineCov">      66527 :    tree_t decl = tree_ref(t);</span>
 <span class="lineNum">     179 </span>            : 
-<span class="lineNum">     180 </span><span class="lineCov">      66427 :    switch (tree_kind(decl)) {</span>
+<span class="lineNum">     180 </span><span class="lineCov">      66527 :    switch (tree_kind(decl)) {</span>
 <span class="lineNum">     181 </span>            :    case T_CONST_DECL:
-<span class="lineNum">     182 </span><span class="lineCov">       2529 :       if (type_is_array(tree_type(decl)))</span>
+<span class="lineNum">     182 </span><span class="lineCov">       2538 :       if (type_is_array(tree_type(decl)))</span>
 <span class="lineNum">     183 </span>            :          return t;
 <span class="lineNum">     184 </span>            :       else {
-<span class="lineNum">     185 </span><span class="lineCov">       1522 :          tree_t value = tree_value(decl);</span>
-<span class="lineNum">     186 </span><span class="lineCov">       1522 :          switch (tree_kind(value)) {</span>
+<span class="lineNum">     185 </span><span class="lineCov">       1531 :          tree_t value = tree_value(decl);</span>
+<span class="lineNum">     186 </span><span class="lineCov">       1531 :          switch (tree_kind(value)) {</span>
 <span class="lineNum">     187 </span>            :          case T_LITERAL:
 <span class="lineNum">     188 </span>            :             return value;
 <span class="lineNum">     189 </span>            : 
@@ -255,7 +255,7 @@
 <span class="lineNum">     193 </span>            :             // Fall-through
 <span class="lineNum">     194 </span>            : 
 <span class="lineNum">     195 </span>            :          default:
-<span class="lineNum">     196 </span><span class="lineCov">        997 :             return t;</span>
+<span class="lineNum">     196 </span><span class="lineCov">        999 :             return t;</span>
 <span class="lineNum">     197 </span>            :          }
 <span class="lineNum">     198 </span>            :       }
 <span class="lineNum">     199 </span>            : 
@@ -352,13 +352,13 @@
 <span class="lineNum">     290 </span>            :    return r;
 <a name="291"><span class="lineNum">     291 </span>            : }</a>
 <span class="lineNum">     292 </span>            : 
-<span class="lineNum">     293 </span><span class="lineCov">       3314 : static tree_t simp_attr_ref(tree_t t, simp_ctx_t *ctx)</span>
+<span class="lineNum">     293 </span><span class="lineCov">       3325 : static tree_t simp_attr_ref(tree_t t, simp_ctx_t *ctx)</span>
 <span class="lineNum">     294 </span>            : {
-<span class="lineNum">     295 </span><span class="lineCov">       3314 :    if (tree_has_value(t))</span>
+<span class="lineNum">     295 </span><span class="lineCov">       3325 :    if (tree_has_value(t))</span>
 <span class="lineNum">     296 </span><span class="lineCov">          5 :       return tree_value(t);</span>
 <span class="lineNum">     297 </span>            : 
-<span class="lineNum">     298 </span><span class="lineCov">       3309 :    const predef_attr_t predef = tree_attr_int(t, builtin_i, -1);</span>
-<span class="lineNum">     299 </span><span class="lineCov">       3309 :    switch (predef) {</span>
+<span class="lineNum">     298 </span><span class="lineCov">       3320 :    const predef_attr_t predef = tree_attr_int(t, builtin_i, -1);</span>
+<span class="lineNum">     299 </span><span class="lineCov">       3320 :    switch (predef) {</span>
 <span class="lineNum">     300 </span>            :    case ATTR_DELAYED:
 <span class="lineNum">     301 </span>            :    case ATTR_TRANSACTION:
 <span class="lineNum">     302 </span><span class="lineCov">         11 :       return simp_attr_delayed_transaction(t, predef, ctx);</span>
@@ -370,15 +370,15 @@
 <span class="lineNum">     308 </span>            :    case ATTR_RIGHT:
 <span class="lineNum">     309 </span>            :    case ATTR_ASCENDING:
 <span class="lineNum">     310 </span>            :       {
-<span class="lineNum">     311 </span><span class="lineCov">       2633 :          tree_t name = tree_name(t);</span>
+<span class="lineNum">     311 </span><span class="lineCov">       2644 :          tree_t name = tree_name(t);</span>
 <span class="lineNum">     312 </span>            : 
-<span class="lineNum">     313 </span><span class="lineCov">       2633 :          if (tree_kind(name) != T_REF)</span>
+<span class="lineNum">     313 </span><span class="lineCov">       2644 :          if (tree_kind(name) != T_REF)</span>
 <span class="lineNum">     314 </span>            :             return t;   // Cannot fold this
 <span class="lineNum">     315 </span>            : 
-<span class="lineNum">     316 </span><span class="lineCov">       2543 :          type_t type = tree_type(name);</span>
-<span class="lineNum">     317 </span><span class="lineCov">       2543 :          int64_t dim_i = 1;</span>
+<span class="lineNum">     316 </span><span class="lineCov">       2550 :          type_t type = tree_type(name);</span>
+<span class="lineNum">     317 </span><span class="lineCov">       2550 :          int64_t dim_i = 1;</span>
 <span class="lineNum">     318 </span>            : 
-<span class="lineNum">     319 </span><span class="lineCov">       2543 :          if (type_kind(type) == T_ENUM) {</span>
+<span class="lineNum">     319 </span><span class="lineCov">       2550 :          if (type_kind(type) == T_ENUM) {</span>
 <span class="lineNum">     320 </span>            :             // Enumeration subtypes are handled below
 <span class="lineNum">     321 </span><span class="lineCov">         97 :             const int nlits = type_enum_literals(type);</span>
 <span class="lineNum">     322 </span>            : 
@@ -396,38 +396,38 @@
 <span class="lineNum">     334 </span>            :             }
 <span class="lineNum">     335 </span>            :          }
 <span class="lineNum">     336 </span>            : 
-<span class="lineNum">     337 </span><span class="lineCov">       2446 :          if (type_is_array(type)) {</span>
-<span class="lineNum">     338 </span><span class="lineCov">       2203 :             if (tree_params(t) &gt; 0) {</span>
+<span class="lineNum">     337 </span><span class="lineCov">       2453 :          if (type_is_array(type)) {</span>
+<span class="lineNum">     338 </span><span class="lineCov">       2210 :             if (tree_params(t) &gt; 0) {</span>
 <span class="lineNum">     339 </span><span class="lineCov">         26 :                const bool f = folded_int(tree_value(tree_param(t, 0)), &amp;dim_i);</span>
 <span class="lineNum">     340 </span><span class="lineCov">         26 :                assert(f);</span>
 <span class="lineNum">     341 </span>            :             }
 <span class="lineNum">     342 </span>            : 
-<span class="lineNum">     343 </span><span class="lineCov">       2203 :             if (type_is_unconstrained(type))</span>
+<span class="lineNum">     343 </span><span class="lineCov">       2210 :             if (type_is_unconstrained(type))</span>
 <span class="lineNum">     344 </span>            :                return t;
 <span class="lineNum">     345 </span>            : 
-<span class="lineNum">     346 </span><span class="lineCov">        450 :             if (dim_i &lt; 1 || dim_i &gt; type_dims(type))</span>
+<span class="lineNum">     346 </span><span class="lineCov">        457 :             if (dim_i &lt; 1 || dim_i &gt; type_dims(type))</span>
 <span class="lineNum">     347 </span><span class="lineCov">          1 :                return t;</span>
 <span class="lineNum">     348 </span>            :          }
 <span class="lineNum">     349 </span>            : 
-<span class="lineNum">     350 </span><span class="lineCov">        692 :          range_t r = type_dim(type, dim_i - 1);</span>
+<span class="lineNum">     350 </span><span class="lineCov">        699 :          range_t r = type_dim(type, dim_i - 1);</span>
 <span class="lineNum">     351 </span>            : 
-<span class="lineNum">     352 </span><span class="lineCov">        692 :          const bool known_dir =</span>
+<span class="lineNum">     352 </span><span class="lineCov">        699 :          const bool known_dir =</span>
 <span class="lineNum">     353 </span>            :             (r.kind == RANGE_TO) || (r.kind == RANGE_DOWNTO);
 <span class="lineNum">     354 </span>            : 
-<span class="lineNum">     355 </span><span class="lineCov">        692 :          if (predef == ATTR_LENGTH &amp;&amp; known_dir) {</span>
-<span class="lineNum">     356 </span><span class="lineCov">         92 :             if (tree_kind(r.left) == T_LITERAL</span>
-<span class="lineNum">     357 </span><span class="lineCov">         32 :                 &amp;&amp; tree_kind(r.right) == T_LITERAL) {</span>
+<span class="lineNum">     355 </span><span class="lineCov">        699 :          if (predef == ATTR_LENGTH &amp;&amp; known_dir) {</span>
+<span class="lineNum">     356 </span><span class="lineCov">         98 :             if (tree_kind(r.left) == T_LITERAL</span>
+<span class="lineNum">     357 </span><span class="lineCov">         33 :                 &amp;&amp; tree_kind(r.right) == T_LITERAL) {</span>
 <span class="lineNum">     358 </span>            :                int64_t low, high;
-<span class="lineNum">     359 </span><span class="lineCov">         20 :                range_bounds(r, &amp;low, &amp;high);</span>
-<span class="lineNum">     360 </span><span class="lineCov">         20 :                return get_int_lit(t, (high &lt; low) ? 0 : high - low + 1);</span>
+<span class="lineNum">     359 </span><span class="lineCov">         21 :                range_bounds(r, &amp;low, &amp;high);</span>
+<span class="lineNum">     360 </span><span class="lineCov">         21 :                return get_int_lit(t, (high &lt; low) ? 0 : high - low + 1);</span>
 <span class="lineNum">     361 </span>            :             }
 <span class="lineNum">     362 </span>            :             else
-<span class="lineNum">     363 </span><span class="lineCov">         72 :                return t;</span>
+<span class="lineNum">     363 </span><span class="lineCov">         77 :                return t;</span>
 <span class="lineNum">     364 </span>            :          }
-<span class="lineNum">     365 </span><span class="lineCov">        600 :          else if (predef == ATTR_LOW &amp;&amp; known_dir)</span>
+<span class="lineNum">     365 </span><span class="lineCov">        601 :          else if (predef == ATTR_LOW &amp;&amp; known_dir)</span>
 <span class="lineNum">     366 </span><span class="lineCov">         29 :             return (r.kind == RANGE_TO) ? r.left : r.right;</span>
-<span class="lineNum">     367 </span><span class="lineCov">        571 :          else if (predef == ATTR_HIGH &amp;&amp; known_dir)</span>
-<span class="lineNum">     368 </span><span class="lineCov">        145 :             return (r.kind == RANGE_TO) ? r.right : r.left;</span>
+<span class="lineNum">     367 </span><span class="lineCov">        572 :          else if (predef == ATTR_HIGH &amp;&amp; known_dir)</span>
+<span class="lineNum">     368 </span><span class="lineCov">        146 :             return (r.kind == RANGE_TO) ? r.right : r.left;</span>
 <span class="lineNum">     369 </span><span class="lineCov">        426 :          else if (predef == ATTR_LEFT)</span>
 <span class="lineNum">     370 </span>            :             return r.left;
 <span class="lineNum">     371 </span><span class="lineCov">        153 :          else if (predef == ATTR_RIGHT)</span>
@@ -574,53 +574,53 @@
 <span class="lineNum">     512 </span>            :    }
 <a name="513"><span class="lineNum">     513 </span>            : }</a>
 <span class="lineNum">     514 </span>            : 
-<span class="lineNum">     515 </span><span class="lineCov">       1540 : static tree_t simp_process(tree_t t)</span>
+<span class="lineNum">     515 </span><span class="lineCov">       1544 : static tree_t simp_process(tree_t t)</span>
 <span class="lineNum">     516 </span>            : {
 <span class="lineNum">     517 </span>            :    // Replace sensitivity list with a &quot;wait on&quot; statement
-<span class="lineNum">     518 </span><span class="lineCov">       1540 :    const int ntriggers = tree_triggers(t);</span>
-<span class="lineNum">     519 </span><span class="lineCov">       1540 :    if (ntriggers &gt; 0) {</span>
-<span class="lineNum">     520 </span><span class="lineCov">         42 :       const int nstmts = tree_stmts(t);</span>
-<span class="lineNum">     521 </span><span class="lineCov">         42 :       if (nstmts == 0)</span>
+<span class="lineNum">     518 </span><span class="lineCov">       1544 :    const int ntriggers = tree_triggers(t);</span>
+<span class="lineNum">     519 </span><span class="lineCov">       1544 :    if (ntriggers &gt; 0) {</span>
+<span class="lineNum">     520 </span><span class="lineCov">         43 :       const int nstmts = tree_stmts(t);</span>
+<span class="lineNum">     521 </span><span class="lineCov">         43 :       if (nstmts == 0)</span>
 <span class="lineNum">     522 </span>            :          return NULL;   // Body was optimised away
 <span class="lineNum">     523 </span>            : 
-<span class="lineNum">     524 </span><span class="lineCov">         42 :       tree_t p = tree_new(T_PROCESS);</span>
-<span class="lineNum">     525 </span><span class="lineCov">         42 :       tree_set_ident(p, tree_ident(t));</span>
-<span class="lineNum">     526 </span><span class="lineCov">         42 :       tree_set_loc(p, tree_loc(t));</span>
+<span class="lineNum">     524 </span><span class="lineCov">         43 :       tree_t p = tree_new(T_PROCESS);</span>
+<span class="lineNum">     525 </span><span class="lineCov">         43 :       tree_set_ident(p, tree_ident(t));</span>
+<span class="lineNum">     526 </span><span class="lineCov">         43 :       tree_set_loc(p, tree_loc(t));</span>
 <span class="lineNum">     527 </span>            : 
-<span class="lineNum">     528 </span><span class="lineCov">         42 :       const int ndecls = tree_decls(t);</span>
-<span class="lineNum">     529 </span><span class="lineCov">         50 :       for (int i = 0; i &lt; ndecls; i++)</span>
-<span class="lineNum">     530 </span><span class="lineCov">          8 :          tree_add_decl(p, tree_decl(t, i));</span>
+<span class="lineNum">     528 </span><span class="lineCov">         43 :       const int ndecls = tree_decls(t);</span>
+<span class="lineNum">     529 </span><span class="lineCov">         53 :       for (int i = 0; i &lt; ndecls; i++)</span>
+<span class="lineNum">     530 </span><span class="lineCov">         10 :          tree_add_decl(p, tree_decl(t, i));</span>
 <span class="lineNum">     531 </span>            : 
-<span class="lineNum">     532 </span><span class="lineCov">         53 :       for (int i = 0; i &lt; nstmts; i++)</span>
-<span class="lineNum">     533 </span><span class="lineCov">         53 :          tree_add_stmt(p, tree_stmt(t, i));</span>
+<span class="lineNum">     532 </span><span class="lineCov">         55 :       for (int i = 0; i &lt; nstmts; i++)</span>
+<span class="lineNum">     533 </span><span class="lineCov">         55 :          tree_add_stmt(p, tree_stmt(t, i));</span>
 <span class="lineNum">     534 </span>            : 
-<span class="lineNum">     535 </span><span class="lineCov">         42 :       tree_t w = tree_new(T_WAIT);</span>
-<span class="lineNum">     536 </span><span class="lineCov">         42 :       tree_set_ident(w, tree_ident(p));</span>
-<span class="lineNum">     537 </span><span class="lineCov">         42 :       tree_add_attr_int(w, ident_new(&quot;static&quot;), 1);</span>
-<span class="lineNum">     538 </span><span class="lineCov">         90 :       for (int i = 0; i &lt; ntriggers; i++)</span>
-<span class="lineNum">     539 </span><span class="lineCov">         48 :          tree_add_trigger(w, tree_trigger(t, i));</span>
-<span class="lineNum">     540 </span><span class="lineCov">         42 :       tree_add_stmt(p, w);</span>
+<span class="lineNum">     535 </span><span class="lineCov">         43 :       tree_t w = tree_new(T_WAIT);</span>
+<span class="lineNum">     536 </span><span class="lineCov">         43 :       tree_set_ident(w, tree_ident(p));</span>
+<span class="lineNum">     537 </span><span class="lineCov">         43 :       tree_add_attr_int(w, ident_new(&quot;static&quot;), 1);</span>
+<span class="lineNum">     538 </span><span class="lineCov">         93 :       for (int i = 0; i &lt; ntriggers; i++)</span>
+<span class="lineNum">     539 </span><span class="lineCov">         50 :          tree_add_trigger(w, tree_trigger(t, i));</span>
+<span class="lineNum">     540 </span><span class="lineCov">         43 :       tree_add_stmt(p, w);</span>
 <span class="lineNum">     541 </span>            : 
-<span class="lineNum">     542 </span><span class="lineCov">         42 :       return p;</span>
+<span class="lineNum">     542 </span><span class="lineCov">         43 :       return p;</span>
 <span class="lineNum">     543 </span>            :    }
 <span class="lineNum">     544 </span>            : 
 <span class="lineNum">     545 </span>            :    // Delete processes that contain just a single wait statement
-<span class="lineNum">     546 </span><span class="lineCov">       1498 :    if (tree_stmts(t) == 1 &amp;&amp; tree_kind(tree_stmt(t, 0)) == T_WAIT)</span>
+<span class="lineNum">     546 </span><span class="lineCov">       1501 :    if (tree_stmts(t) == 1 &amp;&amp; tree_kind(tree_stmt(t, 0)) == T_WAIT)</span>
 <span class="lineNum">     547 </span>            :       return NULL;
 <span class="lineNum">     548 </span>            :    else
-<span class="lineNum">     549 </span><span class="lineCov">       1428 :       return t;</span>
+<span class="lineNum">     549 </span><span class="lineCov">       1431 :       return t;</span>
 <a name="550"><span class="lineNum">     550 </span>            : }</a>
 <span class="lineNum">     551 </span>            : 
-<span class="lineNum">     552 </span><span class="lineCov">       2421 : static tree_t simp_wait(tree_t t)</span>
+<span class="lineNum">     552 </span><span class="lineCov">       2424 : static tree_t simp_wait(tree_t t)</span>
 <span class="lineNum">     553 </span>            : {
 <span class="lineNum">     554 </span>            :    // LRM 93 section 8.1
 <span class="lineNum">     555 </span>            :    // If there is no sensitivity list supplied generate one from the
 <span class="lineNum">     556 </span>            :    // condition clause
 <span class="lineNum">     557 </span>            : 
-<span class="lineNum">     558 </span><span class="lineCov">       2421 :    if (tree_has_value(t) &amp;&amp; tree_triggers(t) == 0)</span>
+<span class="lineNum">     558 </span><span class="lineCov">       2424 :    if (tree_has_value(t) &amp;&amp; tree_triggers(t) == 0)</span>
 <span class="lineNum">     559 </span><span class="lineCov">         23 :       simp_build_wait(t, tree_value(t));</span>
 <span class="lineNum">     560 </span>            : 
-<span class="lineNum">     561 </span><span class="lineCov">       2421 :    return t;</span>
+<span class="lineNum">     561 </span><span class="lineCov">       2424 :    return t;</span>
 <a name="562"><span class="lineNum">     562 </span>            : }</a>
 <span class="lineNum">     563 </span>            : 
 <span class="lineNum">     564 </span><span class="lineCov">        120 : static tree_t simp_case(tree_t t)</span>
@@ -654,10 +654,10 @@
 <span class="lineNum">     592 </span><span class="lineCov">        119 :    return t;</span>
 <a name="593"><span class="lineNum">     593 </span>            : }</a>
 <span class="lineNum">     594 </span>            : 
-<span class="lineNum">     595 </span><span class="lineCov">       1626 : static tree_t simp_if(tree_t t)</span>
+<span class="lineNum">     595 </span><span class="lineCov">       1630 : static tree_t simp_if(tree_t t)</span>
 <span class="lineNum">     596 </span>            : {
 <span class="lineNum">     597 </span>            :    bool value_b;
-<span class="lineNum">     598 </span><span class="lineCov">       1626 :    if (folded_bool(tree_value(t), &amp;value_b)) {</span>
+<span class="lineNum">     598 </span><span class="lineCov">       1630 :    if (folded_bool(tree_value(t), &amp;value_b)) {</span>
 <span class="lineNum">     599 </span><span class="lineCov">        101 :       if (value_b) {</span>
 <span class="lineNum">     600 </span>            :          // If statement always executes so replace with then part
 <span class="lineNum">     601 </span><span class="lineCov">         16 :          if (tree_stmts(t) == 1)</span>
@@ -952,12 +952,12 @@
 <span class="lineNum">     890 </span><span class="lineCov">        345 :    return tree_value(t);</span>
 <a name="891"><span class="lineNum">     891 </span>            : }</a>
 <span class="lineNum">     892 </span>            : 
-<span class="lineNum">     893 </span><span class="lineCov">        307 : static tree_t simp_concat(tree_t t)</span>
+<span class="lineNum">     893 </span><span class="lineCov">        311 : static tree_t simp_concat(tree_t t)</span>
 <span class="lineNum">     894 </span>            : {
 <span class="lineNum">     895 </span>            :    // Flatten nested concatenations to make efficient code generation easier
 <span class="lineNum">     896 </span>            : 
-<span class="lineNum">     897 </span><span class="lineCov">        307 :    tree_t p0 = tree_value(tree_param(t, 0));</span>
-<span class="lineNum">     898 </span><span class="lineCov">        307 :    if (tree_kind(p0) != T_CONCAT)</span>
+<span class="lineNum">     897 </span><span class="lineCov">        311 :    tree_t p0 = tree_value(tree_param(t, 0));</span>
+<span class="lineNum">     898 </span><span class="lineCov">        311 :    if (tree_kind(p0) != T_CONCAT)</span>
 <span class="lineNum">     899 </span>            :       return t;
 <span class="lineNum">     900 </span>            : 
 <span class="lineNum">     901 </span><span class="lineCov">        122 :    tree_t flat = tree_new(T_CONCAT);</span>
@@ -986,17 +986,17 @@
 <span class="lineNum">     924 </span><span class="lineCov">          1 :    return NULL;</span>
 <a name="925"><span class="lineNum">     925 </span>            : }</a>
 <span class="lineNum">     926 </span>            : 
-<span class="lineNum">     927 </span><span class="lineCov">       3202 : static tree_t simp_assert(tree_t t)</span>
+<span class="lineNum">     927 </span><span class="lineCov">       3204 : static tree_t simp_assert(tree_t t)</span>
 <span class="lineNum">     928 </span>            : {
 <span class="lineNum">     929 </span>            :    bool value_b;
-<span class="lineNum">     930 </span><span class="lineCov">       3202 :    if (!tree_has_value(t))</span>
+<span class="lineNum">     930 </span><span class="lineCov">       3204 :    if (!tree_has_value(t))</span>
 <span class="lineNum">     931 </span>            :       return t;
-<span class="lineNum">     932 </span><span class="lineCov">       2772 :    else if (folded_bool(tree_value(t), &amp;value_b) &amp;&amp; value_b) {</span>
+<span class="lineNum">     932 </span><span class="lineCov">       2774 :    else if (folded_bool(tree_value(t), &amp;value_b) &amp;&amp; value_b) {</span>
 <span class="lineNum">     933 </span>            :       // Assertion always passes
 <span class="lineNum">     934 </span>            :       return NULL;
 <span class="lineNum">     935 </span>            :    }
 <span class="lineNum">     936 </span>            :    else
-<span class="lineNum">     937 </span><span class="lineCov">       2650 :       return t;</span>
+<span class="lineNum">     937 </span><span class="lineCov">       2652 :       return t;</span>
 <a name="938"><span class="lineNum">     938 </span>            : }</a>
 <span class="lineNum">     939 </span>            : 
 <span class="lineNum">     940 </span><span class="lineCov">        101 : static tree_t simp_if_generate(tree_t t)</span>
@@ -1024,37 +1024,37 @@
 <span class="lineNum">     962 </span>            :       return NULL;
 <a name="963"><span class="lineNum">     963 </span>            : }</a>
 <span class="lineNum">     964 </span>            : 
-<span class="lineNum">     965 </span><span class="lineCov">       1511 : static tree_t simp_signal_assign(tree_t t)</span>
+<span class="lineNum">     965 </span><span class="lineCov">       1517 : static tree_t simp_signal_assign(tree_t t)</span>
 <span class="lineNum">     966 </span>            : {
-<span class="lineNum">     967 </span><span class="lineCov">       1511 :    tree_t target = tree_target(t);</span>
+<span class="lineNum">     967 </span><span class="lineCov">       1517 :    tree_t target = tree_target(t);</span>
 <span class="lineNum">     968 </span>            : 
-<span class="lineNum">     969 </span><span class="lineCov">       1511 :    if (tree_kind(target) == T_OPEN)</span>
+<span class="lineNum">     969 </span><span class="lineCov">       1517 :    if (tree_kind(target) == T_OPEN)</span>
 <span class="lineNum">     970 </span>            :       return NULL;    // Delete it
 <span class="lineNum">     971 </span>            : 
-<span class="lineNum">     972 </span><span class="lineCov">       1508 :    return t;</span>
+<span class="lineNum">     972 </span><span class="lineCov">       1511 :    return t;</span>
 <a name="973"><span class="lineNum">     973 </span>            : }</a>
 <span class="lineNum">     974 </span>            : 
-<span class="lineNum">     975 </span><span class="lineCov">     344845 : static tree_t simp_tree(tree_t t, void *_ctx)</span>
+<span class="lineNum">     975 </span><span class="lineCov">     345485 : static tree_t simp_tree(tree_t t, void *_ctx)</span>
 <span class="lineNum">     976 </span>            : {
-<span class="lineNum">     977 </span><span class="lineCov">     359445 :    simp_ctx_t *ctx = _ctx;</span>
+<span class="lineNum">     977 </span><span class="lineCov">     360128 :    simp_ctx_t *ctx = _ctx;</span>
 <span class="lineNum">     978 </span>            : 
-<span class="lineNum">     979 </span><span class="lineCov">     344845 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     979 </span><span class="lineCov">     345485 :    switch (tree_kind(t)) {</span>
 <span class="lineNum">     980 </span>            :    case T_PROCESS:
-<span class="lineNum">     981 </span><span class="lineCov">       1540 :       return simp_process(t);</span>
+<span class="lineNum">     981 </span><span class="lineCov">       1544 :       return simp_process(t);</span>
 <span class="lineNum">     982 </span>            :    case T_ARRAY_REF:
 <span class="lineNum">     983 </span><span class="lineCov">       3134 :       return simp_array_ref(t);</span>
 <span class="lineNum">     984 </span>            :    case T_ARRAY_SLICE:
 <span class="lineNum">     985 </span><span class="lineCov">        470 :       return simp_array_slice(t);</span>
 <span class="lineNum">     986 </span>            :    case T_ATTR_REF:
-<span class="lineNum">     987 </span><span class="lineCov">       3314 :       return simp_attr_ref(t, ctx);</span>
+<span class="lineNum">     987 </span><span class="lineCov">       3325 :       return simp_attr_ref(t, ctx);</span>
 <span class="lineNum">     988 </span>            :    case T_FCALL:
-<span class="lineNum">     989 </span><span class="lineCov">      14600 :       return simp_fcall(t, ctx);</span>
+<span class="lineNum">     989 </span><span class="lineCov">      14643 :       return simp_fcall(t, ctx);</span>
 <span class="lineNum">     990 </span>            :    case T_PCALL:
 <span class="lineNum">     991 </span><span class="lineCov">       1302 :       return simp_pcall(t);</span>
 <span class="lineNum">     992 </span>            :    case T_REF:
-<span class="lineNum">     993 </span><span class="lineCov">      66427 :       return simp_ref(t);</span>
+<span class="lineNum">     993 </span><span class="lineCov">      66527 :       return simp_ref(t);</span>
 <span class="lineNum">     994 </span>            :    case T_IF:
-<span class="lineNum">     995 </span><span class="lineCov">       1626 :       return simp_if(t);</span>
+<span class="lineNum">     995 </span><span class="lineCov">       1630 :       return simp_if(t);</span>
 <span class="lineNum">     996 </span>            :    case T_CASE:
 <span class="lineNum">     997 </span><span class="lineCov">        120 :       return simp_case(t);</span>
 <span class="lineNum">     998 </span>            :    case T_WHILE:
@@ -1064,7 +1064,7 @@
 <span class="lineNum">    1002 </span>            :    case T_SELECT:
 <span class="lineNum">    1003 </span><span class="lineCov">          2 :       return simp_select(t);</span>
 <span class="lineNum">    1004 </span>            :    case T_WAIT:
-<span class="lineNum">    1005 </span><span class="lineCov">       2421 :       return simp_wait(t);</span>
+<span class="lineNum">    1005 </span><span class="lineCov">       2424 :       return simp_wait(t);</span>
 <span class="lineNum">    1006 </span>            :    case T_NULL:
 <span class="lineNum">    1007 </span>            :       return NULL;   // Delete it
 <span class="lineNum">    1008 </span>            :    case T_CPCALL:
@@ -1074,34 +1074,34 @@
 <span class="lineNum">    1012 </span>            :    case T_QUALIFIED:
 <span class="lineNum">    1013 </span><span class="lineCov">        345 :       return simp_qualified(t);</span>
 <span class="lineNum">    1014 </span>            :    case T_CONCAT:
-<span class="lineNum">    1015 </span><span class="lineCov">        307 :       return simp_concat(t);</span>
+<span class="lineNum">    1015 </span><span class="lineCov">        311 :       return simp_concat(t);</span>
 <span class="lineNum">    1016 </span>            :    case T_RECORD_REF:
 <span class="lineNum">    1017 </span><span class="lineCov">       1498 :       return simp_record_ref(t);</span>
 <span class="lineNum">    1018 </span>            :    case T_CTXREF:
 <span class="lineNum">    1019 </span><span class="lineCov">          1 :       return simp_context_ref(t, ctx);</span>
 <span class="lineNum">    1020 </span>            :    case T_ASSERT:
-<span class="lineNum">    1021 </span><span class="lineCov">       3202 :       return simp_assert(t);</span>
+<span class="lineNum">    1021 </span><span class="lineCov">       3204 :       return simp_assert(t);</span>
 <span class="lineNum">    1022 </span>            :    case T_IF_GENERATE:
 <span class="lineNum">    1023 </span><span class="lineCov">        101 :       return simp_if_generate(t);</span>
 <span class="lineNum">    1024 </span>            :    case T_SIGNAL_ASSIGN:
-<span class="lineNum">    1025 </span><span class="lineCov">       1511 :       return simp_signal_assign(t);</span>
+<span class="lineNum">    1025 </span><span class="lineCov">       1517 :       return simp_signal_assign(t);</span>
 <span class="lineNum">    1026 </span>            :    default:
-<span class="lineNum">    1027 </span><span class="lineCov">     242399 :       return t;</span>
+<span class="lineNum">    1027 </span><span class="lineCov">     242862 :       return t;</span>
 <span class="lineNum">    1028 </span>            :    }
 <a name="1029"><span class="lineNum">    1029 </span>            : }</a>
 <span class="lineNum">    1030 </span>            : 
-<span class="lineNum">    1031 </span><span class="lineCov">       2187 : void simplify(tree_t top, eval_flags_t flags)</span>
+<span class="lineNum">    1031 </span><span class="lineCov">       2196 : void simplify(tree_t top, eval_flags_t flags)</span>
 <span class="lineNum">    1032 </span>            : {
-<span class="lineNum">    1033 </span><span class="lineCov">       4374 :    simp_ctx_t ctx = {</span>
+<span class="lineNum">    1033 </span><span class="lineCov">       4392 :    simp_ctx_t ctx = {</span>
 <span class="lineNum">    1034 </span>            :       .imp_signals = NULL,
 <span class="lineNum">    1035 </span>            :       .top         = top,
-<span class="lineNum">    1036 </span><span class="lineCov">       2187 :       .prefix      = ident_runtil(tree_ident(top), '-'),</span>
+<span class="lineNum">    1036 </span><span class="lineCov">       2196 :       .prefix      = ident_runtil(tree_ident(top), '-'),</span>
 <span class="lineNum">    1037 </span>            :       .eval_flags  = flags
 <span class="lineNum">    1038 </span>            :    };
 <span class="lineNum">    1039 </span>            : 
-<span class="lineNum">    1040 </span><span class="lineCov">       2187 :    tree_rewrite(top, simp_tree, &amp;ctx);</span>
+<span class="lineNum">    1040 </span><span class="lineCov">       2196 :    tree_rewrite(top, simp_tree, &amp;ctx);</span>
 <span class="lineNum">    1041 </span>            : 
-<span class="lineNum">    1042 </span><span class="lineCov">       4385 :    while (ctx.imp_signals != NULL) {</span>
+<span class="lineNum">    1042 </span><span class="lineCov">       4403 :    while (ctx.imp_signals != NULL) {</span>
 <span class="lineNum">    1043 </span><span class="lineCov">         11 :       tree_add_decl(top, ctx.imp_signals-&gt;signal);</span>
 <span class="lineNum">    1044 </span><span class="lineCov">         11 :       tree_add_stmt(top, ctx.imp_signals-&gt;process);</span>
 <span class="lineNum">    1045 </span>            : 
@@ -1109,7 +1109,7 @@
 <span class="lineNum">    1047 </span><span class="lineCov">         11 :       free(ctx.imp_signals);</span>
 <span class="lineNum">    1048 </span><span class="lineCov">         11 :       ctx.imp_signals = tmp;</span>
 <span class="lineNum">    1049 </span>            :    }
-<span class="lineNum">    1050 </span><span class="lineCov">       2187 : }</span>
+<span class="lineNum">    1050 </span><span class="lineCov">       2196 : }</span>
 </pre>
       </td>
     </tr>
