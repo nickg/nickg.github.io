@@ -185,10 +185,10 @@
 <span class="lineNum">     123 </span><span class="lineNoCov">          0 :    return f-&gt;fname;</span>
 <a name="124"><span class="lineNum">     124 </span>            : }</a>
 <span class="lineNum">     125 </span>            : 
-<span class="lineNum">     126 </span><span class="lineCov">    3613371 : static void fbuf_maybe_flush(fbuf_t *f, size_t more, bool finish)</span>
+<span class="lineNum">     126 </span><span class="lineCov">    3613406 : static void fbuf_maybe_flush(fbuf_t *f, size_t more, bool finish)</span>
 <span class="lineNum">     127 </span>            : {
-<span class="lineNum">     128 </span><span class="lineCov">    3613371 :    assert(more &lt;= BLOCK_SIZE);</span>
-<span class="lineNum">     129 </span><span class="lineCov">    3613371 :    if (f-&gt;wpend + more &gt; BLOCK_SIZE) {</span>
+<span class="lineNum">     128 </span><span class="lineCov">    3613406 :    assert(more &lt;= BLOCK_SIZE);</span>
+<span class="lineNum">     129 </span><span class="lineCov">    3613406 :    if (f-&gt;wpend + more &gt; BLOCK_SIZE) {</span>
 <span class="lineNum">     130 </span><span class="lineCov">       2470 :       if (f-&gt;wpend &lt; 16) {</span>
 <span class="lineNum">     131 </span>            :          // Write dummy bytes at end to meet fastlz block size requirement
 <span class="lineNum">     132 </span><span class="lineCov">        184 :          assert(finish);</span>
@@ -215,12 +215,12 @@
 <span class="lineNum">     153 </span>            : 
 <span class="lineNum">     154 </span><span class="lineCov">       2470 :       f-&gt;wpend = 0;</span>
 <span class="lineNum">     155 </span>            :    }
-<a name="156"><span class="lineNum">     156 </span><span class="lineCov">    3613371 : }</span></a>
+<a name="156"><span class="lineNum">     156 </span><span class="lineCov">    3613406 : }</span></a>
 <span class="lineNum">     157 </span>            : 
-<span class="lineNum">     158 </span><span class="lineCov">   13077648 : static void fbuf_maybe_read(fbuf_t *f, size_t more)</span>
+<span class="lineNum">     158 </span><span class="lineCov">   13077682 : static void fbuf_maybe_read(fbuf_t *f, size_t more)</span>
 <span class="lineNum">     159 </span>            : {
-<span class="lineNum">     160 </span><span class="lineCov">   13077648 :    assert(more &lt;= BLOCK_SIZE);</span>
-<span class="lineNum">     161 </span><span class="lineCov">   13077648 :    if (f-&gt;rptr + more &gt; f-&gt;ravail) {</span>
+<span class="lineNum">     160 </span><span class="lineCov">   13077682 :    assert(more &lt;= BLOCK_SIZE);</span>
+<span class="lineNum">     161 </span><span class="lineCov">   13077682 :    if (f-&gt;rptr + more &gt; f-&gt;ravail) {</span>
 <span class="lineNum">     162 </span><span class="lineCov">       3236 :       const size_t overlap = f-&gt;ravail - f-&gt;rptr;</span>
 <span class="lineNum">     163 </span><span class="lineCov">       3236 :       memcpy(f-&gt;rbuf, f-&gt;rbuf + f-&gt;rptr, overlap);</span>
 <span class="lineNum">     164 </span>            : 
@@ -252,7 +252,7 @@
 <span class="lineNum">     190 </span><span class="lineCov">       3236 :       f-&gt;ravail = overlap + ret;</span>
 <span class="lineNum">     191 </span><span class="lineCov">       3236 :       f-&gt;rptr   = 0;</span>
 <span class="lineNum">     192 </span>            :    }
-<a name="193"><span class="lineNum">     193 </span><span class="lineCov">   13077648 : }</span></a>
+<a name="193"><span class="lineNum">     193 </span><span class="lineCov">   13077682 : }</span></a>
 <span class="lineNum">     194 </span>            : 
 <span class="lineNum">     195 </span><span class="lineCov">       5325 : void fbuf_close(fbuf_t *f)</span>
 <span class="lineNum">     196 </span>            : {
@@ -285,40 +285,40 @@
 <span class="lineNum">     223 </span><span class="lineCov">       5325 :    free(f);</span>
 <a name="224"><span class="lineNum">     224 </span><span class="lineCov">       5325 : }</span></a>
 <span class="lineNum">     225 </span>            : 
-<span class="lineNum">     226 </span><span class="lineCov">    1859577 : void write_u32(uint32_t u, fbuf_t *f)</span>
+<span class="lineNum">     226 </span><span class="lineCov">    1859594 : void write_u32(uint32_t u, fbuf_t *f)</span>
 <span class="lineNum">     227 </span>            : {
-<span class="lineNum">     228 </span><span class="lineCov">    1859577 :    fbuf_maybe_flush(f, 4, false);</span>
-<span class="lineNum">     229 </span><span class="lineCov">    1859577 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt;  0) &amp; UINT32_C(0xff);</span>
-<span class="lineNum">     230 </span><span class="lineCov">    1859577 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt;  8) &amp; UINT32_C(0xff);</span>
-<span class="lineNum">     231 </span><span class="lineCov">    1859577 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 16) &amp; UINT32_C(0xff);</span>
-<span class="lineNum">     232 </span><span class="lineCov">    1859577 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 24) &amp; UINT32_C(0xff);</span>
-<a name="233"><span class="lineNum">     233 </span><span class="lineCov">    1859577 : }</span></a>
+<span class="lineNum">     228 </span><span class="lineCov">    1859594 :    fbuf_maybe_flush(f, 4, false);</span>
+<span class="lineNum">     229 </span><span class="lineCov">    1859594 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt;  0) &amp; UINT32_C(0xff);</span>
+<span class="lineNum">     230 </span><span class="lineCov">    1859594 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt;  8) &amp; UINT32_C(0xff);</span>
+<span class="lineNum">     231 </span><span class="lineCov">    1859594 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 16) &amp; UINT32_C(0xff);</span>
+<span class="lineNum">     232 </span><span class="lineCov">    1859594 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 24) &amp; UINT32_C(0xff);</span>
+<a name="233"><span class="lineNum">     233 </span><span class="lineCov">    1859594 : }</span></a>
 <span class="lineNum">     234 </span>            : 
-<span class="lineNum">     235 </span><span class="lineCov">     490865 : void write_u64(uint64_t u, fbuf_t *f)</span>
+<span class="lineNum">     235 </span><span class="lineCov">     490868 : void write_u64(uint64_t u, fbuf_t *f)</span>
 <span class="lineNum">     236 </span>            : {
-<span class="lineNum">     237 </span><span class="lineCov">     490865 :    fbuf_maybe_flush(f, 8, false);</span>
-<span class="lineNum">     238 </span><span class="lineCov">     490865 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt;  0) &amp; UINT64_C(0xff);</span>
-<span class="lineNum">     239 </span><span class="lineCov">     490865 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt;  8) &amp; UINT64_C(0xff);</span>
-<span class="lineNum">     240 </span><span class="lineCov">     490865 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 16) &amp; UINT64_C(0xff);</span>
-<span class="lineNum">     241 </span><span class="lineCov">     490865 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 24) &amp; UINT64_C(0xff);</span>
-<span class="lineNum">     242 </span><span class="lineCov">     490865 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 32) &amp; UINT64_C(0xff);</span>
-<span class="lineNum">     243 </span><span class="lineCov">     490865 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 40) &amp; UINT64_C(0xff);</span>
-<span class="lineNum">     244 </span><span class="lineCov">     490865 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 48) &amp; UINT64_C(0xff);</span>
-<span class="lineNum">     245 </span><span class="lineCov">     490865 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 56) &amp; UINT64_C(0xff);</span>
-<a name="246"><span class="lineNum">     246 </span><span class="lineCov">     490865 : }</span></a>
+<span class="lineNum">     237 </span><span class="lineCov">     490868 :    fbuf_maybe_flush(f, 8, false);</span>
+<span class="lineNum">     238 </span><span class="lineCov">     490868 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt;  0) &amp; UINT64_C(0xff);</span>
+<span class="lineNum">     239 </span><span class="lineCov">     490868 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt;  8) &amp; UINT64_C(0xff);</span>
+<span class="lineNum">     240 </span><span class="lineCov">     490868 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 16) &amp; UINT64_C(0xff);</span>
+<span class="lineNum">     241 </span><span class="lineCov">     490868 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 24) &amp; UINT64_C(0xff);</span>
+<span class="lineNum">     242 </span><span class="lineCov">     490868 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 32) &amp; UINT64_C(0xff);</span>
+<span class="lineNum">     243 </span><span class="lineCov">     490868 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 40) &amp; UINT64_C(0xff);</span>
+<span class="lineNum">     244 </span><span class="lineCov">     490868 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 48) &amp; UINT64_C(0xff);</span>
+<span class="lineNum">     245 </span><span class="lineCov">     490868 :    *(f-&gt;wbuf + f-&gt;wpend++) = (u &gt;&gt; 56) &amp; UINT64_C(0xff);</span>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">     490868 : }</span></a>
 <span class="lineNum">     247 </span>            : 
-<span class="lineNum">     248 </span><span class="lineCov">     908869 : void write_u16(uint16_t s, fbuf_t *f)</span>
+<span class="lineNum">     248 </span><span class="lineCov">     908883 : void write_u16(uint16_t s, fbuf_t *f)</span>
 <span class="lineNum">     249 </span>            : {
-<span class="lineNum">     250 </span><span class="lineCov">     908869 :    fbuf_maybe_flush(f, 2, false);</span>
-<span class="lineNum">     251 </span><span class="lineCov">     908869 :    *(f-&gt;wbuf + f-&gt;wpend++) = (s &gt;&gt; 0) &amp; UINT16_C(0xff);</span>
-<span class="lineNum">     252 </span><span class="lineCov">     908869 :    *(f-&gt;wbuf + f-&gt;wpend++) = (s &gt;&gt; 8) &amp; UINT16_C(0xff);</span>
-<a name="253"><span class="lineNum">     253 </span><span class="lineCov">     908869 : }</span></a>
+<span class="lineNum">     250 </span><span class="lineCov">     908883 :    fbuf_maybe_flush(f, 2, false);</span>
+<span class="lineNum">     251 </span><span class="lineCov">     908883 :    *(f-&gt;wbuf + f-&gt;wpend++) = (s &gt;&gt; 0) &amp; UINT16_C(0xff);</span>
+<span class="lineNum">     252 </span><span class="lineCov">     908883 :    *(f-&gt;wbuf + f-&gt;wpend++) = (s &gt;&gt; 8) &amp; UINT16_C(0xff);</span>
+<a name="253"><span class="lineNum">     253 </span><span class="lineCov">     908883 : }</span></a>
 <span class="lineNum">     254 </span>            : 
-<span class="lineNum">     255 </span><span class="lineCov">     228043 : void write_u8(uint8_t u, fbuf_t *f)</span>
+<span class="lineNum">     255 </span><span class="lineCov">     228044 : void write_u8(uint8_t u, fbuf_t *f)</span>
 <span class="lineNum">     256 </span>            : {
-<span class="lineNum">     257 </span><span class="lineCov">     228043 :    fbuf_maybe_flush(f, 1, false);</span>
-<span class="lineNum">     258 </span><span class="lineCov">     228043 :    *(f-&gt;wbuf + f-&gt;wpend++) = u;</span>
-<a name="259"><span class="lineNum">     259 </span><span class="lineCov">     228043 : }</span></a>
+<span class="lineNum">     257 </span><span class="lineCov">     228044 :    fbuf_maybe_flush(f, 1, false);</span>
+<span class="lineNum">     258 </span><span class="lineCov">     228044 :    *(f-&gt;wbuf + f-&gt;wpend++) = u;</span>
+<a name="259"><span class="lineNum">     259 </span><span class="lineCov">     228044 : }</span></a>
 <span class="lineNum">     260 </span>            : 
 <span class="lineNum">     261 </span><span class="lineCov">     123647 : void write_raw(const void *buf, size_t len, fbuf_t *f)</span>
 <span class="lineNum">     262 </span>            : {
@@ -334,26 +334,26 @@
 <span class="lineNum">     272 </span><span class="lineCov">      29015 :    write_u64(u.i, f);</span>
 <a name="273"><span class="lineNum">     273 </span><span class="lineCov">      29015 : }</span></a>
 <span class="lineNum">     274 </span>            : 
-<span class="lineNum">     275 </span><span class="lineCov">    5531034 : uint32_t read_u32(fbuf_t *f)</span>
+<span class="lineNum">     275 </span><span class="lineCov">    5531051 : uint32_t read_u32(fbuf_t *f)</span>
 <span class="lineNum">     276 </span>            : {
-<span class="lineNum">     277 </span><span class="lineCov">    5531034 :    fbuf_maybe_read(f, 4);</span>
+<span class="lineNum">     277 </span><span class="lineCov">    5531051 :    fbuf_maybe_read(f, 4);</span>
 <span class="lineNum">     278 </span>            : 
-<span class="lineNum">     279 </span><span class="lineCov">    5531034 :    uint32_t val = 0;</span>
-<span class="lineNum">     280 </span><span class="lineCov">    5531034 :    val |= (uint32_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 0;</span>
-<span class="lineNum">     281 </span><span class="lineCov">    5531034 :    val |= (uint32_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 8;</span>
-<span class="lineNum">     282 </span><span class="lineCov">    5531034 :    val |= (uint32_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 16;</span>
-<span class="lineNum">     283 </span><span class="lineCov">    5531034 :    val |= (uint32_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 24;</span>
-<span class="lineNum">     284 </span><span class="lineCov">    5531034 :    return val;</span>
+<span class="lineNum">     279 </span><span class="lineCov">    5531051 :    uint32_t val = 0;</span>
+<span class="lineNum">     280 </span><span class="lineCov">    5531051 :    val |= (uint32_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 0;</span>
+<span class="lineNum">     281 </span><span class="lineCov">    5531051 :    val |= (uint32_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 8;</span>
+<span class="lineNum">     282 </span><span class="lineCov">    5531051 :    val |= (uint32_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 16;</span>
+<span class="lineNum">     283 </span><span class="lineCov">    5531051 :    val |= (uint32_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 24;</span>
+<span class="lineNum">     284 </span><span class="lineCov">    5531051 :    return val;</span>
 <a name="285"><span class="lineNum">     285 </span>            : }</a>
 <span class="lineNum">     286 </span>            : 
-<span class="lineNum">     287 </span><span class="lineCov">    3328038 : uint16_t read_u16(fbuf_t *f)</span>
+<span class="lineNum">     287 </span><span class="lineCov">    3328052 : uint16_t read_u16(fbuf_t *f)</span>
 <span class="lineNum">     288 </span>            : {
-<span class="lineNum">     289 </span><span class="lineCov">    3328038 :    fbuf_maybe_read(f, 2);</span>
+<span class="lineNum">     289 </span><span class="lineCov">    3328052 :    fbuf_maybe_read(f, 2);</span>
 <span class="lineNum">     290 </span>            : 
-<span class="lineNum">     291 </span><span class="lineCov">    3328038 :    uint16_t val = 0;</span>
-<span class="lineNum">     292 </span><span class="lineCov">    3328038 :    val |= (uint16_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 0;</span>
-<span class="lineNum">     293 </span><span class="lineCov">    3328038 :    val |= (uint16_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 8;</span>
-<span class="lineNum">     294 </span><span class="lineCov">    3328038 :    return val;</span>
+<span class="lineNum">     291 </span><span class="lineCov">    3328052 :    uint16_t val = 0;</span>
+<span class="lineNum">     292 </span><span class="lineCov">    3328052 :    val |= (uint16_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 0;</span>
+<span class="lineNum">     293 </span><span class="lineCov">    3328052 :    val |= (uint16_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 8;</span>
+<span class="lineNum">     294 </span><span class="lineCov">    3328052 :    return val;</span>
 <a name="295"><span class="lineNum">     295 </span>            : }</a>
 <span class="lineNum">     296 </span>            : 
 <span class="lineNum">     297 </span><span class="lineCov">    2863473 : uint8_t read_u8(fbuf_t *f)</span>
@@ -362,20 +362,20 @@
 <span class="lineNum">     300 </span><span class="lineCov">    2863473 :    return *(f-&gt;rbuf + f-&gt;rptr++);</span>
 <a name="301"><span class="lineNum">     301 </span>            : }</a>
 <span class="lineNum">     302 </span>            : 
-<span class="lineNum">     303 </span><span class="lineCov">    1354262 : uint64_t read_u64(fbuf_t *f)</span>
+<span class="lineNum">     303 </span><span class="lineCov">    1354265 : uint64_t read_u64(fbuf_t *f)</span>
 <span class="lineNum">     304 </span>            : {
-<span class="lineNum">     305 </span><span class="lineCov">    1354262 :    fbuf_maybe_read(f, 8);</span>
+<span class="lineNum">     305 </span><span class="lineCov">    1354265 :    fbuf_maybe_read(f, 8);</span>
 <span class="lineNum">     306 </span>            : 
-<span class="lineNum">     307 </span><span class="lineCov">    1354262 :    uint64_t val = 0;</span>
-<span class="lineNum">     308 </span><span class="lineCov">    1354262 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 0;</span>
-<span class="lineNum">     309 </span><span class="lineCov">    1354262 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 8;</span>
-<span class="lineNum">     310 </span><span class="lineCov">    1354262 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 16;</span>
-<span class="lineNum">     311 </span><span class="lineCov">    1354262 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 24;</span>
-<span class="lineNum">     312 </span><span class="lineCov">    1354262 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 32;</span>
-<span class="lineNum">     313 </span><span class="lineCov">    1354262 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 40;</span>
-<span class="lineNum">     314 </span><span class="lineCov">    1354262 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 48;</span>
-<span class="lineNum">     315 </span><span class="lineCov">    1354262 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 56;</span>
-<span class="lineNum">     316 </span><span class="lineCov">    1354262 :    return val;</span>
+<span class="lineNum">     307 </span><span class="lineCov">    1354265 :    uint64_t val = 0;</span>
+<span class="lineNum">     308 </span><span class="lineCov">    1354265 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 0;</span>
+<span class="lineNum">     309 </span><span class="lineCov">    1354265 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 8;</span>
+<span class="lineNum">     310 </span><span class="lineCov">    1354265 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 16;</span>
+<span class="lineNum">     311 </span><span class="lineCov">    1354265 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 24;</span>
+<span class="lineNum">     312 </span><span class="lineCov">    1354265 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 32;</span>
+<span class="lineNum">     313 </span><span class="lineCov">    1354265 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 40;</span>
+<span class="lineNum">     314 </span><span class="lineCov">    1354265 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 48;</span>
+<span class="lineNum">     315 </span><span class="lineCov">    1354265 :    val |= (uint64_t)*(f-&gt;rbuf + f-&gt;rptr++) &lt;&lt; 56;</span>
+<span class="lineNum">     316 </span><span class="lineCov">    1354265 :    return val;</span>
 <a name="317"><span class="lineNum">     317 </span>            : }</a>
 <span class="lineNum">     318 </span>            : 
 <span class="lineNum">     319 </span><span class="lineCov">        841 : void read_raw(void *buf, size_t len, fbuf_t *f)</span>
