@@ -61,7 +61,7 @@
 <pre class="sourceHeading">          Line data    Source code</pre>
 <pre class="source">
 <a name="1"><span class="lineNum">       1 </span>            : //</a>
-<span class="lineNum">       2 </span>            : //  Copyright (C) 2013-2014  Nick Gasson
+<span class="lineNum">       2 </span>            : //  Copyright (C) 2013-2017  Nick Gasson
 <span class="lineNum">       3 </span>            : //
 <span class="lineNum">       4 </span>            : //  This program is free software: you can redistribute it and/or modify
 <span class="lineNum">       5 </span>            : //  it under the terms of the GNU General Public License as published by
@@ -419,87 +419,90 @@
 <span class="lineNum">     357 </span>            :          fprintf(out, &quot;:&quot;);
 <span class="lineNum">     358 </span><span class="lineNoCov">          0 :          make_print_inputs(r, out);</span>
 <span class="lineNum">     359 </span>            : 
-<span class="lineNum">     360 </span><span class="lineNoCov">          0 :          switch (r-&gt;kind) {</span>
-<span class="lineNum">     361 </span>            :          case RULE_ANALYSE:
-<span class="lineNum">     362 </span><span class="lineNoCov">          0 :             fprintf(out, &quot;\n\tnvc -a %s\n\n&quot;, istr(r-&gt;source));</span>
-<span class="lineNum">     363 </span>            :             break;
+<span class="lineNum">     360 </span>            :          fprintf(out, &quot;\n\tnvc &quot;);
+<span class="lineNum">     361 </span>            : 
+<span class="lineNum">     362 </span><span class="lineNoCov">          0 :          if (opt_get_int(&quot;native&quot;))</span>
+<span class="lineNum">     363 </span>            :             fprintf(out, &quot;--native &quot;);
 <span class="lineNum">     364 </span>            : 
-<span class="lineNum">     365 </span>            :          case RULE_ELABORATE:
-<span class="lineNum">     366 </span><span class="lineNoCov">          0 :             fprintf(out, &quot;\n\tnvc -e %s%s\n\n&quot;,</span>
-<span class="lineNum">     367 </span><span class="lineNoCov">          0 :                     opt_get_int(&quot;native&quot;) ? &quot;--native &quot; : &quot;&quot;,</span>
-<span class="lineNum">     368 </span>            :                     istr(r-&gt;source));
-<span class="lineNum">     369 </span>            :             break;
-<span class="lineNum">     370 </span>            :          }
-<span class="lineNum">     371 </span>            :       }
-<span class="lineNum">     372 </span>            :    }
-<a name="373"><span class="lineNum">     373 </span><span class="lineNoCov">          0 : }</span></a>
-<span class="lineNum">     374 </span>            : 
-<span class="lineNum">     375 </span><span class="lineNoCov">          0 : static void make_run(tree_t *targets, int count, FILE *out)</span>
-<span class="lineNum">     376 </span>            : {
-<span class="lineNum">     377 </span><span class="lineNoCov">          0 :    int selected = -1;</span>
-<span class="lineNum">     378 </span><span class="lineNoCov">          0 :    for (int i = 0; i &lt; count; i++) {</span>
-<span class="lineNum">     379 </span><span class="lineNoCov">          0 :       if (tree_kind(targets[i]) == T_ELAB) {</span>
-<span class="lineNum">     380 </span><span class="lineNoCov">          0 :          if (selected != -1) {</span>
-<span class="lineNum">     381 </span><span class="lineNoCov">          0 :             warnf(&quot;multiple elaborarted units found: %s is selected as &quot;</span>
-<span class="lineNum">     382 </span>            :                   &quot;run target&quot;,
-<span class="lineNum">     383 </span><span class="lineNoCov">          0 :                   istr(ident_runtil(tree_ident(targets[selected]), '.')));</span>
-<span class="lineNum">     384 </span><span class="lineNoCov">          0 :             return;</span>
-<span class="lineNum">     385 </span>            :          }
-<span class="lineNum">     386 </span>            :          else {
-<span class="lineNum">     387 </span><span class="lineNoCov">          0 :             char *name = make_elab_name(targets[i]);</span>
-<span class="lineNum">     388 </span>            :             fprintf(out, &quot;\nrun: all\n&quot;);
-<span class="lineNum">     389 </span>            :             fprintf(out, &quot;\tnvc -r %s\n&quot;, name);
-<span class="lineNum">     390 </span>            :             fprintf(out, &quot;\nwave: all\n&quot;);
-<span class="lineNum">     391 </span>            :             fprintf(out, &quot;\tnvc -r -w %s\n&quot;, name);
-<span class="lineNum">     392 </span><span class="lineNoCov">          0 :             free(name);</span>
-<span class="lineNum">     393 </span><span class="lineNoCov">          0 :             selected = i;</span>
-<span class="lineNum">     394 </span>            :          }
-<span class="lineNum">     395 </span>            :       }
-<span class="lineNum">     396 </span>            :    }
-<a name="397"><span class="lineNum">     397 </span>            : }</a>
-<span class="lineNum">     398 </span>            : 
-<span class="lineNum">     399 </span><span class="lineNoCov">          0 : static void make_add_target(ident_t name, int kind, void *context)</span>
-<span class="lineNum">     400 </span>            : {
-<span class="lineNum">     401 </span><span class="lineNoCov">          0 :    tree_t **outp = context;</span>
-<span class="lineNum">     402 </span><span class="lineNoCov">          0 :    *(*outp)++ = lib_get(lib_work(), name);</span>
-<a name="403"><span class="lineNum">     403 </span><span class="lineNoCov">          0 : }</span></a>
-<span class="lineNum">     404 </span>            : 
-<span class="lineNum">     405 </span><span class="lineNoCov">          0 : void make(tree_t *targets, int count, FILE *out)</span>
-<span class="lineNum">     406 </span>            : {
-<span class="lineNum">     407 </span><span class="lineNoCov">          0 :    make_tag_i = ident_new(&quot;make_tag&quot;);</span>
-<span class="lineNum">     408 </span>            : 
-<span class="lineNum">     409 </span><span class="lineNoCov">          0 :    if (count == 0) {</span>
-<span class="lineNum">     410 </span><span class="lineNoCov">          0 :       lib_t work = lib_work();</span>
-<span class="lineNum">     411 </span><span class="lineNoCov">          0 :       count = lib_index_size(work);</span>
-<span class="lineNum">     412 </span><span class="lineNoCov">          0 :       targets = xmalloc(count * sizeof(tree_t));</span>
-<span class="lineNum">     413 </span><span class="lineNoCov">          0 :       tree_t *outp = targets;</span>
-<span class="lineNum">     414 </span><span class="lineNoCov">          0 :       lib_walk_index(work, make_add_target, &amp;outp);</span>
-<span class="lineNum">     415 </span>            :    }
-<span class="lineNum">     416 </span>            : 
-<span class="lineNum">     417 </span><span class="lineNoCov">          0 :    make_header(targets, count, out);</span>
-<span class="lineNum">     418 </span>            : 
-<span class="lineNum">     419 </span><span class="lineNoCov">          0 :    rule_t *rules = NULL;</span>
-<span class="lineNum">     420 </span><span class="lineNoCov">          0 :    for (int i = 0; i &lt; count; i++)</span>
-<span class="lineNum">     421 </span><span class="lineNoCov">          0 :       make_rule(targets[i], &amp;rules);</span>
-<span class="lineNum">     422 </span>            : 
-<span class="lineNum">     423 </span><span class="lineNoCov">          0 :    make_print_rules(rules, out);</span>
-<span class="lineNum">     424 </span><span class="lineNoCov">          0 :    make_free_rules(rules);</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :          switch (r-&gt;kind) {</span>
+<span class="lineNum">     366 </span>            :          case RULE_ANALYSE:
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :             fprintf(out, &quot;-a %s\n\n&quot;, istr(r-&gt;source));</span>
+<span class="lineNum">     368 </span>            :             break;
+<span class="lineNum">     369 </span>            : 
+<span class="lineNum">     370 </span>            :          case RULE_ELABORATE:
+<span class="lineNum">     371 </span><span class="lineNoCov">          0 :             fprintf(out, &quot;-e %s\n\n&quot;, istr(r-&gt;source));</span>
+<span class="lineNum">     372 </span>            :             break;
+<span class="lineNum">     373 </span>            :          }
+<span class="lineNum">     374 </span>            :       }
+<span class="lineNum">     375 </span>            :    }
+<a name="376"><span class="lineNum">     376 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 : static void make_run(tree_t *targets, int count, FILE *out)</span>
+<span class="lineNum">     379 </span>            : {
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :    int selected = -1;</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :    for (int i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :       if (tree_kind(targets[i]) == T_ELAB) {</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :          if (selected != -1) {</span>
+<span class="lineNum">     384 </span><span class="lineNoCov">          0 :             warnf(&quot;multiple elaborarted units found: %s is selected as &quot;</span>
+<span class="lineNum">     385 </span>            :                   &quot;run target&quot;,
+<span class="lineNum">     386 </span><span class="lineNoCov">          0 :                   istr(ident_runtil(tree_ident(targets[selected]), '.')));</span>
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :             return;</span>
+<span class="lineNum">     388 </span>            :          }
+<span class="lineNum">     389 </span>            :          else {
+<span class="lineNum">     390 </span><span class="lineNoCov">          0 :             char *name = make_elab_name(targets[i]);</span>
+<span class="lineNum">     391 </span>            :             fprintf(out, &quot;\nrun: all\n&quot;);
+<span class="lineNum">     392 </span>            :             fprintf(out, &quot;\tnvc -r %s\n&quot;, name);
+<span class="lineNum">     393 </span>            :             fprintf(out, &quot;\nwave: all\n&quot;);
+<span class="lineNum">     394 </span>            :             fprintf(out, &quot;\tnvc -r -w %s\n&quot;, name);
+<span class="lineNum">     395 </span><span class="lineNoCov">          0 :             free(name);</span>
+<span class="lineNum">     396 </span><span class="lineNoCov">          0 :             selected = i;</span>
+<span class="lineNum">     397 </span>            :          }
+<span class="lineNum">     398 </span>            :       }
+<span class="lineNum">     399 </span>            :    }
+<a name="400"><span class="lineNum">     400 </span>            : }</a>
+<span class="lineNum">     401 </span>            : 
+<span class="lineNum">     402 </span><span class="lineNoCov">          0 : static void make_add_target(ident_t name, int kind, void *context)</span>
+<span class="lineNum">     403 </span>            : {
+<span class="lineNum">     404 </span><span class="lineNoCov">          0 :    tree_t **outp = context;</span>
+<span class="lineNum">     405 </span><span class="lineNoCov">          0 :    *(*outp)++ = lib_get(lib_work(), name);</span>
+<a name="406"><span class="lineNum">     406 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     407 </span>            : 
+<span class="lineNum">     408 </span><span class="lineNoCov">          0 : void make(tree_t *targets, int count, FILE *out)</span>
+<span class="lineNum">     409 </span>            : {
+<span class="lineNum">     410 </span><span class="lineNoCov">          0 :    make_tag_i = ident_new(&quot;make_tag&quot;);</span>
+<span class="lineNum">     411 </span>            : 
+<span class="lineNum">     412 </span><span class="lineNoCov">          0 :    if (count == 0) {</span>
+<span class="lineNum">     413 </span><span class="lineNoCov">          0 :       lib_t work = lib_work();</span>
+<span class="lineNum">     414 </span><span class="lineNoCov">          0 :       count = lib_index_size(work);</span>
+<span class="lineNum">     415 </span><span class="lineNoCov">          0 :       targets = xmalloc(count * sizeof(tree_t));</span>
+<span class="lineNum">     416 </span><span class="lineNoCov">          0 :       tree_t *outp = targets;</span>
+<span class="lineNum">     417 </span><span class="lineNoCov">          0 :       lib_walk_index(work, make_add_target, &amp;outp);</span>
+<span class="lineNum">     418 </span>            :    }
+<span class="lineNum">     419 </span>            : 
+<span class="lineNum">     420 </span><span class="lineNoCov">          0 :    make_header(targets, count, out);</span>
+<span class="lineNum">     421 </span>            : 
+<span class="lineNum">     422 </span><span class="lineNoCov">          0 :    rule_t *rules = NULL;</span>
+<span class="lineNum">     423 </span><span class="lineNoCov">          0 :    for (int i = 0; i &lt; count; i++)</span>
+<span class="lineNum">     424 </span><span class="lineNoCov">          0 :       make_rule(targets[i], &amp;rules);</span>
 <span class="lineNum">     425 </span>            : 
-<span class="lineNum">     426 </span><span class="lineNoCov">          0 :    if (!opt_get_int(&quot;make-deps-only&quot;)) {</span>
-<span class="lineNum">     427 </span><span class="lineNoCov">          0 :       make_clean(targets[0], out);</span>
-<span class="lineNum">     428 </span><span class="lineNoCov">          0 :       make_run(targets, count, out);</span>
-<span class="lineNum">     429 </span>            :    }
-<span class="lineNum">     430 </span>            : 
-<span class="lineNum">     431 </span><span class="lineNoCov">          0 :    if (!opt_get_int(&quot;make-posix&quot;))</span>
-<span class="lineNum">     432 </span>            :       fprintf(out, &quot;\n-include local.mk\n&quot;);
-<span class="lineNum">     433 </span>            :    else {
-<span class="lineNum">     434 </span>            :       struct stat dummy;
-<span class="lineNum">     435 </span><span class="lineNoCov">          0 :       if (stat(&quot;local.mk&quot;, &amp;dummy) == 0)</span>
-<span class="lineNum">     436 </span>            :          fprintf(out, &quot;\ninclude local.mk\n&quot;);
-<span class="lineNum">     437 </span>            :    }
-<span class="lineNum">     438 </span>            : 
-<span class="lineNum">     439 </span><span class="lineNoCov">          0 :    free(targets);</span>
-<span class="lineNum">     440 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     426 </span><span class="lineNoCov">          0 :    make_print_rules(rules, out);</span>
+<span class="lineNum">     427 </span><span class="lineNoCov">          0 :    make_free_rules(rules);</span>
+<span class="lineNum">     428 </span>            : 
+<span class="lineNum">     429 </span><span class="lineNoCov">          0 :    if (!opt_get_int(&quot;make-deps-only&quot;)) {</span>
+<span class="lineNum">     430 </span><span class="lineNoCov">          0 :       make_clean(targets[0], out);</span>
+<span class="lineNum">     431 </span><span class="lineNoCov">          0 :       make_run(targets, count, out);</span>
+<span class="lineNum">     432 </span>            :    }
+<span class="lineNum">     433 </span>            : 
+<span class="lineNum">     434 </span><span class="lineNoCov">          0 :    if (!opt_get_int(&quot;make-posix&quot;))</span>
+<span class="lineNum">     435 </span>            :       fprintf(out, &quot;\n-include local.mk\n&quot;);
+<span class="lineNum">     436 </span>            :    else {
+<span class="lineNum">     437 </span>            :       struct stat dummy;
+<span class="lineNum">     438 </span><span class="lineNoCov">          0 :       if (stat(&quot;local.mk&quot;, &amp;dummy) == 0)</span>
+<span class="lineNum">     439 </span>            :          fprintf(out, &quot;\ninclude local.mk\n&quot;);
+<span class="lineNum">     440 </span>            :    }
+<span class="lineNum">     441 </span>            : 
+<span class="lineNum">     442 </span><span class="lineNoCov">          0 :    free(targets);</span>
+<span class="lineNum">     443 </span><span class="lineNoCov">          0 : }</span>
 </pre>
       </td>
     </tr>
