@@ -123,13 +123,13 @@
 <span class="lineNum">      61 </span>            : 
 <span class="lineNum">      62 </span><span class="lineCov">       8268 : static void *jit_search_loaded_syms(const char *name, bool required)</span>
 <span class="lineNum">      63 </span>            : {
-<span class="lineNum">      64 </span>            : #ifdef __MINGW32__
-<span class="lineNum">      65 </span>            :    const char *search_modules[] = { NULL, &quot;MSVCRT.DLL&quot; };
-<span class="lineNum">      66 </span>            : 
-<span class="lineNum">      67 </span>            : #ifndef _WIN64
-<span class="lineNum">      68 </span>            :    if (*name == '_')
-<span class="lineNum">      69 </span>            :       name++;   // Remove leading underscore on 32-bit Windows
-<span class="lineNum">      70 </span>            : #endif
+<span class="lineNum">      64 </span>            : #if (defined __MINGW32__ || defined __CYGWIN__) &amp;&amp; !defined _WIN64
+<span class="lineNum">      65 </span>            :    if (*name == '_')
+<span class="lineNum">      66 </span>            :       name++;   // Remove leading underscore on 32-bit Windows
+<span class="lineNum">      67 </span>            : #endif
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span>            : #ifdef __MINGW32__
+<span class="lineNum">      70 </span>            :    const char *search_modules[] = { NULL, &quot;MSVCRT.DLL&quot; };
 <span class="lineNum">      71 </span>            : 
 <span class="lineNum">      72 </span>            : #ifdef _WIN64
 <span class="lineNum">      73 </span>            :    if (strcmp(name, &quot;___chkstk_ms&quot;) == 0)
@@ -159,7 +159,7 @@
 <span class="lineNum">      97 </span><span class="lineCov">       8153 :       sym = dlsym(RTLD_DEFAULT, name);</span>
 <span class="lineNum">      98 </span><span class="lineCov">       8153 :       error = dlerror();</span>
 <span class="lineNum">      99 </span><span class="lineCov">       8153 :       if ((error != NULL) &amp;&amp; required)</span>
-<span class="lineNum">     100 </span><span class="lineNoCov">          0 :          fatal(&quot;%s&quot;, error);</span>
+<span class="lineNum">     100 </span><span class="lineNoCov">          0 :          fatal(&quot;%s: %s&quot;, name, error);</span>
 <span class="lineNum">     101 </span>            :    }
 <span class="lineNum">     102 </span><span class="lineCov">       8268 :    return sym;</span>
 <span class="lineNum">     103 </span>            : #endif
@@ -246,7 +246,7 @@
 <span class="lineNum">     184 </span><span class="lineCov">        525 :    const bool optional = (kind == T_PACKAGE || kind == T_PACK_BODY);</span>
 <span class="lineNum">     185 </span>            : 
 <span class="lineNum">     186 </span><span class="lineCov">       1050 :    char *bc_fname LOCAL = xasprintf(&quot;_%s.bc&quot;, istr(name));</span>
-<span class="lineNum">     187 </span><span class="lineCov">       1050 :    char *so_fname LOCAL = xasprintf(&quot;_%s.so&quot;, istr(name));</span>
+<span class="lineNum">     187 </span><span class="lineCov">       1050 :    char *so_fname LOCAL = xasprintf(&quot;_%s.&quot; DLL_EXT, istr(name));</span>
 <span class="lineNum">     188 </span>            : 
 <span class="lineNum">     189 </span>            :    char bc_path[PATH_MAX], so_path[PATH_MAX];
 <span class="lineNum">     190 </span><span class="lineCov">        525 :    lib_realpath(lib, bc_fname, bc_path, sizeof(bc_path));</span>
