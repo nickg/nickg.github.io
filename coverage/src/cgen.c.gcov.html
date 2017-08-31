@@ -31,13 +31,13 @@
             <td class="headerValue">nvc.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">2101</td>
-            <td class="headerCovTableEntry">2155</td>
+            <td class="headerCovTableEntry">2102</td>
+            <td class="headerCovTableEntry">2156</td>
             <td class="headerCovTableEntryHi">97.5 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2017-08-30</td>
+            <td class="headerValue">2017-08-31</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">151</td>
@@ -3759,22 +3759,22 @@
 <span class="lineNum">    3697 </span><span class="lineCov">        419 :    LLVMValueRef _tmp_alloc =</span>
 <span class="lineNum">    3698 </span><span class="lineCov">        419 :       LLVMAddGlobal(module, LLVMInt32Type(), &quot;_tmp_alloc&quot;);</span>
 <span class="lineNum">    3699 </span><span class="lineCov">        419 :    LLVMSetLinkage(_tmp_alloc, LLVMExternalLinkage);</span>
-<a name="3700"><span class="lineNum">    3700 </span><span class="lineCov">        419 : }</span></a>
-<span class="lineNum">    3701 </span>            : 
-<span class="lineNum">    3702 </span><span class="lineCov">        394 : static bool cgen_should_emit_native(tree_t top)</span>
-<span class="lineNum">    3703 </span>            : {
-<span class="lineNum">    3704 </span>            :    // Use a heuristic to decide if the unit is large enough to benefit
-<span class="lineNum">    3705 </span>            :    // from native complilation
-<span class="lineNum">    3706 </span>            : 
-<span class="lineNum">    3707 </span><span class="lineCov">        394 :    if (tree_kind(top) == T_ELAB)</span>
-<span class="lineNum">    3708 </span><span class="lineCov">        336 :       return tree_stmts(top) &gt; 1000;</span>
-<span class="lineNum">    3709 </span><span class="lineCov">         58 :    else if (tree_kind(top) == T_PACK_BODY)</span>
-<span class="lineNum">    3710 </span><span class="lineCov">         42 :       return tree_decls(top) &gt; 100;</span>
-<span class="lineNum">    3711 </span>            :    else
-<span class="lineNum">    3712 </span>            :       return false;
-<span class="lineNum">    3713 </span>            : }
-<a name="3714"><span class="lineNum">    3714 </span>            : </a>
-<span class="lineNum">    3715 </span>            : #ifdef ENABLE_NATIVE
+<span class="lineNum">    3700 </span><span class="lineCov">        419 : }</span>
+<a name="3701"><span class="lineNum">    3701 </span>            : </a>
+<span class="lineNum">    3702 </span>            : #ifdef ENABLE_NATIVE
+<span class="lineNum">    3703 </span><span class="lineCov">        394 : static bool cgen_should_emit_native(tree_t top)</span>
+<span class="lineNum">    3704 </span>            : {
+<span class="lineNum">    3705 </span>            :    // Use a heuristic to decide if the unit is large enough to benefit
+<span class="lineNum">    3706 </span>            :    // from native complilation
+<span class="lineNum">    3707 </span>            : 
+<span class="lineNum">    3708 </span><span class="lineCov">        394 :    if (tree_kind(top) == T_ELAB)</span>
+<span class="lineNum">    3709 </span><span class="lineCov">        336 :       return tree_stmts(top) &gt; 1000;</span>
+<span class="lineNum">    3710 </span><span class="lineCov">         58 :    else if (tree_kind(top) == T_PACK_BODY)</span>
+<span class="lineNum">    3711 </span><span class="lineCov">         42 :       return tree_decls(top) &gt; 100;</span>
+<span class="lineNum">    3712 </span>            :    else
+<span class="lineNum">    3713 </span>            :       return false;
+<a name="3714"><span class="lineNum">    3714 </span>            : }</a>
+<span class="lineNum">    3715 </span>            : 
 <span class="lineNum">    3716 </span><span class="lineCov">         25 : static void cgen_native(tree_t top)</span>
 <span class="lineNum">    3717 </span>            : {
 <span class="lineNum">    3718 </span><span class="lineCov">         25 :    LLVMInitializeNativeTarget();</span>
@@ -3874,26 +3874,27 @@
 <span class="lineNum">    3812 </span>            : #ifdef ENABLE_NATIVE
 <span class="lineNum">    3813 </span><span class="lineCov">        419 :    const bool emit_native =</span>
 <span class="lineNum">    3814 </span><span class="lineCov">        419 :       opt_get_int(&quot;native&quot;) || cgen_should_emit_native(top);</span>
-<span class="lineNum">    3815 </span>            : #else
-<span class="lineNum">    3816 </span>            :    const bool emit_native = false;
-<span class="lineNum">    3817 </span>            : #endif
-<span class="lineNum">    3818 </span>            : 
-<span class="lineNum">    3819 </span><span class="lineCov">        419 :    if (emit_native)</span>
-<span class="lineNum">    3820 </span><span class="lineCov">         25 :       cgen_native(top);</span>
-<span class="lineNum">    3821 </span>            :    else {
-<span class="lineNum">    3822 </span><span class="lineCov">        394 :       char *fname = xasprintf(&quot;_%s.bc&quot;, istr(tree_ident(top)));</span>
-<span class="lineNum">    3823 </span>            : 
-<span class="lineNum">    3824 </span><span class="lineCov">        394 :       FILE *f = lib_fopen(lib_work(), fname, &quot;wb&quot;);</span>
-<span class="lineNum">    3825 </span><span class="lineCov">        394 :       if (LLVMWriteBitcodeToFD(module, fileno(f), 0, 0) != 0)</span>
-<span class="lineNum">    3826 </span><span class="lineNoCov">          0 :          fatal(&quot;error writing LLVM bitcode&quot;);</span>
-<span class="lineNum">    3827 </span><span class="lineCov">        394 :       fclose(f);</span>
-<span class="lineNum">    3828 </span><span class="lineCov">        394 :       free(fname);</span>
-<span class="lineNum">    3829 </span>            :    }
-<span class="lineNum">    3830 </span>            : 
-<span class="lineNum">    3831 </span><span class="lineCov">        419 :    LLVMDisposeBuilder(builder);</span>
-<span class="lineNum">    3832 </span>            : 
-<span class="lineNum">    3833 </span><span class="lineCov">        419 :    tree_add_attr_ptr(top, llvm_i, module);</span>
-<span class="lineNum">    3834 </span><span class="lineCov">        419 : }</span>
+<span class="lineNum">    3815 </span>            : 
+<span class="lineNum">    3816 </span><span class="lineCov">        419 :    if (emit_native)</span>
+<span class="lineNum">    3817 </span><span class="lineCov">         25 :       cgen_native(top);</span>
+<span class="lineNum">    3818 </span>            : #else
+<span class="lineNum">    3819 </span>            :    const bool emit_native = false;
+<span class="lineNum">    3820 </span>            : #endif
+<span class="lineNum">    3821 </span>            : 
+<span class="lineNum">    3822 </span><span class="lineCov">        419 :    if (!emit_native) {</span>
+<span class="lineNum">    3823 </span><span class="lineCov">        394 :       char *fname = xasprintf(&quot;_%s.bc&quot;, istr(tree_ident(top)));</span>
+<span class="lineNum">    3824 </span>            : 
+<span class="lineNum">    3825 </span><span class="lineCov">        394 :       FILE *f = lib_fopen(lib_work(), fname, &quot;wb&quot;);</span>
+<span class="lineNum">    3826 </span><span class="lineCov">        394 :       if (LLVMWriteBitcodeToFD(module, fileno(f), 0, 0) != 0)</span>
+<span class="lineNum">    3827 </span><span class="lineNoCov">          0 :          fatal(&quot;error writing LLVM bitcode&quot;);</span>
+<span class="lineNum">    3828 </span><span class="lineCov">        394 :       fclose(f);</span>
+<span class="lineNum">    3829 </span><span class="lineCov">        394 :       free(fname);</span>
+<span class="lineNum">    3830 </span>            :    }
+<span class="lineNum">    3831 </span>            : 
+<span class="lineNum">    3832 </span><span class="lineCov">        419 :    LLVMDisposeBuilder(builder);</span>
+<span class="lineNum">    3833 </span>            : 
+<span class="lineNum">    3834 </span><span class="lineCov">        419 :    tree_add_attr_ptr(top, llvm_i, module);</span>
+<span class="lineNum">    3835 </span><span class="lineCov">        419 : }</span>
 </pre>
       </td>
     </tr>
