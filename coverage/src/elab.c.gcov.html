@@ -31,8 +31,8 @@
             <td class="headerValue">nvc.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">752</td>
-            <td class="headerCovTableEntry">793</td>
+            <td class="headerCovTableEntry">754</td>
+            <td class="headerCovTableEntry">795</td>
             <td class="headerCovTableEntryHi">94.8 %</td>
           </tr>
           <tr>
@@ -1582,104 +1582,106 @@
 <span class="lineNum">    1520 </span>            : 
 <span class="lineNum">    1521 </span><span class="lineCov">          3 :    elab_push_scope(unit, ctx);</span>
 <span class="lineNum">    1522 </span>            : 
-<span class="lineNum">    1523 </span><span class="lineCov">          6 :    rewrite_item_t *rwitems LOCAL = xmalloc(sizeof(rewrite_params_t));</span>
-<span class="lineNum">    1524 </span>            : 
-<span class="lineNum">    1525 </span><span class="lineCov">          7 :    for (int i = 0; i &lt; ndecls; i++) {</span>
-<span class="lineNum">    1526 </span><span class="lineCov">          4 :       tree_t d = tree_decl(unit, i);</span>
-<span class="lineNum">    1527 </span><span class="lineCov">          4 :       if (tree_kind(d) != T_SIGNAL_DECL)</span>
-<span class="lineNum">    1528 </span><span class="lineCov">          1 :          continue;</span>
-<span class="lineNum">    1529 </span><span class="lineCov">          3 :       else if (tree_nets(d) &gt; 0)</span>
-<span class="lineNum">    1530 </span><span class="lineNoCov">          0 :          continue;</span>
-<span class="lineNum">    1531 </span>            : 
-<span class="lineNum">    1532 </span><span class="lineCov">          3 :       elab_signal_nets(d, ctx);</span>
-<span class="lineNum">    1533 </span><span class="lineCov">          3 :       tree_add_decl(ctx-&gt;out, d);</span>
-<span class="lineNum">    1534 </span>            : 
-<span class="lineNum">    1535 </span><span class="lineCov">          3 :       ident_t orig_name = tree_ident(d);</span>
-<span class="lineNum">    1536 </span><span class="lineCov">          3 :       ident_t new_name = ident_new(package_signal_path_name(orig_name));</span>
-<span class="lineNum">    1537 </span><span class="lineCov">          3 :       tree_set_ident(d, new_name);</span>
-<span class="lineNum">    1538 </span><span class="lineCov">          3 :       tree_add_attr_str(d, inst_name_i, new_name);</span>
-<span class="lineNum">    1539 </span>            : 
-<span class="lineNum">    1540 </span><span class="lineCov">          3 :       rwitems[i].kind   = RW_IDENT;</span>
-<span class="lineNum">    1541 </span><span class="lineCov">          3 :       rwitems[i].name   = orig_name;</span>
-<span class="lineNum">    1542 </span><span class="lineCov">          3 :       rwitems[i].actual = d;</span>
-<span class="lineNum">    1543 </span>            :    }
-<span class="lineNum">    1544 </span>            : 
-<span class="lineNum">    1545 </span><span class="lineCov">          3 :    rewrite_params_t params = {</span>
-<span class="lineNum">    1546 </span>            :       .items = rwitems,
-<span class="lineNum">    1547 </span>            :       .count = nsignals
-<span class="lineNum">    1548 </span>            :    };
-<span class="lineNum">    1549 </span><span class="lineCov">          3 :    tree_rewrite(ctx-&gt;out, rewrite_refs, &amp;params);</span>
-<span class="lineNum">    1550 </span>            : 
-<span class="lineNum">    1551 </span><span class="lineCov">          3 :    elab_pop_scope(ctx);</span>
-<a name="1552"><span class="lineNum">    1552 </span>            : }</a>
-<span class="lineNum">    1553 </span>            : 
-<span class="lineNum">    1554 </span><span class="lineCov">          6 : void elab_set_generic(const char *name, const char *value)</span>
-<span class="lineNum">    1555 </span>            : {
-<span class="lineNum">    1556 </span><span class="lineCov">          6 :    ident_t id = ident_new(name);</span>
-<span class="lineNum">    1557 </span>            : 
-<span class="lineNum">    1558 </span><span class="lineCov">         13 :    for (generic_list_t *it = generic_override; it != NULL; it = it-&gt;next) {</span>
-<span class="lineNum">    1559 </span><span class="lineCov">          7 :       if (it-&gt;name == id)</span>
-<span class="lineNum">    1560 </span><span class="lineNoCov">          0 :          fatal(&quot;generic %s already has value '%s'&quot;, name, it-&gt;value);</span>
-<span class="lineNum">    1561 </span>            :    }
-<span class="lineNum">    1562 </span>            : 
-<span class="lineNum">    1563 </span><span class="lineCov">          6 :    generic_list_t *new = xmalloc(sizeof(generic_list_t));</span>
-<span class="lineNum">    1564 </span><span class="lineCov">          6 :    new-&gt;name  = id;</span>
-<span class="lineNum">    1565 </span><span class="lineCov">          6 :    new-&gt;value = xstrdup(value);</span>
-<span class="lineNum">    1566 </span><span class="lineCov">          6 :    new-&gt;used  = false;</span>
-<span class="lineNum">    1567 </span><span class="lineCov">          6 :    new-&gt;next  = generic_override;</span>
-<span class="lineNum">    1568 </span>            : 
-<span class="lineNum">    1569 </span><span class="lineCov">          6 :    generic_override = new;</span>
-<a name="1570"><span class="lineNum">    1570 </span><span class="lineCov">          6 : }</span></a>
-<span class="lineNum">    1571 </span>            : 
-<span class="lineNum">    1572 </span><span class="lineCov">        451 : tree_t elab(tree_t top)</span>
-<span class="lineNum">    1573 </span>            : {
-<span class="lineNum">    1574 </span><span class="lineCov">        451 :    tree_t e = tree_new(T_ELAB);</span>
-<span class="lineNum">    1575 </span><span class="lineCov">        451 :    tree_set_ident(e, ident_prefix(tree_ident(top),</span>
-<span class="lineNum">    1576 </span>            :                                   ident_new(&quot;elab&quot;), '.'));
-<span class="lineNum">    1577 </span>            : 
-<span class="lineNum">    1578 </span><span class="lineCov">        451 :    netid_t next_net = 0;</span>
-<span class="lineNum">    1579 </span><span class="lineCov">        902 :    elab_ctx_t ctx = {</span>
-<span class="lineNum">    1580 </span>            :       .out      = e,
-<span class="lineNum">    1581 </span>            :       .path     = NULL,
-<span class="lineNum">    1582 </span>            :       .inst     = NULL,
-<span class="lineNum">    1583 </span>            :       .next_net = &amp;next_net,
-<span class="lineNum">    1584 </span><span class="lineCov">        451 :       .library  = lib_work()</span>
-<span class="lineNum">    1585 </span>            :    };
-<span class="lineNum">    1586 </span>            : 
-<span class="lineNum">    1587 </span><span class="lineCov">        451 :    switch (tree_kind(top)) {</span>
-<span class="lineNum">    1588 </span>            :    case T_ENTITY:
-<span class="lineNum">    1589 </span>            :       {
-<span class="lineNum">    1590 </span><span class="lineCov">        451 :          tree_t arch = pick_arch(NULL, tree_ident(top), NULL, &amp;ctx);</span>
-<span class="lineNum">    1591 </span><span class="lineCov">        451 :          elab_entity_arch(top, arch, &amp;ctx);</span>
-<span class="lineNum">    1592 </span>            :       }
-<span class="lineNum">    1593 </span><span class="lineCov">        451 :       break;</span>
-<span class="lineNum">    1594 </span>            :    case T_ARCH:
-<span class="lineNum">    1595 </span><span class="lineNoCov">          0 :       elab_entity_arch(tree_ref(top), top, &amp;ctx);</span>
-<span class="lineNum">    1596 </span><span class="lineNoCov">          0 :       break;</span>
-<span class="lineNum">    1597 </span>            :    default:
-<span class="lineNum">    1598 </span><span class="lineNoCov">          0 :       fatal(&quot;%s is not a suitable top-level unit&quot;, istr(tree_ident(top)));</span>
-<span class="lineNum">    1599 </span>            :    }
-<span class="lineNum">    1600 </span>            : 
-<span class="lineNum">    1601 </span><span class="lineCov">        451 :    if (errors &gt; 0 || eval_errors() &gt; 0)</span>
-<span class="lineNum">    1602 </span>            :       return NULL;
-<span class="lineNum">    1603 </span>            : 
-<span class="lineNum">    1604 </span><span class="lineCov">        448 :    tree_add_attr_int(e, nnets_i, next_net);</span>
+<span class="lineNum">    1523 </span><span class="lineCov">          6 :    rewrite_item_t *rwitems LOCAL = xmalloc(sizeof(rewrite_item_t) * nsignals);</span>
+<span class="lineNum">    1524 </span><span class="lineCov">          3 :    int count = 0;</span>
+<span class="lineNum">    1525 </span>            : 
+<span class="lineNum">    1526 </span><span class="lineCov">          7 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">    1527 </span><span class="lineCov">          4 :       tree_t d = tree_decl(unit, i);</span>
+<span class="lineNum">    1528 </span><span class="lineCov">          4 :       if (tree_kind(d) != T_SIGNAL_DECL)</span>
+<span class="lineNum">    1529 </span><span class="lineCov">          1 :          continue;</span>
+<span class="lineNum">    1530 </span><span class="lineCov">          3 :       else if (tree_nets(d) &gt; 0)</span>
+<span class="lineNum">    1531 </span><span class="lineNoCov">          0 :          continue;</span>
+<span class="lineNum">    1532 </span>            : 
+<span class="lineNum">    1533 </span><span class="lineCov">          3 :       elab_signal_nets(d, ctx);</span>
+<span class="lineNum">    1534 </span><span class="lineCov">          3 :       tree_add_decl(ctx-&gt;out, d);</span>
+<span class="lineNum">    1535 </span>            : 
+<span class="lineNum">    1536 </span><span class="lineCov">          3 :       ident_t orig_name = tree_ident(d);</span>
+<span class="lineNum">    1537 </span><span class="lineCov">          3 :       ident_t new_name = ident_new(package_signal_path_name(orig_name));</span>
+<span class="lineNum">    1538 </span><span class="lineCov">          3 :       tree_set_ident(d, new_name);</span>
+<span class="lineNum">    1539 </span><span class="lineCov">          3 :       tree_add_attr_str(d, inst_name_i, new_name);</span>
+<span class="lineNum">    1540 </span>            : 
+<span class="lineNum">    1541 </span><span class="lineCov">          3 :       rwitems[count].kind   = RW_IDENT;</span>
+<span class="lineNum">    1542 </span><span class="lineCov">          3 :       rwitems[count].name   = orig_name;</span>
+<span class="lineNum">    1543 </span><span class="lineCov">          3 :       rwitems[count].actual = d;</span>
+<span class="lineNum">    1544 </span><span class="lineCov">          3 :       count++;</span>
+<span class="lineNum">    1545 </span>            :    }
+<span class="lineNum">    1546 </span>            : 
+<span class="lineNum">    1547 </span><span class="lineCov">          3 :    rewrite_params_t params = {</span>
+<span class="lineNum">    1548 </span>            :       .items = rwitems,
+<span class="lineNum">    1549 </span>            :       .count = count
+<span class="lineNum">    1550 </span>            :    };
+<span class="lineNum">    1551 </span><span class="lineCov">          3 :    tree_rewrite(ctx-&gt;out, rewrite_refs, &amp;params);</span>
+<span class="lineNum">    1552 </span>            : 
+<span class="lineNum">    1553 </span><span class="lineCov">          3 :    elab_pop_scope(ctx);</span>
+<a name="1554"><span class="lineNum">    1554 </span>            : }</a>
+<span class="lineNum">    1555 </span>            : 
+<span class="lineNum">    1556 </span><span class="lineCov">          6 : void elab_set_generic(const char *name, const char *value)</span>
+<span class="lineNum">    1557 </span>            : {
+<span class="lineNum">    1558 </span><span class="lineCov">          6 :    ident_t id = ident_new(name);</span>
+<span class="lineNum">    1559 </span>            : 
+<span class="lineNum">    1560 </span><span class="lineCov">         13 :    for (generic_list_t *it = generic_override; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">    1561 </span><span class="lineCov">          7 :       if (it-&gt;name == id)</span>
+<span class="lineNum">    1562 </span><span class="lineNoCov">          0 :          fatal(&quot;generic %s already has value '%s'&quot;, name, it-&gt;value);</span>
+<span class="lineNum">    1563 </span>            :    }
+<span class="lineNum">    1564 </span>            : 
+<span class="lineNum">    1565 </span><span class="lineCov">          6 :    generic_list_t *new = xmalloc(sizeof(generic_list_t));</span>
+<span class="lineNum">    1566 </span><span class="lineCov">          6 :    new-&gt;name  = id;</span>
+<span class="lineNum">    1567 </span><span class="lineCov">          6 :    new-&gt;value = xstrdup(value);</span>
+<span class="lineNum">    1568 </span><span class="lineCov">          6 :    new-&gt;used  = false;</span>
+<span class="lineNum">    1569 </span><span class="lineCov">          6 :    new-&gt;next  = generic_override;</span>
+<span class="lineNum">    1570 </span>            : 
+<span class="lineNum">    1571 </span><span class="lineCov">          6 :    generic_override = new;</span>
+<a name="1572"><span class="lineNum">    1572 </span><span class="lineCov">          6 : }</span></a>
+<span class="lineNum">    1573 </span>            : 
+<span class="lineNum">    1574 </span><span class="lineCov">        451 : tree_t elab(tree_t top)</span>
+<span class="lineNum">    1575 </span>            : {
+<span class="lineNum">    1576 </span><span class="lineCov">        451 :    tree_t e = tree_new(T_ELAB);</span>
+<span class="lineNum">    1577 </span><span class="lineCov">        451 :    tree_set_ident(e, ident_prefix(tree_ident(top),</span>
+<span class="lineNum">    1578 </span>            :                                   ident_new(&quot;elab&quot;), '.'));
+<span class="lineNum">    1579 </span>            : 
+<span class="lineNum">    1580 </span><span class="lineCov">        451 :    netid_t next_net = 0;</span>
+<span class="lineNum">    1581 </span><span class="lineCov">        902 :    elab_ctx_t ctx = {</span>
+<span class="lineNum">    1582 </span>            :       .out      = e,
+<span class="lineNum">    1583 </span>            :       .path     = NULL,
+<span class="lineNum">    1584 </span>            :       .inst     = NULL,
+<span class="lineNum">    1585 </span>            :       .next_net = &amp;next_net,
+<span class="lineNum">    1586 </span><span class="lineCov">        451 :       .library  = lib_work()</span>
+<span class="lineNum">    1587 </span>            :    };
+<span class="lineNum">    1588 </span>            : 
+<span class="lineNum">    1589 </span><span class="lineCov">        451 :    switch (tree_kind(top)) {</span>
+<span class="lineNum">    1590 </span>            :    case T_ENTITY:
+<span class="lineNum">    1591 </span>            :       {
+<span class="lineNum">    1592 </span><span class="lineCov">        451 :          tree_t arch = pick_arch(NULL, tree_ident(top), NULL, &amp;ctx);</span>
+<span class="lineNum">    1593 </span><span class="lineCov">        451 :          elab_entity_arch(top, arch, &amp;ctx);</span>
+<span class="lineNum">    1594 </span>            :       }
+<span class="lineNum">    1595 </span><span class="lineCov">        451 :       break;</span>
+<span class="lineNum">    1596 </span>            :    case T_ARCH:
+<span class="lineNum">    1597 </span><span class="lineNoCov">          0 :       elab_entity_arch(tree_ref(top), top, &amp;ctx);</span>
+<span class="lineNum">    1598 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">    1599 </span>            :    default:
+<span class="lineNum">    1600 </span><span class="lineNoCov">          0 :       fatal(&quot;%s is not a suitable top-level unit&quot;, istr(tree_ident(top)));</span>
+<span class="lineNum">    1601 </span>            :    }
+<span class="lineNum">    1602 </span>            : 
+<span class="lineNum">    1603 </span><span class="lineCov">        451 :    if (errors &gt; 0 || eval_errors() &gt; 0)</span>
+<span class="lineNum">    1604 </span>            :       return NULL;
 <span class="lineNum">    1605 </span>            : 
-<span class="lineNum">    1606 </span><span class="lineCov">        448 :    if (opt_get_int(&quot;cover&quot;))</span>
-<span class="lineNum">    1607 </span><span class="lineCov">          2 :       cover_tag(e);</span>
-<span class="lineNum">    1608 </span>            : 
-<span class="lineNum">    1609 </span><span class="lineCov">        454 :    for (generic_list_t *it = generic_override; it != NULL; it = it-&gt;next) {</span>
-<span class="lineNum">    1610 </span><span class="lineCov">          6 :       if (!it-&gt;used)</span>
-<span class="lineNum">    1611 </span><span class="lineNoCov">          0 :          warnf(&quot;generic value for %s not used&quot;, istr(it-&gt;name));</span>
-<span class="lineNum">    1612 </span>            :    }
-<span class="lineNum">    1613 </span>            : 
-<span class="lineNum">    1614 </span><span class="lineCov">        448 :    if (bounds_errors() == 0) {</span>
-<span class="lineNum">    1615 </span><span class="lineCov">        445 :       lib_put(lib_work(), e);</span>
-<span class="lineNum">    1616 </span><span class="lineCov">        445 :       return e;</span>
-<span class="lineNum">    1617 </span>            :    }
-<span class="lineNum">    1618 </span>            :    else
-<span class="lineNum">    1619 </span>            :       return NULL;
-<span class="lineNum">    1620 </span>            : }
+<span class="lineNum">    1606 </span><span class="lineCov">        448 :    tree_add_attr_int(e, nnets_i, next_net);</span>
+<span class="lineNum">    1607 </span>            : 
+<span class="lineNum">    1608 </span><span class="lineCov">        448 :    if (opt_get_int(&quot;cover&quot;))</span>
+<span class="lineNum">    1609 </span><span class="lineCov">          2 :       cover_tag(e);</span>
+<span class="lineNum">    1610 </span>            : 
+<span class="lineNum">    1611 </span><span class="lineCov">        454 :    for (generic_list_t *it = generic_override; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">    1612 </span><span class="lineCov">          6 :       if (!it-&gt;used)</span>
+<span class="lineNum">    1613 </span><span class="lineNoCov">          0 :          warnf(&quot;generic value for %s not used&quot;, istr(it-&gt;name));</span>
+<span class="lineNum">    1614 </span>            :    }
+<span class="lineNum">    1615 </span>            : 
+<span class="lineNum">    1616 </span><span class="lineCov">        448 :    if (bounds_errors() == 0) {</span>
+<span class="lineNum">    1617 </span><span class="lineCov">        445 :       lib_put(lib_work(), e);</span>
+<span class="lineNum">    1618 </span><span class="lineCov">        445 :       return e;</span>
+<span class="lineNum">    1619 </span>            :    }
+<span class="lineNum">    1620 </span>            :    else
+<span class="lineNum">    1621 </span>            :       return NULL;
+<span class="lineNum">    1622 </span>            : }
 </pre>
       </td>
     </tr>
