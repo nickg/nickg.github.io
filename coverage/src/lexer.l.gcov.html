@@ -31,13 +31,13 @@
             <td class="headerValue">nvc.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">235</td>
-            <td class="headerCovTableEntry">237</td>
-            <td class="headerCovTableEntryHi">99.2 %</td>
+            <td class="headerCovTableEntry">232</td>
+            <td class="headerCovTableEntry">234</td>
+            <td class="headerCovTableEntryHi">99.1 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2017-09-30</td>
+            <td class="headerValue">2017-10-08</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">8</td>
@@ -474,187 +474,178 @@
 <span class="lineNum">     412 </span><span class="lineCov">       9565 : {</span>
 <span class="lineNum">     413 </span>            :    int tok = tERROR;
 <span class="lineNum">     414 </span><span class="lineCov">       9565 :    /* Copy of input text */</span>
-<span class="lineNum">     415 </span>            :    char *tmp = xstrdup(str);
-<span class="lineNum">     416 </span><span class="lineCov">       9565 :    /* Stripping '_' character */</span>
+<span class="lineNum">     415 </span>            :    char *tmp LOCAL = xstrdup(str);
+<span class="lineNum">     416 </span><span class="lineCov">      19130 :    /* Stripping '_' character */</span>
 <span class="lineNum">     417 </span>            :    strip_underscores(tmp);
 <span class="lineNum">     418 </span><span class="lineCov">       9565 : </span>
 <span class="lineNum">     419 </span>            :    /* Find first occurences of '.' */
-<span class="lineNum">     420 </span>            :    char *dot  = strpbrk(tmp, &quot;.&quot;);
-<span class="lineNum">     421 </span><span class="lineCov">       9565 :    char *sign = strpbrk(tmp, &quot;-&quot;);</span>
-<span class="lineNum">     422 </span><span class="lineCov">       9565 :    /* Find first occurences of 'e' or 'E' */</span>
-<span class="lineNum">     423 </span>            :    char *val  = strtok(tmp, &quot;eE&quot;);
-<span class="lineNum">     424 </span><span class="lineCov">       9565 :    char *exp  = strtok(NULL, &quot;eE&quot;);</span>
-<span class="lineNum">     425 </span><span class="lineCov">       9565 : </span>
-<span class="lineNum">     426 </span>            :    /* Integer literals */
-<span class="lineNum">     427 </span>            :    if (dot == NULL) {
-<span class="lineNum">     428 </span><span class="lineCov">       9565 :       /* String to long long */</span>
-<span class="lineNum">     429 </span>            :       yylval.n = atoll(val);
-<span class="lineNum">     430 </span><span class="lineCov">       8600 : </span>
-<span class="lineNum">     431 </span>            :       /* String to long long (atoll function manages the sign) */
-<span class="lineNum">     432 </span>            :       long long int e = (exp ? atoll(exp) : 0);
-<span class="lineNum">     433 </span><span class="lineCov">       8600 : </span>
-<span class="lineNum">     434 </span>            :       /* Minus sign forbidden for an integer literal */
-<span class="lineNum">     435 </span>            :       if (e &gt;= 0) {
-<span class="lineNum">     436 </span><span class="lineCov">       8600 :          /* Updating val */</span>
-<span class="lineNum">     437 </span>            :          for (; e &gt; 0; e--) yylval.n *= 10;
-<span class="lineNum">     438 </span><span class="lineCov">          3 : </span>
-<span class="lineNum">     439 </span>            :          tok = (sign == NULL) ? tINT : tERROR;
-<span class="lineNum">     440 </span><span class="lineCov">       8600 :       }</span>
-<span class="lineNum">     441 </span>            :    }
-<span class="lineNum">     442 </span>            :    else {
-<span class="lineNum">     443 </span>            :       /* String to double */
-<span class="lineNum">     444 </span>            :       yylval.d = strtod(val, NULL);
-<span class="lineNum">     445 </span><span class="lineCov">        965 : </span>
-<span class="lineNum">     446 </span>            :       /* String to long long (atoll function manages the sign) */
-<span class="lineNum">     447 </span>            :       long long int e = (exp ? atoll(exp) : 0);
-<span class="lineNum">     448 </span><span class="lineCov">        965 : </span>
-<span class="lineNum">     449 </span>            :       if (e != 0)
-<span class="lineNum">     450 </span><span class="lineCov">        965 :          yylval.d *= pow(10.0, (double)e);</span>
-<span class="lineNum">     451 </span><span class="lineCov">         39 : </span>
-<span class="lineNum">     452 </span>            :       tok = tREAL;
-<span class="lineNum">     453 </span>            :    }
-<span class="lineNum">     454 </span>            : 
-<span class="lineNum">     455 </span>            :    /* Deleting local allocation */
-<span class="lineNum">     456 </span>            :    free(tmp);
-<span class="lineNum">     457 </span><span class="lineCov">       9565 : </span>
-<span class="lineNum">     458 </span>            :    TOKEN(tok);
-<span class="lineNum">     459 </span><span class="lineCov">       9565 : }</span>
-<span class="lineNum">     460 </span>            : 
-<span class="lineNum">     461 </span>            : /**
-<span class="lineNum">     462 </span>            :  * \fn static int parse_based_literal (const char *str)
-<span class="lineNum">     463 </span>            :  * \brief Transform a string into a literal as specified in LRM 13.4.2
-<span class="lineNum">     464 </span>            :  * (based_literal ::= base [#:] based_integer [.based_integer] [#:] [exponent]).
-<span class="lineNum">     465 </span>            :  *
-<span class="lineNum">     466 </span>            :  * \param str Formatted string as specified in LRM 13.4.2
-<span class="lineNum">     467 </span>            :  * (based_literal ::= base [#:] based_integer [.based_integer] [#:] [exponent]).
-<span class="lineNum">     468 </span>            :  * \return TOKEN(tINT) if no '.' found and no '-' found,
-<span class="lineNum">     469 </span>            :  * TOKEN(tERROR) if no '.' found and '-' found,
-<span class="lineNum">     470 </span>            :  * TOKEN(tERROR) if the base is not at least 2 or at most 16,
-<span class="lineNum">     471 </span>            :  * else TOKEN(tREAL).
-<a name="472"><span class="lineNum">     472 </span>            :  */</a>
-<span class="lineNum">     473 </span>            : static int parse_based_literal (const char *str)
-<span class="lineNum">     474 </span><span class="lineCov">         19 : {</span>
-<span class="lineNum">     475 </span>            :    int tok = tERROR;
-<span class="lineNum">     476 </span><span class="lineCov">         19 :    /* Copy of input text */</span>
-<span class="lineNum">     477 </span>            :    char *tmp = xstrdup(str);
-<span class="lineNum">     478 </span><span class="lineCov">         19 :    /* Stripping '_' character */</span>
-<span class="lineNum">     479 </span>            :    strip_underscores(tmp);
-<span class="lineNum">     480 </span><span class="lineCov">         19 : </span>
-<span class="lineNum">     481 </span>            :    /* Find first occurences of '.' */
-<span class="lineNum">     482 </span>            :    char *dot  = strpbrk(tmp, &quot;.&quot;);
-<span class="lineNum">     483 </span><span class="lineCov">         19 :    char *sign = strpbrk(tmp, &quot;-&quot;);</span>
-<span class="lineNum">     484 </span><span class="lineCov">         19 :    /* Find first occurences of '#', ':', 'e' or 'E' */</span>
-<span class="lineNum">     485 </span>            :    char *base = strtok(tmp, &quot;#:&quot;);
-<span class="lineNum">     486 </span><span class="lineCov">         19 :    char *val  = strtok(NULL, &quot;#:&quot;);</span>
-<span class="lineNum">     487 </span><span class="lineCov">         19 :    char *exp  = strtok(NULL, &quot;eE&quot;);</span>
-<span class="lineNum">     488 </span><span class="lineCov">         19 : </span>
-<span class="lineNum">     489 </span>            :    /* base must be at least 2 and at most 16 */
-<span class="lineNum">     490 </span>            :    if ((2 &lt;= atoi(base)) &amp;&amp; (atoi(base) &lt;= 16)) {
-<span class="lineNum">     491 </span><span class="lineCov">         19 :       /* Integer literals */</span>
-<span class="lineNum">     492 </span>            :       if (dot == NULL) {
-<span class="lineNum">     493 </span><span class="lineCov">         19 :          char *eptr;</span>
-<span class="lineNum">     494 </span>            :          /* String to long long */
-<span class="lineNum">     495 </span>            :          yylval.n = strtoll(val, &amp;eptr, atoi(base));
-<span class="lineNum">     496 </span><span class="lineCov">         16 : </span>
-<span class="lineNum">     497 </span>            :          /* String to long long (atoll function manages the sign) */
-<span class="lineNum">     498 </span>            :          long long int e = (exp ? atoll(exp) : 0);
-<span class="lineNum">     499 </span><span class="lineCov">         16 : </span>
-<span class="lineNum">     500 </span>            :          /* Minus sign forbidden for an integer literal */
-<span class="lineNum">     501 </span>            :          if (e &gt;= 0) {
-<span class="lineNum">     502 </span><span class="lineCov">         16 :             /* Updating val */</span>
-<span class="lineNum">     503 </span>            :             for (; e &gt; 0; e--) yylval.n *= atoi(base);
-<span class="lineNum">     504 </span><span class="lineCov">          1 : </span>
-<span class="lineNum">     505 </span>            :             tok = ((*eptr == '\0') &amp;&amp; (sign == NULL)) ? tINT : tERROR;
-<span class="lineNum">     506 </span><span class="lineCov">         16 :          }</span>
-<span class="lineNum">     507 </span>            :       }
-<span class="lineNum">     508 </span>            :       else {
-<span class="lineNum">     509 </span>            :          char *eptr_integer, *eptr_rational;
-<span class="lineNum">     510 </span>            :          char *integer  = strtok(val, &quot;.&quot;);
-<span class="lineNum">     511 </span><span class="lineCov">          3 :          char *rational = strtok(NULL, &quot;.&quot;);</span>
-<span class="lineNum">     512 </span><span class="lineCov">          3 : </span>
-<span class="lineNum">     513 </span>            :          yylval.d = (double) strtoll(integer, &amp;eptr_integer, atoi(base));
-<span class="lineNum">     514 </span><span class="lineCov">          3 : </span>
-<span class="lineNum">     515 </span>            :          double tmp = (double) strtoll(rational, &amp;eptr_rational, atoi(base));
-<span class="lineNum">     516 </span><span class="lineCov">          3 :          tmp *= pow((double) atoi(base), (double) ((long int) (0-strlen(rational))));</span>
-<span class="lineNum">     517 </span><span class="lineCov">          3 : </span>
-<span class="lineNum">     518 </span>            :          yylval.d += tmp;
-<span class="lineNum">     519 </span><span class="lineCov">          3 : </span>
-<span class="lineNum">     520 </span>            :          /* String to long long (atoll function manages the sign) */
-<span class="lineNum">     521 </span>            :          long long int e = (exp ? atoll(exp) : 0);
-<span class="lineNum">     522 </span><span class="lineCov">          3 : </span>
-<span class="lineNum">     523 </span>            :          if (e != 0)
-<span class="lineNum">     524 </span><span class="lineCov">          3 :             yylval.d *= pow((double) atoi(base), (double) e);</span>
-<span class="lineNum">     525 </span><span class="lineCov">          3 : </span>
-<span class="lineNum">     526 </span>            :          tok = ((*eptr_integer == '\0') &amp;&amp; (*eptr_rational == '\0')) ? tREAL : tERROR;
-<span class="lineNum">     527 </span><span class="lineCov">          3 :       }</span>
-<span class="lineNum">     528 </span>            :    }
-<span class="lineNum">     529 </span>            :    /* Deleting local allocation */
-<span class="lineNum">     530 </span>            :    free(tmp);
-<span class="lineNum">     531 </span><span class="lineCov">         19 : </span>
-<span class="lineNum">     532 </span>            :    TOKEN(tok);
-<span class="lineNum">     533 </span><span class="lineCov">         19 : }</span>
-<span class="lineNum">     534 </span>            : 
-<span class="lineNum">     535 </span>            : /**
-<span class="lineNum">     536 </span>            :  * \fn static int parse_string (const char *str)
-<span class="lineNum">     537 </span>            :  * \brief Copy input replaces all double '\&quot;' by single '\&quot;'
-<span class="lineNum">     538 </span>            :  *        or all double '%' by single '%'.
-<span class="lineNum">     539 </span>            :  *        In the case when '\%' is used as string brackets,
-<span class="lineNum">     540 </span>            :  *        the enclosed senquence of characters should not
-<span class="lineNum">     541 </span>            :  *        contain quotation marks!
-<span class="lineNum">     542 </span>            :  *
-<span class="lineNum">     543 </span>            :  * \param str Formatted string as specified in LRM 13.6
-<span class="lineNum">     544 </span>            :  * (string_literal ::= &quot; { graphic_character } &quot;).
-<span class="lineNum">     545 </span>            :  * \return TOKEN(tSTRING).
-<a name="546"><span class="lineNum">     546 </span>            :  */</a>
-<span class="lineNum">     547 </span>            : static int parse_string(const char *str)
-<span class="lineNum">     548 </span><span class="lineCov">       2678 : {</span>
-<span class="lineNum">     549 </span>            :    /* Copy of input */
-<span class="lineNum">     550 </span>            :    char *s = (yylval.s = xstrdup(str));
-<span class="lineNum">     551 </span><span class="lineCov">       2678 : </span>
-<span class="lineNum">     552 </span>            :    /* Replacing double '\&quot;' character by single '\&quot;' */
-<span class="lineNum">     553 </span>            :    /* or double '%' character by single '%' */
-<span class="lineNum">     554 </span>            :    /* Begins after first character */
-<span class="lineNum">     555 </span>            :    s++;
-<span class="lineNum">     556 </span><span class="lineCov">       2678 :    char *p = s;</span>
-<span class="lineNum">     557 </span><span class="lineCov">       2678 :    while (*p) {</span>
-<span class="lineNum">     558 </span><span class="lineCov">      31996 :       if ((*p == *(yylval.s)) &amp;&amp; (*(p+1) == *(yylval.s))) p++;</span>
-<span class="lineNum">     559 </span><span class="lineCov">      26640 :       *s++ = *p++;</span>
-<span class="lineNum">     560 </span><span class="lineCov">      26640 :    }</span>
-<span class="lineNum">     561 </span>            :    /* Copy last character which is null character */
-<span class="lineNum">     562 </span>            :    *s = *p;
-<span class="lineNum">     563 </span><span class="lineCov">       2678 : </span>
-<span class="lineNum">     564 </span>            :    TOKEN(tSTRING);
-<span class="lineNum">     565 </span><span class="lineCov">       2678 : }</span>
-<span class="lineNum">     566 </span>            : 
-<span class="lineNum">     567 </span>            : /**
-<span class="lineNum">     568 </span>            :  * \fn static int parse_bit_string (const char *str)
-<span class="lineNum">     569 </span>            :  * \brief Copy input, remove all '_' characters and
-<span class="lineNum">     570 </span>            :  *        replace all '\%' characters by '\&quot;'.
-<span class="lineNum">     571 </span>            :  *
-<span class="lineNum">     572 </span>            :  * \param str Formatted string as specified in LRM 13.7
-<span class="lineNum">     573 </span>            :  * (bit_string_literal ::= base_specifier &quot; [ bit_value ] &quot;).
-<span class="lineNum">     574 </span>            :  * \return TOKEN(tBITSTRING).
-<a name="575"><span class="lineNum">     575 </span>            :  */</a>
-<span class="lineNum">     576 </span>            : static int parse_bit_string(const char *str)
-<span class="lineNum">     577 </span><span class="lineCov">        306 : {</span>
-<span class="lineNum">     578 </span>            :    /* Copy of input */
-<span class="lineNum">     579 </span>            :    char *p = (yylval.s = xstrdup(str));
-<span class="lineNum">     580 </span><span class="lineCov">        306 : </span>
-<span class="lineNum">     581 </span>            :    /* Stripping '_' character */
-<span class="lineNum">     582 </span>            :    strip_underscores(p);
-<span class="lineNum">     583 </span><span class="lineCov">        306 : </span>
-<span class="lineNum">     584 </span>            :    /* Replacing '\%' character by '\&quot;' */
-<span class="lineNum">     585 </span>            :    while (*p) {
-<span class="lineNum">     586 </span><span class="lineCov">       2052 :       switch (*p) {</span>
-<span class="lineNum">     587 </span><span class="lineCov">       1440 :       case '%':</span>
-<span class="lineNum">     588 </span>            :          *p = '\&quot;';
-<span class="lineNum">     589 </span><span class="lineCov">          8 :       default:</span>
-<span class="lineNum">     590 </span>            :          p++;
-<span class="lineNum">     591 </span><span class="lineCov">       1440 :       }</span>
-<span class="lineNum">     592 </span>            :    }
-<span class="lineNum">     593 </span>            : 
-<span class="lineNum">     594 </span>            :    TOKEN(tBITSTRING);
-<span class="lineNum">     595 </span><span class="lineCov">        306 : }</span>
+<span class="lineNum">     420 </span>            :    char *dot = strpbrk(tmp, &quot;.&quot;);
+<span class="lineNum">     421 </span><span class="lineCov">       9565 : </span>
+<span class="lineNum">     422 </span>            :    /* Integer literals */
+<span class="lineNum">     423 </span>            :    if (dot == NULL) {
+<span class="lineNum">     424 </span><span class="lineCov">       9565 :       /* Find first occurences of 'e' or 'E' */</span>
+<span class="lineNum">     425 </span>            :       char *sign = strpbrk(tmp, &quot;-&quot;);
+<span class="lineNum">     426 </span><span class="lineCov">       8600 :       char *val  = strtok(tmp, &quot;eE&quot;);</span>
+<span class="lineNum">     427 </span><span class="lineCov">       8600 :       char *exp  = strtok(NULL, &quot;eE&quot;);</span>
+<span class="lineNum">     428 </span><span class="lineCov">       8600 : </span>
+<span class="lineNum">     429 </span>            :       /* String to long long */
+<span class="lineNum">     430 </span>            :       yylval.n = atoll(val);
+<span class="lineNum">     431 </span><span class="lineCov">       8600 : </span>
+<span class="lineNum">     432 </span>            :       /* String to long long (atoll function manages the sign) */
+<span class="lineNum">     433 </span>            :       long long int e = (exp ? atoll(exp) : 0);
+<span class="lineNum">     434 </span><span class="lineCov">       8600 : </span>
+<span class="lineNum">     435 </span>            :       /* Minus sign forbidden for an integer literal */
+<span class="lineNum">     436 </span>            :       if (e &gt;= 0) {
+<span class="lineNum">     437 </span><span class="lineCov">       8600 :          /* Updating val */</span>
+<span class="lineNum">     438 </span>            :          for (; e &gt; 0; e--) yylval.n *= 10;
+<span class="lineNum">     439 </span><span class="lineCov">          3 : </span>
+<span class="lineNum">     440 </span>            :          tok = (sign == NULL) ? tINT : tERROR;
+<span class="lineNum">     441 </span><span class="lineCov">       8600 :       }</span>
+<span class="lineNum">     442 </span>            :    }
+<span class="lineNum">     443 </span>            :    else {
+<span class="lineNum">     444 </span>            :       /* String to double */
+<span class="lineNum">     445 </span>            :       yylval.d = strtod(tmp, NULL);
+<span class="lineNum">     446 </span><span class="lineCov">        965 :       tok = tREAL;</span>
+<span class="lineNum">     447 </span><span class="lineCov">        965 :    }</span>
+<span class="lineNum">     448 </span>            : 
+<span class="lineNum">     449 </span>            :    TOKEN(tok);
+<span class="lineNum">     450 </span><span class="lineCov">      19130 : }</span>
+<span class="lineNum">     451 </span>            : 
+<span class="lineNum">     452 </span>            : /**
+<span class="lineNum">     453 </span>            :  * \fn static int parse_based_literal (const char *str)
+<span class="lineNum">     454 </span>            :  * \brief Transform a string into a literal as specified in LRM 13.4.2
+<span class="lineNum">     455 </span>            :  * (based_literal ::= base [#:] based_integer [.based_integer] [#:] [exponent]).
+<span class="lineNum">     456 </span>            :  *
+<span class="lineNum">     457 </span>            :  * \param str Formatted string as specified in LRM 13.4.2
+<span class="lineNum">     458 </span>            :  * (based_literal ::= base [#:] based_integer [.based_integer] [#:] [exponent]).
+<span class="lineNum">     459 </span>            :  * \return TOKEN(tINT) if no '.' found and no '-' found,
+<span class="lineNum">     460 </span>            :  * TOKEN(tERROR) if no '.' found and '-' found,
+<span class="lineNum">     461 </span>            :  * TOKEN(tERROR) if the base is not at least 2 or at most 16,
+<span class="lineNum">     462 </span>            :  * else TOKEN(tREAL).
+<a name="463"><span class="lineNum">     463 </span>            :  */</a>
+<span class="lineNum">     464 </span>            : static int parse_based_literal (const char *str)
+<span class="lineNum">     465 </span><span class="lineCov">         19 : {</span>
+<span class="lineNum">     466 </span>            :    int tok = tERROR;
+<span class="lineNum">     467 </span><span class="lineCov">         19 :    /* Copy of input text */</span>
+<span class="lineNum">     468 </span>            :    char *tmp = xstrdup(str);
+<span class="lineNum">     469 </span><span class="lineCov">         19 :    /* Stripping '_' character */</span>
+<span class="lineNum">     470 </span>            :    strip_underscores(tmp);
+<span class="lineNum">     471 </span><span class="lineCov">         19 : </span>
+<span class="lineNum">     472 </span>            :    /* Find first occurences of '.' */
+<span class="lineNum">     473 </span>            :    char *dot  = strpbrk(tmp, &quot;.&quot;);
+<span class="lineNum">     474 </span><span class="lineCov">         19 :    char *sign = strpbrk(tmp, &quot;-&quot;);</span>
+<span class="lineNum">     475 </span><span class="lineCov">         19 :    /* Find first occurences of '#', ':', 'e' or 'E' */</span>
+<span class="lineNum">     476 </span>            :    char *base = strtok(tmp, &quot;#:&quot;);
+<span class="lineNum">     477 </span><span class="lineCov">         19 :    char *val  = strtok(NULL, &quot;#:&quot;);</span>
+<span class="lineNum">     478 </span><span class="lineCov">         19 :    char *exp  = strtok(NULL, &quot;eE&quot;);</span>
+<span class="lineNum">     479 </span><span class="lineCov">         19 : </span>
+<span class="lineNum">     480 </span>            :    /* base must be at least 2 and at most 16 */
+<span class="lineNum">     481 </span>            :    if ((2 &lt;= atoi(base)) &amp;&amp; (atoi(base) &lt;= 16)) {
+<span class="lineNum">     482 </span><span class="lineCov">         19 :       /* Integer literals */</span>
+<span class="lineNum">     483 </span>            :       if (dot == NULL) {
+<span class="lineNum">     484 </span><span class="lineCov">         19 :          char *eptr;</span>
+<span class="lineNum">     485 </span>            :          /* String to long long */
+<span class="lineNum">     486 </span>            :          yylval.n = strtoll(val, &amp;eptr, atoi(base));
+<span class="lineNum">     487 </span><span class="lineCov">         16 : </span>
+<span class="lineNum">     488 </span>            :          /* String to long long (atoll function manages the sign) */
+<span class="lineNum">     489 </span>            :          long long int e = (exp ? atoll(exp) : 0);
+<span class="lineNum">     490 </span><span class="lineCov">         16 : </span>
+<span class="lineNum">     491 </span>            :          /* Minus sign forbidden for an integer literal */
+<span class="lineNum">     492 </span>            :          if (e &gt;= 0) {
+<span class="lineNum">     493 </span><span class="lineCov">         16 :             /* Updating val */</span>
+<span class="lineNum">     494 </span>            :             for (; e &gt; 0; e--) yylval.n *= atoi(base);
+<span class="lineNum">     495 </span><span class="lineCov">          1 : </span>
+<span class="lineNum">     496 </span>            :             tok = ((*eptr == '\0') &amp;&amp; (sign == NULL)) ? tINT : tERROR;
+<span class="lineNum">     497 </span><span class="lineCov">         16 :          }</span>
+<span class="lineNum">     498 </span>            :       }
+<span class="lineNum">     499 </span>            :       else {
+<span class="lineNum">     500 </span>            :          char *eptr_integer, *eptr_rational;
+<span class="lineNum">     501 </span>            :          char *integer  = strtok(val, &quot;.&quot;);
+<span class="lineNum">     502 </span><span class="lineCov">          3 :          char *rational = strtok(NULL, &quot;.&quot;);</span>
+<span class="lineNum">     503 </span><span class="lineCov">          3 : </span>
+<span class="lineNum">     504 </span>            :          yylval.d = (double) strtoll(integer, &amp;eptr_integer, atoi(base));
+<span class="lineNum">     505 </span><span class="lineCov">          3 : </span>
+<span class="lineNum">     506 </span>            :          double tmp = (double) strtoll(rational, &amp;eptr_rational, atoi(base));
+<span class="lineNum">     507 </span><span class="lineCov">          3 :          tmp *= pow((double) atoi(base), (double) ((long int) (0-strlen(rational))));</span>
+<span class="lineNum">     508 </span><span class="lineCov">          3 : </span>
+<span class="lineNum">     509 </span>            :          yylval.d += tmp;
+<span class="lineNum">     510 </span><span class="lineCov">          3 : </span>
+<span class="lineNum">     511 </span>            :          /* String to long long (atoll function manages the sign) */
+<span class="lineNum">     512 </span>            :          long long int e = (exp ? atoll(exp) : 0);
+<span class="lineNum">     513 </span><span class="lineCov">          3 : </span>
+<span class="lineNum">     514 </span>            :          if (e != 0)
+<span class="lineNum">     515 </span><span class="lineCov">          3 :             yylval.d *= pow((double) atoi(base), (double) e);</span>
+<span class="lineNum">     516 </span><span class="lineCov">          3 : </span>
+<span class="lineNum">     517 </span>            :          tok = ((*eptr_integer == '\0') &amp;&amp; (*eptr_rational == '\0')) ? tREAL : tERROR;
+<span class="lineNum">     518 </span><span class="lineCov">          3 :       }</span>
+<span class="lineNum">     519 </span>            :    }
+<span class="lineNum">     520 </span>            :    /* Deleting local allocation */
+<span class="lineNum">     521 </span>            :    free(tmp);
+<span class="lineNum">     522 </span><span class="lineCov">         19 : </span>
+<span class="lineNum">     523 </span>            :    TOKEN(tok);
+<span class="lineNum">     524 </span><span class="lineCov">         19 : }</span>
+<span class="lineNum">     525 </span>            : 
+<span class="lineNum">     526 </span>            : /**
+<span class="lineNum">     527 </span>            :  * \fn static int parse_string (const char *str)
+<span class="lineNum">     528 </span>            :  * \brief Copy input replaces all double '\&quot;' by single '\&quot;'
+<span class="lineNum">     529 </span>            :  *        or all double '%' by single '%'.
+<span class="lineNum">     530 </span>            :  *        In the case when '\%' is used as string brackets,
+<span class="lineNum">     531 </span>            :  *        the enclosed senquence of characters should not
+<span class="lineNum">     532 </span>            :  *        contain quotation marks!
+<span class="lineNum">     533 </span>            :  *
+<span class="lineNum">     534 </span>            :  * \param str Formatted string as specified in LRM 13.6
+<span class="lineNum">     535 </span>            :  * (string_literal ::= &quot; { graphic_character } &quot;).
+<span class="lineNum">     536 </span>            :  * \return TOKEN(tSTRING).
+<a name="537"><span class="lineNum">     537 </span>            :  */</a>
+<span class="lineNum">     538 </span>            : static int parse_string(const char *str)
+<span class="lineNum">     539 </span><span class="lineCov">       2678 : {</span>
+<span class="lineNum">     540 </span>            :    /* Copy of input */
+<span class="lineNum">     541 </span>            :    char *s = (yylval.s = xstrdup(str));
+<span class="lineNum">     542 </span><span class="lineCov">       2678 : </span>
+<span class="lineNum">     543 </span>            :    /* Replacing double '\&quot;' character by single '\&quot;' */
+<span class="lineNum">     544 </span>            :    /* or double '%' character by single '%' */
+<span class="lineNum">     545 </span>            :    /* Begins after first character */
+<span class="lineNum">     546 </span>            :    s++;
+<span class="lineNum">     547 </span><span class="lineCov">       2678 :    char *p = s;</span>
+<span class="lineNum">     548 </span><span class="lineCov">       2678 :    while (*p) {</span>
+<span class="lineNum">     549 </span><span class="lineCov">      31996 :       if ((*p == *(yylval.s)) &amp;&amp; (*(p+1) == *(yylval.s))) p++;</span>
+<span class="lineNum">     550 </span><span class="lineCov">      26640 :       *s++ = *p++;</span>
+<span class="lineNum">     551 </span><span class="lineCov">      26640 :    }</span>
+<span class="lineNum">     552 </span>            :    /* Copy last character which is null character */
+<span class="lineNum">     553 </span>            :    *s = *p;
+<span class="lineNum">     554 </span><span class="lineCov">       2678 : </span>
+<span class="lineNum">     555 </span>            :    TOKEN(tSTRING);
+<span class="lineNum">     556 </span><span class="lineCov">       2678 : }</span>
+<span class="lineNum">     557 </span>            : 
+<span class="lineNum">     558 </span>            : /**
+<span class="lineNum">     559 </span>            :  * \fn static int parse_bit_string (const char *str)
+<span class="lineNum">     560 </span>            :  * \brief Copy input, remove all '_' characters and
+<span class="lineNum">     561 </span>            :  *        replace all '\%' characters by '\&quot;'.
+<span class="lineNum">     562 </span>            :  *
+<span class="lineNum">     563 </span>            :  * \param str Formatted string as specified in LRM 13.7
+<span class="lineNum">     564 </span>            :  * (bit_string_literal ::= base_specifier &quot; [ bit_value ] &quot;).
+<span class="lineNum">     565 </span>            :  * \return TOKEN(tBITSTRING).
+<a name="566"><span class="lineNum">     566 </span>            :  */</a>
+<span class="lineNum">     567 </span>            : static int parse_bit_string(const char *str)
+<span class="lineNum">     568 </span><span class="lineCov">        306 : {</span>
+<span class="lineNum">     569 </span>            :    /* Copy of input */
+<span class="lineNum">     570 </span>            :    char *p = (yylval.s = xstrdup(str));
+<span class="lineNum">     571 </span><span class="lineCov">        306 : </span>
+<span class="lineNum">     572 </span>            :    /* Stripping '_' character */
+<span class="lineNum">     573 </span>            :    strip_underscores(p);
+<span class="lineNum">     574 </span><span class="lineCov">        306 : </span>
+<span class="lineNum">     575 </span>            :    /* Replacing '\%' character by '\&quot;' */
+<span class="lineNum">     576 </span>            :    while (*p) {
+<span class="lineNum">     577 </span><span class="lineCov">       2052 :       switch (*p) {</span>
+<span class="lineNum">     578 </span><span class="lineCov">       1440 :       case '%':</span>
+<span class="lineNum">     579 </span>            :          *p = '\&quot;';
+<span class="lineNum">     580 </span><span class="lineCov">          8 :       default:</span>
+<span class="lineNum">     581 </span>            :          p++;
+<span class="lineNum">     582 </span><span class="lineCov">       1440 :       }</span>
+<span class="lineNum">     583 </span>            :    }
+<span class="lineNum">     584 </span>            : 
+<span class="lineNum">     585 </span>            :    TOKEN(tBITSTRING);
+<span class="lineNum">     586 </span><span class="lineCov">        306 : }</span>
 </pre>
       </td>
     </tr>
