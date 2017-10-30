@@ -31,18 +31,18 @@
             <td class="headerValue">nvc.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">316</td>
-            <td class="headerCovTableEntry">322</td>
-            <td class="headerCovTableEntryHi">98.1 %</td>
+            <td class="headerCovTableEntry">328</td>
+            <td class="headerCovTableEntry">334</td>
+            <td class="headerCovTableEntryHi">98.2 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2017-10-22</td>
+            <td class="headerValue">2017-10-30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">71</td>
-            <td class="headerCovTableEntry">72</td>
-            <td class="headerCovTableEntryHi">98.6 %</td>
+            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntryHi">98.7 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -61,7 +61,7 @@
 <pre class="sourceHeading">          Line data    Source code</pre>
 <pre class="source">
 <a name="1"><span class="lineNum">       1 </span>            : //</a>
-<span class="lineNum">       2 </span>            : //  Copyright (C) 2011-2016  Nick Gasson
+<span class="lineNum">       2 </span>            : //  Copyright (C) 2011-2017  Nick Gasson
 <span class="lineNum">       3 </span>            : //
 <span class="lineNum">       4 </span>            : //  This program is free software: you can redistribute it and/or modify
 <span class="lineNum">       5 </span>            : //  it under the terms of the GNU General Public License as published by
@@ -96,7 +96,7 @@
 <span class="lineNum">      34 </span>            :    (I_IDENT | I_RESOLUTION),
 <span class="lineNum">      35 </span>            : 
 <span class="lineNum">      36 </span>            :    // T_SUBTYPE
-<span class="lineNum">      37 </span>            :    (I_IDENT | I_BASE | I_RESOLUTION | I_DIMS),
+<span class="lineNum">      37 </span>            :    (I_IDENT | I_BASE | I_RESOLUTION | I_CONSTR),
 <span class="lineNum">      38 </span>            : 
 <span class="lineNum">      39 </span>            :    // T_INTEGER
 <span class="lineNum">      40 </span>            :    (I_IDENT | I_DIMS),
@@ -114,7 +114,7 @@
 <span class="lineNum">      52 </span>            :    (I_IDENT | I_ELEM | I_DIMS),
 <span class="lineNum">      53 </span>            : 
 <span class="lineNum">      54 </span>            :    // T_UARRAY
-<span class="lineNum">      55 </span>            :    (I_IDENT | I_CONSTR | I_ELEM),
+<span class="lineNum">      55 </span>            :    (I_IDENT | I_INDEXCON | I_ELEM),
 <span class="lineNum">      56 </span>            : 
 <span class="lineNum">      57 </span>            :    // T_RECORD
 <span class="lineNum">      58 </span>            :    (I_IDENT | I_FIELDS),
@@ -155,669 +155,693 @@
 <span class="lineNum">      93 </span>            :    { T_INCOMPLETE, T_UARRAY   },
 <span class="lineNum">      94 </span>            :    { T_INCOMPLETE, T_RECORD   },
 <span class="lineNum">      95 </span>            :    { T_INCOMPLETE, T_ACCESS   },
-<span class="lineNum">      96 </span>            :    { -1,           -1         }
-<span class="lineNum">      97 </span>            : };
-<span class="lineNum">      98 </span>            : 
-<span class="lineNum">      99 </span>            : struct type {
-<span class="lineNum">     100 </span>            :    object_t object;
-<span class="lineNum">     101 </span>            : };
-<span class="lineNum">     102 </span>            : 
-<span class="lineNum">     103 </span>            : struct type_rd_ctx {
-<span class="lineNum">     104 </span>            :    tree_rd_ctx_t  tree_ctx;
-<span class="lineNum">     105 </span>            :    ident_rd_ctx_t ident_ctx;
-<span class="lineNum">     106 </span>            :    unsigned       n_types;
-<span class="lineNum">     107 </span>            :    type_t         *store;
-<span class="lineNum">     108 </span>            :    unsigned       store_sz;
-<span class="lineNum">     109 </span>            : };
-<span class="lineNum">     110 </span>            : 
-<span class="lineNum">     111 </span>            : object_class_t type_object = {
-<span class="lineNum">     112 </span>            :    .name           = &quot;type&quot;,
-<span class="lineNum">     113 </span>            :    .change_allowed = change_allowed,
-<span class="lineNum">     114 </span>            :    .has_map        = has_map,
-<span class="lineNum">     115 </span>            :    .kind_text_map  = kind_text_map,
-<span class="lineNum">     116 </span>            :    .tag            = OBJECT_TAG_TYPE,
-<span class="lineNum">     117 </span>            :    .last_kind      = T_LAST_TYPE_KIND
-<a name="118"><span class="lineNum">     118 </span>            : };</a>
-<span class="lineNum">     119 </span>            : 
-<span class="lineNum">     120 </span><span class="lineCov">      36563 : type_t type_new(type_kind_t kind)</span>
-<span class="lineNum">     121 </span>            : {
-<span class="lineNum">     122 </span><span class="lineCov">      36563 :    return (type_t)object_new(&amp;type_object, kind);</span>
-<a name="123"><span class="lineNum">     123 </span>            : }</a>
-<span class="lineNum">     124 </span>            : 
-<span class="lineNum">     125 </span><span class="lineCov">    3135165 : type_kind_t type_kind(type_t t)</span>
-<span class="lineNum">     126 </span>            : {
-<span class="lineNum">     127 </span><span class="lineCov">    3135165 :    assert(t != NULL);</span>
-<span class="lineNum">     128 </span>            : 
-<span class="lineNum">     129 </span><span class="lineCov">    3135165 :    return t-&gt;object.kind;</span>
-<a name="130"><span class="lineNum">     130 </span>            : }</a>
-<span class="lineNum">     131 </span>            : 
-<span class="lineNum">     132 </span><span class="lineCov">    6242914 : bool type_eq(type_t a, type_t b)</span>
-<span class="lineNum">     133 </span>            : {
-<span class="lineNum">     134 </span><span class="lineCov">    6243475 :    assert(a != NULL);</span>
-<span class="lineNum">     135 </span><span class="lineCov">    6243475 :    assert(b != NULL);</span>
-<span class="lineNum">     136 </span>            : 
-<span class="lineNum">     137 </span><span class="lineCov">    6243475 :    if (a == b)</span>
-<span class="lineNum">     138 </span>            :       return true;
-<span class="lineNum">     139 </span>            : 
-<span class="lineNum">     140 </span><span class="lineCov">    5071078 :    type_kind_t kind_a = a-&gt;object.kind;</span>
-<span class="lineNum">     141 </span><span class="lineCov">    5071078 :    type_kind_t kind_b = b-&gt;object.kind;</span>
-<span class="lineNum">     142 </span>            : 
-<span class="lineNum">     143 </span><span class="lineCov">    5071078 :    if ((kind_a == T_UNRESOLVED) || (kind_b == T_UNRESOLVED))</span>
-<span class="lineNum">     144 </span>            :       return false;
-<span class="lineNum">     145 </span>            : 
-<span class="lineNum">     146 </span>            :    // Subtypes are convertible to the base type
-<span class="lineNum">     147 </span><span class="lineCov">    5114658 :    while ((kind_a = a-&gt;object.kind) == T_SUBTYPE)</span>
-<span class="lineNum">     148 </span><span class="lineCov">      43580 :       a = type_base(a);</span>
-<span class="lineNum">     149 </span><span class="lineCov">    5109148 :    while ((kind_b = b-&gt;object.kind) == T_SUBTYPE)</span>
-<span class="lineNum">     150 </span><span class="lineCov">      38070 :       b = type_base(b);</span>
-<span class="lineNum">     151 </span>            : 
-<span class="lineNum">     152 </span><span class="lineCov">    5071078 :    const bool compare_c_u_arrays =</span>
-<span class="lineNum">     153 </span><span class="lineCov">    5071078 :       (kind_a == T_CARRAY &amp;&amp; kind_b == T_UARRAY)</span>
-<span class="lineNum">     154 </span><span class="lineCov">    5071078 :       || (kind_a == T_UARRAY &amp;&amp; kind_b == T_CARRAY);</span>
-<span class="lineNum">     155 </span>            : 
-<span class="lineNum">     156 </span><span class="lineCov">    5071078 :    if ((kind_a != kind_b) &amp;&amp; !compare_c_u_arrays)</span>
-<span class="lineNum">     157 </span>            :       return false;
-<span class="lineNum">     158 </span>            : 
-<span class="lineNum">     159 </span>            :    // Universal integer type is equal to any other integer type
-<span class="lineNum">     160 </span><span class="lineCov">    3207732 :    type_t universal_int = type_universal_int();</span>
-<span class="lineNum">     161 </span><span class="lineCov">    3207732 :    ident_t uint_i = type_ident(universal_int);</span>
-<span class="lineNum">     162 </span><span class="lineCov">    3207732 :    if (kind_a == T_INTEGER</span>
-<span class="lineNum">     163 </span><span class="lineCov">      37119 :        &amp;&amp; (type_ident(a) == uint_i || type_ident(b) == uint_i))</span>
-<span class="lineNum">     164 </span>            :       return true;
-<span class="lineNum">     165 </span>            : 
-<span class="lineNum">     166 </span>            :    // Universal real type is equal to any other real type
-<span class="lineNum">     167 </span><span class="lineCov">    3193902 :    type_t universal_real = type_universal_real();</span>
-<span class="lineNum">     168 </span><span class="lineCov">    3193902 :    ident_t ureal_i = type_ident(universal_real);</span>
-<span class="lineNum">     169 </span><span class="lineCov">    3193902 :    if (kind_a == T_REAL</span>
-<span class="lineNum">     170 </span><span class="lineCov">      22237 :        &amp;&amp; (type_ident(a) == ureal_i || type_ident(b) == ureal_i))</span>
-<span class="lineNum">     171 </span>            :       return true;
-<span class="lineNum">     172 </span>            : 
-<span class="lineNum">     173 </span>            :    // XXX: this is not quite right as structurally equivalent types
-<span class="lineNum">     174 </span>            :    // may be declared in different scopes with the same name but
-<span class="lineNum">     175 </span>            :    // shouldn't compare equal
-<span class="lineNum">     176 </span>            : 
-<span class="lineNum">     177 </span><span class="lineCov">    3176758 :    if (type_has_ident(a) &amp;&amp; type_has_ident(b)) {</span>
-<span class="lineNum">     178 </span><span class="lineCov">    3176740 :       if (type_ident(a) != type_ident(b))</span>
-<span class="lineNum">     179 </span>            :          return false;
-<span class="lineNum">     180 </span>            :    }
-<span class="lineNum">     181 </span>            : 
-<span class="lineNum">     182 </span>            :    // Access types are equal if the pointed to type is the same
-<span class="lineNum">     183 </span><span class="lineCov">    2290261 :    if (kind_a == T_ACCESS)</span>
-<span class="lineNum">     184 </span><span class="lineNoCov">          0 :       return type_eq(type_access(a), type_access(b));</span>
-<span class="lineNum">     185 </span>            : 
-<span class="lineNum">     186 </span><span class="lineCov">    2290261 :    if (compare_c_u_arrays)</span>
-<span class="lineNum">     187 </span><span class="lineCov">        561 :       return type_eq(type_elem(a), type_elem(b));</span>
-<span class="lineNum">     188 </span>            : 
-<span class="lineNum">     189 </span><span class="lineCov">    2289700 :    const imask_t has = has_map[a-&gt;object.kind];</span>
+<span class="lineNum">      96 </span>            :    { T_INTEGER,    T_REAL     },
+<span class="lineNum">      97 </span>            :    { T_REAL,       T_INTEGER  },
+<span class="lineNum">      98 </span>            :    { -1,           -1         }
+<span class="lineNum">      99 </span>            : };
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : struct type {
+<span class="lineNum">     102 </span>            :    object_t object;
+<span class="lineNum">     103 </span>            : };
+<span class="lineNum">     104 </span>            : 
+<span class="lineNum">     105 </span>            : struct type_rd_ctx {
+<span class="lineNum">     106 </span>            :    tree_rd_ctx_t  tree_ctx;
+<span class="lineNum">     107 </span>            :    ident_rd_ctx_t ident_ctx;
+<span class="lineNum">     108 </span>            :    unsigned       n_types;
+<span class="lineNum">     109 </span>            :    type_t         *store;
+<span class="lineNum">     110 </span>            :    unsigned       store_sz;
+<span class="lineNum">     111 </span>            : };
+<span class="lineNum">     112 </span>            : 
+<span class="lineNum">     113 </span>            : object_class_t type_object = {
+<span class="lineNum">     114 </span>            :    .name           = &quot;type&quot;,
+<span class="lineNum">     115 </span>            :    .change_allowed = change_allowed,
+<span class="lineNum">     116 </span>            :    .has_map        = has_map,
+<span class="lineNum">     117 </span>            :    .kind_text_map  = kind_text_map,
+<span class="lineNum">     118 </span>            :    .tag            = OBJECT_TAG_TYPE,
+<span class="lineNum">     119 </span>            :    .last_kind      = T_LAST_TYPE_KIND
+<a name="120"><span class="lineNum">     120 </span>            : };</a>
+<span class="lineNum">     121 </span>            : 
+<span class="lineNum">     122 </span><span class="lineCov">      36613 : type_t type_new(type_kind_t kind)</span>
+<span class="lineNum">     123 </span>            : {
+<span class="lineNum">     124 </span><span class="lineCov">      36613 :    return (type_t)object_new(&amp;type_object, kind);</span>
+<a name="125"><span class="lineNum">     125 </span>            : }</a>
+<span class="lineNum">     126 </span>            : 
+<span class="lineNum">     127 </span><span class="lineCov">    3333396 : type_kind_t type_kind(type_t t)</span>
+<span class="lineNum">     128 </span>            : {
+<span class="lineNum">     129 </span><span class="lineCov">    3333396 :    assert(t != NULL);</span>
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span><span class="lineCov">    3333396 :    return t-&gt;object.kind;</span>
+<a name="132"><span class="lineNum">     132 </span>            : }</a>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span><span class="lineCov">    6244793 : bool type_eq(type_t a, type_t b)</span>
+<span class="lineNum">     135 </span>            : {
+<span class="lineNum">     136 </span><span class="lineCov">    6245354 :    assert(a != NULL);</span>
+<span class="lineNum">     137 </span><span class="lineCov">    6245354 :    assert(b != NULL);</span>
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span><span class="lineCov">    6245354 :    if (a == b)</span>
+<span class="lineNum">     140 </span>            :       return true;
+<span class="lineNum">     141 </span>            : 
+<span class="lineNum">     142 </span><span class="lineCov">    5072456 :    type_kind_t kind_a = a-&gt;object.kind;</span>
+<span class="lineNum">     143 </span><span class="lineCov">    5072456 :    type_kind_t kind_b = b-&gt;object.kind;</span>
+<span class="lineNum">     144 </span>            : 
+<span class="lineNum">     145 </span><span class="lineCov">    5072456 :    if ((kind_a == T_UNRESOLVED) || (kind_b == T_UNRESOLVED))</span>
+<span class="lineNum">     146 </span>            :       return false;
+<span class="lineNum">     147 </span>            : 
+<span class="lineNum">     148 </span>            :    // Subtypes are convertible to the base type
+<span class="lineNum">     149 </span><span class="lineCov">    5116008 :    while ((kind_a = a-&gt;object.kind) == T_SUBTYPE)</span>
+<span class="lineNum">     150 </span><span class="lineCov">      43552 :       a = type_base(a);</span>
+<span class="lineNum">     151 </span><span class="lineCov">    5110496 :    while ((kind_b = b-&gt;object.kind) == T_SUBTYPE)</span>
+<span class="lineNum">     152 </span><span class="lineCov">      38040 :       b = type_base(b);</span>
+<span class="lineNum">     153 </span>            : 
+<span class="lineNum">     154 </span><span class="lineCov">    5072456 :    const bool compare_c_u_arrays =</span>
+<span class="lineNum">     155 </span><span class="lineCov">    5072456 :       (kind_a == T_CARRAY &amp;&amp; kind_b == T_UARRAY)</span>
+<span class="lineNum">     156 </span><span class="lineCov">    5072456 :       || (kind_a == T_UARRAY &amp;&amp; kind_b == T_CARRAY);</span>
+<span class="lineNum">     157 </span>            : 
+<span class="lineNum">     158 </span><span class="lineCov">    5072456 :    if ((kind_a != kind_b) &amp;&amp; !compare_c_u_arrays)</span>
+<span class="lineNum">     159 </span>            :       return false;
+<span class="lineNum">     160 </span>            : 
+<span class="lineNum">     161 </span>            :    // Universal integer type is equal to any other integer type
+<span class="lineNum">     162 </span><span class="lineCov">    3208626 :    type_t universal_int = type_universal_int();</span>
+<span class="lineNum">     163 </span><span class="lineCov">    3208626 :    ident_t uint_i = type_ident(universal_int);</span>
+<span class="lineNum">     164 </span><span class="lineCov">    3208626 :    if (kind_a == T_INTEGER</span>
+<span class="lineNum">     165 </span><span class="lineCov">      37119 :        &amp;&amp; (type_ident(a) == uint_i || type_ident(b) == uint_i))</span>
+<span class="lineNum">     166 </span>            :       return true;
+<span class="lineNum">     167 </span>            : 
+<span class="lineNum">     168 </span>            :    // Universal real type is equal to any other real type
+<span class="lineNum">     169 </span><span class="lineCov">    3194795 :    type_t universal_real = type_universal_real();</span>
+<span class="lineNum">     170 </span><span class="lineCov">    3194795 :    ident_t ureal_i = type_ident(universal_real);</span>
+<span class="lineNum">     171 </span><span class="lineCov">    3194795 :    if (kind_a == T_REAL</span>
+<span class="lineNum">     172 </span><span class="lineCov">      22253 :        &amp;&amp; (type_ident(a) == ureal_i || type_ident(b) == ureal_i))</span>
+<span class="lineNum">     173 </span>            :       return true;
+<span class="lineNum">     174 </span>            : 
+<span class="lineNum">     175 </span>            :    // XXX: this is not quite right as structurally equivalent types
+<span class="lineNum">     176 </span>            :    // may be declared in different scopes with the same name but
+<span class="lineNum">     177 </span>            :    // shouldn't compare equal
+<span class="lineNum">     178 </span>            : 
+<span class="lineNum">     179 </span><span class="lineCov">    3177641 :    if (type_has_ident(a) &amp;&amp; type_has_ident(b)) {</span>
+<span class="lineNum">     180 </span><span class="lineCov">    3177623 :       if (type_ident(a) != type_ident(b))</span>
+<span class="lineNum">     181 </span>            :          return false;
+<span class="lineNum">     182 </span>            :    }
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span>            :    // Access types are equal if the pointed to type is the same
+<span class="lineNum">     185 </span><span class="lineCov">    2291000 :    if (kind_a == T_ACCESS)</span>
+<span class="lineNum">     186 </span><span class="lineNoCov">          0 :       return type_eq(type_access(a), type_access(b));</span>
+<span class="lineNum">     187 </span>            : 
+<span class="lineNum">     188 </span><span class="lineCov">    2291000 :    if (compare_c_u_arrays)</span>
+<span class="lineNum">     189 </span><span class="lineCov">        561 :       return type_eq(type_elem(a), type_elem(b));</span>
 <span class="lineNum">     190 </span>            : 
-<span class="lineNum">     191 </span><span class="lineCov">    2289700 :    if ((has &amp; I_DIMS) &amp;&amp; (type_dims(a) != type_dims(b)))</span>
-<span class="lineNum">     192 </span>            :       return false;
-<span class="lineNum">     193 </span>            : 
-<span class="lineNum">     194 </span><span class="lineCov">    2289700 :    if (type_kind(a) == T_FUNC) {</span>
-<span class="lineNum">     195 </span><span class="lineCov">    1721855 :       if (!type_eq(type_result(a), type_result(b)))</span>
-<span class="lineNum">     196 </span>            :          return false;
-<span class="lineNum">     197 </span>            :    }
-<span class="lineNum">     198 </span>            : 
-<span class="lineNum">     199 </span><span class="lineCov">    2125275 :    if (has &amp; I_PTYPES) {</span>
-<span class="lineNum">     200 </span><span class="lineCov">    1561362 :       if (type_params(a) != type_params(b))</span>
-<span class="lineNum">     201 </span>            :          return false;
-<span class="lineNum">     202 </span>            : 
-<span class="lineNum">     203 </span><span class="lineCov">    1549282 :       const int nparams = type_params(a);</span>
-<span class="lineNum">     204 </span><span class="lineCov">    1578551 :       for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">     205 </span><span class="lineCov">    1572719 :          if (!type_eq(type_param(a, i), type_param(b, i)))</span>
-<span class="lineNum">     206 </span>            :              return false;
-<span class="lineNum">     207 </span>            :       }
-<span class="lineNum">     208 </span>            :    }
-<span class="lineNum">     209 </span>            : 
-<span class="lineNum">     210 </span>            :    return true;
-<a name="211"><span class="lineNum">     211 </span>            : }</a>
-<span class="lineNum">     212 </span>            : 
-<span class="lineNum">     213 </span><span class="lineCov">   12934563 : ident_t type_ident(type_t t)</span>
-<span class="lineNum">     214 </span>            : {
-<span class="lineNum">     215 </span><span class="lineCov">   12935847 :    assert(t != NULL);</span>
-<span class="lineNum">     216 </span>            : 
-<span class="lineNum">     217 </span><span class="lineCov">   12935847 :    item_t *item = lookup_item(&amp;type_object, t, I_IDENT);</span>
-<span class="lineNum">     218 </span><span class="lineCov">   12935847 :    if (item-&gt;ident == NULL) {</span>
-<span class="lineNum">     219 </span><span class="lineCov">       1284 :       switch (t-&gt;object.kind) {</span>
-<span class="lineNum">     220 </span>            :       case T_SUBTYPE:
-<span class="lineNum">     221 </span><span class="lineCov">       1284 :          return type_ident(type_base(t));</span>
-<span class="lineNum">     222 </span>            : 
-<span class="lineNum">     223 </span>            :       case T_NONE:
-<span class="lineNum">     224 </span><span class="lineNoCov">          0 :          return ident_new(&quot;none&quot;);</span>
-<span class="lineNum">     225 </span>            : 
-<span class="lineNum">     226 </span>            :       default:
-<span class="lineNum">     227 </span><span class="lineNoCov">          0 :          assert(false);</span>
-<span class="lineNum">     228 </span>            :       }
-<span class="lineNum">     229 </span>            :    }
-<span class="lineNum">     230 </span>            :    else
-<span class="lineNum">     231 </span>            :       return item-&gt;ident;
-<a name="232"><span class="lineNum">     232 </span>            : }</a>
-<span class="lineNum">     233 </span>            : 
-<span class="lineNum">     234 </span><span class="lineCov">    6353506 : bool type_has_ident(type_t t)</span>
-<span class="lineNum">     235 </span>            : {
-<span class="lineNum">     236 </span><span class="lineCov">    6353506 :    assert(t != NULL);</span>
-<span class="lineNum">     237 </span><span class="lineCov">    6353506 :    return (lookup_item(&amp;type_object, t, I_IDENT)-&gt;ident != NULL);</span>
-<a name="238"><span class="lineNum">     238 </span>            : }</a>
-<span class="lineNum">     239 </span>            : 
-<span class="lineNum">     240 </span><span class="lineCov">      36212 : void type_set_ident(type_t t, ident_t id)</span>
-<span class="lineNum">     241 </span>            : {
-<span class="lineNum">     242 </span><span class="lineCov">      36212 :    assert(t != NULL);</span>
-<span class="lineNum">     243 </span><span class="lineCov">      36212 :    lookup_item(&amp;type_object, t, I_IDENT)-&gt;ident = id;</span>
-<a name="244"><span class="lineNum">     244 </span><span class="lineCov">      36212 : }</span></a>
-<span class="lineNum">     245 </span>            : 
-<span class="lineNum">     246 </span><span class="lineCov">    1231242 : unsigned type_dims(type_t t)</span>
-<span class="lineNum">     247 </span>            : {
-<span class="lineNum">     248 </span><span class="lineCov">    1231242 :    return lookup_item(&amp;type_object, t, I_DIMS)-&gt;range_array.count;</span>
-<a name="249"><span class="lineNum">     249 </span>            : }</a>
-<span class="lineNum">     250 </span>            : 
-<span class="lineNum">     251 </span><span class="lineCov">     201070 : range_t type_dim(type_t t, unsigned n)</span>
-<span class="lineNum">     252 </span>            : {
-<span class="lineNum">     253 </span><span class="lineCov">     201070 :    item_t *item = lookup_item(&amp;type_object, t, I_DIMS);</span>
-<span class="lineNum">     254 </span><span class="lineCov">     201070 :    return range_array_nth(&amp;(item-&gt;range_array), n);</span>
-<a name="255"><span class="lineNum">     255 </span>            : }</a>
-<span class="lineNum">     256 </span>            : 
-<span class="lineNum">     257 </span><span class="lineCov">       6423 : void type_add_dim(type_t t, range_t r)</span>
-<span class="lineNum">     258 </span>            : {
-<span class="lineNum">     259 </span><span class="lineCov">       6423 :    range_array_add(&amp;(lookup_item(&amp;type_object, t, I_DIMS)-&gt;range_array), r);</span>
-<a name="260"><span class="lineNum">     260 </span><span class="lineCov">       6423 : }</span></a>
-<span class="lineNum">     261 </span>            : 
-<span class="lineNum">     262 </span><span class="lineCov">       2947 : void type_change_dim(type_t t, unsigned n, range_t r)</span>
-<span class="lineNum">     263 </span>            : {
-<span class="lineNum">     264 </span><span class="lineCov">       2947 :    item_t *item = lookup_item(&amp;type_object, t, I_DIMS);</span>
-<span class="lineNum">     265 </span><span class="lineCov">       2947 :    assert(n &lt; item-&gt;range_array.count);</span>
-<span class="lineNum">     266 </span><span class="lineCov">       2947 :    item-&gt;range_array.items[n] = r;</span>
-<a name="267"><span class="lineNum">     267 </span><span class="lineCov">       2947 : }</span></a>
-<span class="lineNum">     268 </span>            : 
-<span class="lineNum">     269 </span><span class="lineCov">     368892 : type_t type_base(type_t t)</span>
-<span class="lineNum">     270 </span>            : {
-<span class="lineNum">     271 </span><span class="lineCov">     368892 :    item_t *item = lookup_item(&amp;type_object, t, I_BASE);</span>
-<span class="lineNum">     272 </span><span class="lineCov">     368892 :    assert(item-&gt;type != NULL);</span>
-<span class="lineNum">     273 </span><span class="lineCov">     368892 :    return item-&gt;type;</span>
-<a name="274"><span class="lineNum">     274 </span>            : }</a>
-<span class="lineNum">     275 </span>            : 
-<span class="lineNum">     276 </span><span class="lineCov">       5336 : void type_set_base(type_t t, type_t b)</span>
-<span class="lineNum">     277 </span>            : {
-<span class="lineNum">     278 </span><span class="lineCov">       5336 :    lookup_item(&amp;type_object, t, I_BASE)-&gt;type = b;</span>
-<a name="279"><span class="lineNum">     279 </span><span class="lineCov">       5336 : }</span></a>
-<span class="lineNum">     280 </span>            : 
-<span class="lineNum">     281 </span><span class="lineCov">      55136 : type_t type_elem(type_t t)</span>
-<span class="lineNum">     282 </span>            : {
-<span class="lineNum">     283 </span><span class="lineCov">      86847 :    assert(t != NULL);</span>
-<span class="lineNum">     284 </span>            : 
-<span class="lineNum">     285 </span><span class="lineCov">      86847 :    if (t-&gt;object.kind == T_SUBTYPE)</span>
-<span class="lineNum">     286 </span><span class="lineCov">      31711 :       return type_elem(type_base(t));</span>
-<span class="lineNum">     287 </span>            :    else {
-<span class="lineNum">     288 </span><span class="lineCov">      55136 :       item_t *item = lookup_item(&amp;type_object, t, I_ELEM);</span>
-<span class="lineNum">     289 </span><span class="lineCov">      55136 :       assert(item-&gt;type != NULL);</span>
-<span class="lineNum">     290 </span>            :       return item-&gt;type;
-<span class="lineNum">     291 </span>            :    }
-<a name="292"><span class="lineNum">     292 </span>            : }</a>
-<span class="lineNum">     293 </span>            : 
-<span class="lineNum">     294 </span><span class="lineCov">       1712 : void type_set_elem(type_t t, type_t e)</span>
-<span class="lineNum">     295 </span>            : {
-<span class="lineNum">     296 </span><span class="lineCov">       1712 :    lookup_item(&amp;type_object, t, I_ELEM)-&gt;type = e;</span>
-<a name="297"><span class="lineNum">     297 </span><span class="lineCov">       1712 : }</span></a>
-<span class="lineNum">     298 </span>            : 
-<span class="lineNum">     299 </span><span class="lineCov">       1182 : static type_t type_make_universal(type_kind_t kind, const char *name,</span>
-<span class="lineNum">     300 </span>            :                                   tree_t min, tree_t max)
-<span class="lineNum">     301 </span>            : {
-<span class="lineNum">     302 </span><span class="lineCov">       1182 :    type_t t = type_new(kind);</span>
-<span class="lineNum">     303 </span><span class="lineCov">       1182 :    type_set_ident(t, ident_new(name));</span>
-<span class="lineNum">     304 </span>            : 
-<span class="lineNum">     305 </span><span class="lineCov">       1182 :    range_t r = { .kind  = RANGE_TO,</span>
-<span class="lineNum">     306 </span>            :                  .left  = min,
-<span class="lineNum">     307 </span>            :                  .right = max };
-<span class="lineNum">     308 </span><span class="lineCov">       1182 :    type_add_dim(t, r);</span>
-<span class="lineNum">     309 </span>            : 
-<span class="lineNum">     310 </span><span class="lineCov">       1182 :    tree_set_type(min, t);</span>
-<span class="lineNum">     311 </span><span class="lineCov">       1182 :    tree_set_type(max, t);</span>
-<span class="lineNum">     312 </span>            : 
-<span class="lineNum">     313 </span><span class="lineCov">       1182 :    return t;</span>
-<a name="314"><span class="lineNum">     314 </span>            : }</a>
-<span class="lineNum">     315 </span>            : 
-<span class="lineNum">     316 </span><span class="lineCov">    3243275 : type_t type_universal_int(void)</span>
-<span class="lineNum">     317 </span>            : {
-<span class="lineNum">     318 </span>            :    static type_t t = NULL;
-<span class="lineNum">     319 </span>            : 
-<span class="lineNum">     320 </span><span class="lineCov">    3243275 :    if (t == NULL) {</span>
-<span class="lineNum">     321 </span><span class="lineCov">        591 :       tree_t min = tree_new(T_LITERAL);</span>
-<span class="lineNum">     322 </span><span class="lineCov">        591 :       tree_set_subkind(min, L_INT);</span>
-<span class="lineNum">     323 </span><span class="lineCov">        591 :       tree_set_ival(min, INT_MIN);</span>
-<span class="lineNum">     324 </span>            : 
-<span class="lineNum">     325 </span><span class="lineCov">        591 :       tree_t max = tree_new(T_LITERAL);</span>
-<span class="lineNum">     326 </span><span class="lineCov">        591 :       tree_set_subkind(max, L_INT);</span>
-<span class="lineNum">     327 </span><span class="lineCov">        591 :       tree_set_ival(max, INT_MAX);</span>
-<span class="lineNum">     328 </span>            : 
-<span class="lineNum">     329 </span><span class="lineCov">        591 :       t = type_make_universal(T_INTEGER, &quot;universal integer&quot;, min, max);</span>
-<span class="lineNum">     330 </span>            :    }
-<span class="lineNum">     331 </span>            : 
-<span class="lineNum">     332 </span><span class="lineCov">    3243275 :    return t;</span>
-<a name="333"><span class="lineNum">     333 </span>            : }</a>
-<span class="lineNum">     334 </span>            : 
-<span class="lineNum">     335 </span><span class="lineCov">    3207526 : type_t type_universal_real(void)</span>
-<span class="lineNum">     336 </span>            : {
-<span class="lineNum">     337 </span>            :    static type_t t = NULL;
-<span class="lineNum">     338 </span>            : 
-<span class="lineNum">     339 </span><span class="lineCov">    3207526 :    if (t == NULL) {</span>
-<span class="lineNum">     340 </span><span class="lineCov">        591 :       tree_t min = tree_new(T_LITERAL);</span>
-<span class="lineNum">     341 </span><span class="lineCov">        591 :       tree_set_subkind(min, L_REAL);</span>
-<span class="lineNum">     342 </span><span class="lineCov">        591 :       tree_set_dval(min, DBL_MIN);</span>
-<span class="lineNum">     343 </span>            : 
-<span class="lineNum">     344 </span><span class="lineCov">        591 :       tree_t max = tree_new(T_LITERAL);</span>
-<span class="lineNum">     345 </span><span class="lineCov">        591 :       tree_set_subkind(max, L_REAL);</span>
-<span class="lineNum">     346 </span><span class="lineCov">        591 :       tree_set_dval(max, DBL_MAX);</span>
-<span class="lineNum">     347 </span>            : 
-<span class="lineNum">     348 </span><span class="lineCov">        591 :       t = type_make_universal(T_REAL, &quot;universal real&quot;, min, max);</span>
-<span class="lineNum">     349 </span>            :    }
-<span class="lineNum">     350 </span>            : 
-<span class="lineNum">     351 </span><span class="lineCov">    3207526 :    return t;</span>
-<a name="352"><span class="lineNum">     352 </span>            : }</a>
-<span class="lineNum">     353 </span>            : 
-<span class="lineNum">     354 </span><span class="lineCov">     127217 : bool type_is_universal(type_t t)</span>
-<span class="lineNum">     355 </span>            : {
-<span class="lineNum">     356 </span><span class="lineCov">     127217 :    assert(t != NULL);</span>
-<span class="lineNum">     357 </span>            : 
-<span class="lineNum">     358 </span><span class="lineCov">     127217 :    item_t *item = lookup_item(&amp;type_object, t, I_IDENT);</span>
-<span class="lineNum">     359 </span><span class="lineCov">     127217 :    switch (t-&gt;object.kind) {</span>
-<span class="lineNum">     360 </span>            :    case T_INTEGER:
-<span class="lineNum">     361 </span><span class="lineCov">      24608 :       return item-&gt;ident == type_ident(type_universal_int());</span>
-<span class="lineNum">     362 </span>            :    case T_REAL:
-<span class="lineNum">     363 </span><span class="lineCov">      10183 :       return item-&gt;ident == type_ident(type_universal_real());</span>
-<span class="lineNum">     364 </span>            :    default:
-<span class="lineNum">     365 </span>            :       return false;
-<span class="lineNum">     366 </span>            :    }
-<a name="367"><span class="lineNum">     367 </span>            : }</a>
-<span class="lineNum">     368 </span>            : 
-<span class="lineNum">     369 </span><span class="lineCov">       3247 : unsigned type_units(type_t t)</span>
-<span class="lineNum">     370 </span>            : {
-<span class="lineNum">     371 </span><span class="lineCov">       3247 :    return lookup_item(&amp;type_object, t, I_UNITS)-&gt;tree_array.count;</span>
-<a name="372"><span class="lineNum">     372 </span>            : }</a>
-<span class="lineNum">     373 </span>            : 
-<span class="lineNum">     374 </span><span class="lineCov">      25959 : tree_t type_unit(type_t t, unsigned n)</span>
-<span class="lineNum">     375 </span>            : {
-<span class="lineNum">     376 </span><span class="lineCov">      25959 :    item_t *item = lookup_item(&amp;type_object, t, I_UNITS);</span>
-<span class="lineNum">     377 </span><span class="lineCov">      25959 :    return tree_array_nth(&amp;(item-&gt;tree_array), n);</span>
-<a name="378"><span class="lineNum">     378 </span>            : }</a>
-<span class="lineNum">     379 </span>            : 
-<span class="lineNum">     380 </span><span class="lineCov">         21 : void type_add_unit(type_t t, tree_t u)</span>
-<span class="lineNum">     381 </span>            : {
-<span class="lineNum">     382 </span><span class="lineCov">         21 :    tree_array_add(&amp;(lookup_item(&amp;type_object, t, I_UNITS)-&gt;tree_array), u);</span>
-<a name="383"><span class="lineNum">     383 </span><span class="lineCov">         21 : }</span></a>
-<span class="lineNum">     384 </span>            : 
-<span class="lineNum">     385 </span><span class="lineCov">      57052 : unsigned type_enum_literals(type_t t)</span>
-<span class="lineNum">     386 </span>            : {
-<span class="lineNum">     387 </span><span class="lineCov">      57052 :    return lookup_item(&amp;type_object, t, I_LITERALS)-&gt;tree_array.count;</span>
-<a name="388"><span class="lineNum">     388 </span>            : }</a>
-<span class="lineNum">     389 </span>            : 
-<span class="lineNum">     390 </span><span class="lineCov">    2635329 : tree_t type_enum_literal(type_t t, unsigned n)</span>
-<span class="lineNum">     391 </span>            : {
-<span class="lineNum">     392 </span><span class="lineCov">    2635329 :    item_t *item = lookup_item(&amp;type_object, t, I_LITERALS);</span>
-<span class="lineNum">     393 </span><span class="lineCov">    2635329 :    return tree_array_nth(&amp;(item-&gt;tree_array), n);</span>
-<a name="394"><span class="lineNum">     394 </span>            : }</a>
-<span class="lineNum">     395 </span>            : 
-<span class="lineNum">     396 </span><span class="lineCov">        951 : void type_enum_add_literal(type_t t, tree_t lit)</span>
-<span class="lineNum">     397 </span>            : {
-<span class="lineNum">     398 </span><span class="lineCov">        951 :    assert(tree_kind(lit) == T_ENUM_LIT);</span>
-<span class="lineNum">     399 </span><span class="lineCov">        951 :    tree_array_add(&amp;(lookup_item(&amp;type_object, t, I_LITERALS)-&gt;tree_array), lit);</span>
-<a name="400"><span class="lineNum">     400 </span><span class="lineCov">        951 : }</span></a>
-<span class="lineNum">     401 </span>            : 
-<span class="lineNum">     402 </span><span class="lineCov">    3253425 : unsigned type_params(type_t t)</span>
-<span class="lineNum">     403 </span>            : {
-<span class="lineNum">     404 </span><span class="lineCov">    3253425 :    return lookup_item(&amp;type_object, t, I_PTYPES)-&gt;type_array.count;</span>
-<a name="405"><span class="lineNum">     405 </span>            : }</a>
-<span class="lineNum">     406 </span>            : 
-<span class="lineNum">     407 </span><span class="lineCov">    3258228 : type_t type_param(type_t t, unsigned n)</span>
-<span class="lineNum">     408 </span>            : {
-<span class="lineNum">     409 </span><span class="lineCov">    3258228 :    item_t *item = lookup_item(&amp;type_object, t, I_PTYPES);</span>
-<span class="lineNum">     410 </span><span class="lineCov">    3258228 :    return type_array_nth(&amp;(item-&gt;type_array), n);</span>
-<a name="411"><span class="lineNum">     411 </span>            : }</a>
-<span class="lineNum">     412 </span>            : 
-<span class="lineNum">     413 </span><span class="lineCov">      26670 : void type_add_param(type_t t, type_t p)</span>
-<span class="lineNum">     414 </span>            : {
-<span class="lineNum">     415 </span><span class="lineCov">      26670 :    type_array_add(&amp;(lookup_item(&amp;type_object, t, I_PTYPES)-&gt;type_array), p);</span>
-<a name="416"><span class="lineNum">     416 </span><span class="lineCov">      26670 : }</span></a>
-<span class="lineNum">     417 </span>            : 
-<span class="lineNum">     418 </span><span class="lineCov">         12 : void type_change_param(type_t t, unsigned n, type_t p)</span>
-<span class="lineNum">     419 </span>            : {
-<span class="lineNum">     420 </span><span class="lineCov">         12 :    type_array_t *a = &amp;(lookup_item(&amp;type_object, t, I_PTYPES)-&gt;type_array);</span>
-<span class="lineNum">     421 </span><span class="lineCov">         12 :    assert(n &lt; a-&gt;count);</span>
-<span class="lineNum">     422 </span><span class="lineCov">         12 :    a-&gt;items[n] = p;</span>
-<a name="423"><span class="lineNum">     423 </span><span class="lineCov">         12 : }</span></a>
-<span class="lineNum">     424 </span>            : 
-<span class="lineNum">     425 </span><span class="lineCov">       9005 : unsigned type_fields(type_t t)</span>
-<span class="lineNum">     426 </span>            : {
-<span class="lineNum">     427 </span><span class="lineCov">       9013 :    if (t-&gt;object.kind == T_SUBTYPE)</span>
-<span class="lineNum">     428 </span><span class="lineCov">          8 :       return type_fields(type_base(t));</span>
-<span class="lineNum">     429 </span>            :    else
-<span class="lineNum">     430 </span><span class="lineCov">       9005 :       return lookup_item(&amp;type_object, t, I_FIELDS)-&gt;tree_array.count;</span>
-<a name="431"><span class="lineNum">     431 </span>            : }</a>
-<span class="lineNum">     432 </span>            : 
-<span class="lineNum">     433 </span><span class="lineCov">      22108 : tree_t type_field(type_t t, unsigned n)</span>
-<span class="lineNum">     434 </span>            : {
-<span class="lineNum">     435 </span><span class="lineCov">      22120 :    if (t-&gt;object.kind == T_SUBTYPE)</span>
-<span class="lineNum">     436 </span><span class="lineCov">         12 :       return type_field(type_base(t), n);</span>
-<span class="lineNum">     437 </span>            :    else {
-<span class="lineNum">     438 </span><span class="lineCov">      22108 :       item_t *item = lookup_item(&amp;type_object, t, I_FIELDS);</span>
-<span class="lineNum">     439 </span><span class="lineCov">      22108 :       return tree_array_nth(&amp;(item-&gt;tree_array), n);</span>
-<span class="lineNum">     440 </span>            :    }
-<a name="441"><span class="lineNum">     441 </span>            : }</a>
-<span class="lineNum">     442 </span>            : 
-<span class="lineNum">     443 </span><span class="lineCov">        286 : void type_add_field(type_t t, tree_t p)</span>
-<span class="lineNum">     444 </span>            : {
-<span class="lineNum">     445 </span><span class="lineCov">        286 :    assert(tree_kind(p) == T_FIELD_DECL);</span>
-<span class="lineNum">     446 </span><span class="lineCov">        286 :    tree_array_add(&amp;(lookup_item(&amp;type_object, t, I_FIELDS)-&gt;tree_array), p);</span>
-<a name="447"><span class="lineNum">     447 </span><span class="lineCov">        286 : }</span></a>
-<span class="lineNum">     448 </span>            : 
-<span class="lineNum">     449 </span><span class="lineCov">        126 : unsigned type_decls(type_t t)</span>
-<span class="lineNum">     450 </span>            : {
-<span class="lineNum">     451 </span><span class="lineCov">        126 :    return lookup_item(&amp;type_object, t, I_DECLS)-&gt;tree_array.count;</span>
-<a name="452"><span class="lineNum">     452 </span>            : }</a>
-<span class="lineNum">     453 </span>            : 
-<span class="lineNum">     454 </span><span class="lineCov">        208 : tree_t type_decl(type_t t, unsigned n)</span>
-<span class="lineNum">     455 </span>            : {
-<span class="lineNum">     456 </span><span class="lineCov">        208 :    item_t *item = lookup_item(&amp;type_object, t, I_DECLS);</span>
-<span class="lineNum">     457 </span><span class="lineCov">        208 :    return tree_array_nth(&amp;(item-&gt;tree_array), n);</span>
-<a name="458"><span class="lineNum">     458 </span>            : }</a>
-<span class="lineNum">     459 </span>            : 
-<span class="lineNum">     460 </span><span class="lineCov">         36 : void type_add_decl(type_t t, tree_t p)</span>
-<span class="lineNum">     461 </span>            : {
-<span class="lineNum">     462 </span><span class="lineCov">         36 :    tree_array_add(&amp;(lookup_item(&amp;type_object, t, I_DECLS)-&gt;tree_array), p);</span>
-<a name="463"><span class="lineNum">     463 </span><span class="lineCov">         36 : }</span></a>
-<span class="lineNum">     464 </span>            : 
-<span class="lineNum">     465 </span><span class="lineCov">    3829132 : type_t type_result(type_t t)</span>
-<span class="lineNum">     466 </span>            : {
-<span class="lineNum">     467 </span><span class="lineCov">    3829132 :    item_t *item = lookup_item(&amp;type_object, t, I_RESULT);</span>
-<span class="lineNum">     468 </span><span class="lineCov">    3829132 :    assert(item-&gt;type != NULL);</span>
-<span class="lineNum">     469 </span><span class="lineCov">    3829132 :    return item-&gt;type;</span>
-<a name="470"><span class="lineNum">     470 </span>            : }</a>
-<span class="lineNum">     471 </span>            : 
-<span class="lineNum">     472 </span><span class="lineCov">      14149 : void type_set_result(type_t t, type_t r)</span>
-<span class="lineNum">     473 </span>            : {
-<span class="lineNum">     474 </span><span class="lineCov">      14149 :    lookup_item(&amp;type_object, t, I_RESULT)-&gt;type = r;</span>
-<a name="475"><span class="lineNum">     475 </span><span class="lineCov">      14149 : }</span></a>
-<span class="lineNum">     476 </span>            : 
-<span class="lineNum">     477 </span><span class="lineCov">       4842 : void type_replace(type_t t, type_t a)</span>
-<span class="lineNum">     478 </span>            : {
-<span class="lineNum">     479 </span><span class="lineCov">       4842 :    assert(t != NULL);</span>
-<span class="lineNum">     480 </span><span class="lineCov">       4842 :    assert(t-&gt;object.kind == T_INCOMPLETE);</span>
-<span class="lineNum">     481 </span>            : 
-<span class="lineNum">     482 </span><span class="lineCov">       4842 :    object_replace(&amp;(t-&gt;object), &amp;(a-&gt;object));</span>
-<a name="483"><span class="lineNum">     483 </span><span class="lineCov">       4842 : }</span></a>
-<span class="lineNum">     484 </span>            : 
-<span class="lineNum">     485 </span><span class="lineCov">      13250 : unsigned type_index_constrs(type_t t)</span>
-<span class="lineNum">     486 </span>            : {
-<span class="lineNum">     487 </span><span class="lineCov">      13250 :    return lookup_item(&amp;type_object, t, I_CONSTR)-&gt;type_array.count;</span>
-<a name="488"><span class="lineNum">     488 </span>            : }</a>
-<span class="lineNum">     489 </span>            : 
-<span class="lineNum">     490 </span><span class="lineCov">        348 : void type_add_index_constr(type_t t, type_t c)</span>
-<span class="lineNum">     491 </span>            : {
-<span class="lineNum">     492 </span><span class="lineCov">        348 :    type_array_add(&amp;(lookup_item(&amp;type_object, t, I_CONSTR)-&gt;type_array), c);</span>
-<a name="493"><span class="lineNum">     493 </span><span class="lineCov">        348 : }</span></a>
-<span class="lineNum">     494 </span>            : 
-<span class="lineNum">     495 </span><span class="lineCov">        206 : void type_change_index_constr(type_t t, unsigned n, type_t c)</span>
-<span class="lineNum">     496 </span>            : {
-<span class="lineNum">     497 </span><span class="lineCov">        206 :    type_array_t *a = &amp;(lookup_item(&amp;type_object, t, I_CONSTR)-&gt;type_array);</span>
-<span class="lineNum">     498 </span><span class="lineCov">        206 :    assert(n &lt; a-&gt;count);</span>
-<span class="lineNum">     499 </span><span class="lineCov">        206 :    a-&gt;items[n] = c;</span>
-<a name="500"><span class="lineNum">     500 </span><span class="lineCov">        206 : }</span></a>
+<span class="lineNum">     191 </span><span class="lineCov">    2290439 :    const imask_t has = has_map[a-&gt;object.kind];</span>
+<span class="lineNum">     192 </span>            : 
+<span class="lineNum">     193 </span><span class="lineCov">    2290439 :    if ((has &amp; I_DIMS) &amp;&amp; (type_dims(a) != type_dims(b)))</span>
+<span class="lineNum">     194 </span>            :       return false;
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineCov">    2290439 :    if (type_kind(a) == T_FUNC) {</span>
+<span class="lineNum">     197 </span><span class="lineCov">    1722487 :       if (!type_eq(type_result(a), type_result(b)))</span>
+<span class="lineNum">     198 </span>            :          return false;
+<span class="lineNum">     199 </span>            :    }
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineCov">    2125934 :    if (has &amp; I_PTYPES) {</span>
+<span class="lineNum">     202 </span><span class="lineCov">    1561914 :       if (type_params(a) != type_params(b))</span>
+<span class="lineNum">     203 </span>            :          return false;
+<span class="lineNum">     204 </span>            : 
+<span class="lineNum">     205 </span><span class="lineCov">    1549824 :       const int nparams = type_params(a);</span>
+<span class="lineNum">     206 </span><span class="lineCov">    1579097 :       for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">     207 </span><span class="lineCov">    1573265 :          if (!type_eq(type_param(a, i), type_param(b, i)))</span>
+<span class="lineNum">     208 </span>            :              return false;
+<span class="lineNum">     209 </span>            :       }
+<span class="lineNum">     210 </span>            :    }
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span>            :    return true;
+<a name="213"><span class="lineNum">     213 </span>            : }</a>
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span><span class="lineCov">   12938169 : ident_t type_ident(type_t t)</span>
+<span class="lineNum">     216 </span>            : {
+<span class="lineNum">     217 </span><span class="lineCov">   12939453 :    assert(t != NULL);</span>
+<span class="lineNum">     218 </span>            : 
+<span class="lineNum">     219 </span><span class="lineCov">   12939453 :    item_t *item = lookup_item(&amp;type_object, t, I_IDENT);</span>
+<span class="lineNum">     220 </span><span class="lineCov">   12939453 :    if (item-&gt;ident == NULL) {</span>
+<span class="lineNum">     221 </span><span class="lineCov">       1284 :       switch (t-&gt;object.kind) {</span>
+<span class="lineNum">     222 </span>            :       case T_SUBTYPE:
+<span class="lineNum">     223 </span><span class="lineCov">       1284 :          return type_ident(type_base(t));</span>
+<span class="lineNum">     224 </span>            : 
+<span class="lineNum">     225 </span>            :       case T_NONE:
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :          return ident_new(&quot;none&quot;);</span>
+<span class="lineNum">     227 </span>            : 
+<span class="lineNum">     228 </span>            :       default:
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :          assert(false);</span>
+<span class="lineNum">     230 </span>            :       }
+<span class="lineNum">     231 </span>            :    }
+<span class="lineNum">     232 </span>            :    else
+<span class="lineNum">     233 </span>            :       return item-&gt;ident;
+<a name="234"><span class="lineNum">     234 </span>            : }</a>
+<span class="lineNum">     235 </span>            : 
+<span class="lineNum">     236 </span><span class="lineCov">    6355272 : bool type_has_ident(type_t t)</span>
+<span class="lineNum">     237 </span>            : {
+<span class="lineNum">     238 </span><span class="lineCov">    6355272 :    assert(t != NULL);</span>
+<span class="lineNum">     239 </span><span class="lineCov">    6355272 :    return (lookup_item(&amp;type_object, t, I_IDENT)-&gt;ident != NULL);</span>
+<a name="240"><span class="lineNum">     240 </span>            : }</a>
+<span class="lineNum">     241 </span>            : 
+<span class="lineNum">     242 </span><span class="lineCov">      36266 : void type_set_ident(type_t t, ident_t id)</span>
+<span class="lineNum">     243 </span>            : {
+<span class="lineNum">     244 </span><span class="lineCov">      36266 :    assert(t != NULL);</span>
+<span class="lineNum">     245 </span><span class="lineCov">      36266 :    lookup_item(&amp;type_object, t, I_IDENT)-&gt;ident = id;</span>
+<a name="246"><span class="lineNum">     246 </span><span class="lineCov">      36266 : }</span></a>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineCov">    1113858 : unsigned type_dims(type_t t)</span>
+<span class="lineNum">     249 </span>            : {
+<span class="lineNum">     250 </span><span class="lineCov">    1113858 :    return lookup_item(&amp;type_object, t, I_DIMS)-&gt;range_array.count;</span>
+<a name="251"><span class="lineNum">     251 </span>            : }</a>
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span><span class="lineCov">     121136 : range_t type_dim(type_t t, unsigned n)</span>
+<span class="lineNum">     254 </span>            : {
+<span class="lineNum">     255 </span><span class="lineCov">     121136 :    item_t *item = lookup_item(&amp;type_object, t, I_DIMS);</span>
+<span class="lineNum">     256 </span><span class="lineCov">     121136 :    return range_array_nth(&amp;(item-&gt;range_array), n);</span>
+<a name="257"><span class="lineNum">     257 </span>            : }</a>
+<span class="lineNum">     258 </span>            : 
+<span class="lineNum">     259 </span><span class="lineCov">       2520 : void type_add_dim(type_t t, range_t r)</span>
+<span class="lineNum">     260 </span>            : {
+<span class="lineNum">     261 </span><span class="lineCov">       2520 :    range_array_add(&amp;(lookup_item(&amp;type_object, t, I_DIMS)-&gt;range_array), r);</span>
+<a name="262"><span class="lineNum">     262 </span><span class="lineCov">       2520 : }</span></a>
+<span class="lineNum">     263 </span>            : 
+<span class="lineNum">     264 </span><span class="lineCov">        133 : void type_change_dim(type_t t, unsigned n, range_t r)</span>
+<span class="lineNum">     265 </span>            : {
+<span class="lineNum">     266 </span><span class="lineCov">        133 :    item_t *item = lookup_item(&amp;type_object, t, I_DIMS);</span>
+<span class="lineNum">     267 </span><span class="lineCov">        133 :    assert(n &lt; item-&gt;range_array.count);</span>
+<span class="lineNum">     268 </span><span class="lineCov">        133 :    item-&gt;range_array.items[n] = r;</span>
+<a name="269"><span class="lineNum">     269 </span><span class="lineCov">        133 : }</span></a>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span><span class="lineCov">     374807 : type_t type_base(type_t t)</span>
+<span class="lineNum">     272 </span>            : {
+<span class="lineNum">     273 </span><span class="lineCov">     374807 :    item_t *item = lookup_item(&amp;type_object, t, I_BASE);</span>
+<span class="lineNum">     274 </span><span class="lineCov">     374807 :    assert(item-&gt;type != NULL);</span>
+<span class="lineNum">     275 </span><span class="lineCov">     374807 :    return item-&gt;type;</span>
+<a name="276"><span class="lineNum">     276 </span>            : }</a>
+<span class="lineNum">     277 </span>            : 
+<span class="lineNum">     278 </span><span class="lineCov">       5340 : void type_set_base(type_t t, type_t b)</span>
+<span class="lineNum">     279 </span>            : {
+<span class="lineNum">     280 </span><span class="lineCov">       5340 :    lookup_item(&amp;type_object, t, I_BASE)-&gt;type = b;</span>
+<a name="281"><span class="lineNum">     281 </span><span class="lineCov">       5340 : }</span></a>
+<span class="lineNum">     282 </span>            : 
+<span class="lineNum">     283 </span><span class="lineCov">      55136 : type_t type_elem(type_t t)</span>
+<span class="lineNum">     284 </span>            : {
+<span class="lineNum">     285 </span><span class="lineCov">      86847 :    assert(t != NULL);</span>
+<span class="lineNum">     286 </span>            : 
+<span class="lineNum">     287 </span><span class="lineCov">      86847 :    if (t-&gt;object.kind == T_SUBTYPE)</span>
+<span class="lineNum">     288 </span><span class="lineCov">      31711 :       return type_elem(type_base(t));</span>
+<span class="lineNum">     289 </span>            :    else {
+<span class="lineNum">     290 </span><span class="lineCov">      55136 :       item_t *item = lookup_item(&amp;type_object, t, I_ELEM);</span>
+<span class="lineNum">     291 </span><span class="lineCov">      55136 :       assert(item-&gt;type != NULL);</span>
+<span class="lineNum">     292 </span>            :       return item-&gt;type;
+<span class="lineNum">     293 </span>            :    }
+<a name="294"><span class="lineNum">     294 </span>            : }</a>
+<span class="lineNum">     295 </span>            : 
+<span class="lineNum">     296 </span><span class="lineCov">       1712 : void type_set_elem(type_t t, type_t e)</span>
+<span class="lineNum">     297 </span>            : {
+<span class="lineNum">     298 </span><span class="lineCov">       1712 :    lookup_item(&amp;type_object, t, I_ELEM)-&gt;type = e;</span>
+<a name="299"><span class="lineNum">     299 </span><span class="lineCov">       1712 : }</span></a>
+<span class="lineNum">     300 </span>            : 
+<span class="lineNum">     301 </span><span class="lineCov">       1184 : static type_t type_make_universal(type_kind_t kind, const char *name,</span>
+<span class="lineNum">     302 </span>            :                                   tree_t min, tree_t max)
+<span class="lineNum">     303 </span>            : {
+<span class="lineNum">     304 </span><span class="lineCov">       1184 :    type_t t = type_new(kind);</span>
+<span class="lineNum">     305 </span><span class="lineCov">       1184 :    type_set_ident(t, ident_new(name));</span>
+<span class="lineNum">     306 </span>            : 
+<span class="lineNum">     307 </span><span class="lineCov">       1184 :    range_t r = { .kind  = RANGE_TO,</span>
+<span class="lineNum">     308 </span>            :                  .left  = min,
+<span class="lineNum">     309 </span>            :                  .right = max };
+<span class="lineNum">     310 </span><span class="lineCov">       1184 :    type_add_dim(t, r);</span>
+<span class="lineNum">     311 </span>            : 
+<span class="lineNum">     312 </span><span class="lineCov">       1184 :    tree_set_type(min, t);</span>
+<span class="lineNum">     313 </span><span class="lineCov">       1184 :    tree_set_type(max, t);</span>
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span><span class="lineCov">       1184 :    return t;</span>
+<a name="316"><span class="lineNum">     316 </span>            : }</a>
+<span class="lineNum">     317 </span>            : 
+<span class="lineNum">     318 </span><span class="lineCov">    3244174 : type_t type_universal_int(void)</span>
+<span class="lineNum">     319 </span>            : {
+<span class="lineNum">     320 </span>            :    static type_t t = NULL;
+<span class="lineNum">     321 </span>            : 
+<span class="lineNum">     322 </span><span class="lineCov">    3244174 :    if (t == NULL) {</span>
+<span class="lineNum">     323 </span><span class="lineCov">        592 :       tree_t min = tree_new(T_LITERAL);</span>
+<span class="lineNum">     324 </span><span class="lineCov">        592 :       tree_set_subkind(min, L_INT);</span>
+<span class="lineNum">     325 </span><span class="lineCov">        592 :       tree_set_ival(min, INT_MIN);</span>
+<span class="lineNum">     326 </span>            : 
+<span class="lineNum">     327 </span><span class="lineCov">        592 :       tree_t max = tree_new(T_LITERAL);</span>
+<span class="lineNum">     328 </span><span class="lineCov">        592 :       tree_set_subkind(max, L_INT);</span>
+<span class="lineNum">     329 </span><span class="lineCov">        592 :       tree_set_ival(max, INT_MAX);</span>
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span><span class="lineCov">        592 :       t = type_make_universal(T_INTEGER, &quot;universal integer&quot;, min, max);</span>
+<span class="lineNum">     332 </span>            :    }
+<span class="lineNum">     333 </span>            : 
+<span class="lineNum">     334 </span><span class="lineCov">    3244174 :    return t;</span>
+<a name="335"><span class="lineNum">     335 </span>            : }</a>
+<span class="lineNum">     336 </span>            : 
+<span class="lineNum">     337 </span><span class="lineCov">    3208432 : type_t type_universal_real(void)</span>
+<span class="lineNum">     338 </span>            : {
+<span class="lineNum">     339 </span>            :    static type_t t = NULL;
+<span class="lineNum">     340 </span>            : 
+<span class="lineNum">     341 </span><span class="lineCov">    3208432 :    if (t == NULL) {</span>
+<span class="lineNum">     342 </span><span class="lineCov">        592 :       tree_t min = tree_new(T_LITERAL);</span>
+<span class="lineNum">     343 </span><span class="lineCov">        592 :       tree_set_subkind(min, L_REAL);</span>
+<span class="lineNum">     344 </span><span class="lineCov">        592 :       tree_set_dval(min, DBL_MIN);</span>
+<span class="lineNum">     345 </span>            : 
+<span class="lineNum">     346 </span><span class="lineCov">        592 :       tree_t max = tree_new(T_LITERAL);</span>
+<span class="lineNum">     347 </span><span class="lineCov">        592 :       tree_set_subkind(max, L_REAL);</span>
+<span class="lineNum">     348 </span><span class="lineCov">        592 :       tree_set_dval(max, DBL_MAX);</span>
+<span class="lineNum">     349 </span>            : 
+<span class="lineNum">     350 </span><span class="lineCov">        592 :       t = type_make_universal(T_REAL, &quot;universal real&quot;, min, max);</span>
+<span class="lineNum">     351 </span>            :    }
+<span class="lineNum">     352 </span>            : 
+<span class="lineNum">     353 </span><span class="lineCov">    3208432 :    return t;</span>
+<a name="354"><span class="lineNum">     354 </span>            : }</a>
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span><span class="lineCov">     127235 : bool type_is_universal(type_t t)</span>
+<span class="lineNum">     357 </span>            : {
+<span class="lineNum">     358 </span><span class="lineCov">     127235 :    assert(t != NULL);</span>
+<span class="lineNum">     359 </span>            : 
+<span class="lineNum">     360 </span><span class="lineCov">     127235 :    item_t *item = lookup_item(&amp;type_object, t, I_IDENT);</span>
+<span class="lineNum">     361 </span><span class="lineCov">     127235 :    switch (t-&gt;object.kind) {</span>
+<span class="lineNum">     362 </span>            :    case T_INTEGER:
+<span class="lineNum">     363 </span><span class="lineCov">      24608 :       return item-&gt;ident == type_ident(type_universal_int());</span>
+<span class="lineNum">     364 </span>            :    case T_REAL:
+<span class="lineNum">     365 </span><span class="lineCov">      10191 :       return item-&gt;ident == type_ident(type_universal_real());</span>
+<span class="lineNum">     366 </span>            :    default:
+<span class="lineNum">     367 </span>            :       return false;
+<span class="lineNum">     368 </span>            :    }
+<a name="369"><span class="lineNum">     369 </span>            : }</a>
+<span class="lineNum">     370 </span>            : 
+<span class="lineNum">     371 </span><span class="lineCov">       3249 : unsigned type_units(type_t t)</span>
+<span class="lineNum">     372 </span>            : {
+<span class="lineNum">     373 </span><span class="lineCov">       3249 :    return lookup_item(&amp;type_object, t, I_UNITS)-&gt;tree_array.count;</span>
+<a name="374"><span class="lineNum">     374 </span>            : }</a>
+<span class="lineNum">     375 </span>            : 
+<span class="lineNum">     376 </span><span class="lineCov">      25975 : tree_t type_unit(type_t t, unsigned n)</span>
+<span class="lineNum">     377 </span>            : {
+<span class="lineNum">     378 </span><span class="lineCov">      25975 :    item_t *item = lookup_item(&amp;type_object, t, I_UNITS);</span>
+<span class="lineNum">     379 </span><span class="lineCov">      25975 :    return tree_array_nth(&amp;(item-&gt;tree_array), n);</span>
+<a name="380"><span class="lineNum">     380 </span>            : }</a>
+<span class="lineNum">     381 </span>            : 
+<span class="lineNum">     382 </span><span class="lineCov">         21 : void type_add_unit(type_t t, tree_t u)</span>
+<span class="lineNum">     383 </span>            : {
+<span class="lineNum">     384 </span><span class="lineCov">         21 :    tree_array_add(&amp;(lookup_item(&amp;type_object, t, I_UNITS)-&gt;tree_array), u);</span>
+<a name="385"><span class="lineNum">     385 </span><span class="lineCov">         21 : }</span></a>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span><span class="lineCov">      57065 : unsigned type_enum_literals(type_t t)</span>
+<span class="lineNum">     388 </span>            : {
+<span class="lineNum">     389 </span><span class="lineCov">      57065 :    return lookup_item(&amp;type_object, t, I_LITERALS)-&gt;tree_array.count;</span>
+<a name="390"><span class="lineNum">     390 </span>            : }</a>
+<span class="lineNum">     391 </span>            : 
+<span class="lineNum">     392 </span><span class="lineCov">    2635872 : tree_t type_enum_literal(type_t t, unsigned n)</span>
+<span class="lineNum">     393 </span>            : {
+<span class="lineNum">     394 </span><span class="lineCov">    2635872 :    item_t *item = lookup_item(&amp;type_object, t, I_LITERALS);</span>
+<span class="lineNum">     395 </span><span class="lineCov">    2635872 :    return tree_array_nth(&amp;(item-&gt;tree_array), n);</span>
+<a name="396"><span class="lineNum">     396 </span>            : }</a>
+<span class="lineNum">     397 </span>            : 
+<span class="lineNum">     398 </span><span class="lineCov">        951 : void type_enum_add_literal(type_t t, tree_t lit)</span>
+<span class="lineNum">     399 </span>            : {
+<span class="lineNum">     400 </span><span class="lineCov">        951 :    assert(tree_kind(lit) == T_ENUM_LIT);</span>
+<span class="lineNum">     401 </span><span class="lineCov">        951 :    tree_array_add(&amp;(lookup_item(&amp;type_object, t, I_LITERALS)-&gt;tree_array), lit);</span>
+<a name="402"><span class="lineNum">     402 </span><span class="lineCov">        951 : }</span></a>
+<span class="lineNum">     403 </span>            : 
+<span class="lineNum">     404 </span><span class="lineCov">    3254610 : unsigned type_params(type_t t)</span>
+<span class="lineNum">     405 </span>            : {
+<span class="lineNum">     406 </span><span class="lineCov">    3254610 :    return lookup_item(&amp;type_object, t, I_PTYPES)-&gt;type_array.count;</span>
+<a name="407"><span class="lineNum">     407 </span>            : }</a>
+<span class="lineNum">     408 </span>            : 
+<span class="lineNum">     409 </span><span class="lineCov">    3259337 : type_t type_param(type_t t, unsigned n)</span>
+<span class="lineNum">     410 </span>            : {
+<span class="lineNum">     411 </span><span class="lineCov">    3259337 :    item_t *item = lookup_item(&amp;type_object, t, I_PTYPES);</span>
+<span class="lineNum">     412 </span><span class="lineCov">    3259337 :    return type_array_nth(&amp;(item-&gt;type_array), n);</span>
+<a name="413"><span class="lineNum">     413 </span>            : }</a>
+<span class="lineNum">     414 </span>            : 
+<span class="lineNum">     415 </span><span class="lineCov">      26734 : void type_add_param(type_t t, type_t p)</span>
+<span class="lineNum">     416 </span>            : {
+<span class="lineNum">     417 </span><span class="lineCov">      26734 :    type_array_add(&amp;(lookup_item(&amp;type_object, t, I_PTYPES)-&gt;type_array), p);</span>
+<a name="418"><span class="lineNum">     418 </span><span class="lineCov">      26734 : }</span></a>
+<span class="lineNum">     419 </span>            : 
+<span class="lineNum">     420 </span><span class="lineCov">         12 : void type_change_param(type_t t, unsigned n, type_t p)</span>
+<span class="lineNum">     421 </span>            : {
+<span class="lineNum">     422 </span><span class="lineCov">         12 :    type_array_t *a = &amp;(lookup_item(&amp;type_object, t, I_PTYPES)-&gt;type_array);</span>
+<span class="lineNum">     423 </span><span class="lineCov">         12 :    assert(n &lt; a-&gt;count);</span>
+<span class="lineNum">     424 </span><span class="lineCov">         12 :    a-&gt;items[n] = p;</span>
+<a name="425"><span class="lineNum">     425 </span><span class="lineCov">         12 : }</span></a>
+<span class="lineNum">     426 </span>            : 
+<span class="lineNum">     427 </span><span class="lineCov">       9005 : unsigned type_fields(type_t t)</span>
+<span class="lineNum">     428 </span>            : {
+<span class="lineNum">     429 </span><span class="lineCov">       9013 :    if (t-&gt;object.kind == T_SUBTYPE)</span>
+<span class="lineNum">     430 </span><span class="lineCov">          8 :       return type_fields(type_base(t));</span>
+<span class="lineNum">     431 </span>            :    else
+<span class="lineNum">     432 </span><span class="lineCov">       9005 :       return lookup_item(&amp;type_object, t, I_FIELDS)-&gt;tree_array.count;</span>
+<a name="433"><span class="lineNum">     433 </span>            : }</a>
+<span class="lineNum">     434 </span>            : 
+<span class="lineNum">     435 </span><span class="lineCov">      22108 : tree_t type_field(type_t t, unsigned n)</span>
+<span class="lineNum">     436 </span>            : {
+<span class="lineNum">     437 </span><span class="lineCov">      22120 :    if (t-&gt;object.kind == T_SUBTYPE)</span>
+<span class="lineNum">     438 </span><span class="lineCov">         12 :       return type_field(type_base(t), n);</span>
+<span class="lineNum">     439 </span>            :    else {
+<span class="lineNum">     440 </span><span class="lineCov">      22108 :       item_t *item = lookup_item(&amp;type_object, t, I_FIELDS);</span>
+<span class="lineNum">     441 </span><span class="lineCov">      22108 :       return tree_array_nth(&amp;(item-&gt;tree_array), n);</span>
+<span class="lineNum">     442 </span>            :    }
+<a name="443"><span class="lineNum">     443 </span>            : }</a>
+<span class="lineNum">     444 </span>            : 
+<span class="lineNum">     445 </span><span class="lineCov">        286 : void type_add_field(type_t t, tree_t p)</span>
+<span class="lineNum">     446 </span>            : {
+<span class="lineNum">     447 </span><span class="lineCov">        286 :    assert(tree_kind(p) == T_FIELD_DECL);</span>
+<span class="lineNum">     448 </span><span class="lineCov">        286 :    tree_array_add(&amp;(lookup_item(&amp;type_object, t, I_FIELDS)-&gt;tree_array), p);</span>
+<a name="449"><span class="lineNum">     449 </span><span class="lineCov">        286 : }</span></a>
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span><span class="lineCov">        126 : unsigned type_decls(type_t t)</span>
+<span class="lineNum">     452 </span>            : {
+<span class="lineNum">     453 </span><span class="lineCov">        126 :    return lookup_item(&amp;type_object, t, I_DECLS)-&gt;tree_array.count;</span>
+<a name="454"><span class="lineNum">     454 </span>            : }</a>
+<span class="lineNum">     455 </span>            : 
+<span class="lineNum">     456 </span><span class="lineCov">        208 : tree_t type_decl(type_t t, unsigned n)</span>
+<span class="lineNum">     457 </span>            : {
+<span class="lineNum">     458 </span><span class="lineCov">        208 :    item_t *item = lookup_item(&amp;type_object, t, I_DECLS);</span>
+<span class="lineNum">     459 </span><span class="lineCov">        208 :    return tree_array_nth(&amp;(item-&gt;tree_array), n);</span>
+<a name="460"><span class="lineNum">     460 </span>            : }</a>
+<span class="lineNum">     461 </span>            : 
+<span class="lineNum">     462 </span><span class="lineCov">         36 : void type_add_decl(type_t t, tree_t p)</span>
+<span class="lineNum">     463 </span>            : {
+<span class="lineNum">     464 </span><span class="lineCov">         36 :    tree_array_add(&amp;(lookup_item(&amp;type_object, t, I_DECLS)-&gt;tree_array), p);</span>
+<a name="465"><span class="lineNum">     465 </span><span class="lineCov">         36 : }</span></a>
+<span class="lineNum">     466 </span>            : 
+<span class="lineNum">     467 </span><span class="lineCov">    3830572 : type_t type_result(type_t t)</span>
+<span class="lineNum">     468 </span>            : {
+<span class="lineNum">     469 </span><span class="lineCov">    3830572 :    item_t *item = lookup_item(&amp;type_object, t, I_RESULT);</span>
+<span class="lineNum">     470 </span><span class="lineCov">    3830572 :    assert(item-&gt;type != NULL);</span>
+<span class="lineNum">     471 </span><span class="lineCov">    3830572 :    return item-&gt;type;</span>
+<a name="472"><span class="lineNum">     472 </span>            : }</a>
+<span class="lineNum">     473 </span>            : 
+<span class="lineNum">     474 </span><span class="lineCov">      14184 : void type_set_result(type_t t, type_t r)</span>
+<span class="lineNum">     475 </span>            : {
+<span class="lineNum">     476 </span><span class="lineCov">      14184 :    lookup_item(&amp;type_object, t, I_RESULT)-&gt;type = r;</span>
+<a name="477"><span class="lineNum">     477 </span><span class="lineCov">      14184 : }</span></a>
+<span class="lineNum">     478 </span>            : 
+<span class="lineNum">     479 </span><span class="lineCov">       4845 : void type_replace(type_t t, type_t a)</span>
+<span class="lineNum">     480 </span>            : {
+<span class="lineNum">     481 </span><span class="lineCov">       4845 :    assert(t != NULL);</span>
+<span class="lineNum">     482 </span><span class="lineCov">       4845 :    assert(t-&gt;object.kind == T_INCOMPLETE);</span>
+<span class="lineNum">     483 </span>            : 
+<span class="lineNum">     484 </span><span class="lineCov">       4845 :    object_replace(&amp;(t-&gt;object), &amp;(a-&gt;object));</span>
+<a name="485"><span class="lineNum">     485 </span><span class="lineCov">       4845 : }</span></a>
+<span class="lineNum">     486 </span>            : 
+<span class="lineNum">     487 </span><span class="lineCov">          1 : void type_change_kind(type_t t, type_kind_t kind)</span>
+<span class="lineNum">     488 </span>            : {
+<span class="lineNum">     489 </span><span class="lineCov">          1 :    object_change_kind(&amp;type_object, &amp;(t-&gt;object), kind);</span>
+<a name="490"><span class="lineNum">     490 </span><span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     491 </span>            : 
+<span class="lineNum">     492 </span><span class="lineCov">      13251 : unsigned type_index_constrs(type_t t)</span>
+<span class="lineNum">     493 </span>            : {
+<span class="lineNum">     494 </span><span class="lineCov">      13251 :    return lookup_item(&amp;type_object, t, I_INDEXCON)-&gt;type_array.count;</span>
+<a name="495"><span class="lineNum">     495 </span>            : }</a>
+<span class="lineNum">     496 </span>            : 
+<span class="lineNum">     497 </span><span class="lineCov">        348 : void type_add_index_constr(type_t t, type_t c)</span>
+<span class="lineNum">     498 </span>            : {
+<span class="lineNum">     499 </span><span class="lineCov">        348 :    type_array_add(&amp;(lookup_item(&amp;type_object, t, I_INDEXCON)-&gt;type_array), c);</span>
+<a name="500"><span class="lineNum">     500 </span><span class="lineCov">        348 : }</span></a>
 <span class="lineNum">     501 </span>            : 
-<span class="lineNum">     502 </span><span class="lineCov">      14797 : type_t type_index_constr(type_t t, unsigned n)</span>
+<span class="lineNum">     502 </span><span class="lineCov">        206 : void type_change_index_constr(type_t t, unsigned n, type_t c)</span>
 <span class="lineNum">     503 </span>            : {
-<span class="lineNum">     504 </span><span class="lineCov">      14797 :    item_t *item = lookup_item(&amp;type_object, t, I_CONSTR);</span>
-<span class="lineNum">     505 </span><span class="lineCov">      14797 :    return type_array_nth(&amp;(item-&gt;type_array), n);</span>
-<a name="506"><span class="lineNum">     506 </span>            : }</a>
-<span class="lineNum">     507 </span>            : 
-<span class="lineNum">     508 </span><span class="lineCov">         16 : void type_set_resolution(type_t t, tree_t r)</span>
-<span class="lineNum">     509 </span>            : {
-<span class="lineNum">     510 </span><span class="lineCov">         16 :    lookup_item(&amp;type_object, t, I_RESOLUTION)-&gt;tree = r;</span>
-<a name="511"><span class="lineNum">     511 </span><span class="lineCov">         16 : }</span></a>
-<span class="lineNum">     512 </span>            : 
-<span class="lineNum">     513 </span><span class="lineCov">       1782 : bool type_has_resolution(type_t t)</span>
-<span class="lineNum">     514 </span>            : {
-<span class="lineNum">     515 </span><span class="lineCov">       1782 :    return lookup_item(&amp;type_object, t, I_RESOLUTION)-&gt;tree != NULL;</span>
-<a name="516"><span class="lineNum">     516 </span>            : }</a>
-<span class="lineNum">     517 </span>            : 
-<span class="lineNum">     518 </span><span class="lineCov">         61 : tree_t type_resolution(type_t t)</span>
-<span class="lineNum">     519 </span>            : {
-<span class="lineNum">     520 </span><span class="lineCov">         61 :    item_t *item = lookup_item(&amp;type_object, t, I_RESOLUTION);</span>
-<span class="lineNum">     521 </span><span class="lineCov">         61 :    assert(item-&gt;tree != NULL);</span>
-<span class="lineNum">     522 </span><span class="lineCov">         61 :    return item-&gt;tree;</span>
+<span class="lineNum">     504 </span><span class="lineCov">        206 :    type_array_t *a = &amp;(lookup_item(&amp;type_object, t, I_INDEXCON)-&gt;type_array);</span>
+<span class="lineNum">     505 </span><span class="lineCov">        206 :    assert(n &lt; a-&gt;count);</span>
+<span class="lineNum">     506 </span><span class="lineCov">        206 :    a-&gt;items[n] = c;</span>
+<a name="507"><span class="lineNum">     507 </span><span class="lineCov">        206 : }</span></a>
+<span class="lineNum">     508 </span>            : 
+<span class="lineNum">     509 </span><span class="lineCov">      14798 : type_t type_index_constr(type_t t, unsigned n)</span>
+<span class="lineNum">     510 </span>            : {
+<span class="lineNum">     511 </span><span class="lineCov">      14798 :    item_t *item = lookup_item(&amp;type_object, t, I_INDEXCON);</span>
+<span class="lineNum">     512 </span><span class="lineCov">      14798 :    return type_array_nth(&amp;(item-&gt;type_array), n);</span>
+<a name="513"><span class="lineNum">     513 </span>            : }</a>
+<span class="lineNum">     514 </span>            : 
+<span class="lineNum">     515 </span><span class="lineCov">       3853 : void type_set_constraint(type_t t, tree_t c)</span>
+<span class="lineNum">     516 </span>            : {
+<span class="lineNum">     517 </span><span class="lineCov">       3853 :    lookup_item(&amp;type_object, t, I_CONSTR)-&gt;tree = c;</span>
+<a name="518"><span class="lineNum">     518 </span><span class="lineCov">       3853 : }</span></a>
+<span class="lineNum">     519 </span>            : 
+<span class="lineNum">     520 </span><span class="lineCov">     181516 : bool type_has_constraint(type_t t)</span>
+<span class="lineNum">     521 </span>            : {
+<span class="lineNum">     522 </span><span class="lineCov">     181516 :    return lookup_item(&amp;type_object, t, I_CONSTR)-&gt;tree != NULL;</span>
 <a name="523"><span class="lineNum">     523 </span>            : }</a>
 <span class="lineNum">     524 </span>            : 
-<span class="lineNum">     525 </span><span class="lineCov">       1278 : type_t type_access(type_t t)</span>
+<span class="lineNum">     525 </span><span class="lineCov">     116289 : tree_t type_constraint(type_t t)</span>
 <span class="lineNum">     526 </span>            : {
-<span class="lineNum">     527 </span><span class="lineCov">       1278 :    return lookup_item(&amp;type_object, t, I_ACCESS)-&gt;type;</span>
-<a name="528"><span class="lineNum">     528 </span>            : }</a>
-<span class="lineNum">     529 </span>            : 
-<span class="lineNum">     530 </span><span class="lineCov">        108 : void type_set_access(type_t t, type_t a)</span>
-<span class="lineNum">     531 </span>            : {
-<span class="lineNum">     532 </span><span class="lineCov">        108 :    lookup_item(&amp;type_object, t, I_ACCESS)-&gt;type = a;</span>
-<a name="533"><span class="lineNum">     533 </span><span class="lineCov">        108 : }</span></a>
-<span class="lineNum">     534 </span>            : 
-<span class="lineNum">     535 </span><span class="lineCov">        131 : type_t type_file(type_t t)</span>
-<span class="lineNum">     536 </span>            : {
-<span class="lineNum">     537 </span><span class="lineCov">        131 :    return lookup_item(&amp;type_object, t, I_FILE)-&gt;type;</span>
-<a name="538"><span class="lineNum">     538 </span>            : }</a>
-<span class="lineNum">     539 </span>            : 
-<span class="lineNum">     540 </span><span class="lineCov">         55 : void type_set_file(type_t t, type_t f)</span>
-<span class="lineNum">     541 </span>            : {
-<span class="lineNum">     542 </span><span class="lineCov">         55 :    lookup_item(&amp;type_object, t, I_FILE)-&gt;type = f;</span>
-<a name="543"><span class="lineNum">     543 </span><span class="lineCov">         55 : }</span></a>
-<span class="lineNum">     544 </span>            : 
-<span class="lineNum">     545 </span><span class="lineCov">         54 : tree_t type_body(type_t t)</span>
-<span class="lineNum">     546 </span>            : {
-<span class="lineNum">     547 </span><span class="lineCov">         54 :    assert(t-&gt;object.kind == T_PROTECTED);</span>
-<span class="lineNum">     548 </span><span class="lineCov">         54 :    item_t *item = lookup_item(&amp;type_object, t, I_REF);</span>
-<span class="lineNum">     549 </span><span class="lineCov">         54 :    assert(item-&gt;tree);</span>
-<span class="lineNum">     550 </span><span class="lineCov">         54 :    return item-&gt;tree;</span>
-<a name="551"><span class="lineNum">     551 </span>            : }</a>
-<span class="lineNum">     552 </span>            : 
-<span class="lineNum">     553 </span><span class="lineCov">         23 : void type_set_body(type_t t, tree_t b)</span>
-<span class="lineNum">     554 </span>            : {
-<span class="lineNum">     555 </span><span class="lineCov">         23 :    assert(t-&gt;object.kind == T_PROTECTED);</span>
-<span class="lineNum">     556 </span><span class="lineCov">         23 :    item_t *item = lookup_item(&amp;type_object, t, I_REF);</span>
-<span class="lineNum">     557 </span><span class="lineCov">         23 :    item-&gt;tree = b;</span>
-<a name="558"><span class="lineNum">     558 </span><span class="lineCov">         23 : }</span></a>
-<span class="lineNum">     559 </span>            : 
-<span class="lineNum">     560 </span><span class="lineCov">         46 : bool type_has_body(type_t t)</span>
-<span class="lineNum">     561 </span>            : {
-<span class="lineNum">     562 </span><span class="lineCov">         46 :    assert(t-&gt;object.kind == T_PROTECTED);</span>
-<span class="lineNum">     563 </span><span class="lineCov">         46 :    item_t *item = lookup_item(&amp;type_object, t, I_REF);</span>
-<span class="lineNum">     564 </span><span class="lineCov">         46 :    return (item-&gt;tree != NULL);</span>
-<a name="565"><span class="lineNum">     565 </span>            : }</a>
-<span class="lineNum">     566 </span>            : 
-<span class="lineNum">     567 </span><span class="lineCov">       3577 : const char *type_pp_minify(type_t t, minify_fn_t fn)</span>
-<span class="lineNum">     568 </span>            : {
-<span class="lineNum">     569 </span><span class="lineCov">       3577 :    assert(t != NULL);</span>
-<span class="lineNum">     570 </span>            : 
-<span class="lineNum">     571 </span><span class="lineCov">       3577 :    switch (type_kind(t)) {</span>
-<span class="lineNum">     572 </span>            :    case T_FUNC:
-<span class="lineNum">     573 </span>            :    case T_PROC:
-<span class="lineNum">     574 </span>            :       {
-<span class="lineNum">     575 </span><span class="lineCov">          8 :          item_t *tbi = lookup_item(&amp;type_object, t, I_TEXT_BUF);</span>
-<span class="lineNum">     576 </span><span class="lineCov">          8 :          if (tbi-&gt;text_buf == NULL)</span>
-<span class="lineNum">     577 </span><span class="lineCov">          8 :             tbi-&gt;text_buf = tb_new();</span>
-<span class="lineNum">     578 </span>            :          else
-<span class="lineNum">     579 </span><span class="lineNoCov">          0 :             tb_rewind(tbi-&gt;text_buf);</span>
-<span class="lineNum">     580 </span>            : 
-<span class="lineNum">     581 </span><span class="lineCov">          8 :          if (type_has_ident(t)) {</span>
-<span class="lineNum">     582 </span><span class="lineCov">          5 :             const char *fname = (*fn)(istr(type_ident(t)));</span>
-<span class="lineNum">     583 </span><span class="lineCov">          5 :             tb_printf(tbi-&gt;text_buf, &quot;%s &quot;, fname);</span>
-<span class="lineNum">     584 </span>            :          }
-<span class="lineNum">     585 </span><span class="lineCov">          8 :          tb_printf(tbi-&gt;text_buf, &quot;[&quot;);</span>
-<span class="lineNum">     586 </span><span class="lineCov">          8 :          const int nparams = type_params(t);</span>
-<span class="lineNum">     587 </span><span class="lineCov">         19 :          for (int i = 0; i &lt; nparams; i++)</span>
-<span class="lineNum">     588 </span><span class="lineCov">         11 :             tb_printf(tbi-&gt;text_buf, &quot;%s%s&quot;,</span>
-<span class="lineNum">     589 </span>            :                       (i == 0 ? &quot;&quot; : &quot;, &quot;),
-<span class="lineNum">     590 </span>            :                       (*fn)(istr(type_ident(type_param(t, i)))));
-<span class="lineNum">     591 </span><span class="lineCov">          8 :          if (type_kind(t) == T_FUNC)</span>
-<span class="lineNum">     592 </span><span class="lineCov">          5 :             tb_printf(tbi-&gt;text_buf, &quot;%sreturn %s&quot;,</span>
-<span class="lineNum">     593 </span>            :                       nparams &gt; 0 ? &quot; &quot; : &quot;&quot;,
-<span class="lineNum">     594 </span>            :                       (*fn)(istr(type_ident(type_result(t)))));
-<span class="lineNum">     595 </span><span class="lineCov">          8 :          tb_printf(tbi-&gt;text_buf, &quot;]&quot;);</span>
-<span class="lineNum">     596 </span>            : 
-<span class="lineNum">     597 </span><span class="lineCov">          8 :          return tb_get(tbi-&gt;text_buf);</span>
-<span class="lineNum">     598 </span>            :       }
-<span class="lineNum">     599 </span>            : 
-<span class="lineNum">     600 </span>            :    default:
-<span class="lineNum">     601 </span><span class="lineCov">       3569 :       return (*fn)(istr(type_ident(t)));</span>
-<span class="lineNum">     602 </span>            :    }
-<a name="603"><span class="lineNum">     603 </span>            : }</a>
+<span class="lineNum">     527 </span><span class="lineCov">     116289 :    item_t *item = lookup_item(&amp;type_object, t, I_CONSTR);</span>
+<span class="lineNum">     528 </span><span class="lineCov">     116289 :    assert(item-&gt;tree != NULL);</span>
+<span class="lineNum">     529 </span><span class="lineCov">     116289 :    return item-&gt;tree;</span>
+<a name="530"><span class="lineNum">     530 </span>            : }</a>
+<span class="lineNum">     531 </span>            : 
+<span class="lineNum">     532 </span><span class="lineCov">         16 : void type_set_resolution(type_t t, tree_t r)</span>
+<span class="lineNum">     533 </span>            : {
+<span class="lineNum">     534 </span><span class="lineCov">         16 :    lookup_item(&amp;type_object, t, I_RESOLUTION)-&gt;tree = r;</span>
+<a name="535"><span class="lineNum">     535 </span><span class="lineCov">         16 : }</span></a>
+<span class="lineNum">     536 </span>            : 
+<span class="lineNum">     537 </span><span class="lineCov">       1784 : bool type_has_resolution(type_t t)</span>
+<span class="lineNum">     538 </span>            : {
+<span class="lineNum">     539 </span><span class="lineCov">       1784 :    return lookup_item(&amp;type_object, t, I_RESOLUTION)-&gt;tree != NULL;</span>
+<a name="540"><span class="lineNum">     540 </span>            : }</a>
+<span class="lineNum">     541 </span>            : 
+<span class="lineNum">     542 </span><span class="lineCov">         61 : tree_t type_resolution(type_t t)</span>
+<span class="lineNum">     543 </span>            : {
+<span class="lineNum">     544 </span><span class="lineCov">         61 :    item_t *item = lookup_item(&amp;type_object, t, I_RESOLUTION);</span>
+<span class="lineNum">     545 </span><span class="lineCov">         61 :    assert(item-&gt;tree != NULL);</span>
+<span class="lineNum">     546 </span><span class="lineCov">         61 :    return item-&gt;tree;</span>
+<a name="547"><span class="lineNum">     547 </span>            : }</a>
+<span class="lineNum">     548 </span>            : 
+<span class="lineNum">     549 </span><span class="lineCov">       1278 : type_t type_access(type_t t)</span>
+<span class="lineNum">     550 </span>            : {
+<span class="lineNum">     551 </span><span class="lineCov">       1278 :    return lookup_item(&amp;type_object, t, I_ACCESS)-&gt;type;</span>
+<a name="552"><span class="lineNum">     552 </span>            : }</a>
+<span class="lineNum">     553 </span>            : 
+<span class="lineNum">     554 </span><span class="lineCov">        108 : void type_set_access(type_t t, type_t a)</span>
+<span class="lineNum">     555 </span>            : {
+<span class="lineNum">     556 </span><span class="lineCov">        108 :    lookup_item(&amp;type_object, t, I_ACCESS)-&gt;type = a;</span>
+<a name="557"><span class="lineNum">     557 </span><span class="lineCov">        108 : }</span></a>
+<span class="lineNum">     558 </span>            : 
+<span class="lineNum">     559 </span><span class="lineCov">        131 : type_t type_file(type_t t)</span>
+<span class="lineNum">     560 </span>            : {
+<span class="lineNum">     561 </span><span class="lineCov">        131 :    return lookup_item(&amp;type_object, t, I_FILE)-&gt;type;</span>
+<a name="562"><span class="lineNum">     562 </span>            : }</a>
+<span class="lineNum">     563 </span>            : 
+<span class="lineNum">     564 </span><span class="lineCov">         55 : void type_set_file(type_t t, type_t f)</span>
+<span class="lineNum">     565 </span>            : {
+<span class="lineNum">     566 </span><span class="lineCov">         55 :    lookup_item(&amp;type_object, t, I_FILE)-&gt;type = f;</span>
+<a name="567"><span class="lineNum">     567 </span><span class="lineCov">         55 : }</span></a>
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span><span class="lineCov">         54 : tree_t type_body(type_t t)</span>
+<span class="lineNum">     570 </span>            : {
+<span class="lineNum">     571 </span><span class="lineCov">         54 :    assert(t-&gt;object.kind == T_PROTECTED);</span>
+<span class="lineNum">     572 </span><span class="lineCov">         54 :    item_t *item = lookup_item(&amp;type_object, t, I_REF);</span>
+<span class="lineNum">     573 </span><span class="lineCov">         54 :    assert(item-&gt;tree);</span>
+<span class="lineNum">     574 </span><span class="lineCov">         54 :    return item-&gt;tree;</span>
+<a name="575"><span class="lineNum">     575 </span>            : }</a>
+<span class="lineNum">     576 </span>            : 
+<span class="lineNum">     577 </span><span class="lineCov">         23 : void type_set_body(type_t t, tree_t b)</span>
+<span class="lineNum">     578 </span>            : {
+<span class="lineNum">     579 </span><span class="lineCov">         23 :    assert(t-&gt;object.kind == T_PROTECTED);</span>
+<span class="lineNum">     580 </span><span class="lineCov">         23 :    item_t *item = lookup_item(&amp;type_object, t, I_REF);</span>
+<span class="lineNum">     581 </span><span class="lineCov">         23 :    item-&gt;tree = b;</span>
+<a name="582"><span class="lineNum">     582 </span><span class="lineCov">         23 : }</span></a>
+<span class="lineNum">     583 </span>            : 
+<span class="lineNum">     584 </span><span class="lineCov">         46 : bool type_has_body(type_t t)</span>
+<span class="lineNum">     585 </span>            : {
+<span class="lineNum">     586 </span><span class="lineCov">         46 :    assert(t-&gt;object.kind == T_PROTECTED);</span>
+<span class="lineNum">     587 </span><span class="lineCov">         46 :    item_t *item = lookup_item(&amp;type_object, t, I_REF);</span>
+<span class="lineNum">     588 </span><span class="lineCov">         46 :    return (item-&gt;tree != NULL);</span>
+<a name="589"><span class="lineNum">     589 </span>            : }</a>
+<span class="lineNum">     590 </span>            : 
+<span class="lineNum">     591 </span><span class="lineCov">       3581 : const char *type_pp_minify(type_t t, minify_fn_t fn)</span>
+<span class="lineNum">     592 </span>            : {
+<span class="lineNum">     593 </span><span class="lineCov">       3581 :    assert(t != NULL);</span>
+<span class="lineNum">     594 </span>            : 
+<span class="lineNum">     595 </span><span class="lineCov">       3581 :    switch (type_kind(t)) {</span>
+<span class="lineNum">     596 </span>            :    case T_FUNC:
+<span class="lineNum">     597 </span>            :    case T_PROC:
+<span class="lineNum">     598 </span>            :       {
+<span class="lineNum">     599 </span><span class="lineCov">          8 :          item_t *tbi = lookup_item(&amp;type_object, t, I_TEXT_BUF);</span>
+<span class="lineNum">     600 </span><span class="lineCov">          8 :          if (tbi-&gt;text_buf == NULL)</span>
+<span class="lineNum">     601 </span><span class="lineCov">          8 :             tbi-&gt;text_buf = tb_new();</span>
+<span class="lineNum">     602 </span>            :          else
+<span class="lineNum">     603 </span><span class="lineNoCov">          0 :             tb_rewind(tbi-&gt;text_buf);</span>
 <span class="lineNum">     604 </span>            : 
-<span class="lineNum">     605 </span><span class="lineCov">       3444 : static const char *type_minify_identity(const char *s)</span>
-<span class="lineNum">     606 </span>            : {
-<span class="lineNum">     607 </span><span class="lineCov">       3444 :    return s;</span>
-<a name="608"><span class="lineNum">     608 </span>            : }</a>
-<span class="lineNum">     609 </span>            : 
-<span class="lineNum">     610 </span><span class="lineCov">       3444 : const char *type_pp(type_t t)</span>
-<span class="lineNum">     611 </span>            : {
-<span class="lineNum">     612 </span><span class="lineCov">       3444 :    return type_pp_minify(t, type_minify_identity);</span>
-<a name="613"><span class="lineNum">     613 </span>            : }</a>
-<span class="lineNum">     614 </span>            : 
-<span class="lineNum">     615 </span><span class="lineCov">     915046 : type_kind_t type_base_kind(type_t t)</span>
-<span class="lineNum">     616 </span>            : {
-<span class="lineNum">     617 </span><span class="lineCov">    1121152 :    assert(t != NULL);</span>
-<span class="lineNum">     618 </span><span class="lineCov">    1121152 :    if (t-&gt;object.kind == T_SUBTYPE)</span>
-<span class="lineNum">     619 </span><span class="lineCov">     206106 :       return type_base_kind(type_base(t));</span>
-<span class="lineNum">     620 </span>            :    else
-<span class="lineNum">     621 </span><span class="lineCov">     915046 :       return t-&gt;object.kind;</span>
-<a name="622"><span class="lineNum">     622 </span>            : }</a>
+<span class="lineNum">     605 </span><span class="lineCov">          8 :          if (type_has_ident(t)) {</span>
+<span class="lineNum">     606 </span><span class="lineCov">          5 :             const char *fname = (*fn)(istr(type_ident(t)));</span>
+<span class="lineNum">     607 </span><span class="lineCov">          5 :             tb_printf(tbi-&gt;text_buf, &quot;%s &quot;, fname);</span>
+<span class="lineNum">     608 </span>            :          }
+<span class="lineNum">     609 </span><span class="lineCov">          8 :          tb_printf(tbi-&gt;text_buf, &quot;[&quot;);</span>
+<span class="lineNum">     610 </span><span class="lineCov">          8 :          const int nparams = type_params(t);</span>
+<span class="lineNum">     611 </span><span class="lineCov">         19 :          for (int i = 0; i &lt; nparams; i++)</span>
+<span class="lineNum">     612 </span><span class="lineCov">         11 :             tb_printf(tbi-&gt;text_buf, &quot;%s%s&quot;,</span>
+<span class="lineNum">     613 </span>            :                       (i == 0 ? &quot;&quot; : &quot;, &quot;),
+<span class="lineNum">     614 </span>            :                       (*fn)(istr(type_ident(type_param(t, i)))));
+<span class="lineNum">     615 </span><span class="lineCov">          8 :          if (type_kind(t) == T_FUNC)</span>
+<span class="lineNum">     616 </span><span class="lineCov">          5 :             tb_printf(tbi-&gt;text_buf, &quot;%sreturn %s&quot;,</span>
+<span class="lineNum">     617 </span>            :                       nparams &gt; 0 ? &quot; &quot; : &quot;&quot;,
+<span class="lineNum">     618 </span>            :                       (*fn)(istr(type_ident(type_result(t)))));
+<span class="lineNum">     619 </span><span class="lineCov">          8 :          tb_printf(tbi-&gt;text_buf, &quot;]&quot;);</span>
+<span class="lineNum">     620 </span>            : 
+<span class="lineNum">     621 </span><span class="lineCov">          8 :          return tb_get(tbi-&gt;text_buf);</span>
+<span class="lineNum">     622 </span>            :       }
 <span class="lineNum">     623 </span>            : 
-<span class="lineNum">     624 </span><span class="lineCov">     319986 : bool type_is_array(type_t t)</span>
-<span class="lineNum">     625 </span>            : {
-<span class="lineNum">     626 </span><span class="lineCov">     319986 :    const type_kind_t base = type_base_kind(t);</span>
-<span class="lineNum">     627 </span><span class="lineCov">     319986 :    return base == T_CARRAY || base == T_UARRAY;</span>
-<a name="628"><span class="lineNum">     628 </span>            : }</a>
-<span class="lineNum">     629 </span>            : 
-<span class="lineNum">     630 </span><span class="lineCov">      62234 : bool type_is_record(type_t t)</span>
-<span class="lineNum">     631 </span>            : {
-<span class="lineNum">     632 </span><span class="lineCov">      62234 :    return type_base_kind(t) == T_RECORD;</span>
-<a name="633"><span class="lineNum">     633 </span>            : }</a>
-<span class="lineNum">     634 </span>            : 
-<span class="lineNum">     635 </span><span class="lineCov">      12966 : bool type_is_protected(type_t t)</span>
-<span class="lineNum">     636 </span>            : {
-<span class="lineNum">     637 </span><span class="lineCov">      12966 :    return type_base_kind(t) == T_PROTECTED;</span>
-<a name="638"><span class="lineNum">     638 </span>            : }</a>
-<span class="lineNum">     639 </span>            : 
-<span class="lineNum">     640 </span><span class="lineCov">      18001 : bool type_is_file(type_t t)</span>
-<span class="lineNum">     641 </span>            : {
-<span class="lineNum">     642 </span><span class="lineCov">      18001 :    return type_base_kind(t) == T_FILE;</span>
-<a name="643"><span class="lineNum">     643 </span>            : }</a>
-<span class="lineNum">     644 </span>            : 
-<span class="lineNum">     645 </span><span class="lineCov">      39131 : bool type_is_access(type_t t)</span>
-<span class="lineNum">     646 </span>            : {
-<span class="lineNum">     647 </span><span class="lineCov">      39131 :    return type_base_kind(t) == T_ACCESS;</span>
-<a name="648"><span class="lineNum">     648 </span>            : }</a>
-<span class="lineNum">     649 </span>            : 
-<span class="lineNum">     650 </span><span class="lineCov">     172193 : bool type_is_unconstrained(type_t t)</span>
-<span class="lineNum">     651 </span>            : {
-<span class="lineNum">     652 </span><span class="lineCov">     172293 :    assert(t != NULL);</span>
-<span class="lineNum">     653 </span><span class="lineCov">     172293 :    if (t-&gt;object.kind == T_SUBTYPE) {</span>
-<span class="lineNum">     654 </span><span class="lineCov">      73915 :       if (type_dims(t) == 0)</span>
-<span class="lineNum">     655 </span><span class="lineCov">        100 :          return type_is_unconstrained(type_base(t));</span>
-<span class="lineNum">     656 </span>            :       else
-<span class="lineNum">     657 </span>            :          return false;
-<span class="lineNum">     658 </span>            :    }
-<span class="lineNum">     659 </span>            :    else
-<span class="lineNum">     660 </span><span class="lineCov">      98378 :       return (t-&gt;object.kind == T_UARRAY);</span>
-<a name="661"><span class="lineNum">     661 </span>            : }</a>
-<span class="lineNum">     662 </span>            : 
-<span class="lineNum">     663 </span><span class="lineCov">      22744 : bool type_is_enum(type_t t)</span>
-<span class="lineNum">     664 </span>            : {
-<span class="lineNum">     665 </span><span class="lineCov">      22744 :    return type_base_kind(t) == T_ENUM;</span>
-<a name="666"><span class="lineNum">     666 </span>            : }</a>
-<span class="lineNum">     667 </span>            : 
-<span class="lineNum">     668 </span><span class="lineCov">        526 : bool type_is_discrete(type_t t)</span>
-<span class="lineNum">     669 </span>            : {
-<span class="lineNum">     670 </span><span class="lineCov">        526 :    const type_kind_t base = type_base_kind(t);</span>
-<span class="lineNum">     671 </span><span class="lineCov">        526 :    return base == T_INTEGER || base == T_ENUM;</span>
+<span class="lineNum">     624 </span>            :    default:
+<span class="lineNum">     625 </span><span class="lineCov">       3573 :       return (*fn)(istr(type_ident(t)));</span>
+<span class="lineNum">     626 </span>            :    }
+<a name="627"><span class="lineNum">     627 </span>            : }</a>
+<span class="lineNum">     628 </span>            : 
+<span class="lineNum">     629 </span><span class="lineCov">       3444 : static const char *type_minify_identity(const char *s)</span>
+<span class="lineNum">     630 </span>            : {
+<span class="lineNum">     631 </span><span class="lineCov">       3444 :    return s;</span>
+<a name="632"><span class="lineNum">     632 </span>            : }</a>
+<span class="lineNum">     633 </span>            : 
+<span class="lineNum">     634 </span><span class="lineCov">       3444 : const char *type_pp(type_t t)</span>
+<span class="lineNum">     635 </span>            : {
+<span class="lineNum">     636 </span><span class="lineCov">       3444 :    return type_pp_minify(t, type_minify_identity);</span>
+<a name="637"><span class="lineNum">     637 </span>            : }</a>
+<span class="lineNum">     638 </span>            : 
+<span class="lineNum">     639 </span><span class="lineCov">     916215 : type_kind_t type_base_kind(type_t t)</span>
+<span class="lineNum">     640 </span>            : {
+<span class="lineNum">     641 </span><span class="lineCov">    1122709 :    assert(t != NULL);</span>
+<span class="lineNum">     642 </span><span class="lineCov">    1122709 :    if (t-&gt;object.kind == T_SUBTYPE)</span>
+<span class="lineNum">     643 </span><span class="lineCov">     206494 :       return type_base_kind(type_base(t));</span>
+<span class="lineNum">     644 </span>            :    else
+<span class="lineNum">     645 </span><span class="lineCov">     916215 :       return t-&gt;object.kind;</span>
+<a name="646"><span class="lineNum">     646 </span>            : }</a>
+<span class="lineNum">     647 </span>            : 
+<span class="lineNum">     648 </span><span class="lineCov">     320591 : bool type_is_array(type_t t)</span>
+<span class="lineNum">     649 </span>            : {
+<span class="lineNum">     650 </span><span class="lineCov">     320591 :    const type_kind_t base = type_base_kind(t);</span>
+<span class="lineNum">     651 </span><span class="lineCov">     320591 :    return base == T_CARRAY || base == T_UARRAY;</span>
+<a name="652"><span class="lineNum">     652 </span>            : }</a>
+<span class="lineNum">     653 </span>            : 
+<span class="lineNum">     654 </span><span class="lineCov">      62242 : bool type_is_record(type_t t)</span>
+<span class="lineNum">     655 </span>            : {
+<span class="lineNum">     656 </span><span class="lineCov">      62242 :    return type_base_kind(t) == T_RECORD;</span>
+<a name="657"><span class="lineNum">     657 </span>            : }</a>
+<span class="lineNum">     658 </span>            : 
+<span class="lineNum">     659 </span><span class="lineCov">      12970 : bool type_is_protected(type_t t)</span>
+<span class="lineNum">     660 </span>            : {
+<span class="lineNum">     661 </span><span class="lineCov">      12970 :    return type_base_kind(t) == T_PROTECTED;</span>
+<a name="662"><span class="lineNum">     662 </span>            : }</a>
+<span class="lineNum">     663 </span>            : 
+<span class="lineNum">     664 </span><span class="lineCov">      18005 : bool type_is_file(type_t t)</span>
+<span class="lineNum">     665 </span>            : {
+<span class="lineNum">     666 </span><span class="lineCov">      18005 :    return type_base_kind(t) == T_FILE;</span>
+<a name="667"><span class="lineNum">     667 </span>            : }</a>
+<span class="lineNum">     668 </span>            : 
+<span class="lineNum">     669 </span><span class="lineCov">      39140 : bool type_is_access(type_t t)</span>
+<span class="lineNum">     670 </span>            : {
+<span class="lineNum">     671 </span><span class="lineCov">      39140 :    return type_base_kind(t) == T_ACCESS;</span>
 <a name="672"><span class="lineNum">     672 </span>            : }</a>
 <span class="lineNum">     673 </span>            : 
-<span class="lineNum">     674 </span><span class="lineCov">        895 : bool type_is_subprogram(type_t t)</span>
+<span class="lineNum">     674 </span><span class="lineCov">     144003 : bool type_is_unconstrained(type_t t)</span>
 <span class="lineNum">     675 </span>            : {
-<span class="lineNum">     676 </span><span class="lineCov">        895 :    return t-&gt;object.kind == T_FUNC || t-&gt;object.kind == T_PROC;</span>
-<a name="677"><span class="lineNum">     677 </span>            : }</a>
-<span class="lineNum">     678 </span>            : 
-<span class="lineNum">     679 </span><span class="lineCov">          3 : bool type_is_physical(type_t t)</span>
-<span class="lineNum">     680 </span>            : {
-<span class="lineNum">     681 </span><span class="lineCov">          3 :    return type_base_kind(t) == T_PHYSICAL;</span>
-<a name="682"><span class="lineNum">     682 </span>            : }</a>
-<span class="lineNum">     683 </span>            : 
-<span class="lineNum">     684 </span><span class="lineCov">      15041 : bool type_is_integer(type_t t)</span>
-<span class="lineNum">     685 </span>            : {
-<span class="lineNum">     686 </span><span class="lineCov">      15041 :    return type_base_kind(t) == T_INTEGER;</span>
-<a name="687"><span class="lineNum">     687 </span>            : }</a>
-<span class="lineNum">     688 </span>            : 
-<span class="lineNum">     689 </span><span class="lineCov">      10342 : bool type_is_real(type_t t)</span>
-<span class="lineNum">     690 </span>            : {
-<span class="lineNum">     691 </span><span class="lineCov">      10342 :    return type_base_kind(t) == T_REAL;</span>
-<a name="692"><span class="lineNum">     692 </span>            : }</a>
-<span class="lineNum">     693 </span>            : 
-<span class="lineNum">     694 </span><span class="lineCov">     127068 : bool type_is_scalar(type_t t)</span>
-<span class="lineNum">     695 </span>            : {
-<span class="lineNum">     696 </span><span class="lineCov">     127068 :    const type_kind_t base = type_base_kind(t);</span>
-<span class="lineNum">     697 </span><span class="lineCov">     127068 :    return base == T_INTEGER || base == T_REAL</span>
-<span class="lineNum">     698 </span><span class="lineCov">     127068 :       || base == T_ENUM || base == T_PHYSICAL;</span>
-<a name="699"><span class="lineNum">     699 </span>            : }</a>
-<span class="lineNum">     700 </span>            : 
-<span class="lineNum">     701 </span><span class="lineCov">      52990 : type_t type_base_recur(type_t t)</span>
-<span class="lineNum">     702 </span>            : {
-<span class="lineNum">     703 </span><span class="lineCov">      52990 :    assert(t != NULL);</span>
-<span class="lineNum">     704 </span><span class="lineCov">      59476 :    while (t-&gt;object.kind == T_SUBTYPE)</span>
-<span class="lineNum">     705 </span><span class="lineCov">       6486 :       t = type_base(t);</span>
-<span class="lineNum">     706 </span><span class="lineCov">      52990 :    return t;</span>
-<a name="707"><span class="lineNum">     707 </span>            : }</a>
-<span class="lineNum">     708 </span>            : 
-<span class="lineNum">     709 </span><span class="lineNoCov">          0 : const char *type_kind_str(type_kind_t t)</span>
-<span class="lineNum">     710 </span>            : {
-<span class="lineNum">     711 </span><span class="lineNoCov">          0 :    return kind_text_map[t];</span>
-<a name="712"><span class="lineNum">     712 </span>            : }</a>
-<span class="lineNum">     713 </span>            : 
-<span class="lineNum">     714 </span><span class="lineCov">        241 : bool type_known_width(type_t type)</span>
-<span class="lineNum">     715 </span>            : {
-<span class="lineNum">     716 </span><span class="lineCov">        241 :    if (!type_is_array(type))</span>
-<span class="lineNum">     717 </span>            :       return true;
-<span class="lineNum">     718 </span>            : 
-<span class="lineNum">     719 </span><span class="lineCov">         57 :    if (type_is_unconstrained(type))</span>
-<span class="lineNum">     720 </span>            :       return false;
-<span class="lineNum">     721 </span>            : 
-<span class="lineNum">     722 </span><span class="lineCov">         57 :    if (!type_known_width(type_elem(type)))</span>
-<span class="lineNum">     723 </span>            :       return false;
+<span class="lineNum">     676 </span><span class="lineCov">     144152 :    assert(t != NULL);</span>
+<span class="lineNum">     677 </span><span class="lineCov">     144152 :    if (t-&gt;object.kind == T_SUBTYPE) {</span>
+<span class="lineNum">     678 </span><span class="lineCov">      60997 :       if (!type_has_constraint(t))</span>
+<span class="lineNum">     679 </span><span class="lineCov">        149 :          return type_is_unconstrained(type_base(t));</span>
+<span class="lineNum">     680 </span>            :       else
+<span class="lineNum">     681 </span>            :          return false;
+<span class="lineNum">     682 </span>            :    }
+<span class="lineNum">     683 </span>            :    else
+<span class="lineNum">     684 </span><span class="lineCov">      83155 :       return (t-&gt;object.kind == T_UARRAY);</span>
+<a name="685"><span class="lineNum">     685 </span>            : }</a>
+<span class="lineNum">     686 </span>            : 
+<span class="lineNum">     687 </span><span class="lineCov">      22543 : bool type_is_enum(type_t t)</span>
+<span class="lineNum">     688 </span>            : {
+<span class="lineNum">     689 </span><span class="lineCov">      22543 :    return type_base_kind(t) == T_ENUM;</span>
+<a name="690"><span class="lineNum">     690 </span>            : }</a>
+<span class="lineNum">     691 </span>            : 
+<span class="lineNum">     692 </span><span class="lineCov">        526 : bool type_is_discrete(type_t t)</span>
+<span class="lineNum">     693 </span>            : {
+<span class="lineNum">     694 </span><span class="lineCov">        526 :    const type_kind_t base = type_base_kind(t);</span>
+<span class="lineNum">     695 </span><span class="lineCov">        526 :    return base == T_INTEGER || base == T_ENUM;</span>
+<a name="696"><span class="lineNum">     696 </span>            : }</a>
+<span class="lineNum">     697 </span>            : 
+<span class="lineNum">     698 </span><span class="lineCov">        895 : bool type_is_subprogram(type_t t)</span>
+<span class="lineNum">     699 </span>            : {
+<span class="lineNum">     700 </span><span class="lineCov">        895 :    return t-&gt;object.kind == T_FUNC || t-&gt;object.kind == T_PROC;</span>
+<a name="701"><span class="lineNum">     701 </span>            : }</a>
+<span class="lineNum">     702 </span>            : 
+<span class="lineNum">     703 </span><span class="lineCov">          3 : bool type_is_physical(type_t t)</span>
+<span class="lineNum">     704 </span>            : {
+<span class="lineNum">     705 </span><span class="lineCov">          3 :    return type_base_kind(t) == T_PHYSICAL;</span>
+<a name="706"><span class="lineNum">     706 </span>            : }</a>
+<span class="lineNum">     707 </span>            : 
+<span class="lineNum">     708 </span><span class="lineCov">      15044 : bool type_is_integer(type_t t)</span>
+<span class="lineNum">     709 </span>            : {
+<span class="lineNum">     710 </span><span class="lineCov">      15044 :    return type_base_kind(t) == T_INTEGER;</span>
+<a name="711"><span class="lineNum">     711 </span>            : }</a>
+<span class="lineNum">     712 </span>            : 
+<span class="lineNum">     713 </span><span class="lineCov">      10373 : bool type_is_real(type_t t)</span>
+<span class="lineNum">     714 </span>            : {
+<span class="lineNum">     715 </span><span class="lineCov">      10373 :    return type_base_kind(t) == T_REAL;</span>
+<a name="716"><span class="lineNum">     716 </span>            : }</a>
+<span class="lineNum">     717 </span>            : 
+<span class="lineNum">     718 </span><span class="lineCov">     127609 : bool type_is_scalar(type_t t)</span>
+<span class="lineNum">     719 </span>            : {
+<span class="lineNum">     720 </span><span class="lineCov">     127609 :    const type_kind_t base = type_base_kind(t);</span>
+<span class="lineNum">     721 </span><span class="lineCov">     127609 :    return base == T_INTEGER || base == T_REAL</span>
+<span class="lineNum">     722 </span><span class="lineCov">     127609 :       || base == T_ENUM || base == T_PHYSICAL;</span>
+<a name="723"><span class="lineNum">     723 </span>            : }</a>
 <span class="lineNum">     724 </span>            : 
-<span class="lineNum">     725 </span><span class="lineCov">         57 :    const int ndims = type_dims(type);</span>
-<span class="lineNum">     726 </span><span class="lineCov">        111 :    for (int i = 0; i &lt; ndims; i++) {</span>
-<span class="lineNum">     727 </span>            :       int64_t low, high;
-<span class="lineNum">     728 </span><span class="lineCov">         57 :       if (!folded_bounds(type_dim(type, i), &amp;low, &amp;high))</span>
-<span class="lineNum">     729 </span><span class="lineCov">          3 :          return false;</span>
-<span class="lineNum">     730 </span>            :    }
-<span class="lineNum">     731 </span>            : 
-<span class="lineNum">     732 </span>            :    return true;
-<a name="733"><span class="lineNum">     733 </span>            : }</a>
-<span class="lineNum">     734 </span>            : 
-<span class="lineNum">     735 </span><span class="lineCov">      11567 : unsigned type_width(type_t type)</span>
-<span class="lineNum">     736 </span>            : {
-<span class="lineNum">     737 </span><span class="lineCov">      11567 :    if (type_is_array(type)) {</span>
-<span class="lineNum">     738 </span><span class="lineCov">       2706 :       const unsigned elem_w = type_width(type_elem(type));</span>
-<span class="lineNum">     739 </span><span class="lineCov">       2706 :       unsigned w = 1;</span>
-<span class="lineNum">     740 </span><span class="lineCov">       2706 :       const int ndims = type_dims(type);</span>
-<span class="lineNum">     741 </span><span class="lineCov">       5425 :       for (int i = 0; i &lt; ndims; i++) {</span>
-<span class="lineNum">     742 </span>            :          int64_t low, high;
-<span class="lineNum">     743 </span><span class="lineCov">       2719 :          range_bounds(type_dim(type, i), &amp;low, &amp;high);</span>
-<span class="lineNum">     744 </span><span class="lineCov">       2719 :          w *= MAX(high - low + 1, 0);</span>
-<span class="lineNum">     745 </span>            :       }
-<span class="lineNum">     746 </span><span class="lineCov">       2706 :       return w * elem_w;</span>
-<span class="lineNum">     747 </span>            :    }
-<span class="lineNum">     748 </span><span class="lineCov">       8861 :    else if (type_is_record(type)) {</span>
-<span class="lineNum">     749 </span><span class="lineCov">        979 :       type_t base = type_base_recur(type);</span>
-<span class="lineNum">     750 </span><span class="lineCov">        979 :       unsigned w = 0;</span>
-<span class="lineNum">     751 </span><span class="lineCov">        979 :       const int nfields = type_fields(base);</span>
-<span class="lineNum">     752 </span><span class="lineCov">       3236 :       for (int i = 0; i &lt; nfields; i++)</span>
-<span class="lineNum">     753 </span><span class="lineCov">       2257 :          w += type_width(tree_type(type_field(base, i)));</span>
-<span class="lineNum">     754 </span>            :       return w;
-<span class="lineNum">     755 </span>            :    }
-<span class="lineNum">     756 </span>            :    else
-<span class="lineNum">     757 </span>            :       return 1;
-<span class="lineNum">     758 </span>            : }
+<span class="lineNum">     725 </span><span class="lineCov">      39940 : type_t type_base_recur(type_t t)</span>
+<span class="lineNum">     726 </span>            : {
+<span class="lineNum">     727 </span><span class="lineCov">      39940 :    assert(t != NULL);</span>
+<span class="lineNum">     728 </span><span class="lineCov">      46413 :    while (t-&gt;object.kind == T_SUBTYPE)</span>
+<span class="lineNum">     729 </span><span class="lineCov">       6473 :       t = type_base(t);</span>
+<span class="lineNum">     730 </span><span class="lineCov">      39940 :    return t;</span>
+<a name="731"><span class="lineNum">     731 </span>            : }</a>
+<span class="lineNum">     732 </span>            : 
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 : const char *type_kind_str(type_kind_t t)</span>
+<span class="lineNum">     734 </span>            : {
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :    return kind_text_map[t];</span>
+<a name="736"><span class="lineNum">     736 </span>            : }</a>
+<span class="lineNum">     737 </span>            : 
+<span class="lineNum">     738 </span><span class="lineCov">        241 : bool type_known_width(type_t type)</span>
+<span class="lineNum">     739 </span>            : {
+<span class="lineNum">     740 </span><span class="lineCov">        241 :    if (!type_is_array(type))</span>
+<span class="lineNum">     741 </span>            :       return true;
+<span class="lineNum">     742 </span>            : 
+<span class="lineNum">     743 </span><span class="lineCov">         57 :    if (type_is_unconstrained(type))</span>
+<span class="lineNum">     744 </span>            :       return false;
+<span class="lineNum">     745 </span>            : 
+<span class="lineNum">     746 </span><span class="lineCov">         57 :    if (!type_known_width(type_elem(type)))</span>
+<span class="lineNum">     747 </span>            :       return false;
+<span class="lineNum">     748 </span>            : 
+<span class="lineNum">     749 </span><span class="lineCov">         57 :    const int ndims = array_dimension(type);</span>
+<span class="lineNum">     750 </span><span class="lineCov">        111 :    for (int i = 0; i &lt; ndims; i++) {</span>
+<span class="lineNum">     751 </span>            :       int64_t low, high;
+<span class="lineNum">     752 </span><span class="lineCov">         57 :       if (!folded_bounds(range_of(type, i), &amp;low, &amp;high))</span>
+<span class="lineNum">     753 </span><span class="lineCov">          3 :          return false;</span>
+<span class="lineNum">     754 </span>            :    }
+<span class="lineNum">     755 </span>            : 
+<span class="lineNum">     756 </span>            :    return true;
+<a name="757"><span class="lineNum">     757 </span>            : }</a>
+<span class="lineNum">     758 </span>            : 
+<span class="lineNum">     759 </span><span class="lineCov">      11567 : unsigned type_width(type_t type)</span>
+<span class="lineNum">     760 </span>            : {
+<span class="lineNum">     761 </span><span class="lineCov">      11567 :    if (type_is_array(type)) {</span>
+<span class="lineNum">     762 </span><span class="lineCov">       2706 :       const unsigned elem_w = type_width(type_elem(type));</span>
+<span class="lineNum">     763 </span><span class="lineCov">       2706 :       unsigned w = 1;</span>
+<span class="lineNum">     764 </span><span class="lineCov">       2706 :       const int ndims = array_dimension(type);</span>
+<span class="lineNum">     765 </span><span class="lineCov">       5425 :       for (int i = 0; i &lt; ndims; i++) {</span>
+<span class="lineNum">     766 </span>            :          int64_t low, high;
+<span class="lineNum">     767 </span><span class="lineCov">       2719 :          range_bounds(range_of(type, i), &amp;low, &amp;high);</span>
+<span class="lineNum">     768 </span><span class="lineCov">       2719 :          w *= MAX(high - low + 1, 0);</span>
+<span class="lineNum">     769 </span>            :       }
+<span class="lineNum">     770 </span><span class="lineCov">       2706 :       return w * elem_w;</span>
+<span class="lineNum">     771 </span>            :    }
+<span class="lineNum">     772 </span><span class="lineCov">       8861 :    else if (type_is_record(type)) {</span>
+<span class="lineNum">     773 </span><span class="lineCov">        979 :       type_t base = type_base_recur(type);</span>
+<span class="lineNum">     774 </span><span class="lineCov">        979 :       unsigned w = 0;</span>
+<span class="lineNum">     775 </span><span class="lineCov">        979 :       const int nfields = type_fields(base);</span>
+<span class="lineNum">     776 </span><span class="lineCov">       3236 :       for (int i = 0; i &lt; nfields; i++)</span>
+<span class="lineNum">     777 </span><span class="lineCov">       2257 :          w += type_width(tree_type(type_field(base, i)));</span>
+<span class="lineNum">     778 </span>            :       return w;
+<span class="lineNum">     779 </span>            :    }
+<span class="lineNum">     780 </span>            :    else
+<span class="lineNum">     781 </span>            :       return 1;
+<span class="lineNum">     782 </span>            : }
 </pre>
       </td>
     </tr>

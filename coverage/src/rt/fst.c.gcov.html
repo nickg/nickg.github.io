@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2017-10-22</td>
+            <td class="headerValue">2017-10-30</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -241,214 +241,213 @@
 <span class="lineNum">     179 </span><span class="lineNoCov">          0 :    type_t type = tree_type(d);</span>
 <span class="lineNum">     180 </span><span class="lineNoCov">          0 :    type_t base = type_base_recur(type);</span>
 <span class="lineNum">     181 </span>            : 
-<span class="lineNum">     182 </span><span class="lineNoCov">          0 :    fst_data_t *data = xmalloc(sizeof(fst_data_t));</span>
-<span class="lineNum">     183 </span>            :    memset(data, '\0', sizeof(fst_data_t));
-<span class="lineNum">     184 </span>            : 
-<span class="lineNum">     185 </span><span class="lineNoCov">          0 :    int msb = 0, lsb = 0;</span>
-<span class="lineNum">     186 </span>            : 
-<span class="lineNum">     187 </span>            :    enum fstVarType vt;
-<span class="lineNum">     188 </span>            :    enum fstSupplementalDataType sdt;
-<span class="lineNum">     189 </span><span class="lineNoCov">          0 :    if (type_is_array(type)) {</span>
-<span class="lineNum">     190 </span><span class="lineNoCov">          0 :       if (type_dims(type) &gt; 1) {</span>
-<span class="lineNum">     191 </span><span class="lineNoCov">          0 :          warn_at(tree_loc(d), &quot;cannot represent multidimensional arrays &quot;</span>
-<span class="lineNum">     192 </span>            :                  &quot;in FST format&quot;);
-<span class="lineNum">     193 </span><span class="lineNoCov">          0 :          free(data);</span>
-<span class="lineNum">     194 </span><span class="lineNoCov">          0 :          return;</span>
-<span class="lineNum">     195 </span>            :       }
-<span class="lineNum">     196 </span>            : 
-<span class="lineNum">     197 </span><span class="lineNoCov">          0 :       range_t r = type_dim(type, 0);</span>
-<span class="lineNum">     198 </span>            : 
-<span class="lineNum">     199 </span>            :       int64_t low, high;
-<span class="lineNum">     200 </span><span class="lineNoCov">          0 :       range_bounds(r, &amp;low, &amp;high);</span>
-<span class="lineNum">     201 </span>            : 
-<span class="lineNum">     202 </span><span class="lineNoCov">          0 :       data-&gt;dir  = r.kind;</span>
-<span class="lineNum">     203 </span><span class="lineNoCov">          0 :       data-&gt;size = high - low + 1;</span>
-<span class="lineNum">     204 </span>            : 
-<span class="lineNum">     205 </span><span class="lineNoCov">          0 :       msb = assume_int(r.left);</span>
-<span class="lineNum">     206 </span><span class="lineNoCov">          0 :       lsb = assume_int(r.right);</span>
-<span class="lineNum">     207 </span>            : 
-<span class="lineNum">     208 </span><span class="lineNoCov">          0 :       type_t elem = type_elem(type);</span>
-<span class="lineNum">     209 </span><span class="lineNoCov">          0 :       if (!fst_can_fmt_chars(elem, data, &amp;vt, &amp;sdt)) {</span>
-<span class="lineNum">     210 </span><span class="lineNoCov">          0 :          warn_at(tree_loc(d), &quot;cannot represent arrays of type %s &quot;</span>
-<span class="lineNum">     211 </span>            :                  &quot;in FST format&quot;, type_pp(elem));
-<span class="lineNum">     212 </span><span class="lineNoCov">          0 :          free(data);</span>
-<span class="lineNum">     213 </span><span class="lineNoCov">          0 :          return;</span>
-<span class="lineNum">     214 </span>            :       }
-<span class="lineNum">     215 </span>            :       else {
-<span class="lineNum">     216 </span><span class="lineNoCov">          0 :          ident_t ident = type_ident(base);</span>
-<span class="lineNum">     217 </span><span class="lineNoCov">          0 :          if (ident == unsigned_i)</span>
-<span class="lineNum">     218 </span><span class="lineNoCov">          0 :             sdt = FST_SDT_VHDL_UNSIGNED;</span>
-<span class="lineNum">     219 </span><span class="lineNoCov">          0 :          else if (ident == signed_i)</span>
-<span class="lineNum">     220 </span><span class="lineNoCov">          0 :             sdt = FST_SDT_VHDL_SIGNED;</span>
-<span class="lineNum">     221 </span>            :       }
-<span class="lineNum">     222 </span>            :    }
-<span class="lineNum">     223 </span>            :    else {
-<span class="lineNum">     224 </span><span class="lineNoCov">          0 :       switch (type_kind(base)) {</span>
-<span class="lineNum">     225 </span>            :       case T_INTEGER:
-<span class="lineNum">     226 </span>            :          {
-<span class="lineNum">     227 </span><span class="lineNoCov">          0 :             ident_t ident = type_ident(type);</span>
-<span class="lineNum">     228 </span><span class="lineNoCov">          0 :             if (ident == natural_i)</span>
-<span class="lineNum">     229 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_VHDL_NATURAL;</span>
-<span class="lineNum">     230 </span><span class="lineNoCov">          0 :             else if (ident == positive_i)</span>
-<span class="lineNum">     231 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_VHDL_POSITIVE;</span>
-<span class="lineNum">     232 </span>            :             else
-<span class="lineNum">     233 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_VHDL_INTEGER;</span>
-<span class="lineNum">     234 </span>            : 
-<span class="lineNum">     235 </span>            :             int64_t low, high;
-<span class="lineNum">     236 </span><span class="lineNoCov">          0 :             range_bounds(type_dim(type, 0), &amp;low, &amp;high);</span>
-<span class="lineNum">     237 </span>            : 
-<span class="lineNum">     238 </span><span class="lineNoCov">          0 :             vt = FST_VT_VCD_INTEGER;</span>
-<span class="lineNum">     239 </span><span class="lineNoCov">          0 :             data-&gt;size = ilog2(high - low + 1);</span>
-<span class="lineNum">     240 </span><span class="lineNoCov">          0 :             data-&gt;fmt  = fst_fmt_int;</span>
-<span class="lineNum">     241 </span>            :          }
-<span class="lineNum">     242 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     243 </span>            : 
-<span class="lineNum">     244 </span>            :       case T_ENUM:
-<span class="lineNum">     245 </span><span class="lineNoCov">          0 :          if (!fst_can_fmt_chars(type, data, &amp;vt, &amp;sdt)) {</span>
-<span class="lineNum">     246 </span><span class="lineNoCov">          0 :             ident_t ident = type_ident(base);</span>
-<span class="lineNum">     247 </span><span class="lineNoCov">          0 :             if (ident == std_bool_i)</span>
-<span class="lineNum">     248 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_VHDL_BOOLEAN;</span>
-<span class="lineNum">     249 </span><span class="lineNoCov">          0 :             else if (ident == std_char_i)</span>
-<span class="lineNum">     250 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_VHDL_CHARACTER;</span>
-<span class="lineNum">     251 </span>            :             else
-<span class="lineNum">     252 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_NONE;</span>
-<span class="lineNum">     253 </span>            : 
-<span class="lineNum">     254 </span><span class="lineNoCov">          0 :             vt = FST_VT_GEN_STRING;</span>
-<span class="lineNum">     255 </span><span class="lineNoCov">          0 :             data-&gt;size = 0;</span>
-<span class="lineNum">     256 </span><span class="lineNoCov">          0 :             data-&gt;fmt  = fst_fmt_enum;</span>
-<span class="lineNum">     257 </span>            :          }
-<span class="lineNum">     258 </span>            :          else
-<span class="lineNum">     259 </span><span class="lineNoCov">          0 :             data-&gt;size = 1;</span>
-<span class="lineNum">     260 </span>            :          break;
-<span class="lineNum">     261 </span>            : 
-<span class="lineNum">     262 </span>            :       case T_PHYSICAL:
-<span class="lineNum">     263 </span>            :          {
-<span class="lineNum">     264 </span><span class="lineNoCov">          0 :             sdt = FST_SDT_NONE;</span>
-<span class="lineNum">     265 </span><span class="lineNoCov">          0 :             vt  = FST_VT_GEN_STRING;</span>
-<span class="lineNum">     266 </span><span class="lineNoCov">          0 :             data-&gt;size = 0;</span>
-<span class="lineNum">     267 </span><span class="lineNoCov">          0 :             data-&gt;type.units = fst_make_unit_map(type);</span>
-<span class="lineNum">     268 </span><span class="lineNoCov">          0 :             data-&gt;fmt = fst_fmt_physical;</span>
-<span class="lineNum">     269 </span>            :          }
-<span class="lineNum">     270 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     271 </span>            : 
-<span class="lineNum">     272 </span>            :       default:
-<span class="lineNum">     273 </span><span class="lineNoCov">          0 :          warn_at(tree_loc(d), &quot;cannot represent type %s in FST format&quot;,</span>
-<span class="lineNum">     274 </span>            :                  type_pp(type));
-<span class="lineNum">     275 </span><span class="lineNoCov">          0 :          free(data);</span>
-<span class="lineNum">     276 </span><span class="lineNoCov">          0 :          return;</span>
-<span class="lineNum">     277 </span>            :       }
-<span class="lineNum">     278 </span>            :    }
-<span class="lineNum">     279 </span>            : 
-<span class="lineNum">     280 </span><span class="lineNoCov">          0 :    enum fstVarDir dir = FST_VD_IMPLICIT;</span>
-<span class="lineNum">     281 </span>            : 
-<span class="lineNum">     282 </span><span class="lineNoCov">          0 :    switch (tree_attr_int(d, fst_dir_i, -1)) {</span>
-<span class="lineNum">     283 </span>            :    case PORT_IN: dir = FST_VD_INPUT; break;
-<span class="lineNum">     284 </span>            :    case PORT_OUT: dir = FST_VD_OUTPUT; break;
-<span class="lineNum">     285 </span>            :    case PORT_INOUT: dir = FST_VD_INOUT; break;
-<span class="lineNum">     286 </span>            :    case PORT_BUFFER: dir = FST_VD_BUFFER; break;
-<span class="lineNum">     287 </span>            :    }
-<span class="lineNum">     288 </span>            : 
-<span class="lineNum">     289 </span><span class="lineNoCov">          0 :    const char *name_base = strrchr(istr(tree_ident(d)), ':') + 1;</span>
-<span class="lineNum">     290 </span><span class="lineNoCov">          0 :    const size_t base_len = strlen(name_base);</span>
-<span class="lineNum">     291 </span><span class="lineNoCov">          0 :    char name[base_len + 64];</span>
-<span class="lineNum">     292 </span><span class="lineNoCov">          0 :    strncpy(name, name_base, base_len + 64);</span>
-<span class="lineNum">     293 </span><span class="lineNoCov">          0 :    if (type_is_array(type))</span>
-<span class="lineNum">     294 </span><span class="lineNoCov">          0 :       snprintf(name + base_len, 64, &quot;[%d:%d]\n&quot;, msb, lsb);</span>
-<span class="lineNum">     295 </span>            : 
-<span class="lineNum">     296 </span><span class="lineNoCov">          0 :    data-&gt;handle = fstWriterCreateVar2(</span>
-<span class="lineNum">     297 </span>            :       fst_ctx,
-<span class="lineNum">     298 </span>            :       vt,
-<span class="lineNum">     299 </span>            :       dir,
-<span class="lineNum">     300 </span><span class="lineNoCov">          0 :       data-&gt;size,</span>
-<span class="lineNum">     301 </span>            :       name,
-<span class="lineNum">     302 </span>            :       0,
-<span class="lineNum">     303 </span>            :       type_pp(type),
-<span class="lineNum">     304 </span>            :       FST_SVT_VHDL_SIGNAL,
-<span class="lineNum">     305 </span>            :       sdt);
-<span class="lineNum">     306 </span>            : 
-<span class="lineNum">     307 </span><span class="lineNoCov">          0 :    tree_add_attr_ptr(d, fst_data_i, data);</span>
-<span class="lineNum">     308 </span>            : 
-<span class="lineNum">     309 </span><span class="lineNoCov">          0 :    data-&gt;watch = rt_set_event_cb(d, fst_event_cb, data, true);</span>
-<a name="310"><span class="lineNum">     310 </span>            : }</a>
-<span class="lineNum">     311 </span>            : 
-<span class="lineNum">     312 </span><span class="lineNoCov">          0 : static void fst_process_hier(tree_t h)</span>
-<span class="lineNum">     313 </span>            : {
-<span class="lineNum">     314 </span><span class="lineNoCov">          0 :    const tree_kind_t scope_kind = tree_subkind(h);</span>
-<span class="lineNum">     315 </span>            : 
-<span class="lineNum">     316 </span>            :    enum fstScopeType st;
-<span class="lineNum">     317 </span><span class="lineNoCov">          0 :    switch (scope_kind) {</span>
-<span class="lineNum">     318 </span>            :    case T_ARCH: st = FST_ST_VHDL_ARCHITECTURE; break;
-<span class="lineNum">     319 </span><span class="lineNoCov">          0 :    case T_BLOCK: st = FST_ST_VHDL_BLOCK; break;</span>
-<span class="lineNum">     320 </span><span class="lineNoCov">          0 :    case T_FOR_GENERATE: st = FST_ST_VHDL_FOR_GENERATE; break;</span>
-<span class="lineNum">     321 </span><span class="lineNoCov">          0 :    case T_PACKAGE: st = FST_ST_VHDL_PACKAGE; break;</span>
-<span class="lineNum">     322 </span>            :    default:
-<span class="lineNum">     323 </span><span class="lineNoCov">          0 :       st = FST_ST_VHDL_ARCHITECTURE;</span>
-<span class="lineNum">     324 </span><span class="lineNoCov">          0 :       warn_at(tree_loc(h), &quot;no FST scope type for %s&quot;,</span>
-<span class="lineNum">     325 </span>            :               tree_kind_str(scope_kind));
-<span class="lineNum">     326 </span><span class="lineNoCov">          0 :       break;</span>
-<span class="lineNum">     327 </span>            :    }
-<span class="lineNum">     328 </span>            : 
-<span class="lineNum">     329 </span><span class="lineNoCov">          0 :    const loc_t *loc = tree_loc(h);</span>
-<span class="lineNum">     330 </span><span class="lineNoCov">          0 :    fstWriterSetSourceStem(fst_ctx, istr(loc-&gt;file), loc-&gt;first_line, 1);</span>
-<span class="lineNum">     331 </span>            : 
-<span class="lineNum">     332 </span><span class="lineNoCov">          0 :    fstWriterSetScope(fst_ctx, st, istr(tree_ident(h)),</span>
-<span class="lineNum">     333 </span><span class="lineNoCov">          0 :                      tree_has_ident2(h) ? istr(tree_ident2(h)) : &quot;&quot;);</span>
-<a name="334"><span class="lineNum">     334 </span><span class="lineNoCov">          0 : }</span></a>
-<span class="lineNum">     335 </span>            : 
-<span class="lineNum">     336 </span><span class="lineCov">        308 : void fst_restart(void)</span>
-<span class="lineNum">     337 </span>            : {
-<span class="lineNum">     338 </span><span class="lineCov">        308 :    if (fst_ctx == NULL)</span>
-<span class="lineNum">     339 </span><span class="lineCov">        308 :       return;</span>
-<span class="lineNum">     340 </span>            : 
-<span class="lineNum">     341 </span><span class="lineNoCov">          0 :    const int ndecls = tree_decls(fst_top);</span>
-<span class="lineNum">     342 </span><span class="lineNoCov">          0 :    for (int i = 0; i &lt; ndecls; i++) {</span>
-<span class="lineNum">     343 </span><span class="lineNoCov">          0 :       tree_t d = tree_decl(fst_top, i);</span>
-<span class="lineNum">     344 </span>            : 
-<span class="lineNum">     345 </span><span class="lineNoCov">          0 :       switch (tree_kind(d)) {</span>
-<span class="lineNum">     346 </span>            :       case T_SIGNAL_DECL:
-<span class="lineNum">     347 </span><span class="lineNoCov">          0 :          if (wave_should_dump(d))</span>
-<span class="lineNum">     348 </span><span class="lineNoCov">          0 :             fst_process_signal(d);</span>
-<span class="lineNum">     349 </span>            :          break;
-<span class="lineNum">     350 </span>            :       case T_HIER:
-<span class="lineNum">     351 </span><span class="lineNoCov">          0 :          fst_process_hier(d);</span>
-<span class="lineNum">     352 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     353 </span>            :       default:
-<span class="lineNum">     354 </span>            :          break;
-<span class="lineNum">     355 </span>            :       }
-<span class="lineNum">     356 </span>            : 
-<span class="lineNum">     357 </span><span class="lineNoCov">          0 :       int npop = tree_attr_int(d, ident_new(&quot;scope_pop&quot;), 0);</span>
-<span class="lineNum">     358 </span><span class="lineNoCov">          0 :       while (npop-- &gt; 0)</span>
-<span class="lineNum">     359 </span><span class="lineNoCov">          0 :          fstWriterSetUpscope(fst_ctx);</span>
-<span class="lineNum">     360 </span>            :    }
-<span class="lineNum">     361 </span>            : 
-<span class="lineNum">     362 </span><span class="lineNoCov">          0 :    last_time = UINT64_MAX;</span>
-<span class="lineNum">     363 </span>            : 
-<span class="lineNum">     364 </span><span class="lineNoCov">          0 :    for (int i = 0; i &lt; ndecls; i++) {</span>
-<span class="lineNum">     365 </span><span class="lineNoCov">          0 :       tree_t d = tree_decl(fst_top, i);</span>
-<span class="lineNum">     366 </span><span class="lineNoCov">          0 :       if (tree_kind(d) == T_SIGNAL_DECL) {</span>
-<span class="lineNum">     367 </span><span class="lineNoCov">          0 :          fst_data_t *data = tree_attr_ptr(d, fst_data_i);</span>
-<span class="lineNum">     368 </span><span class="lineNoCov">          0 :          if (likely(data != NULL))</span>
-<span class="lineNum">     369 </span><span class="lineNoCov">          0 :             fst_event_cb(0, d, data-&gt;watch, data);</span>
-<span class="lineNum">     370 </span>            :       }
-<span class="lineNum">     371 </span>            :    }
-<a name="372"><span class="lineNum">     372 </span>            : }</a>
-<span class="lineNum">     373 </span>            : 
-<span class="lineNum">     374 </span><span class="lineNoCov">          0 : void fst_init(const char *file, tree_t top)</span>
-<span class="lineNum">     375 </span>            : {
-<span class="lineNum">     376 </span><span class="lineNoCov">          0 :    if ((fst_ctx = fstWriterCreate(file, 1)) == NULL)</span>
-<span class="lineNum">     377 </span><span class="lineNoCov">          0 :       fatal(&quot;fstWriterCreate failed&quot;);</span>
-<span class="lineNum">     378 </span>            : 
-<span class="lineNum">     379 </span><span class="lineNoCov">          0 :    fstWriterSetFileType(fst_ctx, FST_FT_VHDL);</span>
-<span class="lineNum">     380 </span><span class="lineNoCov">          0 :    fstWriterSetTimescale(fst_ctx, -15);</span>
-<span class="lineNum">     381 </span><span class="lineNoCov">          0 :    fstWriterSetVersion(fst_ctx, PACKAGE_STRING);</span>
-<span class="lineNum">     382 </span><span class="lineNoCov">          0 :    fstWriterSetPackType(fst_ctx, 0);</span>
-<span class="lineNum">     383 </span><span class="lineNoCov">          0 :    fstWriterSetRepackOnClose(fst_ctx, 1);</span>
-<span class="lineNum">     384 </span><span class="lineNoCov">          0 :    fstWriterSetParallelMode(fst_ctx, 0);</span>
-<span class="lineNum">     385 </span>            : 
-<span class="lineNum">     386 </span><span class="lineNoCov">          0 :    atexit(fst_close);</span>
-<span class="lineNum">     387 </span>            : 
-<span class="lineNum">     388 </span><span class="lineNoCov">          0 :    fst_top = top;</span>
-<span class="lineNum">     389 </span><span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     182 </span><span class="lineNoCov">          0 :    fst_data_t *data = xcalloc(sizeof(fst_data_t));</span>
+<span class="lineNum">     183 </span>            : 
+<span class="lineNum">     184 </span><span class="lineNoCov">          0 :    int msb = 0, lsb = 0;</span>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span>            :    enum fstVarType vt;
+<span class="lineNum">     187 </span>            :    enum fstSupplementalDataType sdt;
+<span class="lineNum">     188 </span><span class="lineNoCov">          0 :    if (type_is_array(type)) {</span>
+<span class="lineNum">     189 </span><span class="lineNoCov">          0 :       if (array_dimension(type) &gt; 1) {</span>
+<span class="lineNum">     190 </span><span class="lineNoCov">          0 :          warn_at(tree_loc(d), &quot;cannot represent multidimensional arrays &quot;</span>
+<span class="lineNum">     191 </span>            :                  &quot;in FST format&quot;);
+<span class="lineNum">     192 </span><span class="lineNoCov">          0 :          free(data);</span>
+<span class="lineNum">     193 </span><span class="lineNoCov">          0 :          return;</span>
+<span class="lineNum">     194 </span>            :       }
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineNoCov">          0 :       range_t r = range_of(type, 0);</span>
+<span class="lineNum">     197 </span>            : 
+<span class="lineNum">     198 </span>            :       int64_t low, high;
+<span class="lineNum">     199 </span><span class="lineNoCov">          0 :       range_bounds(r, &amp;low, &amp;high);</span>
+<span class="lineNum">     200 </span>            : 
+<span class="lineNum">     201 </span><span class="lineNoCov">          0 :       data-&gt;dir  = r.kind;</span>
+<span class="lineNum">     202 </span><span class="lineNoCov">          0 :       data-&gt;size = high - low + 1;</span>
+<span class="lineNum">     203 </span>            : 
+<span class="lineNum">     204 </span><span class="lineNoCov">          0 :       msb = assume_int(r.left);</span>
+<span class="lineNum">     205 </span><span class="lineNoCov">          0 :       lsb = assume_int(r.right);</span>
+<span class="lineNum">     206 </span>            : 
+<span class="lineNum">     207 </span><span class="lineNoCov">          0 :       type_t elem = type_elem(type);</span>
+<span class="lineNum">     208 </span><span class="lineNoCov">          0 :       if (!fst_can_fmt_chars(elem, data, &amp;vt, &amp;sdt)) {</span>
+<span class="lineNum">     209 </span><span class="lineNoCov">          0 :          warn_at(tree_loc(d), &quot;cannot represent arrays of type %s &quot;</span>
+<span class="lineNum">     210 </span>            :                  &quot;in FST format&quot;, type_pp(elem));
+<span class="lineNum">     211 </span><span class="lineNoCov">          0 :          free(data);</span>
+<span class="lineNum">     212 </span><span class="lineNoCov">          0 :          return;</span>
+<span class="lineNum">     213 </span>            :       }
+<span class="lineNum">     214 </span>            :       else {
+<span class="lineNum">     215 </span><span class="lineNoCov">          0 :          ident_t ident = type_ident(base);</span>
+<span class="lineNum">     216 </span><span class="lineNoCov">          0 :          if (ident == unsigned_i)</span>
+<span class="lineNum">     217 </span><span class="lineNoCov">          0 :             sdt = FST_SDT_VHDL_UNSIGNED;</span>
+<span class="lineNum">     218 </span><span class="lineNoCov">          0 :          else if (ident == signed_i)</span>
+<span class="lineNum">     219 </span><span class="lineNoCov">          0 :             sdt = FST_SDT_VHDL_SIGNED;</span>
+<span class="lineNum">     220 </span>            :       }
+<span class="lineNum">     221 </span>            :    }
+<span class="lineNum">     222 </span>            :    else {
+<span class="lineNum">     223 </span><span class="lineNoCov">          0 :       switch (type_kind(base)) {</span>
+<span class="lineNum">     224 </span>            :       case T_INTEGER:
+<span class="lineNum">     225 </span>            :          {
+<span class="lineNum">     226 </span><span class="lineNoCov">          0 :             ident_t ident = type_ident(type);</span>
+<span class="lineNum">     227 </span><span class="lineNoCov">          0 :             if (ident == natural_i)</span>
+<span class="lineNum">     228 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_VHDL_NATURAL;</span>
+<span class="lineNum">     229 </span><span class="lineNoCov">          0 :             else if (ident == positive_i)</span>
+<span class="lineNum">     230 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_VHDL_POSITIVE;</span>
+<span class="lineNum">     231 </span>            :             else
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_VHDL_INTEGER;</span>
+<span class="lineNum">     233 </span>            : 
+<span class="lineNum">     234 </span>            :             int64_t low, high;
+<span class="lineNum">     235 </span><span class="lineNoCov">          0 :             range_bounds(range_of(type, 0), &amp;low, &amp;high);</span>
+<span class="lineNum">     236 </span>            : 
+<span class="lineNum">     237 </span><span class="lineNoCov">          0 :             vt = FST_VT_VCD_INTEGER;</span>
+<span class="lineNum">     238 </span><span class="lineNoCov">          0 :             data-&gt;size = ilog2(high - low + 1);</span>
+<span class="lineNum">     239 </span><span class="lineNoCov">          0 :             data-&gt;fmt  = fst_fmt_int;</span>
+<span class="lineNum">     240 </span>            :          }
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     242 </span>            : 
+<span class="lineNum">     243 </span>            :       case T_ENUM:
+<span class="lineNum">     244 </span><span class="lineNoCov">          0 :          if (!fst_can_fmt_chars(type, data, &amp;vt, &amp;sdt)) {</span>
+<span class="lineNum">     245 </span><span class="lineNoCov">          0 :             ident_t ident = type_ident(base);</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :             if (ident == std_bool_i)</span>
+<span class="lineNum">     247 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_VHDL_BOOLEAN;</span>
+<span class="lineNum">     248 </span><span class="lineNoCov">          0 :             else if (ident == std_char_i)</span>
+<span class="lineNum">     249 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_VHDL_CHARACTER;</span>
+<span class="lineNum">     250 </span>            :             else
+<span class="lineNum">     251 </span><span class="lineNoCov">          0 :                sdt = FST_SDT_NONE;</span>
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span><span class="lineNoCov">          0 :             vt = FST_VT_GEN_STRING;</span>
+<span class="lineNum">     254 </span><span class="lineNoCov">          0 :             data-&gt;size = 0;</span>
+<span class="lineNum">     255 </span><span class="lineNoCov">          0 :             data-&gt;fmt  = fst_fmt_enum;</span>
+<span class="lineNum">     256 </span>            :          }
+<span class="lineNum">     257 </span>            :          else
+<span class="lineNum">     258 </span><span class="lineNoCov">          0 :             data-&gt;size = 1;</span>
+<span class="lineNum">     259 </span>            :          break;
+<span class="lineNum">     260 </span>            : 
+<span class="lineNum">     261 </span>            :       case T_PHYSICAL:
+<span class="lineNum">     262 </span>            :          {
+<span class="lineNum">     263 </span><span class="lineNoCov">          0 :             sdt = FST_SDT_NONE;</span>
+<span class="lineNum">     264 </span><span class="lineNoCov">          0 :             vt  = FST_VT_GEN_STRING;</span>
+<span class="lineNum">     265 </span><span class="lineNoCov">          0 :             data-&gt;size = 0;</span>
+<span class="lineNum">     266 </span><span class="lineNoCov">          0 :             data-&gt;type.units = fst_make_unit_map(type);</span>
+<span class="lineNum">     267 </span><span class="lineNoCov">          0 :             data-&gt;fmt = fst_fmt_physical;</span>
+<span class="lineNum">     268 </span>            :          }
+<span class="lineNum">     269 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     270 </span>            : 
+<span class="lineNum">     271 </span>            :       default:
+<span class="lineNum">     272 </span><span class="lineNoCov">          0 :          warn_at(tree_loc(d), &quot;cannot represent type %s in FST format&quot;,</span>
+<span class="lineNum">     273 </span>            :                  type_pp(type));
+<span class="lineNum">     274 </span><span class="lineNoCov">          0 :          free(data);</span>
+<span class="lineNum">     275 </span><span class="lineNoCov">          0 :          return;</span>
+<span class="lineNum">     276 </span>            :       }
+<span class="lineNum">     277 </span>            :    }
+<span class="lineNum">     278 </span>            : 
+<span class="lineNum">     279 </span><span class="lineNoCov">          0 :    enum fstVarDir dir = FST_VD_IMPLICIT;</span>
+<span class="lineNum">     280 </span>            : 
+<span class="lineNum">     281 </span><span class="lineNoCov">          0 :    switch (tree_attr_int(d, fst_dir_i, -1)) {</span>
+<span class="lineNum">     282 </span>            :    case PORT_IN: dir = FST_VD_INPUT; break;
+<span class="lineNum">     283 </span>            :    case PORT_OUT: dir = FST_VD_OUTPUT; break;
+<span class="lineNum">     284 </span>            :    case PORT_INOUT: dir = FST_VD_INOUT; break;
+<span class="lineNum">     285 </span>            :    case PORT_BUFFER: dir = FST_VD_BUFFER; break;
+<span class="lineNum">     286 </span>            :    }
+<span class="lineNum">     287 </span>            : 
+<span class="lineNum">     288 </span><span class="lineNoCov">          0 :    const char *name_base = strrchr(istr(tree_ident(d)), ':') + 1;</span>
+<span class="lineNum">     289 </span><span class="lineNoCov">          0 :    const size_t base_len = strlen(name_base);</span>
+<span class="lineNum">     290 </span><span class="lineNoCov">          0 :    char name[base_len + 64];</span>
+<span class="lineNum">     291 </span><span class="lineNoCov">          0 :    strncpy(name, name_base, base_len + 64);</span>
+<span class="lineNum">     292 </span><span class="lineNoCov">          0 :    if (type_is_array(type))</span>
+<span class="lineNum">     293 </span><span class="lineNoCov">          0 :       snprintf(name + base_len, 64, &quot;[%d:%d]\n&quot;, msb, lsb);</span>
+<span class="lineNum">     294 </span>            : 
+<span class="lineNum">     295 </span><span class="lineNoCov">          0 :    data-&gt;handle = fstWriterCreateVar2(</span>
+<span class="lineNum">     296 </span>            :       fst_ctx,
+<span class="lineNum">     297 </span>            :       vt,
+<span class="lineNum">     298 </span>            :       dir,
+<span class="lineNum">     299 </span><span class="lineNoCov">          0 :       data-&gt;size,</span>
+<span class="lineNum">     300 </span>            :       name,
+<span class="lineNum">     301 </span>            :       0,
+<span class="lineNum">     302 </span>            :       type_pp(type),
+<span class="lineNum">     303 </span>            :       FST_SVT_VHDL_SIGNAL,
+<span class="lineNum">     304 </span>            :       sdt);
+<span class="lineNum">     305 </span>            : 
+<span class="lineNum">     306 </span><span class="lineNoCov">          0 :    tree_add_attr_ptr(d, fst_data_i, data);</span>
+<span class="lineNum">     307 </span>            : 
+<span class="lineNum">     308 </span><span class="lineNoCov">          0 :    data-&gt;watch = rt_set_event_cb(d, fst_event_cb, data, true);</span>
+<a name="309"><span class="lineNum">     309 </span>            : }</a>
+<span class="lineNum">     310 </span>            : 
+<span class="lineNum">     311 </span><span class="lineNoCov">          0 : static void fst_process_hier(tree_t h)</span>
+<span class="lineNum">     312 </span>            : {
+<span class="lineNum">     313 </span><span class="lineNoCov">          0 :    const tree_kind_t scope_kind = tree_subkind(h);</span>
+<span class="lineNum">     314 </span>            : 
+<span class="lineNum">     315 </span>            :    enum fstScopeType st;
+<span class="lineNum">     316 </span><span class="lineNoCov">          0 :    switch (scope_kind) {</span>
+<span class="lineNum">     317 </span>            :    case T_ARCH: st = FST_ST_VHDL_ARCHITECTURE; break;
+<span class="lineNum">     318 </span><span class="lineNoCov">          0 :    case T_BLOCK: st = FST_ST_VHDL_BLOCK; break;</span>
+<span class="lineNum">     319 </span><span class="lineNoCov">          0 :    case T_FOR_GENERATE: st = FST_ST_VHDL_FOR_GENERATE; break;</span>
+<span class="lineNum">     320 </span><span class="lineNoCov">          0 :    case T_PACKAGE: st = FST_ST_VHDL_PACKAGE; break;</span>
+<span class="lineNum">     321 </span>            :    default:
+<span class="lineNum">     322 </span><span class="lineNoCov">          0 :       st = FST_ST_VHDL_ARCHITECTURE;</span>
+<span class="lineNum">     323 </span><span class="lineNoCov">          0 :       warn_at(tree_loc(h), &quot;no FST scope type for %s&quot;,</span>
+<span class="lineNum">     324 </span>            :               tree_kind_str(scope_kind));
+<span class="lineNum">     325 </span><span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     326 </span>            :    }
+<span class="lineNum">     327 </span>            : 
+<span class="lineNum">     328 </span><span class="lineNoCov">          0 :    const loc_t *loc = tree_loc(h);</span>
+<span class="lineNum">     329 </span><span class="lineNoCov">          0 :    fstWriterSetSourceStem(fst_ctx, istr(loc-&gt;file), loc-&gt;first_line, 1);</span>
+<span class="lineNum">     330 </span>            : 
+<span class="lineNum">     331 </span><span class="lineNoCov">          0 :    fstWriterSetScope(fst_ctx, st, istr(tree_ident(h)),</span>
+<span class="lineNum">     332 </span><span class="lineNoCov">          0 :                      tree_has_ident2(h) ? istr(tree_ident2(h)) : &quot;&quot;);</span>
+<a name="333"><span class="lineNum">     333 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     334 </span>            : 
+<span class="lineNum">     335 </span><span class="lineCov">        308 : void fst_restart(void)</span>
+<span class="lineNum">     336 </span>            : {
+<span class="lineNum">     337 </span><span class="lineCov">        308 :    if (fst_ctx == NULL)</span>
+<span class="lineNum">     338 </span><span class="lineCov">        308 :       return;</span>
+<span class="lineNum">     339 </span>            : 
+<span class="lineNum">     340 </span><span class="lineNoCov">          0 :    const int ndecls = tree_decls(fst_top);</span>
+<span class="lineNum">     341 </span><span class="lineNoCov">          0 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">     342 </span><span class="lineNoCov">          0 :       tree_t d = tree_decl(fst_top, i);</span>
+<span class="lineNum">     343 </span>            : 
+<span class="lineNum">     344 </span><span class="lineNoCov">          0 :       switch (tree_kind(d)) {</span>
+<span class="lineNum">     345 </span>            :       case T_SIGNAL_DECL:
+<span class="lineNum">     346 </span><span class="lineNoCov">          0 :          if (wave_should_dump(d))</span>
+<span class="lineNum">     347 </span><span class="lineNoCov">          0 :             fst_process_signal(d);</span>
+<span class="lineNum">     348 </span>            :          break;
+<span class="lineNum">     349 </span>            :       case T_HIER:
+<span class="lineNum">     350 </span><span class="lineNoCov">          0 :          fst_process_hier(d);</span>
+<span class="lineNum">     351 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     352 </span>            :       default:
+<span class="lineNum">     353 </span>            :          break;
+<span class="lineNum">     354 </span>            :       }
+<span class="lineNum">     355 </span>            : 
+<span class="lineNum">     356 </span><span class="lineNoCov">          0 :       int npop = tree_attr_int(d, ident_new(&quot;scope_pop&quot;), 0);</span>
+<span class="lineNum">     357 </span><span class="lineNoCov">          0 :       while (npop-- &gt; 0)</span>
+<span class="lineNum">     358 </span><span class="lineNoCov">          0 :          fstWriterSetUpscope(fst_ctx);</span>
+<span class="lineNum">     359 </span>            :    }
+<span class="lineNum">     360 </span>            : 
+<span class="lineNum">     361 </span><span class="lineNoCov">          0 :    last_time = UINT64_MAX;</span>
+<span class="lineNum">     362 </span>            : 
+<span class="lineNum">     363 </span><span class="lineNoCov">          0 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">     364 </span><span class="lineNoCov">          0 :       tree_t d = tree_decl(fst_top, i);</span>
+<span class="lineNum">     365 </span><span class="lineNoCov">          0 :       if (tree_kind(d) == T_SIGNAL_DECL) {</span>
+<span class="lineNum">     366 </span><span class="lineNoCov">          0 :          fst_data_t *data = tree_attr_ptr(d, fst_data_i);</span>
+<span class="lineNum">     367 </span><span class="lineNoCov">          0 :          if (likely(data != NULL))</span>
+<span class="lineNum">     368 </span><span class="lineNoCov">          0 :             fst_event_cb(0, d, data-&gt;watch, data);</span>
+<span class="lineNum">     369 </span>            :       }
+<span class="lineNum">     370 </span>            :    }
+<a name="371"><span class="lineNum">     371 </span>            : }</a>
+<span class="lineNum">     372 </span>            : 
+<span class="lineNum">     373 </span><span class="lineNoCov">          0 : void fst_init(const char *file, tree_t top)</span>
+<span class="lineNum">     374 </span>            : {
+<span class="lineNum">     375 </span><span class="lineNoCov">          0 :    if ((fst_ctx = fstWriterCreate(file, 1)) == NULL)</span>
+<span class="lineNum">     376 </span><span class="lineNoCov">          0 :       fatal(&quot;fstWriterCreate failed&quot;);</span>
+<span class="lineNum">     377 </span>            : 
+<span class="lineNum">     378 </span><span class="lineNoCov">          0 :    fstWriterSetFileType(fst_ctx, FST_FT_VHDL);</span>
+<span class="lineNum">     379 </span><span class="lineNoCov">          0 :    fstWriterSetTimescale(fst_ctx, -15);</span>
+<span class="lineNum">     380 </span><span class="lineNoCov">          0 :    fstWriterSetVersion(fst_ctx, PACKAGE_STRING);</span>
+<span class="lineNum">     381 </span><span class="lineNoCov">          0 :    fstWriterSetPackType(fst_ctx, 0);</span>
+<span class="lineNum">     382 </span><span class="lineNoCov">          0 :    fstWriterSetRepackOnClose(fst_ctx, 1);</span>
+<span class="lineNum">     383 </span><span class="lineNoCov">          0 :    fstWriterSetParallelMode(fst_ctx, 0);</span>
+<span class="lineNum">     384 </span>            : 
+<span class="lineNum">     385 </span><span class="lineNoCov">          0 :    atexit(fst_close);</span>
+<span class="lineNum">     386 </span>            : 
+<span class="lineNum">     387 </span><span class="lineNoCov">          0 :    fst_top = top;</span>
+<span class="lineNum">     388 </span><span class="lineNoCov">          0 : }</span>
 </pre>
       </td>
     </tr>
