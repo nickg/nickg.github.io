@@ -165,9 +165,9 @@
 <span class="lineNum">     103 </span>            :    __attribute__((cleanup(emit_debug_info))) \
 <a name="104"><span class="lineNum">     104 </span>            :    const loc_t _old_loc = *vcode_last_loc()</a>
 <span class="lineNum">     105 </span>            : 
-<span class="lineNum">     106 </span><span class="lineCov">      33055 : static bool lower_is_const(tree_t t)</span>
+<span class="lineNum">     106 </span><span class="lineCov">      33193 : static bool lower_is_const(tree_t t)</span>
 <span class="lineNum">     107 </span>            : {
-<span class="lineNum">     108 </span><span class="lineCov">      33055 :    if (tree_kind(t) == T_AGGREGATE) {</span>
+<span class="lineNum">     108 </span><span class="lineCov">      33193 :    if (tree_kind(t) == T_AGGREGATE) {</span>
 <span class="lineNum">     109 </span><span class="lineCov">       1483 :       bool is_const = true;</span>
 <span class="lineNum">     110 </span><span class="lineCov">       1483 :       const int nassocs = tree_assocs(t);</span>
 <span class="lineNum">     111 </span><span class="lineCov">       6772 :       for (int i = 0; i &lt; nassocs; i++)</span>
@@ -175,37 +175,37 @@
 <span class="lineNum">     113 </span>            :       return is_const;
 <span class="lineNum">     114 </span>            :    }
 <span class="lineNum">     115 </span>            :    else
-<span class="lineNum">     116 </span><span class="lineCov">      63144 :       return tree_kind(t) == T_LITERAL</span>
-<span class="lineNum">     117 </span><span class="lineCov">      31572 :          || (tree_kind(t) == T_REF &amp;&amp; tree_kind(tree_ref(t)) == T_ENUM_LIT);</span>
+<span class="lineNum">     116 </span><span class="lineCov">      63420 :       return tree_kind(t) == T_LITERAL</span>
+<span class="lineNum">     117 </span><span class="lineCov">      31710 :          || (tree_kind(t) == T_REF &amp;&amp; tree_kind(tree_ref(t)) == T_ENUM_LIT);</span>
 <a name="118"><span class="lineNum">     118 </span>            : }</a>
 <span class="lineNum">     119 </span>            : 
-<span class="lineNum">     120 </span><span class="lineCov">      34960 : static bool lower_const_bounds(type_t type)</span>
+<span class="lineNum">     120 </span><span class="lineCov">      35045 : static bool lower_const_bounds(type_t type)</span>
 <span class="lineNum">     121 </span>            : {
-<span class="lineNum">     122 </span><span class="lineCov">      35202 :    assert(type_is_array(type));</span>
+<span class="lineNum">     122 </span><span class="lineCov">      35287 :    assert(type_is_array(type));</span>
 <span class="lineNum">     123 </span>            : 
-<span class="lineNum">     124 </span><span class="lineCov">      35202 :    if (type_is_unconstrained(type))</span>
+<span class="lineNum">     124 </span><span class="lineCov">      35287 :    if (type_is_unconstrained(type))</span>
 <span class="lineNum">     125 </span>            :       return false;
 <span class="lineNum">     126 </span>            :    else {
-<span class="lineNum">     127 </span><span class="lineCov">      13833 :       const int ndims = array_dimension(type);</span>
-<span class="lineNum">     128 </span><span class="lineCov">      46830 :       for (int i = 0; i &lt; ndims; i++) {</span>
-<span class="lineNum">     129 </span><span class="lineCov">      14144 :          range_t r = range_of(type, i);</span>
-<span class="lineNum">     130 </span><span class="lineCov">      14144 :          if (!lower_is_const(r.left) || !lower_is_const(r.right))</span>
+<span class="lineNum">     127 </span><span class="lineCov">      13902 :       const int ndims = array_dimension(type);</span>
+<span class="lineNum">     128 </span><span class="lineCov">      47106 :       for (int i = 0; i &lt; ndims; i++) {</span>
+<span class="lineNum">     129 </span><span class="lineCov">      14213 :          range_t r = range_of(type, i);</span>
+<span class="lineNum">     130 </span><span class="lineCov">      14213 :          if (!lower_is_const(r.left) || !lower_is_const(r.right))</span>
 <span class="lineNum">     131 </span><span class="lineCov">       4562 :             return false;</span>
-<span class="lineNum">     132 </span><span class="lineCov">       9582 :          else if (r.kind != RANGE_TO &amp;&amp; r.kind != RANGE_DOWNTO)</span>
+<span class="lineNum">     132 </span><span class="lineCov">       9651 :          else if (r.kind != RANGE_TO &amp;&amp; r.kind != RANGE_DOWNTO)</span>
 <span class="lineNum">     133 </span>            :             return false;
 <span class="lineNum">     134 </span>            :       }
 <span class="lineNum">     135 </span>            : 
-<span class="lineNum">     136 </span><span class="lineCov">       9271 :       type_t elem = type_elem(type);</span>
-<span class="lineNum">     137 </span><span class="lineCov">       9271 :       return type_is_array(elem) ? lower_const_bounds(elem) : true;</span>
+<span class="lineNum">     136 </span><span class="lineCov">       9340 :       type_t elem = type_elem(type);</span>
+<span class="lineNum">     137 </span><span class="lineCov">       9340 :       return type_is_array(elem) ? lower_const_bounds(elem) : true;</span>
 <span class="lineNum">     138 </span>            :    }
 <a name="139"><span class="lineNum">     139 </span>            : }</a>
 <span class="lineNum">     140 </span>            : 
-<span class="lineNum">     141 </span><span class="lineCov">      12671 : static vcode_reg_t lower_array_data(vcode_reg_t reg)</span>
+<span class="lineNum">     141 </span><span class="lineCov">      12702 : static vcode_reg_t lower_array_data(vcode_reg_t reg)</span>
 <span class="lineNum">     142 </span>            : {
-<span class="lineNum">     143 </span><span class="lineCov">      12671 :    vcode_type_t type = vcode_reg_type(reg);</span>
-<span class="lineNum">     144 </span><span class="lineCov">      12671 :    switch (vtype_kind(type)) {</span>
+<span class="lineNum">     143 </span><span class="lineCov">      12702 :    vcode_type_t type = vcode_reg_type(reg);</span>
+<span class="lineNum">     144 </span><span class="lineCov">      12702 :    switch (vtype_kind(type)) {</span>
 <span class="lineNum">     145 </span>            :    case VCODE_TYPE_UARRAY:
-<span class="lineNum">     146 </span><span class="lineCov">       5175 :       return emit_unwrap(reg);</span>
+<span class="lineNum">     146 </span><span class="lineCov">       5183 :       return emit_unwrap(reg);</span>
 <span class="lineNum">     147 </span>            : 
 <span class="lineNum">     148 </span>            :    case VCODE_TYPE_POINTER:
 <span class="lineNum">     149 </span>            :    case VCODE_TYPE_SIGNAL:
@@ -249,12 +249,12 @@
 <span class="lineNum">     187 </span>            :    }
 <a name="188"><span class="lineNum">     188 </span>            : }</a>
 <span class="lineNum">     189 </span>            : 
-<span class="lineNum">     190 </span><span class="lineCov">       6029 : static vcode_reg_t lower_range_dir(range_t r, int dim)</span>
+<span class="lineNum">     190 </span><span class="lineCov">       6044 : static vcode_reg_t lower_range_dir(range_t r, int dim)</span>
 <span class="lineNum">     191 </span>            : {
-<span class="lineNum">     192 </span><span class="lineCov">       6029 :    switch (r.kind) {</span>
+<span class="lineNum">     192 </span><span class="lineCov">       6044 :    switch (r.kind) {</span>
 <span class="lineNum">     193 </span>            :    case RANGE_TO:
 <span class="lineNum">     194 </span>            :    case RANGE_DOWNTO:
-<span class="lineNum">     195 </span><span class="lineCov">       5043 :       return emit_const(vtype_bool(), r.kind);</span>
+<span class="lineNum">     195 </span><span class="lineCov">       5058 :       return emit_const(vtype_bool(), r.kind);</span>
 <span class="lineNum">     196 </span>            : 
 <span class="lineNum">     197 </span>            :    case RANGE_DYN:
 <span class="lineNum">     198 </span>            :    case RANGE_RDYN:
@@ -279,31 +279,31 @@
 <span class="lineNum">     217 </span>            :    }
 <a name="218"><span class="lineNum">     218 </span>            : }</a>
 <span class="lineNum">     219 </span>            : 
-<span class="lineNum">     220 </span><span class="lineCov">       8444 : static vcode_reg_t lower_array_dir(type_t type, int dim, vcode_reg_t reg)</span>
+<span class="lineNum">     220 </span><span class="lineCov">       8459 : static vcode_reg_t lower_array_dir(type_t type, int dim, vcode_reg_t reg)</span>
 <span class="lineNum">     221 </span>            : {
-<span class="lineNum">     222 </span><span class="lineCov">       8444 :    if (type_is_unconstrained(type)) {</span>
+<span class="lineNum">     222 </span><span class="lineCov">       8459 :    if (type_is_unconstrained(type)) {</span>
 <span class="lineNum">     223 </span><span class="lineCov">       3294 :       assert(reg != VCODE_INVALID_REG);</span>
 <span class="lineNum">     224 </span><span class="lineCov">       3294 :       assert(vcode_reg_kind(reg) == VCODE_TYPE_UARRAY);</span>
 <span class="lineNum">     225 </span><span class="lineCov">       3294 :       return emit_uarray_dir(reg, dim);</span>
 <span class="lineNum">     226 </span>            :    }
 <span class="lineNum">     227 </span>            :    else {
-<span class="lineNum">     228 </span><span class="lineCov">       5150 :       assert(!type_is_unconstrained(type));</span>
-<span class="lineNum">     229 </span><span class="lineCov">       5150 :       return lower_range_dir(range_of(type, dim), dim);</span>
+<span class="lineNum">     228 </span><span class="lineCov">       5165 :       assert(!type_is_unconstrained(type));</span>
+<span class="lineNum">     229 </span><span class="lineCov">       5165 :       return lower_range_dir(range_of(type, dim), dim);</span>
 <span class="lineNum">     230 </span>            :    }
 <a name="231"><span class="lineNum">     231 </span>            : }</a>
 <span class="lineNum">     232 </span>            : 
-<span class="lineNum">     233 </span><span class="lineCov">      17285 : static vcode_reg_t lower_array_len(type_t type, int dim, vcode_reg_t reg)</span>
+<span class="lineNum">     233 </span><span class="lineCov">      17316 : static vcode_reg_t lower_array_len(type_t type, int dim, vcode_reg_t reg)</span>
 <span class="lineNum">     234 </span>            : {
-<span class="lineNum">     235 </span><span class="lineCov">      17285 :    if (type_is_unconstrained(type)) {</span>
-<span class="lineNum">     236 </span><span class="lineCov">       9415 :       assert(reg != VCODE_INVALID_REG);</span>
-<span class="lineNum">     237 </span><span class="lineCov">       9415 :       return emit_uarray_len(reg, dim);</span>
+<span class="lineNum">     235 </span><span class="lineCov">      17316 :    if (type_is_unconstrained(type)) {</span>
+<span class="lineNum">     236 </span><span class="lineCov">       9423 :       assert(reg != VCODE_INVALID_REG);</span>
+<span class="lineNum">     237 </span><span class="lineCov">       9423 :       return emit_uarray_len(reg, dim);</span>
 <span class="lineNum">     238 </span>            :    }
 <span class="lineNum">     239 </span>            :    else {
-<span class="lineNum">     240 </span><span class="lineCov">       7870 :       range_t r = range_of(type, dim);</span>
+<span class="lineNum">     240 </span><span class="lineCov">       7893 :       range_t r = range_of(type, dim);</span>
 <span class="lineNum">     241 </span>            : 
 <span class="lineNum">     242 </span>            :       int64_t low, high;
-<span class="lineNum">     243 </span><span class="lineCov">       7870 :       if (folded_bounds(r, &amp;low, &amp;high))</span>
-<span class="lineNum">     244 </span><span class="lineCov">       4623 :          return emit_const(vtype_offset(), MAX(high - low + 1, 0));</span>
+<span class="lineNum">     243 </span><span class="lineCov">       7893 :       if (folded_bounds(r, &amp;low, &amp;high))</span>
+<span class="lineNum">     244 </span><span class="lineCov">       4646 :          return emit_const(vtype_offset(), MAX(high - low + 1, 0));</span>
 <span class="lineNum">     245 </span>            : 
 <span class="lineNum">     246 </span><span class="lineCov">       3247 :       vcode_reg_t left_reg  = lower_reify_expr(r.left);</span>
 <span class="lineNum">     247 </span><span class="lineCov">       3247 :       vcode_reg_t right_reg = lower_reify_expr(r.right);</span>
@@ -344,60 +344,60 @@
 <span class="lineNum">     282 </span>            :    }
 <a name="283"><span class="lineNum">     283 </span>            : }</a>
 <span class="lineNum">     284 </span>            : 
-<span class="lineNum">     285 </span><span class="lineCov">       5052 : static vcode_reg_t lower_array_total_len(type_t type, vcode_reg_t reg)</span>
+<span class="lineNum">     285 </span><span class="lineCov">       5068 : static vcode_reg_t lower_array_total_len(type_t type, vcode_reg_t reg)</span>
 <span class="lineNum">     286 </span>            : {
-<span class="lineNum">     287 </span><span class="lineCov">       5052 :    const int ndims = array_dimension(type);</span>
+<span class="lineNum">     287 </span><span class="lineCov">       5068 :    const int ndims = array_dimension(type);</span>
 <span class="lineNum">     288 </span>            : 
-<span class="lineNum">     289 </span><span class="lineCov">       5052 :    vcode_reg_t total = VCODE_INVALID_REG;</span>
-<span class="lineNum">     290 </span><span class="lineCov">      10162 :    for (int i = 0; i &lt; ndims; i++) {</span>
-<span class="lineNum">     291 </span><span class="lineCov">       5110 :       vcode_reg_t this = lower_array_len(type, i, reg);</span>
-<span class="lineNum">     292 </span><span class="lineCov">       5110 :       if (total == VCODE_INVALID_REG)</span>
+<span class="lineNum">     289 </span><span class="lineCov">       5068 :    vcode_reg_t total = VCODE_INVALID_REG;</span>
+<span class="lineNum">     290 </span><span class="lineCov">      10194 :    for (int i = 0; i &lt; ndims; i++) {</span>
+<span class="lineNum">     291 </span><span class="lineCov">       5126 :       vcode_reg_t this = lower_array_len(type, i, reg);</span>
+<span class="lineNum">     292 </span><span class="lineCov">       5126 :       if (total == VCODE_INVALID_REG)</span>
 <span class="lineNum">     293 </span>            :          total = this;
 <span class="lineNum">     294 </span>            :       else
 <span class="lineNum">     295 </span><span class="lineCov">         58 :          total = emit_mul(this, total);</span>
 <span class="lineNum">     296 </span>            :    }
 <span class="lineNum">     297 </span>            : 
-<span class="lineNum">     298 </span><span class="lineCov">       5052 :    type_t elem = type_elem(type);</span>
-<span class="lineNum">     299 </span><span class="lineCov">       5052 :    if (type_is_array(elem))</span>
+<span class="lineNum">     298 </span><span class="lineCov">       5068 :    type_t elem = type_elem(type);</span>
+<span class="lineNum">     299 </span><span class="lineCov">       5068 :    if (type_is_array(elem))</span>
 <span class="lineNum">     300 </span><span class="lineCov">         44 :       return emit_mul(total, lower_array_total_len(elem, VCODE_INVALID_REG));</span>
 <span class="lineNum">     301 </span>            :    else
 <span class="lineNum">     302 </span>            :       return total;
 <a name="303"><span class="lineNum">     303 </span>            : }</a>
 <span class="lineNum">     304 </span>            : 
-<span class="lineNum">     305 </span><span class="lineCov">       4454 : static int lower_array_const_size(type_t type)</span>
+<span class="lineNum">     305 </span><span class="lineCov">       4477 : static int lower_array_const_size(type_t type)</span>
 <span class="lineNum">     306 </span>            : {
-<span class="lineNum">     307 </span><span class="lineCov">       4454 :    const int ndims = array_dimension(type);</span>
+<span class="lineNum">     307 </span><span class="lineCov">       4477 :    const int ndims = array_dimension(type);</span>
 <span class="lineNum">     308 </span>            : 
-<span class="lineNum">     309 </span><span class="lineCov">       4454 :    int size = 1;</span>
-<span class="lineNum">     310 </span><span class="lineCov">       9097 :    for (int i = 0; i &lt; ndims; i++) {</span>
-<span class="lineNum">     311 </span><span class="lineCov">       4643 :       range_t r = range_of(type, i);</span>
+<span class="lineNum">     309 </span><span class="lineCov">       4477 :    int size = 1;</span>
+<span class="lineNum">     310 </span><span class="lineCov">       9143 :    for (int i = 0; i &lt; ndims; i++) {</span>
+<span class="lineNum">     311 </span><span class="lineCov">       4666 :       range_t r = range_of(type, i);</span>
 <span class="lineNum">     312 </span>            :       int64_t low, high;
-<span class="lineNum">     313 </span><span class="lineCov">       4643 :       range_bounds(r, &amp;low, &amp;high);</span>
-<span class="lineNum">     314 </span><span class="lineCov">       4643 :       size *= MAX(high - low + 1, 0);</span>
+<span class="lineNum">     313 </span><span class="lineCov">       4666 :       range_bounds(r, &amp;low, &amp;high);</span>
+<span class="lineNum">     314 </span><span class="lineCov">       4666 :       size *= MAX(high - low + 1, 0);</span>
 <span class="lineNum">     315 </span>            :    }
 <span class="lineNum">     316 </span>            : 
-<span class="lineNum">     317 </span><span class="lineCov">       4454 :    type_t elem = type_elem(type);</span>
-<span class="lineNum">     318 </span><span class="lineCov">       4454 :    return type_is_array(elem) ? size * lower_array_const_size(elem) : size;</span>
+<span class="lineNum">     317 </span><span class="lineCov">       4477 :    type_t elem = type_elem(type);</span>
+<span class="lineNum">     318 </span><span class="lineCov">       4477 :    return type_is_array(elem) ? size * lower_array_const_size(elem) : size;</span>
 <a name="319"><span class="lineNum">     319 </span>            : }</a>
 <span class="lineNum">     320 </span>            : 
-<span class="lineNum">     321 </span><span class="lineCov">       9778 : static type_t lower_elem_recur(type_t type)</span>
+<span class="lineNum">     321 </span><span class="lineCov">       9809 : static type_t lower_elem_recur(type_t type)</span>
 <span class="lineNum">     322 </span>            : {
-<span class="lineNum">     323 </span><span class="lineCov">      28735 :    while (type_is_array(type))</span>
-<span class="lineNum">     324 </span><span class="lineCov">       9179 :       type = type_elem(type);</span>
-<span class="lineNum">     325 </span><span class="lineCov">       9778 :    return type;</span>
+<span class="lineNum">     323 </span><span class="lineCov">      28828 :    while (type_is_array(type))</span>
+<span class="lineNum">     324 </span><span class="lineCov">       9210 :       type = type_elem(type);</span>
+<span class="lineNum">     325 </span><span class="lineCov">       9809 :    return type;</span>
 <a name="326"><span class="lineNum">     326 </span>            : }</a>
 <span class="lineNum">     327 </span>            : 
-<span class="lineNum">     328 </span><span class="lineCov">       8311 : static vcode_type_t lower_array_type(type_t type)</span>
+<span class="lineNum">     328 </span><span class="lineCov">       8342 : static vcode_type_t lower_array_type(type_t type)</span>
 <span class="lineNum">     329 </span>            : {
-<span class="lineNum">     330 </span><span class="lineCov">       8311 :    type_t elem = lower_elem_recur(type);</span>
+<span class="lineNum">     330 </span><span class="lineCov">       8342 :    type_t elem = lower_elem_recur(type);</span>
 <span class="lineNum">     331 </span>            : 
-<span class="lineNum">     332 </span><span class="lineCov">       8311 :    vcode_type_t elem_type   = lower_type(elem);</span>
-<span class="lineNum">     333 </span><span class="lineCov">       8311 :    vcode_type_t elem_bounds = lower_bounds(elem);</span>
+<span class="lineNum">     332 </span><span class="lineCov">       8342 :    vcode_type_t elem_type   = lower_type(elem);</span>
+<span class="lineNum">     333 </span><span class="lineCov">       8342 :    vcode_type_t elem_bounds = lower_bounds(elem);</span>
 <span class="lineNum">     334 </span>            : 
-<span class="lineNum">     335 </span><span class="lineCov">       8311 :    if (lower_const_bounds(type))</span>
-<span class="lineNum">     336 </span><span class="lineCov">       3407 :       return vtype_carray(lower_array_const_size(type), elem_type, elem_bounds);</span>
+<span class="lineNum">     335 </span><span class="lineCov">       8342 :    if (lower_const_bounds(type))</span>
+<span class="lineNum">     336 </span><span class="lineCov">       3430 :       return vtype_carray(lower_array_const_size(type), elem_type, elem_bounds);</span>
 <span class="lineNum">     337 </span>            :    else
-<span class="lineNum">     338 </span><span class="lineCov">       4904 :       return vtype_uarray(array_dimension(type), elem_type, elem_bounds);</span>
+<span class="lineNum">     338 </span><span class="lineCov">       4912 :       return vtype_uarray(array_dimension(type), elem_type, elem_bounds);</span>
 <a name="339"><span class="lineNum">     339 </span>            : }</a>
 <span class="lineNum">     340 </span>            : 
 <span class="lineNum">     341 </span><span class="lineCov">       2602 : static ident_t lower_record_unique_name(type_t type)</span>
@@ -414,33 +414,33 @@
 <span class="lineNum">     352 </span>            :       return name;
 <a name="353"><span class="lineNum">     353 </span>            : }</a>
 <span class="lineNum">     354 </span>            : 
-<span class="lineNum">     355 </span><span class="lineCov">     149007 : static vcode_type_t lower_type(type_t type)</span>
+<span class="lineNum">     355 </span><span class="lineCov">     149187 : static vcode_type_t lower_type(type_t type)</span>
 <span class="lineNum">     356 </span>            : {
-<span class="lineNum">     357 </span><span class="lineCov">     149007 :    switch (type_kind(type)) {</span>
+<span class="lineNum">     357 </span><span class="lineCov">     149187 :    switch (type_kind(type)) {</span>
 <span class="lineNum">     358 </span>            :    case T_SUBTYPE:
-<span class="lineNum">     359 </span><span class="lineCov">      36595 :       if (type_is_array(type))</span>
-<span class="lineNum">     360 </span><span class="lineCov">       3961 :          return lower_array_type(type);</span>
+<span class="lineNum">     359 </span><span class="lineCov">      36642 :       if (type_is_array(type))</span>
+<span class="lineNum">     360 </span><span class="lineCov">       3984 :          return lower_array_type(type);</span>
 <span class="lineNum">     361 </span>            :       else
-<span class="lineNum">     362 </span><span class="lineCov">      32634 :          return lower_type(type_base(type));</span>
+<span class="lineNum">     362 </span><span class="lineCov">      32658 :          return lower_type(type_base(type));</span>
 <span class="lineNum">     363 </span>            : 
 <span class="lineNum">     364 </span>            :    case T_UARRAY:
 <span class="lineNum">     365 </span>            :    case T_CARRAY:
-<span class="lineNum">     366 </span><span class="lineCov">       4350 :          return lower_array_type(type);</span>
+<span class="lineNum">     366 </span><span class="lineCov">       4358 :          return lower_array_type(type);</span>
 <span class="lineNum">     367 </span>            : 
 <span class="lineNum">     368 </span>            :    case T_PHYSICAL:
 <span class="lineNum">     369 </span>            :    case T_INTEGER:
 <span class="lineNum">     370 </span>            :       {
-<span class="lineNum">     371 </span><span class="lineCov">      69808 :          range_t r = type_dim(type, 0);</span>
+<span class="lineNum">     371 </span><span class="lineCov">      69840 :          range_t r = type_dim(type, 0);</span>
 <span class="lineNum">     372 </span>            :          int64_t low, high;
-<span class="lineNum">     373 </span><span class="lineCov">      69808 :          const bool folded = folded_bounds(r, &amp;low, &amp;high);</span>
-<span class="lineNum">     374 </span><span class="lineCov">      69808 :          if (folded)</span>
-<span class="lineNum">     375 </span><span class="lineCov">      69738 :             return vtype_int(low, high);</span>
+<span class="lineNum">     373 </span><span class="lineCov">      69840 :          const bool folded = folded_bounds(r, &amp;low, &amp;high);</span>
+<span class="lineNum">     374 </span><span class="lineCov">      69840 :          if (folded)</span>
+<span class="lineNum">     375 </span><span class="lineCov">      69770 :             return vtype_int(low, high);</span>
 <span class="lineNum">     376 </span>            :          else
 <span class="lineNum">     377 </span><span class="lineCov">         70 :             return vtype_int(INT64_MIN, INT64_MAX);</span>
 <span class="lineNum">     378 </span>            :       }
 <span class="lineNum">     379 </span>            : 
 <span class="lineNum">     380 </span>            :    case T_ENUM:
-<span class="lineNum">     381 </span><span class="lineCov">      32855 :       return vtype_int(0, type_enum_literals(type) - 1);</span>
+<span class="lineNum">     381 </span><span class="lineCov">      32948 :       return vtype_int(0, type_enum_literals(type) - 1);</span>
 <span class="lineNum">     382 </span>            : 
 <span class="lineNum">     383 </span>            :    case T_RECORD:
 <span class="lineNum">     384 </span>            :       {
@@ -503,9 +503,9 @@
 <span class="lineNum">     441 </span>            :    }
 <a name="442"><span class="lineNum">     442 </span>            : }</a>
 <span class="lineNum">     443 </span>            : 
-<span class="lineNum">     444 </span><span class="lineCov">      33448 : static vcode_type_t lower_bounds(type_t type)</span>
+<span class="lineNum">     444 </span><span class="lineCov">      33479 : static vcode_type_t lower_bounds(type_t type)</span>
 <span class="lineNum">     445 </span>            : {
-<span class="lineNum">     446 </span><span class="lineCov">      33448 :    if (type_kind(type) == T_SUBTYPE</span>
+<span class="lineNum">     446 </span><span class="lineCov">      33479 :    if (type_kind(type) == T_SUBTYPE</span>
 <span class="lineNum">     447 </span><span class="lineCov">      13868 :        &amp;&amp; (type_is_integer(type) || type_is_enum(type))) {</span>
 <span class="lineNum">     448 </span><span class="lineCov">      12810 :       range_t r = range_of(type, 0);</span>
 <span class="lineNum">     449 </span>            :       int64_t low, high;
@@ -513,7 +513,7 @@
 <span class="lineNum">     451 </span><span class="lineCov">      12809 :          return vtype_int(low, high);</span>
 <span class="lineNum">     452 </span>            :    }
 <span class="lineNum">     453 </span>            : 
-<span class="lineNum">     454 </span><span class="lineCov">      20639 :    return lower_type(type);</span>
+<span class="lineNum">     454 </span><span class="lineCov">      20670 :    return lower_type(type);</span>
 <a name="455"><span class="lineNum">     455 </span>            : }</a>
 <span class="lineNum">     456 </span>            : 
 <span class="lineNum">     457 </span><span class="lineCov">        213 : static vcode_type_t lower_signal_type(type_t type)</span>
@@ -529,12 +529,12 @@
 <span class="lineNum">     467 </span><span class="lineCov">        166 :       return vtype_signal(lower_type(type));</span>
 <a name="468"><span class="lineNum">     468 </span>            : }</a>
 <span class="lineNum">     469 </span>            : 
-<span class="lineNum">     470 </span><span class="lineCov">      77097 : static vcode_reg_t lower_reify(vcode_reg_t reg)</span>
+<span class="lineNum">     470 </span><span class="lineCov">      77113 : static vcode_reg_t lower_reify(vcode_reg_t reg)</span>
 <span class="lineNum">     471 </span>            : {
-<span class="lineNum">     472 </span><span class="lineCov">      77097 :    if (reg == VCODE_INVALID_REG)</span>
+<span class="lineNum">     472 </span><span class="lineCov">      77113 :    if (reg == VCODE_INVALID_REG)</span>
 <span class="lineNum">     473 </span>            :       return reg;
 <span class="lineNum">     474 </span>            : 
-<span class="lineNum">     475 </span><span class="lineCov">      77097 :    switch (vtype_kind(vcode_reg_type(reg))) {</span>
+<span class="lineNum">     475 </span><span class="lineCov">      77113 :    switch (vtype_kind(vcode_reg_type(reg))) {</span>
 <span class="lineNum">     476 </span>            :    case VCODE_TYPE_POINTER:
 <span class="lineNum">     477 </span><span class="lineCov">       3072 :       return emit_load_indirect(reg);</span>
 <span class="lineNum">     478 </span>            :    case VCODE_TYPE_SIGNAL:
@@ -660,37 +660,37 @@
 <span class="lineNum">     598 </span>            :    }
 <a name="599"><span class="lineNum">     599 </span><span class="lineCov">      10310 : }</span></a>
 <span class="lineNum">     600 </span>            : 
-<span class="lineNum">     601 </span><span class="lineCov">      52080 : static bool lower_have_signal(vcode_reg_t reg)</span>
+<span class="lineNum">     601 </span><span class="lineCov">      52127 : static bool lower_have_signal(vcode_reg_t reg)</span>
 <span class="lineNum">     602 </span>            : {
-<span class="lineNum">     603 </span><span class="lineCov">      52080 :    const vtype_kind_t reg_kind = vcode_reg_kind(reg);</span>
-<span class="lineNum">     604 </span><span class="lineCov">      52080 :    return reg_kind == VCODE_TYPE_SIGNAL</span>
-<span class="lineNum">     605 </span><span class="lineCov">      52080 :       || (reg_kind == VCODE_TYPE_UARRAY</span>
-<span class="lineNum">     606 </span><span class="lineCov">      11436 :           &amp;&amp; vtype_kind(vtype_elem(vcode_reg_type(reg))) == VCODE_TYPE_SIGNAL);</span>
+<span class="lineNum">     603 </span><span class="lineCov">      52127 :    const vtype_kind_t reg_kind = vcode_reg_kind(reg);</span>
+<span class="lineNum">     604 </span><span class="lineCov">      52127 :    return reg_kind == VCODE_TYPE_SIGNAL</span>
+<span class="lineNum">     605 </span><span class="lineCov">      52127 :       || (reg_kind == VCODE_TYPE_UARRAY</span>
+<span class="lineNum">     606 </span><span class="lineCov">      11444 :           &amp;&amp; vtype_kind(vtype_elem(vcode_reg_type(reg))) == VCODE_TYPE_SIGNAL);</span>
 <a name="607"><span class="lineNum">     607 </span>            : }</a>
 <span class="lineNum">     608 </span>            : 
-<span class="lineNum">     609 </span><span class="lineCov">      48920 : static vcode_reg_t lower_param(tree_t value, tree_t port, port_mode_t mode)</span>
+<span class="lineNum">     609 </span><span class="lineCov">      48967 : static vcode_reg_t lower_param(tree_t value, tree_t port, port_mode_t mode)</span>
 <span class="lineNum">     610 </span>            : {
-<span class="lineNum">     611 </span><span class="lineCov">      48920 :    type_t value_type = tree_type(value);</span>
+<span class="lineNum">     611 </span><span class="lineCov">      48967 :    type_t value_type = tree_type(value);</span>
 <span class="lineNum">     612 </span>            : 
-<span class="lineNum">     613 </span><span class="lineCov">      48920 :    class_t class = C_DEFAULT;</span>
-<span class="lineNum">     614 </span><span class="lineCov">      48920 :    type_t port_type = value_type;</span>
-<span class="lineNum">     615 </span><span class="lineCov">      48920 :    if (port != NULL) {</span>
+<span class="lineNum">     613 </span><span class="lineCov">      48967 :    class_t class = C_DEFAULT;</span>
+<span class="lineNum">     614 </span><span class="lineCov">      48967 :    type_t port_type = value_type;</span>
+<span class="lineNum">     615 </span><span class="lineCov">      48967 :    if (port != NULL) {</span>
 <span class="lineNum">     616 </span><span class="lineCov">       9726 :       port_type = tree_type(port);</span>
 <span class="lineNum">     617 </span><span class="lineCov">       9726 :       class = tree_class(port);</span>
 <span class="lineNum">     618 </span>            :    }
 <span class="lineNum">     619 </span>            : 
-<span class="lineNum">     620 </span><span class="lineCov">      48920 :    const bool must_reify =</span>
-<span class="lineNum">     621 </span><span class="lineCov">      62993 :       (type_is_scalar(value_type) || type_is_access(value_type)</span>
-<span class="lineNum">     622 </span><span class="lineCov">      13743 :        || type_is_file(value_type))</span>
-<span class="lineNum">     623 </span><span class="lineCov">      84202 :       &amp;&amp; mode == PORT_IN;</span>
+<span class="lineNum">     620 </span><span class="lineCov">      48967 :    const bool must_reify =</span>
+<span class="lineNum">     621 </span><span class="lineCov">      63071 :       (type_is_scalar(value_type) || type_is_access(value_type)</span>
+<span class="lineNum">     622 </span><span class="lineCov">      13774 :        || type_is_file(value_type))</span>
+<span class="lineNum">     623 </span><span class="lineCov">      84265 :       &amp;&amp; mode == PORT_IN;</span>
 <span class="lineNum">     624 </span>            : 
-<span class="lineNum">     625 </span><span class="lineCov">      48920 :    const bool lvalue = class == C_SIGNAL || class == C_FILE || mode != PORT_IN;</span>
+<span class="lineNum">     625 </span><span class="lineCov">      48967 :    const bool lvalue = class == C_SIGNAL || class == C_FILE || mode != PORT_IN;</span>
 <span class="lineNum">     626 </span>            : 
-<span class="lineNum">     627 </span><span class="lineCov">      48920 :    vcode_reg_t reg = lower_expr(value, lvalue ? EXPR_LVALUE : EXPR_RVALUE);</span>
-<span class="lineNum">     628 </span><span class="lineCov">      48920 :    if (reg == VCODE_INVALID_REG)</span>
+<span class="lineNum">     627 </span><span class="lineCov">      48967 :    vcode_reg_t reg = lower_expr(value, lvalue ? EXPR_LVALUE : EXPR_RVALUE);</span>
+<span class="lineNum">     628 </span><span class="lineCov">      48967 :    if (reg == VCODE_INVALID_REG)</span>
 <span class="lineNum">     629 </span>            :       return reg;
 <span class="lineNum">     630 </span>            : 
-<span class="lineNum">     631 </span><span class="lineCov">      48919 :    if (lower_have_signal(reg) &amp;&amp; class != C_SIGNAL) {</span>
+<span class="lineNum">     631 </span><span class="lineCov">      48966 :    if (lower_have_signal(reg) &amp;&amp; class != C_SIGNAL) {</span>
 <span class="lineNum">     632 </span><span class="lineCov">       1352 :       vcode_reg_t data_reg = lower_array_data(reg);</span>
 <span class="lineNum">     633 </span><span class="lineCov">       1352 :       vcode_reg_t len_reg = VCODE_INVALID_REG;</span>
 <span class="lineNum">     634 </span><span class="lineCov">       1352 :       if (type_is_array(value_type))</span>
@@ -703,55 +703,55 @@
 <span class="lineNum">     641 </span>            :          reg = new_reg;
 <span class="lineNum">     642 </span>            :    }
 <span class="lineNum">     643 </span>            : 
-<span class="lineNum">     644 </span><span class="lineCov">      48919 :    if (type_is_array(value_type)) {</span>
-<span class="lineNum">     645 </span><span class="lineCov">      12849 :       const bool have_uarray = vcode_reg_kind(reg) == VCODE_TYPE_UARRAY;</span>
-<span class="lineNum">     646 </span><span class="lineCov">      12849 :       const bool need_uarray = !lower_const_bounds(port_type);</span>
+<span class="lineNum">     644 </span><span class="lineCov">      48966 :    if (type_is_array(value_type)) {</span>
+<span class="lineNum">     645 </span><span class="lineCov">      12880 :       const bool have_uarray = vcode_reg_kind(reg) == VCODE_TYPE_UARRAY;</span>
+<span class="lineNum">     646 </span><span class="lineCov">      12880 :       const bool need_uarray = !lower_const_bounds(port_type);</span>
 <span class="lineNum">     647 </span>            : 
-<span class="lineNum">     648 </span><span class="lineCov">      12849 :       if (have_uarray &amp;&amp; need_uarray)</span>
+<span class="lineNum">     648 </span><span class="lineCov">      12880 :       if (have_uarray &amp;&amp; need_uarray)</span>
 <span class="lineNum">     649 </span>            :          return reg;
-<span class="lineNum">     650 </span><span class="lineCov">       1724 :       else if (!have_uarray &amp;&amp; need_uarray) {</span>
+<span class="lineNum">     650 </span><span class="lineCov">       1747 :       else if (!have_uarray &amp;&amp; need_uarray) {</span>
 <span class="lineNum">     651 </span>            :          // Need to wrap array with metadata
 <span class="lineNum">     652 </span><span class="lineCov">        394 :          return lower_wrap(value_type, reg);</span>
 <span class="lineNum">     653 </span>            :       }
-<span class="lineNum">     654 </span><span class="lineCov">       1330 :       else if (have_uarray &amp;&amp; !need_uarray) {</span>
+<span class="lineNum">     654 </span><span class="lineCov">       1353 :       else if (have_uarray &amp;&amp; !need_uarray) {</span>
 <span class="lineNum">     655 </span>            :          // Need to unwrap array to get raw pointer
 <span class="lineNum">     656 </span><span class="lineCov">         17 :          return emit_unwrap(reg);</span>
 <span class="lineNum">     657 </span>            :       }
 <span class="lineNum">     658 </span>            :       else
 <span class="lineNum">     659 </span>            :          return reg;
 <span class="lineNum">     660 </span>            :    }
-<span class="lineNum">     661 </span><span class="lineCov">      36070 :    else if (class == C_SIGNAL || class == C_FILE)</span>
+<span class="lineNum">     661 </span><span class="lineCov">      36086 :    else if (class == C_SIGNAL || class == C_FILE)</span>
 <span class="lineNum">     662 </span>            :       return reg;
 <span class="lineNum">     663 </span>            :    else {
-<span class="lineNum">     664 </span><span class="lineCov">      35876 :       vcode_reg_t final = must_reify ? lower_reify(reg) : reg;</span>
-<span class="lineNum">     665 </span><span class="lineCov">      35876 :       if (mode != PORT_OUT &amp;&amp; port != NULL &amp;&amp; type_is_scalar(port_type))</span>
+<span class="lineNum">     664 </span><span class="lineCov">      35892 :       vcode_reg_t final = must_reify ? lower_reify(reg) : reg;</span>
+<span class="lineNum">     665 </span><span class="lineCov">      35892 :       if (mode != PORT_OUT &amp;&amp; port != NULL &amp;&amp; type_is_scalar(port_type))</span>
 <span class="lineNum">     666 </span><span class="lineCov">       6052 :          lower_check_scalar_bounds(lower_reify(final), port_type, port, value);</span>
-<span class="lineNum">     667 </span><span class="lineCov">      35876 :       return final;</span>
+<span class="lineNum">     667 </span><span class="lineCov">      35892 :       return final;</span>
 <span class="lineNum">     668 </span>            :    }
 <a name="669"><span class="lineNum">     669 </span>            : }</a>
 <span class="lineNum">     670 </span>            : 
-<span class="lineNum">     671 </span><span class="lineCov">      39933 : static vcode_reg_t lower_subprogram_arg(tree_t fcall, unsigned nth)</span>
+<span class="lineNum">     671 </span><span class="lineCov">      39981 : static vcode_reg_t lower_subprogram_arg(tree_t fcall, unsigned nth)</span>
 <span class="lineNum">     672 </span>            : {
-<span class="lineNum">     673 </span><span class="lineCov">      39933 :    if (nth &gt;= tree_params(fcall))</span>
+<span class="lineNum">     673 </span><span class="lineCov">      39981 :    if (nth &gt;= tree_params(fcall))</span>
 <span class="lineNum">     674 </span>            :       return VCODE_INVALID_REG;
 <span class="lineNum">     675 </span>            : 
-<span class="lineNum">     676 </span><span class="lineCov">      39293 :    tree_t param = tree_param(fcall, nth);</span>
+<span class="lineNum">     676 </span><span class="lineCov">      39340 :    tree_t param = tree_param(fcall, nth);</span>
 <span class="lineNum">     677 </span>            : 
-<span class="lineNum">     678 </span><span class="lineCov">      39293 :    assert(tree_subkind(param) == P_POS);</span>
-<span class="lineNum">     679 </span><span class="lineCov">      39293 :    assert(tree_pos(param) == nth);</span>
+<span class="lineNum">     678 </span><span class="lineCov">      39340 :    assert(tree_subkind(param) == P_POS);</span>
+<span class="lineNum">     679 </span><span class="lineCov">      39340 :    assert(tree_pos(param) == nth);</span>
 <span class="lineNum">     680 </span>            : 
-<span class="lineNum">     681 </span><span class="lineCov">      39293 :    tree_t value = tree_value(param);</span>
-<span class="lineNum">     682 </span><span class="lineCov">      39293 :    tree_t decl = tree_ref(fcall);</span>
+<span class="lineNum">     681 </span><span class="lineCov">      39340 :    tree_t value = tree_value(param);</span>
+<span class="lineNum">     682 </span><span class="lineCov">      39340 :    tree_t decl = tree_ref(fcall);</span>
 <span class="lineNum">     683 </span>            : 
-<span class="lineNum">     684 </span><span class="lineCov">      39293 :    port_mode_t mode = PORT_IN;</span>
-<span class="lineNum">     685 </span><span class="lineCov">      39293 :    if (nth &lt; tree_ports(decl))</span>
-<span class="lineNum">     686 </span><span class="lineCov">      35366 :       mode = tree_subkind(tree_port(decl, nth));</span>
+<span class="lineNum">     684 </span><span class="lineCov">      39340 :    port_mode_t mode = PORT_IN;</span>
+<span class="lineNum">     685 </span><span class="lineCov">      39340 :    if (nth &lt; tree_ports(decl))</span>
+<span class="lineNum">     686 </span><span class="lineCov">      35397 :       mode = tree_subkind(tree_port(decl, nth));</span>
 <span class="lineNum">     687 </span>            : 
-<span class="lineNum">     688 </span><span class="lineCov">      39293 :    tree_t port = NULL;</span>
-<span class="lineNum">     689 </span><span class="lineCov">      39293 :    if (tree_attr_str(decl, builtin_i) == NULL)</span>
+<span class="lineNum">     688 </span><span class="lineCov">      39340 :    tree_t port = NULL;</span>
+<span class="lineNum">     689 </span><span class="lineCov">      39340 :    if (tree_attr_str(decl, builtin_i) == NULL)</span>
 <span class="lineNum">     690 </span><span class="lineCov">       9726 :       port = tree_port(decl, nth);</span>
 <span class="lineNum">     691 </span>            : 
-<span class="lineNum">     692 </span><span class="lineCov">      39293 :    return lower_param(value, port, mode);</span>
+<span class="lineNum">     692 </span><span class="lineCov">      39340 :    return lower_param(value, port, mode);</span>
 <a name="693"><span class="lineNum">     693 </span>            : }</a>
 <span class="lineNum">     694 </span>            : 
 <span class="lineNum">     695 </span><span class="lineCov">         55 : static vcode_reg_t lower_array_cmp_inner(vcode_reg_t lhs_data,</span>
@@ -857,40 +857,40 @@
 <span class="lineNum">     795 </span><span class="lineCov">         55 :    return emit_load_indirect(result_reg);</span>
 <a name="796"><span class="lineNum">     796 </span>            : }</a>
 <span class="lineNum">     797 </span>            : 
-<span class="lineNum">     798 </span><span class="lineCov">        507 : static vcode_reg_t lower_array_cmp(vcode_reg_t r0, vcode_reg_t r1,</span>
+<span class="lineNum">     798 </span><span class="lineCov">        515 : static vcode_reg_t lower_array_cmp(vcode_reg_t r0, vcode_reg_t r1,</span>
 <span class="lineNum">     799 </span>            :                                    type_t r0_type, type_t r1_type,
 <span class="lineNum">     800 </span>            :                                    vcode_cmp_t pred)
 <span class="lineNum">     801 </span>            : {
-<span class="lineNum">     802 </span><span class="lineCov">        507 :    const bool can_use_memcmp =</span>
-<span class="lineNum">     803 </span><span class="lineCov">        507 :       pred == VCODE_CMP_EQ &amp;&amp; type_is_scalar(type_elem(r0_type));</span>
+<span class="lineNum">     802 </span><span class="lineCov">        515 :    const bool can_use_memcmp =</span>
+<span class="lineNum">     803 </span><span class="lineCov">        515 :       pred == VCODE_CMP_EQ &amp;&amp; type_is_scalar(type_elem(r0_type));</span>
 <span class="lineNum">     804 </span>            : 
-<span class="lineNum">     805 </span><span class="lineCov">        507 :    vcode_reg_t r0_data = lower_array_data(r0);</span>
-<span class="lineNum">     806 </span><span class="lineCov">        507 :    vcode_reg_t r1_data = lower_array_data(r1);</span>
+<span class="lineNum">     805 </span><span class="lineCov">        515 :    vcode_reg_t r0_data = lower_array_data(r0);</span>
+<span class="lineNum">     806 </span><span class="lineCov">        515 :    vcode_reg_t r1_data = lower_array_data(r1);</span>
 <span class="lineNum">     807 </span>            : 
-<span class="lineNum">     808 </span><span class="lineCov">        507 :    if (can_use_memcmp) {</span>
-<span class="lineNum">     809 </span><span class="lineCov">        461 :       vcode_reg_t r0_len = lower_array_total_len(r0_type, r0);</span>
-<span class="lineNum">     810 </span><span class="lineCov">        461 :       vcode_reg_t r1_len = lower_array_total_len(r1_type, r1);</span>
+<span class="lineNum">     808 </span><span class="lineCov">        515 :    if (can_use_memcmp) {</span>
+<span class="lineNum">     809 </span><span class="lineCov">        469 :       vcode_reg_t r0_len = lower_array_total_len(r0_type, r0);</span>
+<span class="lineNum">     810 </span><span class="lineCov">        469 :       vcode_reg_t r1_len = lower_array_total_len(r1_type, r1);</span>
 <span class="lineNum">     811 </span>            : 
-<span class="lineNum">     812 </span><span class="lineCov">        461 :       if (r0_len == r1_len)</span>
+<span class="lineNum">     812 </span><span class="lineCov">        469 :       if (r0_len == r1_len)</span>
 <span class="lineNum">     813 </span><span class="lineCov">        289 :          return emit_memcmp(r0_data, r1_data, r0_len);</span>
 <span class="lineNum">     814 </span>            :       else {
-<span class="lineNum">     815 </span><span class="lineCov">        172 :          vcode_reg_t eq_reg = emit_cmp(VCODE_CMP_EQ, r0_len, r1_len);</span>
+<span class="lineNum">     815 </span><span class="lineCov">        180 :          vcode_reg_t eq_reg = emit_cmp(VCODE_CMP_EQ, r0_len, r1_len);</span>
 <span class="lineNum">     816 </span>            : 
-<span class="lineNum">     817 </span><span class="lineCov">        172 :          vcode_type_t vbool = vtype_bool();</span>
-<span class="lineNum">     818 </span><span class="lineCov">        172 :          vcode_reg_t result_reg = emit_alloca(vbool, vbool, VCODE_INVALID_REG);</span>
-<span class="lineNum">     819 </span><span class="lineCov">        172 :          emit_store_indirect(eq_reg, result_reg);</span>
+<span class="lineNum">     817 </span><span class="lineCov">        180 :          vcode_type_t vbool = vtype_bool();</span>
+<span class="lineNum">     818 </span><span class="lineCov">        180 :          vcode_reg_t result_reg = emit_alloca(vbool, vbool, VCODE_INVALID_REG);</span>
+<span class="lineNum">     819 </span><span class="lineCov">        180 :          emit_store_indirect(eq_reg, result_reg);</span>
 <span class="lineNum">     820 </span>            : 
-<span class="lineNum">     821 </span><span class="lineCov">        172 :          vcode_block_t cmp_bb = emit_block();</span>
-<span class="lineNum">     822 </span><span class="lineCov">        172 :          vcode_block_t skip_bb = emit_block();</span>
+<span class="lineNum">     821 </span><span class="lineCov">        180 :          vcode_block_t cmp_bb = emit_block();</span>
+<span class="lineNum">     822 </span><span class="lineCov">        180 :          vcode_block_t skip_bb = emit_block();</span>
 <span class="lineNum">     823 </span>            : 
-<span class="lineNum">     824 </span><span class="lineCov">        172 :          emit_cond(eq_reg, cmp_bb, skip_bb);</span>
+<span class="lineNum">     824 </span><span class="lineCov">        180 :          emit_cond(eq_reg, cmp_bb, skip_bb);</span>
 <span class="lineNum">     825 </span>            : 
-<span class="lineNum">     826 </span><span class="lineCov">        172 :          vcode_select_block(cmp_bb);</span>
-<span class="lineNum">     827 </span><span class="lineCov">        172 :          emit_store_indirect(emit_memcmp(r0_data, r1_data, r0_len), result_reg);</span>
-<span class="lineNum">     828 </span><span class="lineCov">        172 :          emit_jump(skip_bb);</span>
+<span class="lineNum">     826 </span><span class="lineCov">        180 :          vcode_select_block(cmp_bb);</span>
+<span class="lineNum">     827 </span><span class="lineCov">        180 :          emit_store_indirect(emit_memcmp(r0_data, r1_data, r0_len), result_reg);</span>
+<span class="lineNum">     828 </span><span class="lineCov">        180 :          emit_jump(skip_bb);</span>
 <span class="lineNum">     829 </span>            : 
-<span class="lineNum">     830 </span><span class="lineCov">        172 :          vcode_select_block(skip_bb);</span>
-<span class="lineNum">     831 </span><span class="lineCov">        172 :          return emit_load_indirect(result_reg);</span>
+<span class="lineNum">     830 </span><span class="lineCov">        180 :          vcode_select_block(skip_bb);</span>
+<span class="lineNum">     831 </span><span class="lineCov">        180 :          return emit_load_indirect(result_reg);</span>
 <span class="lineNum">     832 </span>            :       }
 <span class="lineNum">     833 </span>            :    }
 <span class="lineNum">     834 </span>            :    else
@@ -941,12 +941,12 @@
 <span class="lineNum">     879 </span><span class="lineCov">         27 :    return result;</span>
 <a name="880"><span class="lineNum">     880 </span>            : }</a>
 <span class="lineNum">     881 </span>            : 
-<span class="lineNum">     882 </span><span class="lineCov">      28696 : static type_t lower_arg_type(tree_t fcall, int nth)</span>
+<span class="lineNum">     882 </span><span class="lineCov">      28767 : static type_t lower_arg_type(tree_t fcall, int nth)</span>
 <span class="lineNum">     883 </span>            : {
-<span class="lineNum">     884 </span><span class="lineCov">      28696 :    if (nth &gt;= tree_params(fcall))</span>
+<span class="lineNum">     884 </span><span class="lineCov">      28767 :    if (nth &gt;= tree_params(fcall))</span>
 <span class="lineNum">     885 </span>            :       return NULL;
 <span class="lineNum">     886 </span>            :    else
-<span class="lineNum">     887 </span><span class="lineCov">      28042 :       return tree_type(tree_value(tree_param(fcall, nth)));</span>
+<span class="lineNum">     887 </span><span class="lineCov">      28111 :       return tree_type(tree_value(tree_param(fcall, nth)));</span>
 <a name="888"><span class="lineNum">     888 </span>            : }</a>
 <span class="lineNum">     889 </span>            : 
 <span class="lineNum">     890 </span><span class="lineCov">       7912 : static void lower_mangle_one_type(text_buf_t *buf, type_t type)</span>
@@ -1120,23 +1120,23 @@
 <span class="lineNum">    1058 </span><span class="lineCov">         35 :    return emit_wrap(data, &amp;dim0, 1);</span>
 <a name="1059"><span class="lineNum">    1059 </span>            : }</a>
 <span class="lineNum">    1060 </span>            : 
-<span class="lineNum">    1061 </span><span class="lineCov">      10274 : static vcode_reg_t lower_narrow(type_t result, vcode_reg_t reg)</span>
+<span class="lineNum">    1061 </span><span class="lineCov">      10282 : static vcode_reg_t lower_narrow(type_t result, vcode_reg_t reg)</span>
 <span class="lineNum">    1062 </span>            : {
 <span class="lineNum">    1063 </span>            :    // Resize arithmetic result to width of target type
 <span class="lineNum">    1064 </span>            : 
-<span class="lineNum">    1065 </span><span class="lineCov">      10274 :    vcode_type_t vtype = lower_type(result);</span>
-<span class="lineNum">    1066 </span><span class="lineCov">      10274 :    if (!vtype_eq(vtype, vcode_reg_type(reg)))</span>
+<span class="lineNum">    1065 </span><span class="lineCov">      10282 :    vcode_type_t vtype = lower_type(result);</span>
+<span class="lineNum">    1066 </span><span class="lineCov">      10282 :    if (!vtype_eq(vtype, vcode_reg_type(reg)))</span>
 <span class="lineNum">    1067 </span><span class="lineCov">          9 :       return emit_cast(vtype, lower_bounds(result), reg);</span>
 <span class="lineNum">    1068 </span>            :    else
 <span class="lineNum">    1069 </span>            :       return reg;
 <a name="1070"><span class="lineNum">    1070 </span>            : }</a>
 <span class="lineNum">    1071 </span>            : 
-<span class="lineNum">    1072 </span><span class="lineCov">      10067 : static vcode_reg_t lower_arith(tree_t fcall, arith_fn_t fn, vcode_reg_t r0,</span>
+<span class="lineNum">    1072 </span><span class="lineCov">      10075 : static vcode_reg_t lower_arith(tree_t fcall, arith_fn_t fn, vcode_reg_t r0,</span>
 <span class="lineNum">    1073 </span>            :                                vcode_reg_t r1)
 <span class="lineNum">    1074 </span>            : {
-<span class="lineNum">    1075 </span><span class="lineCov">      10067 :    vcode_type_t r0_type = vcode_reg_type(r0);</span>
-<span class="lineNum">    1076 </span><span class="lineCov">      10067 :    vcode_type_t r1_type = vcode_reg_type(r1);</span>
-<span class="lineNum">    1077 </span><span class="lineCov">      10067 :    if (!vtype_eq(r0_type, r1_type)) {</span>
+<span class="lineNum">    1075 </span><span class="lineCov">      10075 :    vcode_type_t r0_type = vcode_reg_type(r0);</span>
+<span class="lineNum">    1076 </span><span class="lineCov">      10075 :    vcode_type_t r1_type = vcode_reg_type(r1);</span>
+<span class="lineNum">    1077 </span><span class="lineCov">      10075 :    if (!vtype_eq(r0_type, r1_type)) {</span>
 <span class="lineNum">    1078 </span><span class="lineCov">        785 :       const unsigned r0_bits = bits_for_range(vtype_low(r0_type),</span>
 <span class="lineNum">    1079 </span>            :                                               vtype_high(r0_type));
 <span class="lineNum">    1080 </span><span class="lineCov">        785 :       const unsigned r1_bits = bits_for_range(vtype_low(r1_type),</span>
@@ -1148,28 +1148,28 @@
 <span class="lineNum">    1086 </span><span class="lineCov">          8 :          r1 = emit_cast(r0_type, vcode_reg_bounds(r1), r1);</span>
 <span class="lineNum">    1087 </span>            :    }
 <span class="lineNum">    1088 </span>            : 
-<span class="lineNum">    1089 </span><span class="lineCov">      10067 :    return lower_narrow(tree_type(fcall), (*fn)(r0, r1));</span>
+<span class="lineNum">    1089 </span><span class="lineCov">      10075 :    return lower_narrow(tree_type(fcall), (*fn)(r0, r1));</span>
 <a name="1090"><span class="lineNum">    1090 </span>            : }</a>
 <span class="lineNum">    1091 </span>            : 
-<span class="lineNum">    1092 </span><span class="lineCov">         36 : static vcode_reg_t lower_bit_vec_op(bit_vec_op_kind_t kind, vcode_reg_t r0,</span>
+<span class="lineNum">    1092 </span><span class="lineCov">         44 : static vcode_reg_t lower_bit_vec_op(bit_vec_op_kind_t kind, vcode_reg_t r0,</span>
 <span class="lineNum">    1093 </span>            :                                     vcode_reg_t r1, tree_t fcall)
 <span class="lineNum">    1094 </span>            : {
-<span class="lineNum">    1095 </span><span class="lineCov">         36 :    type_t r0_type = lower_arg_type(fcall, 0);</span>
-<span class="lineNum">    1096 </span><span class="lineCov">         36 :    vcode_reg_t r0_len  = lower_array_len(r0_type, 0, r0);</span>
-<span class="lineNum">    1097 </span><span class="lineCov">         36 :    vcode_reg_t r0_data = lower_array_data(r0);</span>
-<span class="lineNum">    1098 </span><span class="lineCov">         36 :    vcode_reg_t r0_dir  = lower_array_dir(r0_type, 0, r0);</span>
+<span class="lineNum">    1095 </span><span class="lineCov">         44 :    type_t r0_type = lower_arg_type(fcall, 0);</span>
+<span class="lineNum">    1096 </span><span class="lineCov">         44 :    vcode_reg_t r0_len  = lower_array_len(r0_type, 0, r0);</span>
+<span class="lineNum">    1097 </span><span class="lineCov">         44 :    vcode_reg_t r0_data = lower_array_data(r0);</span>
+<span class="lineNum">    1098 </span><span class="lineCov">         44 :    vcode_reg_t r0_dir  = lower_array_dir(r0_type, 0, r0);</span>
 <span class="lineNum">    1099 </span>            : 
-<span class="lineNum">    1100 </span><span class="lineCov">         36 :    type_t r1_type = lower_arg_type(fcall, 1);</span>
-<span class="lineNum">    1101 </span><span class="lineCov">         36 :    vcode_reg_t r1_len  = VCODE_INVALID_REG;</span>
-<span class="lineNum">    1102 </span><span class="lineCov">         36 :    vcode_reg_t r1_data = VCODE_INVALID_REG;</span>
-<span class="lineNum">    1103 </span><span class="lineCov">         36 :    vcode_reg_t r1_dir  = VCODE_INVALID_REG;</span>
-<span class="lineNum">    1104 </span><span class="lineCov">         36 :    if (r1 != VCODE_INVALID_REG) {</span>
-<span class="lineNum">    1105 </span><span class="lineCov">         22 :       r1_len  = lower_array_len(lower_arg_type(fcall, 1), 0, r1);</span>
-<span class="lineNum">    1106 </span><span class="lineCov">         22 :       r1_data = lower_array_data(r1);</span>
-<span class="lineNum">    1107 </span><span class="lineCov">         22 :       r1_dir  = lower_array_dir(r1_type, 0, r1);</span>
+<span class="lineNum">    1100 </span><span class="lineCov">         44 :    type_t r1_type = lower_arg_type(fcall, 1);</span>
+<span class="lineNum">    1101 </span><span class="lineCov">         44 :    vcode_reg_t r1_len  = VCODE_INVALID_REG;</span>
+<span class="lineNum">    1102 </span><span class="lineCov">         44 :    vcode_reg_t r1_data = VCODE_INVALID_REG;</span>
+<span class="lineNum">    1103 </span><span class="lineCov">         44 :    vcode_reg_t r1_dir  = VCODE_INVALID_REG;</span>
+<span class="lineNum">    1104 </span><span class="lineCov">         44 :    if (r1 != VCODE_INVALID_REG) {</span>
+<span class="lineNum">    1105 </span><span class="lineCov">         29 :       r1_len  = lower_array_len(lower_arg_type(fcall, 1), 0, r1);</span>
+<span class="lineNum">    1106 </span><span class="lineCov">         29 :       r1_data = lower_array_data(r1);</span>
+<span class="lineNum">    1107 </span><span class="lineCov">         29 :       r1_dir  = lower_array_dir(r1_type, 0, r1);</span>
 <span class="lineNum">    1108 </span>            :    }
 <span class="lineNum">    1109 </span>            : 
-<span class="lineNum">    1110 </span><span class="lineCov">         36 :    return emit_bit_vec_op(kind, r0_data, r0_len, r0_dir, r1_data, r1_len,</span>
+<span class="lineNum">    1110 </span><span class="lineCov">         44 :    return emit_bit_vec_op(kind, r0_data, r0_len, r0_dir, r1_data, r1_len,</span>
 <span class="lineNum">    1111 </span>            :                           r1_dir, lower_type(tree_type(fcall)));
 <a name="1112"><span class="lineNum">    1112 </span>            : }</a>
 <span class="lineNum">    1113 </span>            : 
@@ -1304,104 +1304,104 @@
 <span class="lineNum">    1242 </span><span class="lineCov">        265 :    return lower_logical(fcall, result);</span>
 <a name="1243"><span class="lineNum">    1243 </span>            : }</a>
 <span class="lineNum">    1244 </span>            : 
-<span class="lineNum">    1245 </span><span class="lineCov">      15171 : static vcode_reg_t lower_builtin(tree_t fcall, ident_t builtin)</span>
+<span class="lineNum">    1245 </span><span class="lineCov">      15195 : static vcode_reg_t lower_builtin(tree_t fcall, ident_t builtin)</span>
 <span class="lineNum">    1246 </span>            : {
-<span class="lineNum">    1247 </span><span class="lineCov">      15171 :    if (icmp(builtin, &quot;max&quot;))</span>
+<span class="lineNum">    1247 </span><span class="lineCov">      15195 :    if (icmp(builtin, &quot;max&quot;))</span>
 <span class="lineNum">    1248 </span><span class="lineCov">        108 :       return lower_min_max(VCODE_CMP_GT, fcall);</span>
-<span class="lineNum">    1249 </span><span class="lineCov">      15063 :    else if (icmp(builtin, &quot;min&quot;))</span>
+<span class="lineNum">    1249 </span><span class="lineCov">      15087 :    else if (icmp(builtin, &quot;min&quot;))</span>
 <span class="lineNum">    1250 </span><span class="lineCov">        101 :       return lower_min_max(VCODE_CMP_LT, fcall);</span>
-<span class="lineNum">    1251 </span><span class="lineCov">      14962 :    else if (icmp(builtin, &quot;and&quot;))</span>
+<span class="lineNum">    1251 </span><span class="lineCov">      14986 :    else if (icmp(builtin, &quot;and&quot;))</span>
 <span class="lineNum">    1252 </span><span class="lineCov">        452 :       return lower_short_circuit(fcall, SHORT_CIRCUIT_AND);</span>
-<span class="lineNum">    1253 </span><span class="lineCov">      14510 :    else if (icmp(builtin, &quot;or&quot;))</span>
+<span class="lineNum">    1253 </span><span class="lineCov">      14534 :    else if (icmp(builtin, &quot;or&quot;))</span>
 <span class="lineNum">    1254 </span><span class="lineCov">        200 :       return lower_short_circuit(fcall, SHORT_CIRCUIT_OR);</span>
-<span class="lineNum">    1255 </span><span class="lineCov">      14310 :    else if (icmp(builtin, &quot;nor&quot;))</span>
+<span class="lineNum">    1255 </span><span class="lineCov">      14334 :    else if (icmp(builtin, &quot;nor&quot;))</span>
 <span class="lineNum">    1256 </span><span class="lineCov">         11 :       return lower_short_circuit(fcall, SHORT_CIRCUIT_NOR);</span>
 <span class="lineNum">    1257 </span>            : 
-<span class="lineNum">    1258 </span><span class="lineCov">      14299 :    vcode_reg_t r0 = lower_subprogram_arg(fcall, 0);</span>
-<span class="lineNum">    1259 </span><span class="lineCov">      14299 :    vcode_reg_t r1 = lower_subprogram_arg(fcall, 1);</span>
+<span class="lineNum">    1258 </span><span class="lineCov">      14323 :    vcode_reg_t r0 = lower_subprogram_arg(fcall, 0);</span>
+<span class="lineNum">    1259 </span><span class="lineCov">      14323 :    vcode_reg_t r1 = lower_subprogram_arg(fcall, 1);</span>
 <span class="lineNum">    1260 </span>            : 
-<span class="lineNum">    1261 </span><span class="lineCov">      14299 :    type_t r0_type = lower_arg_type(fcall, 0);</span>
-<span class="lineNum">    1262 </span><span class="lineCov">      14299 :    type_t r1_type = lower_arg_type(fcall, 1);</span>
+<span class="lineNum">    1261 </span><span class="lineCov">      14323 :    type_t r0_type = lower_arg_type(fcall, 0);</span>
+<span class="lineNum">    1262 </span><span class="lineCov">      14323 :    type_t r1_type = lower_arg_type(fcall, 1);</span>
 <span class="lineNum">    1263 </span>            : 
-<span class="lineNum">    1264 </span><span class="lineCov">      14299 :    if (icmp(builtin, &quot;eq&quot;))</span>
+<span class="lineNum">    1264 </span><span class="lineCov">      14323 :    if (icmp(builtin, &quot;eq&quot;))</span>
 <span class="lineNum">    1265 </span><span class="lineCov">       1726 :       return lower_logical(fcall, emit_cmp(VCODE_CMP_EQ, r0, r1));</span>
-<span class="lineNum">    1266 </span><span class="lineCov">      12573 :    else if (icmp(builtin, &quot;neq&quot;))</span>
+<span class="lineNum">    1266 </span><span class="lineCov">      12597 :    else if (icmp(builtin, &quot;neq&quot;))</span>
 <span class="lineNum">    1267 </span><span class="lineCov">        142 :       return lower_logical(fcall, emit_cmp(VCODE_CMP_NEQ, r0, r1));</span>
-<span class="lineNum">    1268 </span><span class="lineCov">      12431 :    else if (icmp(builtin, &quot;lt&quot;))</span>
+<span class="lineNum">    1268 </span><span class="lineCov">      12455 :    else if (icmp(builtin, &quot;lt&quot;))</span>
 <span class="lineNum">    1269 </span><span class="lineCov">        362 :       return lower_logical(fcall, emit_cmp(VCODE_CMP_LT, r0, r1));</span>
-<span class="lineNum">    1270 </span><span class="lineCov">      12069 :    else if (icmp(builtin, &quot;gt&quot;))</span>
+<span class="lineNum">    1270 </span><span class="lineCov">      12093 :    else if (icmp(builtin, &quot;gt&quot;))</span>
 <span class="lineNum">    1271 </span><span class="lineCov">        275 :       return lower_logical(fcall, emit_cmp(VCODE_CMP_GT, r0, r1));</span>
-<span class="lineNum">    1272 </span><span class="lineCov">      11794 :    else if (icmp(builtin, &quot;leq&quot;))</span>
+<span class="lineNum">    1272 </span><span class="lineCov">      11818 :    else if (icmp(builtin, &quot;leq&quot;))</span>
 <span class="lineNum">    1273 </span><span class="lineCov">         77 :       return lower_logical(fcall, emit_cmp(VCODE_CMP_LEQ, r0, r1));</span>
-<span class="lineNum">    1274 </span><span class="lineCov">      11717 :    else if (icmp(builtin, &quot;geq&quot;))</span>
+<span class="lineNum">    1274 </span><span class="lineCov">      11741 :    else if (icmp(builtin, &quot;geq&quot;))</span>
 <span class="lineNum">    1275 </span><span class="lineCov">         68 :       return lower_logical(fcall, emit_cmp(VCODE_CMP_GEQ, r0, r1));</span>
-<span class="lineNum">    1276 </span><span class="lineCov">      11649 :    else if (icmp(builtin, &quot;mul&quot;))</span>
+<span class="lineNum">    1276 </span><span class="lineCov">      11673 :    else if (icmp(builtin, &quot;mul&quot;))</span>
 <span class="lineNum">    1277 </span><span class="lineCov">       1064 :       return lower_arith(fcall, emit_mul, r0, r1);</span>
-<span class="lineNum">    1278 </span><span class="lineCov">      10585 :    else if (icmp(builtin, &quot;add&quot;))</span>
-<span class="lineNum">    1279 </span><span class="lineCov">       2752 :       return lower_arith(fcall, emit_add, r0, r1);</span>
-<span class="lineNum">    1280 </span><span class="lineCov">       7833 :    else if (icmp(builtin, &quot;sub&quot;))</span>
+<span class="lineNum">    1278 </span><span class="lineCov">      10609 :    else if (icmp(builtin, &quot;add&quot;))</span>
+<span class="lineNum">    1279 </span><span class="lineCov">       2760 :       return lower_arith(fcall, emit_add, r0, r1);</span>
+<span class="lineNum">    1280 </span><span class="lineCov">       7849 :    else if (icmp(builtin, &quot;sub&quot;))</span>
 <span class="lineNum">    1281 </span><span class="lineCov">       6141 :       return lower_arith(fcall, emit_sub, r0, r1);</span>
-<span class="lineNum">    1282 </span><span class="lineCov">       1692 :    else if (icmp(builtin, &quot;div&quot;)) {</span>
+<span class="lineNum">    1282 </span><span class="lineCov">       1708 :    else if (icmp(builtin, &quot;div&quot;)) {</span>
 <span class="lineNum">    1283 </span><span class="lineCov">        207 :       if (!type_eq(r0_type, r1_type))</span>
 <span class="lineNum">    1284 </span><span class="lineCov">         11 :          r1 = emit_cast(lower_type(r0_type), lower_bounds(r0_type), r1);</span>
 <span class="lineNum">    1285 </span><span class="lineCov">        207 :       return lower_narrow(tree_type(fcall), emit_div(r0, r1));</span>
 <span class="lineNum">    1286 </span>            :    }
-<span class="lineNum">    1287 </span><span class="lineCov">       1485 :    else if (icmp(builtin, &quot;exp&quot;)) {</span>
+<span class="lineNum">    1287 </span><span class="lineCov">       1501 :    else if (icmp(builtin, &quot;exp&quot;)) {</span>
 <span class="lineNum">    1288 </span><span class="lineCov">         70 :       if (!type_eq(r0_type, r1_type))</span>
 <span class="lineNum">    1289 </span><span class="lineCov">          3 :          r1 = emit_cast(lower_type(r0_type), lower_bounds(r0_type), r1);</span>
 <span class="lineNum">    1290 </span><span class="lineCov">         70 :       return lower_arith(fcall, emit_exp, r0, r1);</span>
 <span class="lineNum">    1291 </span>            :    }
-<span class="lineNum">    1292 </span><span class="lineCov">       1415 :    else if (icmp(builtin, &quot;mod&quot;))</span>
+<span class="lineNum">    1292 </span><span class="lineCov">       1431 :    else if (icmp(builtin, &quot;mod&quot;))</span>
 <span class="lineNum">    1293 </span><span class="lineCov">         36 :       return lower_arith(fcall, emit_mod, r0, r1);</span>
-<span class="lineNum">    1294 </span><span class="lineCov">       1379 :    else if (icmp(builtin, &quot;rem&quot;))</span>
+<span class="lineNum">    1294 </span><span class="lineCov">       1395 :    else if (icmp(builtin, &quot;rem&quot;))</span>
 <span class="lineNum">    1295 </span><span class="lineCov">          4 :       return lower_arith(fcall, emit_rem, r0, r1);</span>
-<span class="lineNum">    1296 </span><span class="lineCov">       1375 :    else if (icmp(builtin, &quot;neg&quot;))</span>
+<span class="lineNum">    1296 </span><span class="lineCov">       1391 :    else if (icmp(builtin, &quot;neg&quot;))</span>
 <span class="lineNum">    1297 </span><span class="lineCov">        336 :       return emit_neg(r0);</span>
-<span class="lineNum">    1298 </span><span class="lineCov">       1039 :    else if (icmp(builtin, &quot;abs&quot;))</span>
+<span class="lineNum">    1298 </span><span class="lineCov">       1055 :    else if (icmp(builtin, &quot;abs&quot;))</span>
 <span class="lineNum">    1299 </span><span class="lineCov">         59 :       return emit_abs(r0);</span>
-<span class="lineNum">    1300 </span><span class="lineCov">        980 :    else if (icmp(builtin, &quot;identity&quot;))</span>
+<span class="lineNum">    1300 </span><span class="lineCov">        996 :    else if (icmp(builtin, &quot;identity&quot;))</span>
 <span class="lineNum">    1301 </span>            :       return r0;
-<span class="lineNum">    1302 </span><span class="lineCov">        977 :    else if (icmp(builtin, &quot;not&quot;))</span>
+<span class="lineNum">    1302 </span><span class="lineCov">        993 :    else if (icmp(builtin, &quot;not&quot;))</span>
 <span class="lineNum">    1303 </span><span class="lineCov">        171 :       return lower_logical(fcall, emit_not(r0));</span>
-<span class="lineNum">    1304 </span><span class="lineCov">        806 :    else if (icmp(builtin, &quot;xor&quot;))</span>
+<span class="lineNum">    1304 </span><span class="lineCov">        822 :    else if (icmp(builtin, &quot;xor&quot;))</span>
 <span class="lineNum">    1305 </span><span class="lineCov">         14 :       return lower_logical(fcall, emit_xor(r0, r1));</span>
-<span class="lineNum">    1306 </span><span class="lineCov">        792 :    else if (icmp(builtin, &quot;xnor&quot;))</span>
+<span class="lineNum">    1306 </span><span class="lineCov">        808 :    else if (icmp(builtin, &quot;xnor&quot;))</span>
 <span class="lineNum">    1307 </span><span class="lineCov">         10 :       return lower_logical(fcall, emit_xnor(r0, r1));</span>
-<span class="lineNum">    1308 </span><span class="lineCov">        782 :    else if (icmp(builtin, &quot;nand&quot;))</span>
+<span class="lineNum">    1308 </span><span class="lineCov">        798 :    else if (icmp(builtin, &quot;nand&quot;))</span>
 <span class="lineNum">    1309 </span><span class="lineCov">          9 :       return lower_logical(fcall, emit_nand(r0, r1));</span>
-<span class="lineNum">    1310 </span><span class="lineCov">        773 :    else if (icmp(builtin, &quot;aeq&quot;))</span>
-<span class="lineNum">    1311 </span><span class="lineCov">        439 :       return lower_array_cmp(r0, r1, r0_type, r1_type, VCODE_CMP_EQ);</span>
-<span class="lineNum">    1312 </span><span class="lineCov">        334 :    else if (icmp(builtin, &quot;aneq&quot;))</span>
+<span class="lineNum">    1310 </span><span class="lineCov">        789 :    else if (icmp(builtin, &quot;aeq&quot;))</span>
+<span class="lineNum">    1311 </span><span class="lineCov">        447 :       return lower_array_cmp(r0, r1, r0_type, r1_type, VCODE_CMP_EQ);</span>
+<span class="lineNum">    1312 </span><span class="lineCov">        342 :    else if (icmp(builtin, &quot;aneq&quot;))</span>
 <span class="lineNum">    1313 </span><span class="lineCov">         27 :       return emit_not(lower_array_cmp(r0, r1, r0_type, r1_type, VCODE_CMP_EQ));</span>
-<span class="lineNum">    1314 </span><span class="lineCov">        307 :    else if (icmp(builtin, &quot;alt&quot;))</span>
+<span class="lineNum">    1314 </span><span class="lineCov">        315 :    else if (icmp(builtin, &quot;alt&quot;))</span>
 <span class="lineNum">    1315 </span><span class="lineCov">         14 :       return lower_array_cmp(r0, r1, r0_type, r1_type, VCODE_CMP_LT);</span>
-<span class="lineNum">    1316 </span><span class="lineCov">        293 :    else if (icmp(builtin, &quot;aleq&quot;))</span>
+<span class="lineNum">    1316 </span><span class="lineCov">        301 :    else if (icmp(builtin, &quot;aleq&quot;))</span>
 <span class="lineNum">    1317 </span><span class="lineCov">          9 :       return lower_array_cmp(r0, r1, r0_type, r1_type, VCODE_CMP_LEQ);</span>
-<span class="lineNum">    1318 </span><span class="lineCov">        284 :    else if (icmp(builtin, &quot;agt&quot;))</span>
+<span class="lineNum">    1318 </span><span class="lineCov">        292 :    else if (icmp(builtin, &quot;agt&quot;))</span>
 <span class="lineNum">    1319 </span><span class="lineCov">          5 :       return emit_not(lower_array_cmp(r0, r1, r0_type, r1_type, VCODE_CMP_LEQ));</span>
-<span class="lineNum">    1320 </span><span class="lineCov">        279 :    else if (icmp(builtin, &quot;ageq&quot;))</span>
+<span class="lineNum">    1320 </span><span class="lineCov">        287 :    else if (icmp(builtin, &quot;ageq&quot;))</span>
 <span class="lineNum">    1321 </span><span class="lineCov">          3 :       return emit_not(lower_array_cmp(r0, r1, r0_type, r1_type, VCODE_CMP_LT));</span>
-<span class="lineNum">    1322 </span><span class="lineCov">        276 :    else if (icmp(builtin, &quot;req&quot;))</span>
+<span class="lineNum">    1322 </span><span class="lineCov">        284 :    else if (icmp(builtin, &quot;req&quot;))</span>
 <span class="lineNum">    1323 </span><span class="lineCov">         19 :       return lower_logical(fcall, lower_record_eq(r0, r1, r0_type));</span>
-<span class="lineNum">    1324 </span><span class="lineCov">        257 :    else if (icmp(builtin, &quot;rneq&quot;))</span>
+<span class="lineNum">    1324 </span><span class="lineCov">        265 :    else if (icmp(builtin, &quot;rneq&quot;))</span>
 <span class="lineNum">    1325 </span><span class="lineCov">          1 :       return lower_logical(fcall, emit_not(lower_record_eq(r0, r1, r0_type)));</span>
-<span class="lineNum">    1326 </span><span class="lineCov">        256 :    else if (icmp(builtin, &quot;endfile&quot;))</span>
+<span class="lineNum">    1326 </span><span class="lineCov">        264 :    else if (icmp(builtin, &quot;endfile&quot;))</span>
 <span class="lineNum">    1327 </span><span class="lineCov">          4 :       return emit_endfile(r0);</span>
-<span class="lineNum">    1328 </span><span class="lineCov">        252 :    else if (icmp(builtin, &quot;file_open1&quot;)) {</span>
+<span class="lineNum">    1328 </span><span class="lineCov">        260 :    else if (icmp(builtin, &quot;file_open1&quot;)) {</span>
 <span class="lineNum">    1329 </span><span class="lineCov">         15 :       vcode_reg_t name   = lower_array_data(r1);</span>
 <span class="lineNum">    1330 </span><span class="lineCov">         15 :       vcode_reg_t length = lower_array_len(r1_type, 0, r1);</span>
 <span class="lineNum">    1331 </span><span class="lineCov">         15 :       emit_file_open(r0, name, length, lower_subprogram_arg(fcall, 2),</span>
 <span class="lineNum">    1332 </span>            :                      VCODE_INVALID_REG);
 <span class="lineNum">    1333 </span><span class="lineCov">         15 :       return VCODE_INVALID_REG;</span>
 <span class="lineNum">    1334 </span>            :    }
-<span class="lineNum">    1335 </span><span class="lineCov">        237 :    else if (icmp(builtin, &quot;file_open2&quot;)) {</span>
+<span class="lineNum">    1335 </span><span class="lineCov">        245 :    else if (icmp(builtin, &quot;file_open2&quot;)) {</span>
 <span class="lineNum">    1336 </span><span class="lineCov">          4 :       vcode_reg_t r2     = lower_subprogram_arg(fcall, 2);</span>
 <span class="lineNum">    1337 </span><span class="lineCov">          4 :       vcode_reg_t name   = lower_array_data(r2);</span>
 <span class="lineNum">    1338 </span><span class="lineCov">          4 :       vcode_reg_t length = lower_array_len(lower_arg_type(fcall, 2), 0, r2);</span>
 <span class="lineNum">    1339 </span><span class="lineCov">          4 :       emit_file_open(r1, name, length, lower_subprogram_arg(fcall, 3), r0);</span>
 <span class="lineNum">    1340 </span><span class="lineCov">          4 :       return VCODE_INVALID_REG;</span>
 <span class="lineNum">    1341 </span>            :    }
-<span class="lineNum">    1342 </span><span class="lineCov">        233 :    else if (icmp(builtin, &quot;file_write&quot;)) {</span>
+<span class="lineNum">    1342 </span><span class="lineCov">        241 :    else if (icmp(builtin, &quot;file_write&quot;)) {</span>
 <span class="lineNum">    1343 </span><span class="lineCov">         27 :       vcode_reg_t length = VCODE_INVALID_REG;</span>
 <span class="lineNum">    1344 </span><span class="lineCov">         27 :       vcode_reg_t data   = r1;</span>
 <span class="lineNum">    1345 </span><span class="lineCov">         27 :       if (type_is_array(r1_type)) {</span>
@@ -1411,11 +1411,11 @@
 <span class="lineNum">    1349 </span><span class="lineCov">         27 :       emit_file_write(r0, data, length);</span>
 <span class="lineNum">    1350 </span><span class="lineCov">         27 :       return VCODE_INVALID_REG;</span>
 <span class="lineNum">    1351 </span>            :    }
-<span class="lineNum">    1352 </span><span class="lineCov">        206 :    else if (icmp(builtin, &quot;file_close&quot;)) {</span>
+<span class="lineNum">    1352 </span><span class="lineCov">        214 :    else if (icmp(builtin, &quot;file_close&quot;)) {</span>
 <span class="lineNum">    1353 </span><span class="lineCov">         18 :       emit_file_close(r0);</span>
 <span class="lineNum">    1354 </span><span class="lineCov">         18 :       return VCODE_INVALID_REG;</span>
 <span class="lineNum">    1355 </span>            :    }
-<span class="lineNum">    1356 </span><span class="lineCov">        188 :    else if (icmp(builtin, &quot;file_read&quot;)) {</span>
+<span class="lineNum">    1356 </span><span class="lineCov">        196 :    else if (icmp(builtin, &quot;file_read&quot;)) {</span>
 <span class="lineNum">    1357 </span><span class="lineCov">         10 :       vcode_reg_t inlen = VCODE_INVALID_REG;</span>
 <span class="lineNum">    1358 </span><span class="lineCov">         10 :       if (type_is_array(r1_type))</span>
 <span class="lineNum">    1359 </span><span class="lineCov">          5 :          inlen = lower_array_len(r1_type, 0, r1);</span>
@@ -1427,24 +1427,24 @@
 <span class="lineNum">    1365 </span><span class="lineCov">         10 :       emit_file_read(r0, r1, inlen, outlen);</span>
 <span class="lineNum">    1366 </span><span class="lineCov">         10 :       return VCODE_INVALID_REG;</span>
 <span class="lineNum">    1367 </span>            :    }
-<span class="lineNum">    1368 </span><span class="lineCov">        178 :    else if (icmp(builtin, &quot;deallocate&quot;)) {</span>
+<span class="lineNum">    1368 </span><span class="lineCov">        186 :    else if (icmp(builtin, &quot;deallocate&quot;)) {</span>
 <span class="lineNum">    1369 </span><span class="lineCov">         35 :       emit_deallocate(r0);</span>
 <span class="lineNum">    1370 </span><span class="lineCov">         35 :       return VCODE_INVALID_REG;</span>
 <span class="lineNum">    1371 </span>            :    }
-<span class="lineNum">    1372 </span><span class="lineCov">        143 :    else if (icmp(builtin, &quot;v_not&quot;))</span>
-<span class="lineNum">    1373 </span><span class="lineCov">         14 :       return lower_bit_vec_op(BIT_VEC_NOT, r0, r1, fcall);</span>
-<span class="lineNum">    1374 </span><span class="lineCov">        129 :    else if (icmp(builtin, &quot;v_and&quot;))</span>
-<span class="lineNum">    1375 </span><span class="lineCov">          7 :       return lower_bit_vec_op(BIT_VEC_AND, r0, r1, fcall);</span>
-<span class="lineNum">    1376 </span><span class="lineCov">        122 :    else if (icmp(builtin, &quot;v_or&quot;))</span>
-<span class="lineNum">    1377 </span><span class="lineCov">          3 :       return lower_bit_vec_op(BIT_VEC_OR, r0, r1, fcall);</span>
-<span class="lineNum">    1378 </span><span class="lineCov">        119 :    else if (icmp(builtin, &quot;v_xor&quot;))</span>
-<span class="lineNum">    1379 </span><span class="lineCov">          3 :       return lower_bit_vec_op(BIT_VEC_XOR, r0, r1, fcall);</span>
-<span class="lineNum">    1380 </span><span class="lineCov">        116 :    else if (icmp(builtin, &quot;v_xnor&quot;))</span>
-<span class="lineNum">    1381 </span><span class="lineCov">          3 :       return lower_bit_vec_op(BIT_VEC_XNOR, r0, r1, fcall);</span>
-<span class="lineNum">    1382 </span><span class="lineCov">        113 :    else if (icmp(builtin, &quot;v_nand&quot;))</span>
-<span class="lineNum">    1383 </span><span class="lineCov">          3 :       return lower_bit_vec_op(BIT_VEC_NAND, r0, r1, fcall);</span>
-<span class="lineNum">    1384 </span><span class="lineCov">        110 :    else if (icmp(builtin, &quot;v_nor&quot;))</span>
-<span class="lineNum">    1385 </span><span class="lineCov">          3 :       return lower_bit_vec_op(BIT_VEC_NOR, r0, r1, fcall);</span>
+<span class="lineNum">    1372 </span><span class="lineCov">        151 :    else if (icmp(builtin, &quot;v_not&quot;))</span>
+<span class="lineNum">    1373 </span><span class="lineCov">         15 :       return lower_bit_vec_op(BIT_VEC_NOT, r0, r1, fcall);</span>
+<span class="lineNum">    1374 </span><span class="lineCov">        136 :    else if (icmp(builtin, &quot;v_and&quot;))</span>
+<span class="lineNum">    1375 </span><span class="lineCov">          9 :       return lower_bit_vec_op(BIT_VEC_AND, r0, r1, fcall);</span>
+<span class="lineNum">    1376 </span><span class="lineCov">        127 :    else if (icmp(builtin, &quot;v_or&quot;))</span>
+<span class="lineNum">    1377 </span><span class="lineCov">          4 :       return lower_bit_vec_op(BIT_VEC_OR, r0, r1, fcall);</span>
+<span class="lineNum">    1378 </span><span class="lineCov">        123 :    else if (icmp(builtin, &quot;v_xor&quot;))</span>
+<span class="lineNum">    1379 </span><span class="lineCov">          4 :       return lower_bit_vec_op(BIT_VEC_XOR, r0, r1, fcall);</span>
+<span class="lineNum">    1380 </span><span class="lineCov">        119 :    else if (icmp(builtin, &quot;v_xnor&quot;))</span>
+<span class="lineNum">    1381 </span><span class="lineCov">          4 :       return lower_bit_vec_op(BIT_VEC_XNOR, r0, r1, fcall);</span>
+<span class="lineNum">    1382 </span><span class="lineCov">        115 :    else if (icmp(builtin, &quot;v_nand&quot;))</span>
+<span class="lineNum">    1383 </span><span class="lineCov">          4 :       return lower_bit_vec_op(BIT_VEC_NAND, r0, r1, fcall);</span>
+<span class="lineNum">    1384 </span><span class="lineCov">        111 :    else if (icmp(builtin, &quot;v_nor&quot;))</span>
+<span class="lineNum">    1385 </span><span class="lineCov">          4 :       return lower_bit_vec_op(BIT_VEC_NOR, r0, r1, fcall);</span>
 <span class="lineNum">    1386 </span><span class="lineCov">        107 :    else if (icmp(builtin, &quot;sll&quot;))</span>
 <span class="lineNum">    1387 </span><span class="lineCov">          6 :       return lower_bit_shift(BIT_SHIFT_SLL, r0, r0_type, r1);</span>
 <span class="lineNum">    1388 </span><span class="lineCov">        101 :    else if (icmp(builtin, &quot;srl&quot;))</span>
@@ -1483,25 +1483,25 @@
 <span class="lineNum">    1421 </span><span class="lineNoCov">          0 :       fatal_at(tree_loc(fcall), &quot;cannot lower builtin %s&quot;, istr(builtin));</span>
 <a name="1422"><span class="lineNum">    1422 </span>            : }</a>
 <span class="lineNum">    1423 </span>            : 
-<span class="lineNum">    1424 </span><span class="lineCov">       7302 : static vcode_type_t lower_func_result_type(tree_t func)</span>
+<span class="lineNum">    1424 </span><span class="lineCov">       7310 : static vcode_type_t lower_func_result_type(tree_t func)</span>
 <span class="lineNum">    1425 </span>            : {
-<span class="lineNum">    1426 </span><span class="lineCov">       7302 :    type_t result = type_result(tree_type(func));</span>
-<span class="lineNum">    1427 </span><span class="lineCov">       7302 :    if (type_is_array(result) &amp;&amp; lower_const_bounds(result)) {</span>
+<span class="lineNum">    1426 </span><span class="lineCov">       7310 :    type_t result = type_result(tree_type(func));</span>
+<span class="lineNum">    1427 </span><span class="lineCov">       7310 :    if (type_is_array(result) &amp;&amp; lower_const_bounds(result)) {</span>
 <span class="lineNum">    1428 </span><span class="lineCov">         27 :       return vtype_pointer(lower_type(lower_elem_recur(result)));</span>
 <span class="lineNum">    1429 </span>            :    }
-<span class="lineNum">    1430 </span><span class="lineCov">       7275 :    if (type_is_record(result))</span>
+<span class="lineNum">    1430 </span><span class="lineCov">       7283 :    if (type_is_record(result))</span>
 <span class="lineNum">    1431 </span><span class="lineCov">        295 :       return vtype_pointer(lower_type(result));</span>
 <span class="lineNum">    1432 </span>            :    else
-<span class="lineNum">    1433 </span><span class="lineCov">       6980 :       return lower_type(result);</span>
+<span class="lineNum">    1433 </span><span class="lineCov">       6988 :       return lower_type(result);</span>
 <a name="1434"><span class="lineNum">    1434 </span>            : }</a>
 <span class="lineNum">    1435 </span>            : 
-<span class="lineNum">    1436 </span><span class="lineCov">      19438 : static vcode_reg_t lower_fcall(tree_t fcall, expr_ctx_t ctx)</span>
+<span class="lineNum">    1436 </span><span class="lineCov">      19462 : static vcode_reg_t lower_fcall(tree_t fcall, expr_ctx_t ctx)</span>
 <span class="lineNum">    1437 </span>            : {
-<span class="lineNum">    1438 </span><span class="lineCov">      19438 :    tree_t decl = tree_ref(fcall);</span>
+<span class="lineNum">    1438 </span><span class="lineCov">      19462 :    tree_t decl = tree_ref(fcall);</span>
 <span class="lineNum">    1439 </span>            : 
-<span class="lineNum">    1440 </span><span class="lineCov">      19438 :    ident_t builtin = tree_attr_str(decl, builtin_i);</span>
-<span class="lineNum">    1441 </span><span class="lineCov">      19438 :    if (builtin != NULL)</span>
-<span class="lineNum">    1442 </span><span class="lineCov">      15062 :       return lower_builtin(fcall, builtin);</span>
+<span class="lineNum">    1440 </span><span class="lineCov">      19462 :    ident_t builtin = tree_attr_str(decl, builtin_i);</span>
+<span class="lineNum">    1441 </span><span class="lineCov">      19462 :    if (builtin != NULL)</span>
+<span class="lineNum">    1442 </span><span class="lineCov">      15086 :       return lower_builtin(fcall, builtin);</span>
 <span class="lineNum">    1443 </span>            : 
 <span class="lineNum">    1444 </span><span class="lineCov">       4376 :    ident_t name = lower_mangle_func(decl, vcode_unit_context());</span>
 <span class="lineNum">    1445 </span>            : 
@@ -1523,27 +1523,27 @@
 <span class="lineNum">    1461 </span><span class="lineCov">       4345 :       return emit_fcall(name, rtype, args, nargs);</span>
 <a name="1462"><span class="lineNum">    1462 </span>            : }</a>
 <span class="lineNum">    1463 </span>            : 
-<span class="lineNum">    1464 </span><span class="lineCov">       1424 : static vcode_reg_t *lower_string_literal_chars(tree_t lit, int *nchars)</span>
+<span class="lineNum">    1464 </span><span class="lineCov">       1447 : static vcode_reg_t *lower_string_literal_chars(tree_t lit, int *nchars)</span>
 <span class="lineNum">    1465 </span>            : {
-<span class="lineNum">    1466 </span><span class="lineCov">       1424 :    type_t ltype = tree_type(lit);</span>
-<span class="lineNum">    1467 </span><span class="lineCov">       1424 :    vcode_type_t vtype = lower_type(type_elem(ltype));</span>
+<span class="lineNum">    1466 </span><span class="lineCov">       1447 :    type_t ltype = tree_type(lit);</span>
+<span class="lineNum">    1467 </span><span class="lineCov">       1447 :    vcode_type_t vtype = lower_type(type_elem(ltype));</span>
 <span class="lineNum">    1468 </span>            : 
-<span class="lineNum">    1469 </span><span class="lineCov">       1424 :    *nchars = tree_chars(lit);</span>
-<span class="lineNum">    1470 </span><span class="lineCov">       1424 :    vcode_reg_t *tmp = xmalloc(*nchars * sizeof(vcode_reg_t));</span>
+<span class="lineNum">    1469 </span><span class="lineCov">       1447 :    *nchars = tree_chars(lit);</span>
+<span class="lineNum">    1470 </span><span class="lineCov">       1447 :    vcode_reg_t *tmp = xmalloc(*nchars * sizeof(vcode_reg_t));</span>
 <span class="lineNum">    1471 </span>            : 
-<span class="lineNum">    1472 </span><span class="lineCov">      23234 :    for (int i = 0; i &lt; *nchars; i++)</span>
-<span class="lineNum">    1473 </span><span class="lineCov">      21810 :       tmp[i] = emit_const(vtype, tree_pos(tree_ref(tree_char(lit, i))));</span>
+<span class="lineNum">    1472 </span><span class="lineCov">      23326 :    for (int i = 0; i &lt; *nchars; i++)</span>
+<span class="lineNum">    1473 </span><span class="lineCov">      21879 :       tmp[i] = emit_const(vtype, tree_pos(tree_ref(tree_char(lit, i))));</span>
 <span class="lineNum">    1474 </span>            : 
-<span class="lineNum">    1475 </span><span class="lineCov">       1424 :    return tmp;</span>
+<span class="lineNum">    1475 </span><span class="lineCov">       1447 :    return tmp;</span>
 <a name="1476"><span class="lineNum">    1476 </span>            : }</a>
 <span class="lineNum">    1477 </span>            : 
-<span class="lineNum">    1478 </span><span class="lineCov">       1383 : static vcode_reg_t lower_string_literal(tree_t lit, bool allocate)</span>
+<span class="lineNum">    1478 </span><span class="lineCov">       1406 : static vcode_reg_t lower_string_literal(tree_t lit, bool allocate)</span>
 <span class="lineNum">    1479 </span>            : {
 <span class="lineNum">    1480 </span>            :    int nchars;
-<span class="lineNum">    1481 </span><span class="lineCov">       2766 :    vcode_reg_t *tmp LOCAL = lower_string_literal_chars(lit, &amp;nchars);</span>
+<span class="lineNum">    1481 </span><span class="lineCov">       2812 :    vcode_reg_t *tmp LOCAL = lower_string_literal_chars(lit, &amp;nchars);</span>
 <span class="lineNum">    1482 </span>            : 
-<span class="lineNum">    1483 </span><span class="lineCov">       1383 :    type_t type = tree_type(lit);</span>
-<span class="lineNum">    1484 </span><span class="lineCov">       1383 :    if (type_is_array(type) &amp;&amp; !lower_const_bounds(type)) {</span>
+<span class="lineNum">    1483 </span><span class="lineCov">       1406 :    type_t type = tree_type(lit);</span>
+<span class="lineNum">    1484 </span><span class="lineCov">       1406 :    if (type_is_array(type) &amp;&amp; !lower_const_bounds(type)) {</span>
 <span class="lineNum">    1485 </span><span class="lineCov">          6 :       vcode_type_t base = vtype_pointer(lower_type(type_elem(type)));</span>
 <span class="lineNum">    1486 </span><span class="lineCov">          6 :       vcode_reg_t data = emit_const_array(base, tmp, nchars, allocate);</span>
 <span class="lineNum">    1487 </span><span class="lineCov">          6 :       if (type_is_unconstrained(type)) {</span>
@@ -1559,20 +1559,20 @@
 <span class="lineNum">    1497 </span><span class="lineCov">          3 :          return lower_wrap(type, data);</span>
 <span class="lineNum">    1498 </span>            :    }
 <span class="lineNum">    1499 </span>            :    else
-<span class="lineNum">    1500 </span><span class="lineCov">       1377 :       return emit_const_array(lower_type(type), tmp, nchars, allocate);</span>
+<span class="lineNum">    1500 </span><span class="lineCov">       1400 :       return emit_const_array(lower_type(type), tmp, nchars, allocate);</span>
 <a name="1501"><span class="lineNum">    1501 </span>            : }</a>
 <span class="lineNum">    1502 </span>            : 
-<span class="lineNum">    1503 </span><span class="lineCov">      30491 : static vcode_reg_t lower_literal(tree_t lit, expr_ctx_t ctx)</span>
+<span class="lineNum">    1503 </span><span class="lineCov">      30530 : static vcode_reg_t lower_literal(tree_t lit, expr_ctx_t ctx)</span>
 <span class="lineNum">    1504 </span>            : {
-<span class="lineNum">    1505 </span><span class="lineCov">      30491 :    if (ctx == EXPR_LVALUE)</span>
+<span class="lineNum">    1505 </span><span class="lineCov">      30530 :    if (ctx == EXPR_LVALUE)</span>
 <span class="lineNum">    1506 </span>            :       return VCODE_INVALID_REG;
 <span class="lineNum">    1507 </span>            : 
-<span class="lineNum">    1508 </span><span class="lineCov">      30490 :    switch (tree_subkind(lit)) {</span>
+<span class="lineNum">    1508 </span><span class="lineCov">      30529 :    switch (tree_subkind(lit)) {</span>
 <span class="lineNum">    1509 </span>            :    case L_INT:
-<span class="lineNum">    1510 </span><span class="lineCov">      27475 :       return emit_const(lower_type(tree_type(lit)), tree_ival(lit));</span>
+<span class="lineNum">    1510 </span><span class="lineCov">      27491 :       return emit_const(lower_type(tree_type(lit)), tree_ival(lit));</span>
 <span class="lineNum">    1511 </span>            : 
 <span class="lineNum">    1512 </span>            :    case L_STRING:
-<span class="lineNum">    1513 </span><span class="lineCov">       1372 :       return lower_string_literal(lit, true);</span>
+<span class="lineNum">    1513 </span><span class="lineCov">       1395 :       return lower_string_literal(lit, true);</span>
 <span class="lineNum">    1514 </span>            : 
 <span class="lineNum">    1515 </span>            :    case L_NULL:
 <span class="lineNum">    1516 </span><span class="lineCov">        104 :       return emit_null(lower_type(tree_type(lit)));</span>
@@ -1586,9 +1586,9 @@
 <span class="lineNum">    1524 </span>            :    }
 <a name="1525"><span class="lineNum">    1525 </span>            : }</a>
 <span class="lineNum">    1526 </span>            : 
-<span class="lineNum">    1527 </span><span class="lineCov">      30246 : static int lower_get_vcode_obj(tree_t t)</span>
+<span class="lineNum">    1527 </span><span class="lineCov">      30261 : static int lower_get_vcode_obj(tree_t t)</span>
 <span class="lineNum">    1528 </span>            : {
-<span class="lineNum">    1529 </span><span class="lineCov">      30246 :    if (vcode_objs == NULL)</span>
+<span class="lineNum">    1529 </span><span class="lineCov">      30261 :    if (vcode_objs == NULL)</span>
 <span class="lineNum">    1530 </span>            :       return VCODE_INVALID_REG;
 <span class="lineNum">    1531 </span>            :    else {
 <span class="lineNum">    1532 </span><span class="lineCov">      30232 :       const void *ptr = hash_get(vcode_objs, t);</span>
@@ -1601,16 +1601,16 @@
 <span class="lineNum">    1539 </span><span class="lineCov">       6011 :    hash_put(vcode_objs, t, (void *)(uintptr_t)(obj + 1));</span>
 <a name="1540"><span class="lineNum">    1540 </span><span class="lineCov">       6011 : }</span></a>
 <span class="lineNum">    1541 </span>            : 
-<span class="lineNum">    1542 </span><span class="lineCov">       9198 : static vcode_var_t lower_get_var(tree_t decl)</span>
+<span class="lineNum">    1542 </span><span class="lineCov">       9213 : static vcode_var_t lower_get_var(tree_t decl)</span>
 <span class="lineNum">    1543 </span>            : {
-<span class="lineNum">    1544 </span><span class="lineCov">       9198 :    vcode_var_t var = lower_get_vcode_obj(decl);</span>
+<span class="lineNum">    1544 </span><span class="lineCov">       9213 :    vcode_var_t var = lower_get_vcode_obj(decl);</span>
 <span class="lineNum">    1545 </span>            : 
-<span class="lineNum">    1546 </span><span class="lineCov">       9198 :    const bool is_extern =</span>
+<span class="lineNum">    1546 </span><span class="lineCov">       9213 :    const bool is_extern =</span>
 <span class="lineNum">    1547 </span>            :       var == VCODE_INVALID_VAR
-<span class="lineNum">    1548 </span><span class="lineCov">        228 :       &amp;&amp; tree_attr_int(decl, prot_field_i, -1) == -1</span>
-<span class="lineNum">    1549 </span><span class="lineCov">       9393 :       &amp;&amp; mode == LOWER_NORMAL;</span>
+<span class="lineNum">    1548 </span><span class="lineCov">        243 :       &amp;&amp; tree_attr_int(decl, prot_field_i, -1) == -1</span>
+<span class="lineNum">    1549 </span><span class="lineCov">       9423 :       &amp;&amp; mode == LOWER_NORMAL;</span>
 <span class="lineNum">    1550 </span>            : 
-<span class="lineNum">    1551 </span><span class="lineCov">       9198 :    if (is_extern) {</span>
+<span class="lineNum">    1551 </span><span class="lineCov">       9213 :    if (is_extern) {</span>
 <span class="lineNum">    1552 </span>            :       vcode_state_t state;
 <span class="lineNum">    1553 </span><span class="lineCov">        178 :       vcode_state_save(&amp;state);</span>
 <span class="lineNum">    1554 </span>            : 
@@ -1624,7 +1624,7 @@
 <span class="lineNum">    1562 </span><span class="lineCov">        178 :       vcode_state_restore(&amp;state);</span>
 <span class="lineNum">    1563 </span>            :    }
 <span class="lineNum">    1564 </span>            : 
-<span class="lineNum">    1565 </span><span class="lineCov">       9198 :    return var;</span>
+<span class="lineNum">    1565 </span><span class="lineCov">       9213 :    return var;</span>
 <a name="1566"><span class="lineNum">    1566 </span>            : }</a>
 <span class="lineNum">    1567 </span>            : 
 <span class="lineNum">    1568 </span><span class="lineCov">       2993 : static vcode_signal_t lower_get_signal(tree_t decl)</span>
@@ -1660,15 +1660,15 @@
 <span class="lineNum">    1598 </span><span class="lineCov">         26 :    return emit_record_ref(pstruct, pfield);</span>
 <a name="1599"><span class="lineNum">    1599 </span>            : }</a>
 <span class="lineNum">    1600 </span>            : 
-<span class="lineNum">    1601 </span><span class="lineCov">       7129 : static vcode_reg_t lower_var_ref(tree_t decl, expr_ctx_t ctx)</span>
+<span class="lineNum">    1601 </span><span class="lineCov">       7144 : static vcode_reg_t lower_var_ref(tree_t decl, expr_ctx_t ctx)</span>
 <span class="lineNum">    1602 </span>            : {
-<span class="lineNum">    1603 </span><span class="lineCov">       7129 :    type_t type = tree_type(decl);</span>
+<span class="lineNum">    1603 </span><span class="lineCov">       7144 :    type_t type = tree_type(decl);</span>
 <span class="lineNum">    1604 </span>            : 
-<span class="lineNum">    1605 </span><span class="lineCov">       7129 :    vcode_var_t var = lower_get_var(decl);</span>
-<span class="lineNum">    1606 </span><span class="lineCov">       7129 :    if (var == VCODE_INVALID_VAR) {</span>
-<span class="lineNum">    1607 </span><span class="lineCov">         43 :       if (mode == LOWER_THUNK) {</span>
-<span class="lineNum">    1608 </span><span class="lineCov">         17 :          if (tree_kind(decl) == T_CONST_DECL &amp;&amp; tree_has_value(decl))</span>
-<span class="lineNum">    1609 </span><span class="lineCov">         16 :             return lower_expr(tree_value(decl), ctx);</span>
+<span class="lineNum">    1605 </span><span class="lineCov">       7144 :    vcode_var_t var = lower_get_var(decl);</span>
+<span class="lineNum">    1606 </span><span class="lineCov">       7144 :    if (var == VCODE_INVALID_VAR) {</span>
+<span class="lineNum">    1607 </span><span class="lineCov">         58 :       if (mode == LOWER_THUNK) {</span>
+<span class="lineNum">    1608 </span><span class="lineCov">         32 :          if (tree_kind(decl) == T_CONST_DECL &amp;&amp; tree_has_value(decl))</span>
+<span class="lineNum">    1609 </span><span class="lineCov">         31 :             return lower_expr(tree_value(decl), ctx);</span>
 <span class="lineNum">    1610 </span>            :          else {
 <span class="lineNum">    1611 </span><span class="lineCov">          1 :             emit_comment(&quot;Cannot resolve variable %s&quot;, istr(tree_ident(decl)));</span>
 <span class="lineNum">    1612 </span><span class="lineCov">          1 :             vcode_type_t vtype = lower_type(type);</span>
@@ -1777,12 +1777,12 @@
 <span class="lineNum">    1715 </span>            :       return aliased;
 <a name="1716"><span class="lineNum">    1716 </span>            : }</a>
 <span class="lineNum">    1717 </span>            : 
-<span class="lineNum">    1718 </span><span class="lineCov">      41237 : static vcode_reg_t lower_ref(tree_t ref, expr_ctx_t ctx)</span>
+<span class="lineNum">    1718 </span><span class="lineCov">      41252 : static vcode_reg_t lower_ref(tree_t ref, expr_ctx_t ctx)</span>
 <span class="lineNum">    1719 </span>            : {
-<span class="lineNum">    1720 </span><span class="lineCov">      41237 :    tree_t decl = tree_ref(ref);</span>
+<span class="lineNum">    1720 </span><span class="lineCov">      41252 :    tree_t decl = tree_ref(ref);</span>
 <span class="lineNum">    1721 </span>            : 
-<span class="lineNum">    1722 </span><span class="lineCov">      41237 :    tree_kind_t kind = tree_kind(decl);</span>
-<span class="lineNum">    1723 </span><span class="lineCov">      41237 :    switch (kind) {</span>
+<span class="lineNum">    1722 </span><span class="lineCov">      41252 :    tree_kind_t kind = tree_kind(decl);</span>
+<span class="lineNum">    1723 </span><span class="lineCov">      41252 :    switch (kind) {</span>
 <span class="lineNum">    1724 </span>            :    case T_ENUM_LIT:
 <span class="lineNum">    1725 </span><span class="lineCov">      10361 :       if (ctx == EXPR_LVALUE)</span>
 <span class="lineNum">    1726 </span>            :          return VCODE_INVALID_REG;
@@ -1803,12 +1803,12 @@
 <span class="lineNum">    1741 </span>            :       return VCODE_INVALID_REG;
 <span class="lineNum">    1742 </span>            : 
 <span class="lineNum">    1743 </span>            :    case T_CONST_DECL:
-<span class="lineNum">    1744 </span><span class="lineCov">       4206 :       if (ctx == EXPR_LVALUE)</span>
+<span class="lineNum">    1744 </span><span class="lineCov">       4221 :       if (ctx == EXPR_LVALUE)</span>
 <span class="lineNum">    1745 </span>            :          return VCODE_INVALID_REG;
-<span class="lineNum">    1746 </span><span class="lineCov">       4206 :       else if (type_is_scalar(tree_type(decl)))</span>
+<span class="lineNum">    1746 </span><span class="lineCov">       4221 :       else if (type_is_scalar(tree_type(decl)))</span>
 <span class="lineNum">    1747 </span><span class="lineCov">       3592 :          return lower_expr(tree_value(decl), ctx);</span>
 <span class="lineNum">    1748 </span>            :       else
-<span class="lineNum">    1749 </span><span class="lineCov">        614 :          return lower_var_ref(decl, ctx);</span>
+<span class="lineNum">    1749 </span><span class="lineCov">        629 :          return lower_var_ref(decl, ctx);</span>
 <span class="lineNum">    1750 </span>            : 
 <span class="lineNum">    1751 </span>            :    case T_UNIT_DECL:
 <span class="lineNum">    1752 </span><span class="lineNoCov">          0 :       return lower_expr(tree_value(decl), ctx);</span>
@@ -3003,15 +3003,15 @@
 <span class="lineNum">    2941 </span><span class="lineNoCov">          0 :    return lower_expr(tree_value(expr), ctx);</span>
 <a name="2942"><span class="lineNum">    2942 </span>            : }</a>
 <span class="lineNum">    2943 </span>            : 
-<span class="lineNum">    2944 </span><span class="lineCov">     107166 : static vcode_reg_t lower_expr(tree_t expr, expr_ctx_t ctx)</span>
+<span class="lineNum">    2944 </span><span class="lineCov">     107244 : static vcode_reg_t lower_expr(tree_t expr, expr_ctx_t ctx)</span>
 <span class="lineNum">    2945 </span>            : {
-<span class="lineNum">    2946 </span><span class="lineCov">     107166 :    switch (tree_kind(expr)) {</span>
+<span class="lineNum">    2946 </span><span class="lineCov">     107244 :    switch (tree_kind(expr)) {</span>
 <span class="lineNum">    2947 </span>            :    case T_FCALL:
-<span class="lineNum">    2948 </span><span class="lineCov">      19438 :       return lower_fcall(expr, ctx);</span>
+<span class="lineNum">    2948 </span><span class="lineCov">      19462 :       return lower_fcall(expr, ctx);</span>
 <span class="lineNum">    2949 </span>            :    case T_LITERAL:
-<span class="lineNum">    2950 </span><span class="lineCov">      30491 :       return lower_literal(expr, ctx);</span>
+<span class="lineNum">    2950 </span><span class="lineCov">      30530 :       return lower_literal(expr, ctx);</span>
 <span class="lineNum">    2951 </span>            :    case T_REF:
-<span class="lineNum">    2952 </span><span class="lineCov">      41237 :       return lower_ref(expr, ctx);</span>
+<span class="lineNum">    2952 </span><span class="lineCov">      41252 :       return lower_ref(expr, ctx);</span>
 <span class="lineNum">    2953 </span>            :    case T_AGGREGATE:
 <span class="lineNum">    2954 </span><span class="lineCov">       1662 :       return lower_aggregate(expr, ctx);</span>
 <span class="lineNum">    2955 </span>            :    case T_ARRAY_REF:
@@ -4510,15 +4510,15 @@
 <span class="lineNum">    4448 </span>            :    }
 <a name="4449"><span class="lineNum">    4449 </span><span class="lineCov">       4467 : }</span></a>
 <span class="lineNum">    4450 </span>            : 
-<span class="lineNum">    4451 </span><span class="lineCov">       6504 : static void lower_finished(void)</span>
+<span class="lineNum">    4451 </span><span class="lineCov">       6520 : static void lower_finished(void)</span>
 <span class="lineNum">    4452 </span>            : {
-<span class="lineNum">    4453 </span><span class="lineCov">       6504 :    vcode_opt();</span>
+<span class="lineNum">    4453 </span><span class="lineCov">       6520 :    vcode_opt();</span>
 <span class="lineNum">    4454 </span>            : 
-<span class="lineNum">    4455 </span><span class="lineCov">       6504 :    if (verbose != NULL) {</span>
+<span class="lineNum">    4455 </span><span class="lineCov">       6520 :    if (verbose != NULL) {</span>
 <span class="lineNum">    4456 </span><span class="lineNoCov">          0 :       if (*verbose == '\0' || strstr(istr(vcode_unit_name()), verbose) != NULL)</span>
 <span class="lineNum">    4457 </span><span class="lineNoCov">          0 :          vcode_dump();</span>
 <span class="lineNum">    4458 </span>            :    }
-<a name="4459"><span class="lineNum">    4459 </span><span class="lineCov">       6504 : }</span></a>
+<a name="4459"><span class="lineNum">    4459 </span><span class="lineCov">       6520 : }</span></a>
 <span class="lineNum">    4460 </span>            : 
 <span class="lineNum">    4461 </span><span class="lineCov">         14 : static void lower_protected_body(tree_t body)</span>
 <span class="lineNum">    4462 </span>            : {
@@ -5013,17 +5013,17 @@
 <span class="lineNum">    4951 </span><span class="lineCov">         40 :    return context;</span>
 <a name="4952"><span class="lineNum">    4952 </span>            : }</a>
 <span class="lineNum">    4953 </span>            : 
-<span class="lineNum">    4954 </span><span class="lineCov">       4347 : static void lower_set_verbose(void)</span>
+<span class="lineNum">    4954 </span><span class="lineCov">       4363 : static void lower_set_verbose(void)</span>
 <span class="lineNum">    4955 </span>            : {
 <span class="lineNum">    4956 </span>            :    static bool set = false;
-<span class="lineNum">    4957 </span><span class="lineCov">       4347 :    if (!set) {</span>
-<span class="lineNum">    4958 </span><span class="lineCov">       4347 :       const char *venv = getenv(&quot;NVC_LOWER_VERBOSE&quot;);</span>
-<span class="lineNum">    4959 </span><span class="lineCov">       4347 :       if (venv != NULL)</span>
+<span class="lineNum">    4957 </span><span class="lineCov">       4363 :    if (!set) {</span>
+<span class="lineNum">    4958 </span><span class="lineCov">       4363 :       const char *venv = getenv(&quot;NVC_LOWER_VERBOSE&quot;);</span>
+<span class="lineNum">    4959 </span><span class="lineCov">       4363 :       if (venv != NULL)</span>
 <span class="lineNum">    4960 </span><span class="lineNoCov">          0 :          verbose = isalpha((int)venv[0]) || venv[0] == ':' ? venv : &quot;&quot;;</span>
 <span class="lineNum">    4961 </span>            :       else
-<span class="lineNum">    4962 </span><span class="lineCov">       4347 :          verbose = opt_get_str(&quot;dump-vcode&quot;);</span>
+<span class="lineNum">    4962 </span><span class="lineCov">       4363 :          verbose = opt_get_str(&quot;dump-vcode&quot;);</span>
 <span class="lineNum">    4963 </span>            :    }
-<a name="4964"><span class="lineNum">    4964 </span><span class="lineCov">       4347 : }</span></a>
+<a name="4964"><span class="lineNum">    4964 </span><span class="lineCov">       4363 : }</span></a>
 <span class="lineNum">    4965 </span>            : 
 <span class="lineNum">    4966 </span><span class="lineCov">        504 : vcode_unit_t lower_unit(tree_t unit)</span>
 <span class="lineNum">    4967 </span>            : {
@@ -5057,41 +5057,41 @@
 <span class="lineNum">    4995 </span><span class="lineCov">        504 :    return context;</span>
 <a name="4996"><span class="lineNum">    4996 </span>            : }</a>
 <span class="lineNum">    4997 </span>            : 
-<span class="lineNum">    4998 </span><span class="lineCov">       3755 : vcode_unit_t lower_thunk(tree_t fcall)</span>
+<span class="lineNum">    4998 </span><span class="lineCov">       3771 : vcode_unit_t lower_thunk(tree_t fcall)</span>
 <span class="lineNum">    4999 </span>            : {
-<span class="lineNum">    5000 </span><span class="lineCov">       3755 :    lower_set_verbose();</span>
+<span class="lineNum">    5000 </span><span class="lineCov">       3771 :    lower_set_verbose();</span>
 <span class="lineNum">    5001 </span>            : 
-<span class="lineNum">    5002 </span><span class="lineCov">       3755 :    vcode_unit_t context = emit_context(thunk_i);</span>
+<span class="lineNum">    5002 </span><span class="lineCov">       3771 :    vcode_unit_t context = emit_context(thunk_i);</span>
 <span class="lineNum">    5003 </span>            : 
-<span class="lineNum">    5004 </span><span class="lineCov">       3755 :    vcode_select_unit(context);</span>
-<span class="lineNum">    5005 </span><span class="lineCov">       3755 :    mode = LOWER_THUNK;</span>
-<span class="lineNum">    5006 </span><span class="lineCov">       3755 :    tmp_alloc_used = false;</span>
+<span class="lineNum">    5004 </span><span class="lineCov">       3771 :    vcode_select_unit(context);</span>
+<span class="lineNum">    5005 </span><span class="lineCov">       3771 :    mode = LOWER_THUNK;</span>
+<span class="lineNum">    5006 </span><span class="lineCov">       3771 :    tmp_alloc_used = false;</span>
 <span class="lineNum">    5007 </span>            : 
-<span class="lineNum">    5008 </span><span class="lineCov">       3755 :    vcode_type_t vtype = VCODE_INVALID_TYPE;</span>
-<span class="lineNum">    5009 </span><span class="lineCov">       3755 :    tree_t decl = tree_ref(fcall);</span>
-<span class="lineNum">    5010 </span><span class="lineCov">       3755 :    if (tree_has_type(decl))</span>
-<span class="lineNum">    5011 </span><span class="lineCov">       1880 :       vtype = lower_func_result_type(decl);</span>
+<span class="lineNum">    5008 </span><span class="lineCov">       3771 :    vcode_type_t vtype = VCODE_INVALID_TYPE;</span>
+<span class="lineNum">    5009 </span><span class="lineCov">       3771 :    tree_t decl = tree_ref(fcall);</span>
+<span class="lineNum">    5010 </span><span class="lineCov">       3771 :    if (tree_has_type(decl))</span>
+<span class="lineNum">    5011 </span><span class="lineCov">       1888 :       vtype = lower_func_result_type(decl);</span>
 <span class="lineNum">    5012 </span>            :    else
-<span class="lineNum">    5013 </span><span class="lineCov">       1875 :       vtype = lower_type(tree_type(fcall));</span>
+<span class="lineNum">    5013 </span><span class="lineCov">       1883 :       vtype = lower_type(tree_type(fcall));</span>
 <span class="lineNum">    5014 </span>            : 
-<span class="lineNum">    5015 </span><span class="lineCov">       3755 :    vcode_unit_t thunk = emit_thunk(tree_ident(fcall), context, vtype);</span>
+<span class="lineNum">    5015 </span><span class="lineCov">       3771 :    vcode_unit_t thunk = emit_thunk(tree_ident(fcall), context, vtype);</span>
 <span class="lineNum">    5016 </span>            : 
-<span class="lineNum">    5017 </span><span class="lineCov">       3755 :    vcode_reg_t result_reg = lower_expr(fcall, EXPR_RVALUE);</span>
-<span class="lineNum">    5018 </span><span class="lineCov">       3755 :    if (type_is_scalar(tree_type(fcall)))</span>
-<span class="lineNum">    5019 </span><span class="lineCov">       3747 :       emit_return(emit_cast(vtype, vtype, result_reg));</span>
+<span class="lineNum">    5017 </span><span class="lineCov">       3771 :    vcode_reg_t result_reg = lower_expr(fcall, EXPR_RVALUE);</span>
+<span class="lineNum">    5018 </span><span class="lineCov">       3771 :    if (type_is_scalar(tree_type(fcall)))</span>
+<span class="lineNum">    5019 </span><span class="lineCov">       3763 :       emit_return(emit_cast(vtype, vtype, result_reg));</span>
 <span class="lineNum">    5020 </span>            :    else
 <span class="lineNum">    5021 </span><span class="lineCov">          8 :       emit_return(result_reg);</span>
 <span class="lineNum">    5022 </span>            : 
-<span class="lineNum">    5023 </span><span class="lineCov">       3755 :    lower_finished();</span>
-<span class="lineNum">    5024 </span><span class="lineCov">       3755 :    vcode_unit_unref(context);</span>
+<span class="lineNum">    5023 </span><span class="lineCov">       3771 :    lower_finished();</span>
+<span class="lineNum">    5024 </span><span class="lineCov">       3771 :    vcode_unit_unref(context);</span>
 <span class="lineNum">    5025 </span>            : 
-<span class="lineNum">    5026 </span><span class="lineCov">       3755 :    if (vcode_unit_has_undefined()) {</span>
+<span class="lineNum">    5026 </span><span class="lineCov">       3771 :    if (vcode_unit_has_undefined()) {</span>
 <span class="lineNum">    5027 </span><span class="lineCov">          1 :       vcode_unit_unref(thunk);</span>
 <span class="lineNum">    5028 </span><span class="lineCov">          1 :       return NULL;</span>
 <span class="lineNum">    5029 </span>            :    }
 <span class="lineNum">    5030 </span>            : 
-<span class="lineNum">    5031 </span><span class="lineCov">       3754 :    vcode_close();</span>
-<span class="lineNum">    5032 </span><span class="lineCov">       3754 :    return thunk;</span>
+<span class="lineNum">    5031 </span><span class="lineCov">       3770 :    vcode_close();</span>
+<span class="lineNum">    5032 </span><span class="lineCov">       3770 :    return thunk;</span>
 <a name="5033"><span class="lineNum">    5033 </span>            : }</a>
 <span class="lineNum">    5034 </span>            : 
 <span class="lineNum">    5035 </span><span class="lineCov">         88 : vcode_unit_t lower_func(tree_t body)</span>
