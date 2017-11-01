@@ -222,9 +222,9 @@
 <span class="lineNum">     160 </span><span class="lineCov">       2127 :    return vcode;</span>
 <a name="161"><span class="lineNum">     161 </span>            : }</a>
 <span class="lineNum">     162 </span>            : 
-<span class="lineNum">     163 </span><span class="lineCov">      13585 : static bool eval_have_lowered(tree_t func, eval_flags_t flags)</span>
+<span class="lineNum">     163 </span><span class="lineCov">      13589 : static bool eval_have_lowered(tree_t func, eval_flags_t flags)</span>
 <span class="lineNum">     164 </span>            : {
-<span class="lineNum">     165 </span><span class="lineCov">      13585 :    if (tree_attr_str(func, builtin_i))</span>
+<span class="lineNum">     165 </span><span class="lineCov">      13589 :    if (tree_attr_str(func, builtin_i))</span>
 <span class="lineNum">     166 </span>            :       return true;
 <span class="lineNum">     167 </span>            : 
 <span class="lineNum">     168 </span><span class="lineCov">       1966 :    ident_t mangled = lower_mangle_package_name(func);</span>
@@ -242,32 +242,32 @@
 <span class="lineNum">     180 </span>            :       return true;
 <a name="181"><span class="lineNum">     181 </span>            : }</a>
 <span class="lineNum">     182 </span>            : 
-<span class="lineNum">     183 </span><span class="lineCov">      28123 : static bool eval_possible(tree_t t, eval_flags_t flags, bool top_level)</span>
+<span class="lineNum">     183 </span><span class="lineCov">      28130 : static bool eval_possible(tree_t t, eval_flags_t flags, bool top_level)</span>
 <span class="lineNum">     184 </span>            : {
-<span class="lineNum">     185 </span><span class="lineCov">      28123 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     185 </span><span class="lineCov">      28130 :    switch (tree_kind(t)) {</span>
 <span class="lineNum">     186 </span>            :    case T_FCALL:
 <span class="lineNum">     187 </span>            :       {
-<span class="lineNum">     188 </span><span class="lineCov">      13587 :          if (!(flags &amp; EVAL_FCALL))</span>
+<span class="lineNum">     188 </span><span class="lineCov">      13591 :          if (!(flags &amp; EVAL_FCALL))</span>
 <span class="lineNum">     189 </span>            :             return false;
-<span class="lineNum">     190 </span><span class="lineCov">      13587 :          else if (tree_flags(tree_ref(t)) &amp; TREE_F_IMPURE) {</span>
+<span class="lineNum">     190 </span><span class="lineCov">      13591 :          else if (tree_flags(tree_ref(t)) &amp; TREE_F_IMPURE) {</span>
 <span class="lineNum">     191 </span><span class="lineCov">          2 :             if (flags &amp; EVAL_WARN)</span>
 <span class="lineNum">     192 </span><span class="lineNoCov">          0 :                warn_at(tree_loc(t),</span>
 <span class="lineNum">     193 </span>            :                        &quot;impure function call prevents constant folding&quot;);
 <span class="lineNum">     194 </span>            :             return false;
 <span class="lineNum">     195 </span>            :          }
-<span class="lineNum">     196 </span><span class="lineCov">      13585 :          else if (!eval_have_lowered(tree_ref(t), flags))</span>
+<span class="lineNum">     196 </span><span class="lineCov">      13589 :          else if (!eval_have_lowered(tree_ref(t), flags))</span>
 <span class="lineNum">     197 </span>            :             return false;
 <span class="lineNum">     198 </span>            : 
-<span class="lineNum">     199 </span><span class="lineCov">      12361 :          const int nparams = tree_params(t);</span>
-<span class="lineNum">     200 </span><span class="lineCov">      19928 :          for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">     201 </span><span class="lineCov">      16079 :             tree_t p = tree_value(tree_param(t, i));</span>
-<span class="lineNum">     202 </span><span class="lineCov">      16079 :             const bool is_fcall = tree_kind(p) == T_FCALL;</span>
-<span class="lineNum">     203 </span><span class="lineCov">      16079 :             if (top_level &amp;&amp; (flags &amp; EVAL_FOLDING) &amp;&amp; is_fcall</span>
-<span class="lineNum">     204 </span><span class="lineCov">       2139 :                 &amp;&amp; type_is_scalar(tree_type(p)))</span>
+<span class="lineNum">     199 </span><span class="lineCov">      12365 :          const int nparams = tree_params(t);</span>
+<span class="lineNum">     200 </span><span class="lineCov">      19932 :          for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">     201 </span><span class="lineCov">      16083 :             tree_t p = tree_value(tree_param(t, i));</span>
+<span class="lineNum">     202 </span><span class="lineCov">      16083 :             const bool is_fcall = tree_kind(p) == T_FCALL;</span>
+<span class="lineNum">     203 </span><span class="lineCov">      16083 :             if (top_level &amp;&amp; (flags &amp; EVAL_FOLDING) &amp;&amp; is_fcall</span>
+<span class="lineNum">     204 </span><span class="lineCov">       2140 :                 &amp;&amp; type_is_scalar(tree_type(p)))</span>
 <span class="lineNum">     205 </span>            :                return false;   // Would have been folded already if possible
-<span class="lineNum">     206 </span><span class="lineCov">      14189 :             else if (is_fcall &amp;&amp; !(flags &amp; EVAL_FCALL))</span>
+<span class="lineNum">     206 </span><span class="lineCov">      14192 :             else if (is_fcall &amp;&amp; !(flags &amp; EVAL_FCALL))</span>
 <span class="lineNum">     207 </span>            :                return false;
-<span class="lineNum">     208 </span><span class="lineCov">      14189 :             else if (!eval_possible(p, flags, false))</span>
+<span class="lineNum">     208 </span><span class="lineCov">      14192 :             else if (!eval_possible(p, flags, false))</span>
 <span class="lineNum">     209 </span>            :                return false;
 <span class="lineNum">     210 </span>            :          }
 <span class="lineNum">     211 </span>            : 
@@ -282,8 +282,8 @@
 <span class="lineNum">     220 </span>            : 
 <span class="lineNum">     221 </span>            :    case T_REF:
 <span class="lineNum">     222 </span>            :       {
-<span class="lineNum">     223 </span><span class="lineCov">       4955 :          tree_t decl = tree_ref(t);</span>
-<span class="lineNum">     224 </span><span class="lineCov">       4955 :          switch (tree_kind(decl)) {</span>
+<span class="lineNum">     223 </span><span class="lineCov">       4958 :          tree_t decl = tree_ref(t);</span>
+<span class="lineNum">     224 </span><span class="lineCov">       4958 :          switch (tree_kind(decl)) {</span>
 <span class="lineNum">     225 </span>            :          case T_UNIT_DECL:
 <span class="lineNum">     226 </span>            :          case T_ENUM_LIT:
 <span class="lineNum">     227 </span>            :             return true;
@@ -292,7 +292,7 @@
 <span class="lineNum">     230 </span><span class="lineCov">        299 :             return eval_possible(tree_value(decl), flags, false);</span>
 <span class="lineNum">     231 </span>            : 
 <span class="lineNum">     232 </span>            :          default:
-<span class="lineNum">     233 </span><span class="lineCov">       4394 :             if (flags &amp; EVAL_WARN)</span>
+<span class="lineNum">     233 </span><span class="lineCov">       4397 :             if (flags &amp; EVAL_WARN)</span>
 <span class="lineNum">     234 </span><span class="lineNoCov">          0 :                warn_at(tree_loc(t), &quot;reference to %s prevents constant folding&quot;,</span>
 <span class="lineNum">     235 </span>            :                        istr(tree_ident(t)));
 <span class="lineNum">     236 </span>            :             return false;
@@ -529,9 +529,9 @@
 <span class="lineNum">     467 </span>            :    }
 <a name="468"><span class="lineNum">     468 </span><span class="lineCov">       3954 : }</span></a>
 <span class="lineNum">     469 </span>            : 
-<span class="lineNum">     470 </span><span class="lineCov">      78768 : static value_t *eval_get_reg(vcode_reg_t reg, eval_state_t *state)</span>
+<span class="lineNum">     470 </span><span class="lineCov">      76424 : static value_t *eval_get_reg(vcode_reg_t reg, eval_state_t *state)</span>
 <span class="lineNum">     471 </span>            : {
-<span class="lineNum">     472 </span><span class="lineCov">      78768 :    return &amp;(state-&gt;context-&gt;regs[reg]);</span>
+<span class="lineNum">     472 </span><span class="lineCov">      76424 :    return &amp;(state-&gt;context-&gt;regs[reg]);</span>
 <a name="473"><span class="lineNum">     473 </span>            : }</a>
 <span class="lineNum">     474 </span>            : 
 <span class="lineNum">     475 </span><span class="lineCov">      10243 : static value_t *eval_get_var(vcode_var_t var, eval_state_t *state)</span>
@@ -1826,17 +1826,17 @@
 <span class="lineNum">    1764 </span>            :    }
 <a name="1765"><span class="lineNum">    1765 </span>            : }</a>
 <span class="lineNum">    1766 </span>            : 
-<span class="lineNum">    1767 </span><span class="lineCov">       8958 : static void eval_op_addi(int op, eval_state_t *state)</span>
+<span class="lineNum">    1767 </span><span class="lineCov">       5442 : static void eval_op_addi(int op, eval_state_t *state)</span>
 <span class="lineNum">    1768 </span>            : {
-<span class="lineNum">    1769 </span><span class="lineCov">       5972 :    value_t *dst = eval_get_reg(vcode_get_result(op), state);</span>
-<span class="lineNum">    1770 </span><span class="lineCov">       5972 :    value_t *lhs = eval_get_reg(vcode_get_arg(op, 0), state);</span>
-<span class="lineNum">    1771 </span><span class="lineCov">       2986 :    int64_t rhs = vcode_get_value(op);</span>
+<span class="lineNum">    1769 </span><span class="lineCov">       3628 :    value_t *dst = eval_get_reg(vcode_get_result(op), state);</span>
+<span class="lineNum">    1770 </span><span class="lineCov">       3628 :    value_t *lhs = eval_get_reg(vcode_get_arg(op, 0), state);</span>
+<span class="lineNum">    1771 </span><span class="lineCov">       1814 :    int64_t rhs = vcode_get_value(op);</span>
 <span class="lineNum">    1772 </span>            : 
-<span class="lineNum">    1773 </span><span class="lineCov">       2986 :    switch (lhs-&gt;kind) {</span>
+<span class="lineNum">    1773 </span><span class="lineCov">       1814 :    switch (lhs-&gt;kind) {</span>
 <span class="lineNum">    1774 </span>            :    case VALUE_INTEGER:
-<span class="lineNum">    1775 </span><span class="lineCov">       2930 :       dst-&gt;kind    = VALUE_INTEGER;</span>
-<span class="lineNum">    1776 </span><span class="lineCov">       2930 :       dst-&gt;integer = lhs-&gt;integer + rhs;</span>
-<span class="lineNum">    1777 </span><span class="lineCov">       2930 :       break;</span>
+<span class="lineNum">    1775 </span><span class="lineCov">       1758 :       dst-&gt;kind    = VALUE_INTEGER;</span>
+<span class="lineNum">    1776 </span><span class="lineCov">       1758 :       dst-&gt;integer = lhs-&gt;integer + rhs;</span>
+<span class="lineNum">    1777 </span><span class="lineCov">       1758 :       break;</span>
 <span class="lineNum">    1778 </span>            : 
 <span class="lineNum">    1779 </span>            :    case VALUE_REAL:
 <span class="lineNum">    1780 </span><span class="lineNoCov">          0 :       dst-&gt;kind = VALUE_REAL;</span>
@@ -1851,7 +1851,7 @@
 <span class="lineNum">    1789 </span>            :    default:
 <span class="lineNum">    1790 </span><span class="lineNoCov">          0 :       fatal_trace(&quot;invalid value type in %s&quot;, __func__);</span>
 <span class="lineNum">    1791 </span>            :    }
-<a name="1792"><span class="lineNum">    1792 </span><span class="lineCov">       2986 : }</span></a>
+<a name="1792"><span class="lineNum">    1792 </span><span class="lineCov">       1814 : }</span></a>
 <span class="lineNum">    1793 </span>            : 
 <span class="lineNum">    1794 </span><span class="lineCov">       8038 : static void eval_vcode(eval_state_t *state)</span>
 <span class="lineNum">    1795 </span>            : {
@@ -2109,8 +2109,8 @@
 <span class="lineNum">    2047 </span><span class="lineCov">          8 :          break;</span>
 <span class="lineNum">    2048 </span>            : 
 <span class="lineNum">    2049 </span>            :       case VCODE_OP_ADDI:
-<span class="lineNum">    2050 </span><span class="lineCov">       2986 :          eval_op_addi(i, state);</span>
-<span class="lineNum">    2051 </span><span class="lineCov">       2986 :          break;</span>
+<span class="lineNum">    2050 </span><span class="lineCov">       1814 :          eval_op_addi(i, state);</span>
+<span class="lineNum">    2051 </span><span class="lineCov">       1814 :          break;</span>
 <span class="lineNum">    2052 </span>            : 
 <span class="lineNum">    2053 </span>            :       default:
 <span class="lineNum">    2054 </span><span class="lineNoCov">          0 :          vcode_dump();</span>
@@ -2188,9 +2188,9 @@
 <span class="lineNum">    2126 </span>            :    return tree;
 <a name="2127"><span class="lineNum">    2127 </span>            : }</a>
 <span class="lineNum">    2128 </span>            : 
-<span class="lineNum">    2129 </span><span class="lineCov">      14419 : static bool eval_can_represent_type(type_t type)</span>
+<span class="lineNum">    2129 </span><span class="lineCov">      14423 : static bool eval_can_represent_type(type_t type)</span>
 <span class="lineNum">    2130 </span>            : {
-<span class="lineNum">    2131 </span><span class="lineCov">      14429 :    if (type_is_scalar(type))</span>
+<span class="lineNum">    2131 </span><span class="lineCov">      14433 :    if (type_is_scalar(type))</span>
 <span class="lineNum">    2132 </span>            :       return true;
 <span class="lineNum">    2133 </span><span class="lineCov">        240 :    else if (type_is_array(type))</span>
 <span class="lineNum">    2134 </span><span class="lineCov">         10 :       return eval_can_represent_type(type_elem(type));</span>
@@ -2206,18 +2206,18 @@
 <span class="lineNum">    2144 </span>            :       return false;
 <a name="2145"><span class="lineNum">    2145 </span>            : }</a>
 <span class="lineNum">    2146 </span>            : 
-<span class="lineNum">    2147 </span><span class="lineCov">      14735 : tree_t eval(tree_t fcall, eval_flags_t flags)</span>
+<span class="lineNum">    2147 </span><span class="lineCov">      14739 : tree_t eval(tree_t fcall, eval_flags_t flags)</span>
 <span class="lineNum">    2148 </span>            : {
-<span class="lineNum">    2149 </span><span class="lineCov">      14735 :    assert(tree_kind(fcall) == T_FCALL);</span>
+<span class="lineNum">    2149 </span><span class="lineCov">      14739 :    assert(tree_kind(fcall) == T_FCALL);</span>
 <span class="lineNum">    2150 </span>            : 
-<span class="lineNum">    2151 </span><span class="lineCov">      14735 :    type_t type = tree_type(fcall);</span>
-<span class="lineNum">    2152 </span><span class="lineCov">      14735 :    if (type_is_array(type))</span>
+<span class="lineNum">    2151 </span><span class="lineCov">      14739 :    type_t type = tree_type(fcall);</span>
+<span class="lineNum">    2152 </span><span class="lineCov">      14739 :    if (type_is_array(type))</span>
 <span class="lineNum">    2153 </span>            :       return fcall;   // TODO: eval for array results
-<span class="lineNum">    2154 </span><span class="lineCov">      13500 :    else if (!eval_can_represent_type(type))</span>
+<span class="lineNum">    2154 </span><span class="lineCov">      13504 :    else if (!eval_can_represent_type(type))</span>
 <span class="lineNum">    2155 </span>            :       return fcall;
-<span class="lineNum">    2156 </span><span class="lineCov">      13498 :    else if (tree_flags(tree_ref(fcall)) &amp; TREE_F_IMPURE)</span>
+<span class="lineNum">    2156 </span><span class="lineCov">      13502 :    else if (tree_flags(tree_ref(fcall)) &amp; TREE_F_IMPURE)</span>
 <span class="lineNum">    2157 </span>            :       return fcall;
-<span class="lineNum">    2158 </span><span class="lineCov">      13096 :    else if (!eval_possible(fcall, flags, true))</span>
+<span class="lineNum">    2158 </span><span class="lineCov">      13100 :    else if (!eval_possible(fcall, flags, true))</span>
 <span class="lineNum">    2159 </span>            :       return fcall;
 <span class="lineNum">    2160 </span>            : 
 <span class="lineNum">    2161 </span><span class="lineCov">       3780 :    if (getenv(&quot;NVC_EVAL_VERBOSE&quot;))</span>
@@ -2279,10 +2279,10 @@
 <span class="lineNum">    2217 </span><span class="lineCov">       1350 :    return errors;</span>
 <a name="2218"><span class="lineNum">    2218 </span>            : }</a>
 <span class="lineNum">    2219 </span>            : 
-<span class="lineNum">    2220 </span><span class="lineCov">        270 : void reset_eval_errors(void)</span>
+<span class="lineNum">    2220 </span><span class="lineCov">        271 : void reset_eval_errors(void)</span>
 <span class="lineNum">    2221 </span>            : {
-<span class="lineNum">    2222 </span><span class="lineCov">        270 :    errors = 0;</span>
-<span class="lineNum">    2223 </span><span class="lineCov">        270 : }</span>
+<span class="lineNum">    2222 </span><span class="lineCov">        271 :    errors = 0;</span>
+<span class="lineNum">    2223 </span><span class="lineCov">        271 : }</span>
 </pre>
       </td>
     </tr>
