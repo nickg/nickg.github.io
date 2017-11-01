@@ -91,132 +91,132 @@
 <span class="lineNum">      29 </span>            :    const void **keys;
 <a name="30"><span class="lineNum">      30 </span>            : };</a>
 <span class="lineNum">      31 </span>            : 
-<span class="lineNum">      32 </span><span class="lineCov">    5173383 : static inline int hash_slot(hash_t *h, const void *key)</span>
+<span class="lineNum">      32 </span><span class="lineCov">    5186402 : static inline int hash_slot(hash_t *h, const void *key)</span>
 <span class="lineNum">      33 </span>            : {
-<span class="lineNum">      34 </span><span class="lineCov">    5173383 :    assert(key != NULL);</span>
+<span class="lineNum">      34 </span><span class="lineCov">    5186402 :    assert(key != NULL);</span>
 <span class="lineNum">      35 </span>            : 
-<span class="lineNum">      36 </span><span class="lineCov">    5173383 :    uintptr_t uptr = (uintptr_t)key;</span>
+<span class="lineNum">      36 </span><span class="lineCov">    5186402 :    uintptr_t uptr = (uintptr_t)key;</span>
 <span class="lineNum">      37 </span>            : 
 <span class="lineNum">      38 </span>            :    // Bottom two bits will always be zero with 32-bit pointers
-<span class="lineNum">      39 </span><span class="lineCov">    5173383 :    uptr &gt;&gt;= 2;</span>
+<span class="lineNum">      39 </span><span class="lineCov">    5186402 :    uptr &gt;&gt;= 2;</span>
 <span class="lineNum">      40 </span>            : 
 <span class="lineNum">      41 </span>            :    // Hash function from here:
 <span class="lineNum">      42 </span>            :    //   http://burtleburtle.net/bob/hash/integer.html
 <span class="lineNum">      43 </span>            : 
-<span class="lineNum">      44 </span><span class="lineCov">    5173383 :    uint32_t a = (uint32_t)uptr;</span>
-<span class="lineNum">      45 </span><span class="lineCov">    5173383 :    a = (a ^ 61) ^ (a &gt;&gt; 16);</span>
-<span class="lineNum">      46 </span><span class="lineCov">    5173383 :    a = a + (a &lt;&lt; 3);</span>
-<span class="lineNum">      47 </span><span class="lineCov">    5173383 :    a = a ^ (a &gt;&gt; 4);</span>
-<span class="lineNum">      48 </span><span class="lineCov">    5173383 :    a = a * UINT32_C(0x27d4eb2d);</span>
-<span class="lineNum">      49 </span><span class="lineCov">    5173383 :    a = a ^ (a &gt;&gt; 15);</span>
+<span class="lineNum">      44 </span><span class="lineCov">    5186402 :    uint32_t a = (uint32_t)uptr;</span>
+<span class="lineNum">      45 </span><span class="lineCov">    5186402 :    a = (a ^ 61) ^ (a &gt;&gt; 16);</span>
+<span class="lineNum">      46 </span><span class="lineCov">    5186402 :    a = a + (a &lt;&lt; 3);</span>
+<span class="lineNum">      47 </span><span class="lineCov">    5186402 :    a = a ^ (a &gt;&gt; 4);</span>
+<span class="lineNum">      48 </span><span class="lineCov">    5186402 :    a = a * UINT32_C(0x27d4eb2d);</span>
+<span class="lineNum">      49 </span><span class="lineCov">    5186402 :    a = a ^ (a &gt;&gt; 15);</span>
 <span class="lineNum">      50 </span>            : 
-<span class="lineNum">      51 </span><span class="lineCov">    5173383 :    return a &amp; (h-&gt;size - 1);</span>
+<span class="lineNum">      51 </span><span class="lineCov">    5186402 :    return a &amp; (h-&gt;size - 1);</span>
 <a name="52"><span class="lineNum">      52 </span>            : }</a>
 <span class="lineNum">      53 </span>            : 
-<span class="lineNum">      54 </span><span class="lineCov">       8863 : hash_t *hash_new(int size, bool replace)</span>
+<span class="lineNum">      54 </span><span class="lineCov">       8887 : hash_t *hash_new(int size, bool replace)</span>
 <span class="lineNum">      55 </span>            : {
-<span class="lineNum">      56 </span><span class="lineCov">       8863 :    struct hash *h = xmalloc(sizeof(struct hash));</span>
-<span class="lineNum">      57 </span><span class="lineCov">       8863 :    h-&gt;size    = next_power_of_2(size);</span>
-<span class="lineNum">      58 </span><span class="lineCov">       8863 :    h-&gt;members = 0;</span>
-<span class="lineNum">      59 </span><span class="lineCov">       8863 :    h-&gt;replace = replace;</span>
+<span class="lineNum">      56 </span><span class="lineCov">       8887 :    struct hash *h = xmalloc(sizeof(struct hash));</span>
+<span class="lineNum">      57 </span><span class="lineCov">       8887 :    h-&gt;size    = next_power_of_2(size);</span>
+<span class="lineNum">      58 </span><span class="lineCov">       8887 :    h-&gt;members = 0;</span>
+<span class="lineNum">      59 </span><span class="lineCov">       8887 :    h-&gt;replace = replace;</span>
 <span class="lineNum">      60 </span>            : 
-<span class="lineNum">      61 </span><span class="lineCov">       8863 :    char *mem = xcalloc(h-&gt;size * 2 * sizeof(void *));</span>
-<span class="lineNum">      62 </span><span class="lineCov">       8863 :    h-&gt;values = (void **)mem;</span>
-<span class="lineNum">      63 </span><span class="lineCov">       8863 :    h-&gt;keys   = (const void **)(mem + (h-&gt;size * sizeof(void *)));</span>
+<span class="lineNum">      61 </span><span class="lineCov">       8887 :    char *mem = xcalloc(h-&gt;size * 2 * sizeof(void *));</span>
+<span class="lineNum">      62 </span><span class="lineCov">       8887 :    h-&gt;values = (void **)mem;</span>
+<span class="lineNum">      63 </span><span class="lineCov">       8887 :    h-&gt;keys   = (const void **)(mem + (h-&gt;size * sizeof(void *)));</span>
 <span class="lineNum">      64 </span>            : 
-<span class="lineNum">      65 </span><span class="lineCov">       8863 :    return h;</span>
+<span class="lineNum">      65 </span><span class="lineCov">       8887 :    return h;</span>
 <a name="66"><span class="lineNum">      66 </span>            : }</a>
 <span class="lineNum">      67 </span>            : 
-<span class="lineNum">      68 </span><span class="lineCov">       8336 : void hash_free(hash_t *h)</span>
+<span class="lineNum">      68 </span><span class="lineCov">       8358 : void hash_free(hash_t *h)</span>
 <span class="lineNum">      69 </span>            : {
-<span class="lineNum">      70 </span><span class="lineCov">       8336 :    free(h-&gt;values);</span>
-<span class="lineNum">      71 </span><span class="lineCov">       8336 :    free(h);</span>
-<a name="72"><span class="lineNum">      72 </span><span class="lineCov">       8336 : }</span></a>
+<span class="lineNum">      70 </span><span class="lineCov">       8358 :    free(h-&gt;values);</span>
+<span class="lineNum">      71 </span><span class="lineCov">       8358 :    free(h);</span>
+<a name="72"><span class="lineNum">      72 </span><span class="lineCov">       8358 : }</span></a>
 <span class="lineNum">      73 </span>            : 
-<span class="lineNum">      74 </span><span class="lineCov">    2180368 : bool hash_put(hash_t *h, const void *key, void *value)</span>
+<span class="lineNum">      74 </span><span class="lineCov">    2185729 : bool hash_put(hash_t *h, const void *key, void *value)</span>
 <span class="lineNum">      75 </span>            : {
-<span class="lineNum">      76 </span><span class="lineCov">    2180368 :    if (unlikely(h-&gt;members &gt;= h-&gt;size / 2)) {</span>
+<span class="lineNum">      76 </span><span class="lineCov">    2185729 :    if (unlikely(h-&gt;members &gt;= h-&gt;size / 2)) {</span>
 <span class="lineNum">      77 </span>            :       // Rebuild the hash table with a larger size
 <span class="lineNum">      78 </span>            :       // This is expensive so a conservative initial size should be chosen
 <span class="lineNum">      79 </span>            : 
-<span class="lineNum">      80 </span><span class="lineCov">       1686 :       const int old_size = h-&gt;size;</span>
-<span class="lineNum">      81 </span><span class="lineCov">       1686 :       h-&gt;size *= 2;</span>
+<span class="lineNum">      80 </span><span class="lineCov">       1690 :       const int old_size = h-&gt;size;</span>
+<span class="lineNum">      81 </span><span class="lineCov">       1690 :       h-&gt;size *= 2;</span>
 <span class="lineNum">      82 </span>            : 
-<span class="lineNum">      83 </span><span class="lineCov">       1686 :       const void **old_keys = h-&gt;keys;</span>
-<span class="lineNum">      84 </span><span class="lineCov">       1686 :       void **old_values = h-&gt;values;</span>
+<span class="lineNum">      83 </span><span class="lineCov">       1690 :       const void **old_keys = h-&gt;keys;</span>
+<span class="lineNum">      84 </span><span class="lineCov">       1690 :       void **old_values = h-&gt;values;</span>
 <span class="lineNum">      85 </span>            : 
-<span class="lineNum">      86 </span><span class="lineCov">       1686 :       char *mem = xcalloc(h-&gt;size * 2 * sizeof(void *));</span>
-<span class="lineNum">      87 </span><span class="lineCov">       1686 :       h-&gt;values = (void **)mem;</span>
-<span class="lineNum">      88 </span><span class="lineCov">       1686 :       h-&gt;keys   = (const void **)(mem + (h-&gt;size * sizeof(void *)));</span>
+<span class="lineNum">      86 </span><span class="lineCov">       1690 :       char *mem = xcalloc(h-&gt;size * 2 * sizeof(void *));</span>
+<span class="lineNum">      87 </span><span class="lineCov">       1690 :       h-&gt;values = (void **)mem;</span>
+<span class="lineNum">      88 </span><span class="lineCov">       1690 :       h-&gt;keys   = (const void **)(mem + (h-&gt;size * sizeof(void *)));</span>
 <span class="lineNum">      89 </span>            : 
-<span class="lineNum">      90 </span><span class="lineCov">       1686 :       h-&gt;members = 0;</span>
+<span class="lineNum">      90 </span><span class="lineCov">       1690 :       h-&gt;members = 0;</span>
 <span class="lineNum">      91 </span>            : 
-<span class="lineNum">      92 </span><span class="lineCov">    1765238 :       for (int i = 0; i &lt; old_size; i++) {</span>
-<span class="lineNum">      93 </span><span class="lineCov">    1763552 :          if (old_keys[i] != NULL)</span>
-<span class="lineNum">      94 </span><span class="lineCov">     881776 :             hash_put(h, old_keys[i], old_values[i]);</span>
+<span class="lineNum">      92 </span><span class="lineCov">    1769338 :       for (int i = 0; i &lt; old_size; i++) {</span>
+<span class="lineNum">      93 </span><span class="lineCov">    1767648 :          if (old_keys[i] != NULL)</span>
+<span class="lineNum">      94 </span><span class="lineCov">     883824 :             hash_put(h, old_keys[i], old_values[i]);</span>
 <span class="lineNum">      95 </span>            :       }
 <span class="lineNum">      96 </span>            : 
-<span class="lineNum">      97 </span><span class="lineCov">       1686 :       free(old_values);</span>
+<span class="lineNum">      97 </span><span class="lineCov">       1690 :       free(old_values);</span>
 <span class="lineNum">      98 </span>            :    }
 <span class="lineNum">      99 </span>            : 
-<span class="lineNum">     100 </span><span class="lineCov">    2180368 :    int slot = hash_slot(h, key);</span>
+<span class="lineNum">     100 </span><span class="lineCov">    2185729 :    int slot = hash_slot(h, key);</span>
 <span class="lineNum">     101 </span>            : 
-<span class="lineNum">     102 </span><span class="lineCov">    2433148 :    for (; ; slot = (slot + 1) &amp; (h-&gt;size - 1)) {</span>
-<span class="lineNum">     103 </span><span class="lineCov">    4613516 :       if ((h-&gt;keys[slot] == key) &amp;&amp; h-&gt;replace) {</span>
-<span class="lineNum">     104 </span><span class="lineCov">      11457 :          h-&gt;values[slot] = value;</span>
-<span class="lineNum">     105 </span><span class="lineCov">      11457 :          return true;</span>
+<span class="lineNum">     102 </span><span class="lineCov">    2430141 :    for (; ; slot = (slot + 1) &amp; (h-&gt;size - 1)) {</span>
+<span class="lineNum">     103 </span><span class="lineCov">    4615870 :       if ((h-&gt;keys[slot] == key) &amp;&amp; h-&gt;replace) {</span>
+<span class="lineNum">     104 </span><span class="lineCov">      11473 :          h-&gt;values[slot] = value;</span>
+<span class="lineNum">     105 </span><span class="lineCov">      11473 :          return true;</span>
 <span class="lineNum">     106 </span>            :       }
-<span class="lineNum">     107 </span><span class="lineCov">    4602059 :       else if (h-&gt;keys[slot] == NULL) {</span>
-<span class="lineNum">     108 </span><span class="lineCov">    2168911 :          h-&gt;values[slot] = value;</span>
-<span class="lineNum">     109 </span><span class="lineCov">    2168911 :          h-&gt;keys[slot] = key;</span>
-<span class="lineNum">     110 </span><span class="lineCov">    2168911 :          h-&gt;members++;</span>
+<span class="lineNum">     107 </span><span class="lineCov">    4604397 :       else if (h-&gt;keys[slot] == NULL) {</span>
+<span class="lineNum">     108 </span><span class="lineCov">    2174256 :          h-&gt;values[slot] = value;</span>
+<span class="lineNum">     109 </span><span class="lineCov">    2174256 :          h-&gt;keys[slot] = key;</span>
+<span class="lineNum">     110 </span><span class="lineCov">    2174256 :          h-&gt;members++;</span>
 <span class="lineNum">     111 </span>            :          break;
 <span class="lineNum">     112 </span>            :       }
-<span class="lineNum">     113 </span><span class="lineCov">    2433148 :    }</span>
+<span class="lineNum">     113 </span><span class="lineCov">    2430141 :    }</span>
 <span class="lineNum">     114 </span>            : 
-<span class="lineNum">     115 </span><span class="lineCov">    2168911 :    return false;</span>
+<span class="lineNum">     115 </span><span class="lineCov">    2174256 :    return false;</span>
 <a name="116"><span class="lineNum">     116 </span>            : }</a>
 <span class="lineNum">     117 </span>            : 
-<span class="lineNum">     118 </span><span class="lineCov">    2993015 : void *hash_get_nth(hash_t *h, const void *key, int *n)</span>
+<span class="lineNum">     118 </span><span class="lineCov">    3000673 : void *hash_get_nth(hash_t *h, const void *key, int *n)</span>
 <span class="lineNum">     119 </span>            : {
-<span class="lineNum">     120 </span><span class="lineCov">    2993015 :    int slot = hash_slot(h, key);</span>
+<span class="lineNum">     120 </span><span class="lineCov">    3000673 :    int slot = hash_slot(h, key);</span>
 <span class="lineNum">     121 </span>            : 
-<span class="lineNum">     122 </span><span class="lineCov">    9002365 :    for (; ; slot = (slot + 1) &amp; (h-&gt;size - 1)) {</span>
-<span class="lineNum">     123 </span><span class="lineCov">   11995380 :       if (h-&gt;keys[slot] == key) {</span>
-<span class="lineNum">     124 </span><span class="lineCov">    6564417 :          if (*n == 0)</span>
-<span class="lineNum">     125 </span><span class="lineCov">    1225989 :             return h-&gt;values[slot];</span>
+<span class="lineNum">     122 </span><span class="lineCov">    9207555 :    for (; ; slot = (slot + 1) &amp; (h-&gt;size - 1)) {</span>
+<span class="lineNum">     123 </span><span class="lineCov">   12208228 :       if (h-&gt;keys[slot] == key) {</span>
+<span class="lineNum">     124 </span><span class="lineCov">    6581094 :          if (*n == 0)</span>
+<span class="lineNum">     125 </span><span class="lineCov">    1229358 :             return h-&gt;values[slot];</span>
 <span class="lineNum">     126 </span>            :          else
-<span class="lineNum">     127 </span><span class="lineCov">    5338428 :             --(*n);</span>
+<span class="lineNum">     127 </span><span class="lineCov">    5351736 :             --(*n);</span>
 <span class="lineNum">     128 </span>            :       }
-<span class="lineNum">     129 </span><span class="lineCov">    5430963 :       else if (h-&gt;keys[slot] == NULL)</span>
+<span class="lineNum">     129 </span><span class="lineCov">    5627134 :       else if (h-&gt;keys[slot] == NULL)</span>
 <span class="lineNum">     130 </span>            :          return NULL;
-<span class="lineNum">     131 </span><span class="lineCov">    9002365 :    }</span>
+<span class="lineNum">     131 </span><span class="lineCov">    9207555 :    }</span>
 <a name="132"><span class="lineNum">     132 </span>            : }</a>
 <span class="lineNum">     133 </span>            : 
-<span class="lineNum">     134 </span><span class="lineCov">      38066 : void *hash_get(hash_t *h, const void *key)</span>
+<span class="lineNum">     134 </span><span class="lineCov">      38103 : void *hash_get(hash_t *h, const void *key)</span>
 <span class="lineNum">     135 </span>            : {
-<span class="lineNum">     136 </span><span class="lineCov">      38066 :    int n = 0;</span>
-<span class="lineNum">     137 </span><span class="lineCov">      38066 :    return hash_get_nth(h, key, &amp;n);</span>
+<span class="lineNum">     136 </span><span class="lineCov">      38103 :    int n = 0;</span>
+<span class="lineNum">     137 </span><span class="lineCov">      38103 :    return hash_get_nth(h, key, &amp;n);</span>
 <a name="138"><span class="lineNum">     138 </span>            : }</a>
 <span class="lineNum">     139 </span>            : 
-<span class="lineNum">     140 </span><span class="lineCov">       5382 : void hash_replace(hash_t *h, void *value, void *with)</span>
+<span class="lineNum">     140 </span><span class="lineCov">       5394 : void hash_replace(hash_t *h, void *value, void *with)</span>
 <span class="lineNum">     141 </span>            : {
-<span class="lineNum">     142 </span><span class="lineCov">   11676934 :    for (int i = 0; i &lt; h-&gt;size; i++) {</span>
-<span class="lineNum">     143 </span><span class="lineCov">   11671552 :       if (h-&gt;values[i] == value)</span>
-<span class="lineNum">     144 </span><span class="lineCov">      15090 :          h-&gt;values[i] = with;</span>
+<span class="lineNum">     142 </span><span class="lineCov">   11701522 :    for (int i = 0; i &lt; h-&gt;size; i++) {</span>
+<span class="lineNum">     143 </span><span class="lineCov">   11696128 :       if (h-&gt;values[i] == value)</span>
+<span class="lineNum">     144 </span><span class="lineCov">      15126 :          h-&gt;values[i] = with;</span>
 <span class="lineNum">     145 </span>            :    }
-<a name="146"><span class="lineNum">     146 </span><span class="lineCov">       5382 : }</span></a>
+<a name="146"><span class="lineNum">     146 </span><span class="lineCov">       5394 : }</span></a>
 <span class="lineNum">     147 </span>            : 
-<span class="lineNum">     148 </span><span class="lineCov">       3144 : bool hash_iter(hash_t *h, hash_iter_t *now, const void **key, void **value)</span>
+<span class="lineNum">     148 </span><span class="lineCov">       3142 : bool hash_iter(hash_t *h, hash_iter_t *now, const void **key, void **value)</span>
 <span class="lineNum">     149 </span>            : {
-<span class="lineNum">     150 </span><span class="lineCov">       3144 :    assert(*now != HASH_END);</span>
+<span class="lineNum">     150 </span><span class="lineCov">       3142 :    assert(*now != HASH_END);</span>
 <span class="lineNum">     151 </span>            : 
-<span class="lineNum">     152 </span><span class="lineCov">      26998 :    while (*now &lt; h-&gt;size) {</span>
-<span class="lineNum">     153 </span><span class="lineCov">      26976 :       const unsigned old = (*now)++;</span>
-<span class="lineNum">     154 </span><span class="lineCov">      26976 :       if (h-&gt;keys[old] != NULL) {</span>
-<span class="lineNum">     155 </span><span class="lineCov">       3122 :          *key   = h-&gt;keys[old];</span>
-<span class="lineNum">     156 </span><span class="lineCov">       3122 :          *value = h-&gt;values[old];</span>
-<span class="lineNum">     157 </span><span class="lineCov">       3122 :          return true;</span>
+<span class="lineNum">     152 </span><span class="lineCov">      27381 :    while (*now &lt; h-&gt;size) {</span>
+<span class="lineNum">     153 </span><span class="lineCov">      27359 :       const unsigned old = (*now)++;</span>
+<span class="lineNum">     154 </span><span class="lineCov">      27359 :       if (h-&gt;keys[old] != NULL) {</span>
+<span class="lineNum">     155 </span><span class="lineCov">       3120 :          *key   = h-&gt;keys[old];</span>
+<span class="lineNum">     156 </span><span class="lineCov">       3120 :          *value = h-&gt;values[old];</span>
+<span class="lineNum">     157 </span><span class="lineCov">       3120 :          return true;</span>
 <span class="lineNum">     158 </span>            :       }
 <span class="lineNum">     159 </span>            :    }
 <span class="lineNum">     160 </span>            : 
