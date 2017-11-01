@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2017-10-31</td>
+            <td class="headerValue">2017-11-01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">9</td>
@@ -132,7 +132,7 @@
 <span class="lineNum">      70 </span>            : 
 <a name="71"><span class="lineNum">      71 </span>            : #endif</a>
 <span class="lineNum">      72 </span>            : 
-<span class="lineNum">      73 </span><span class="lineCov">       8347 : static void *jit_search_loaded_syms(const char *name, bool required)</span>
+<span class="lineNum">      73 </span><span class="lineCov">       8363 : static void *jit_search_loaded_syms(const char *name, bool required)</span>
 <span class="lineNum">      74 </span>            : {
 <span class="lineNum">      75 </span>            : #if (defined __MINGW32__ || defined __CYGWIN__) &amp;&amp; !defined _WIN64
 <span class="lineNum">      76 </span>            :    if (*name == '_')
@@ -165,40 +165,40 @@
 <span class="lineNum">     103 </span>            : 
 <span class="lineNum">     104 </span>            : #else  // __MINGW32__
 <span class="lineNum">     105 </span>            : 
-<span class="lineNum">     106 </span><span class="lineCov">       8347 :    dlerror();   // Clear any previous error</span>
+<span class="lineNum">     106 </span><span class="lineCov">       8363 :    dlerror();   // Clear any previous error</span>
 <span class="lineNum">     107 </span>            : 
-<span class="lineNum">     108 </span><span class="lineCov">       8347 :    void *sym = dlsym(NULL, name);</span>
-<span class="lineNum">     109 </span><span class="lineCov">       8347 :    const char *error = dlerror();</span>
-<span class="lineNum">     110 </span><span class="lineCov">       8347 :    if (error != NULL) {</span>
-<span class="lineNum">     111 </span><span class="lineCov">       8228 :       sym = dlsym(RTLD_DEFAULT, name);</span>
-<span class="lineNum">     112 </span><span class="lineCov">       8228 :       error = dlerror();</span>
-<span class="lineNum">     113 </span><span class="lineCov">       8228 :       if ((error != NULL) &amp;&amp; required)</span>
+<span class="lineNum">     108 </span><span class="lineCov">       8363 :    void *sym = dlsym(NULL, name);</span>
+<span class="lineNum">     109 </span><span class="lineCov">       8363 :    const char *error = dlerror();</span>
+<span class="lineNum">     110 </span><span class="lineCov">       8363 :    if (error != NULL) {</span>
+<span class="lineNum">     111 </span><span class="lineCov">       8244 :       sym = dlsym(RTLD_DEFAULT, name);</span>
+<span class="lineNum">     112 </span><span class="lineCov">       8244 :       error = dlerror();</span>
+<span class="lineNum">     113 </span><span class="lineCov">       8244 :       if ((error != NULL) &amp;&amp; required)</span>
 <span class="lineNum">     114 </span><span class="lineNoCov">          0 :          fatal(&quot;%s: %s&quot;, name, error);</span>
 <span class="lineNum">     115 </span>            :    }
-<span class="lineNum">     116 </span><span class="lineCov">       8347 :    return sym;</span>
+<span class="lineNum">     116 </span><span class="lineCov">       8363 :    return sym;</span>
 <span class="lineNum">     117 </span>            : #endif
 <a name="118"><span class="lineNum">     118 </span>            : }</a>
 <span class="lineNum">     119 </span>            : 
-<span class="lineNum">     120 </span><span class="lineCov">       8304 : void *jit_fun_ptr(const char *name, bool required)</span>
+<span class="lineNum">     120 </span><span class="lineCov">       8319 : void *jit_fun_ptr(const char *name, bool required)</span>
 <span class="lineNum">     121 </span>            : {
 <span class="lineNum">     122 </span>            : #if LLVM_HAS_ORC
 <span class="lineNum">     123 </span>            :       return jit_var_ptr(name, required);
 <span class="lineNum">     124 </span>            : #else
-<span class="lineNum">     125 </span><span class="lineCov">       8304 :       if (exec_engine != NULL) {</span>
+<span class="lineNum">     125 </span><span class="lineCov">       8319 :       if (exec_engine != NULL) {</span>
 <span class="lineNum">     126 </span>            :          LLVMValueRef fn;
-<span class="lineNum">     127 </span><span class="lineCov">       8304 :          if (LLVMFindFunction(exec_engine, name, &amp;fn))</span>
-<span class="lineNum">     128 </span><span class="lineCov">       7045 :             return jit_search_loaded_syms(name, required);</span>
+<span class="lineNum">     127 </span><span class="lineCov">       8319 :          if (LLVMFindFunction(exec_engine, name, &amp;fn))</span>
+<span class="lineNum">     128 </span><span class="lineCov">       7057 :             return jit_search_loaded_syms(name, required);</span>
 <span class="lineNum">     129 </span>            : 
-<span class="lineNum">     130 </span><span class="lineCov">       1259 :          return LLVMGetPointerToGlobal(exec_engine, fn);</span>
+<span class="lineNum">     130 </span><span class="lineCov">       1262 :          return LLVMGetPointerToGlobal(exec_engine, fn);</span>
 <span class="lineNum">     131 </span>            :       }
 <span class="lineNum">     132 </span>            :       else
 <span class="lineNum">     133 </span><span class="lineNoCov">          0 :          return jit_var_ptr(name, required);</span>
 <span class="lineNum">     134 </span>            : #endif
 <a name="135"><span class="lineNum">     135 </span>            : }</a>
 <span class="lineNum">     136 </span>            : 
-<span class="lineNum">     137 </span><span class="lineCov">       1306 : void *jit_var_ptr(const char *name, bool required)</span>
+<span class="lineNum">     137 </span><span class="lineCov">       1310 : void *jit_var_ptr(const char *name, bool required)</span>
 <span class="lineNum">     138 </span>            : {
-<span class="lineNum">     139 </span><span class="lineCov">       1306 :    void *ptr = NULL;</span>
+<span class="lineNum">     139 </span><span class="lineCov">       1310 :    void *ptr = NULL;</span>
 <span class="lineNum">     140 </span>            : 
 <span class="lineNum">     141 </span>            : #if LLVM_HAS_ORC
 <span class="lineNum">     142 </span>            :    if (orc_ref != NULL) {
@@ -211,23 +211,23 @@
 <span class="lineNum">     149 </span>            : #endif
 <span class="lineNum">     150 </span>            :    }
 <span class="lineNum">     151 </span>            : #else
-<span class="lineNum">     152 </span><span class="lineCov">       1306 :    if (exec_engine != NULL)</span>
-<span class="lineNum">     153 </span><span class="lineCov">       1306 :       ptr = (void *)(uintptr_t)LLVMGetGlobalValueAddress(exec_engine, name);</span>
+<span class="lineNum">     152 </span><span class="lineCov">       1310 :    if (exec_engine != NULL)</span>
+<span class="lineNum">     153 </span><span class="lineCov">       1310 :       ptr = (void *)(uintptr_t)LLVMGetGlobalValueAddress(exec_engine, name);</span>
 <span class="lineNum">     154 </span>            : #endif
 <span class="lineNum">     155 </span>            : 
-<span class="lineNum">     156 </span><span class="lineCov">       1306 :    if (ptr == NULL)</span>
-<span class="lineNum">     157 </span><span class="lineCov">       1302 :       return jit_search_loaded_syms(name, required);</span>
+<span class="lineNum">     156 </span><span class="lineCov">       1310 :    if (ptr == NULL)</span>
+<span class="lineNum">     157 </span><span class="lineCov">       1306 :       return jit_search_loaded_syms(name, required);</span>
 <span class="lineNum">     158 </span>            :    else
 <span class="lineNum">     159 </span>            :       return ptr;
 <a name="160"><span class="lineNum">     160 </span>            : }</a>
 <span class="lineNum">     161 </span>            : 
-<span class="lineNum">     162 </span><span class="lineCov">       7098 : void jit_bind_fn(const char *name, void *ptr)</span>
+<span class="lineNum">     162 </span><span class="lineCov">       7119 : void jit_bind_fn(const char *name, void *ptr)</span>
 <span class="lineNum">     163 </span>            : {
 <span class="lineNum">     164 </span>            : #if !LLVM_HAS_ORC
-<span class="lineNum">     165 </span><span class="lineCov">       7098 :    if (exec_engine != NULL) {</span>
+<span class="lineNum">     165 </span><span class="lineCov">       7119 :    if (exec_engine != NULL) {</span>
 <span class="lineNum">     166 </span>            :       LLVMValueRef fn;
-<span class="lineNum">     167 </span><span class="lineCov">       7098 :       if (LLVMFindFunction(exec_engine, name, &amp;fn))</span>
-<span class="lineNum">     168 </span><span class="lineCov">       7098 :          return;</span>
+<span class="lineNum">     167 </span><span class="lineCov">       7119 :       if (LLVMFindFunction(exec_engine, name, &amp;fn))</span>
+<span class="lineNum">     168 </span><span class="lineCov">       7119 :          return;</span>
 <span class="lineNum">     169 </span>            : 
 <span class="lineNum">     170 </span><span class="lineNoCov">          0 :       LLVMAddGlobalMapping(exec_engine, fn, ptr);</span>
 <span class="lineNum">     171 </span>            :    }
@@ -241,49 +241,49 @@
 <span class="lineNum">     179 </span>            : }
 <a name="180"><span class="lineNum">     180 </span>            : #endif  // LLVM_HAS_ORC</a>
 <span class="lineNum">     181 </span>            : 
-<span class="lineNum">     182 </span><span class="lineCov">        938 : static time_t jit_mod_time(const char *path)</span>
+<span class="lineNum">     182 </span><span class="lineCov">        940 : static time_t jit_mod_time(const char *path)</span>
 <span class="lineNum">     183 </span>            : {
 <span class="lineNum">     184 </span>            :    struct stat st;
-<span class="lineNum">     185 </span><span class="lineCov">        938 :    if (stat(path, &amp;st) == -1) {</span>
-<span class="lineNum">     186 </span><span class="lineCov">        397 :       if (errno == ENOENT)</span>
+<span class="lineNum">     185 </span><span class="lineCov">        940 :    if (stat(path, &amp;st) == -1) {</span>
+<span class="lineNum">     186 </span><span class="lineCov">        398 :       if (errno == ENOENT)</span>
 <span class="lineNum">     187 </span>            :          return 0;
 <span class="lineNum">     188 </span>            :       else
 <span class="lineNum">     189 </span><span class="lineNoCov">          0 :          fatal_errno(&quot;%s&quot;, path);</span>
 <span class="lineNum">     190 </span>            :    }
-<span class="lineNum">     191 </span><span class="lineCov">        541 :    return st.st_mtime;</span>
+<span class="lineNum">     191 </span><span class="lineCov">        542 :    return st.st_mtime;</span>
 <a name="192"><span class="lineNum">     192 </span>            : }</a>
 <span class="lineNum">     193 </span>            : 
-<span class="lineNum">     194 </span><span class="lineCov">       1338 : static void jit_load_module(ident_t name, LLVMModuleRef module)</span>
+<span class="lineNum">     194 </span><span class="lineCov">       1341 : static void jit_load_module(ident_t name, LLVMModuleRef module)</span>
 <span class="lineNum">     195 </span>            : {
-<span class="lineNum">     196 </span><span class="lineCov">       1338 :    lib_t lib = lib_find(ident_until(name, '.'), true);</span>
+<span class="lineNum">     196 </span><span class="lineCov">       1341 :    lib_t lib = lib_find(ident_until(name, '.'), true);</span>
 <span class="lineNum">     197 </span>            : 
-<span class="lineNum">     198 </span><span class="lineCov">       1338 :    tree_kind_t kind = lib_index_kind(lib, name);</span>
-<span class="lineNum">     199 </span><span class="lineCov">       1338 :    if (kind == T_LAST_TREE_KIND)</span>
+<span class="lineNum">     198 </span><span class="lineCov">       1341 :    tree_kind_t kind = lib_index_kind(lib, name);</span>
+<span class="lineNum">     199 </span><span class="lineCov">       1341 :    if (kind == T_LAST_TREE_KIND)</span>
 <span class="lineNum">     200 </span><span class="lineNoCov">          0 :       fatal(&quot;Cannot find %s in library %s&quot;, istr(name), istr(lib_name(lib)));</span>
 <span class="lineNum">     201 </span>            : 
-<span class="lineNum">     202 </span><span class="lineCov">       1338 :    if (kind == T_ENTITY || kind == T_ARCH)</span>
-<span class="lineNum">     203 </span><span class="lineCov">        869 :       return;</span>
+<span class="lineNum">     202 </span><span class="lineCov">       1341 :    if (kind == T_ENTITY || kind == T_ARCH)</span>
+<span class="lineNum">     203 </span><span class="lineCov">        871 :       return;</span>
 <span class="lineNum">     204 </span>            : 
-<span class="lineNum">     205 </span><span class="lineCov">        532 :    const bool optional = (kind == T_PACKAGE || kind == T_PACK_BODY);</span>
+<span class="lineNum">     205 </span><span class="lineCov">        533 :    const bool optional = (kind == T_PACKAGE || kind == T_PACK_BODY);</span>
 <span class="lineNum">     206 </span>            : 
-<span class="lineNum">     207 </span><span class="lineCov">       1064 :    char *bc_fname LOCAL = xasprintf(&quot;_%s.bc&quot;, istr(name));</span>
-<span class="lineNum">     208 </span><span class="lineCov">       1064 :    char *so_fname LOCAL = xasprintf(&quot;_%s.&quot; DLL_EXT, istr(name));</span>
+<span class="lineNum">     207 </span><span class="lineCov">       1066 :    char *bc_fname LOCAL = xasprintf(&quot;_%s.bc&quot;, istr(name));</span>
+<span class="lineNum">     208 </span><span class="lineCov">       1066 :    char *so_fname LOCAL = xasprintf(&quot;_%s.&quot; DLL_EXT, istr(name));</span>
 <span class="lineNum">     209 </span>            : 
 <span class="lineNum">     210 </span>            :    char bc_path[PATH_MAX], so_path[PATH_MAX];
-<span class="lineNum">     211 </span><span class="lineCov">        532 :    lib_realpath(lib, bc_fname, bc_path, sizeof(bc_path));</span>
-<span class="lineNum">     212 </span><span class="lineCov">        532 :    lib_realpath(lib, so_fname, so_path, sizeof(so_path));</span>
+<span class="lineNum">     211 </span><span class="lineCov">        533 :    lib_realpath(lib, bc_fname, bc_path, sizeof(bc_path));</span>
+<span class="lineNum">     212 </span><span class="lineCov">        533 :    lib_realpath(lib, so_fname, so_path, sizeof(so_path));</span>
 <span class="lineNum">     213 </span>            : 
-<span class="lineNum">     214 </span><span class="lineCov">        532 :    if (access(bc_path, F_OK) != 0 &amp;&amp; access(so_path, F_OK) != 0 &amp;&amp; optional)</span>
+<span class="lineNum">     214 </span><span class="lineCov">        533 :    if (access(bc_path, F_OK) != 0 &amp;&amp; access(so_path, F_OK) != 0 &amp;&amp; optional)</span>
 <span class="lineNum">     215 </span>            :       return;
 <span class="lineNum">     216 </span>            : 
-<span class="lineNum">     217 </span><span class="lineCov">        469 :    const bool use_jit = (jit_mod_time(bc_path) &gt; jit_mod_time(so_path));</span>
+<span class="lineNum">     217 </span><span class="lineCov">        470 :    const bool use_jit = (jit_mod_time(bc_path) &gt; jit_mod_time(so_path));</span>
 <span class="lineNum">     218 </span>            : 
-<span class="lineNum">     219 </span><span class="lineCov">        469 :    if (opt_get_int(&quot;rt_trace_en&quot;))</span>
+<span class="lineNum">     219 </span><span class="lineCov">        470 :    if (opt_get_int(&quot;rt_trace_en&quot;))</span>
 <span class="lineNum">     220 </span><span class="lineNoCov">          0 :       fprintf(stderr, &quot;TRACE (init): load %s using %s from %s\n&quot;, istr(name),</span>
 <span class="lineNum">     221 </span>            :               use_jit ? &quot;JIT&quot; : &quot;native code&quot;, use_jit ? bc_path : so_path);
 <span class="lineNum">     222 </span>            : 
-<span class="lineNum">     223 </span><span class="lineCov">        469 :    if (use_jit) {</span>
-<span class="lineNum">     224 </span><span class="lineCov">        397 :       if (module == NULL) {</span>
+<span class="lineNum">     223 </span><span class="lineCov">        470 :    if (use_jit) {</span>
+<span class="lineNum">     224 </span><span class="lineCov">        398 :       if (module == NULL) {</span>
 <span class="lineNum">     225 </span>            :          char *error;
 <span class="lineNum">     226 </span>            :          LLVMMemoryBufferRef buf;
 <span class="lineNum">     227 </span><span class="lineCov">         80 :          if (LLVMCreateMemoryBufferWithContentsOfFile(bc_path, &amp;buf, &amp;error))</span>
@@ -337,16 +337,16 @@
 <span class="lineNum">     275 </span>            : 
 <span class="lineNum">     276 </span>            : #else
 <span class="lineNum">     277 </span>            : 
-<span class="lineNum">     278 </span><span class="lineCov">        397 :       if (exec_engine == NULL) {</span>
-<span class="lineNum">     279 </span><span class="lineCov">        338 :          LLVMInitializeNativeTarget();</span>
-<span class="lineNum">     280 </span><span class="lineCov">        338 :          LLVMInitializeNativeAsmPrinter();</span>
-<span class="lineNum">     281 </span><span class="lineCov">        338 :          LLVMLinkInMCJIT();</span>
+<span class="lineNum">     278 </span><span class="lineCov">        398 :       if (exec_engine == NULL) {</span>
+<span class="lineNum">     279 </span><span class="lineCov">        339 :          LLVMInitializeNativeTarget();</span>
+<span class="lineNum">     280 </span><span class="lineCov">        339 :          LLVMInitializeNativeAsmPrinter();</span>
+<span class="lineNum">     281 </span><span class="lineCov">        339 :          LLVMLinkInMCJIT();</span>
 <span class="lineNum">     282 </span>            : 
 <span class="lineNum">     283 </span>            :          struct LLVMMCJITCompilerOptions options;
-<span class="lineNum">     284 </span><span class="lineCov">        338 :          LLVMInitializeMCJITCompilerOptions(&amp;options, sizeof(options));</span>
+<span class="lineNum">     284 </span><span class="lineCov">        339 :          LLVMInitializeMCJITCompilerOptions(&amp;options, sizeof(options));</span>
 <span class="lineNum">     285 </span>            : 
 <span class="lineNum">     286 </span>            :          char *error;
-<span class="lineNum">     287 </span><span class="lineCov">        338 :          if (LLVMCreateMCJITCompilerForModule(&amp;exec_engine, module, &amp;options,</span>
+<span class="lineNum">     287 </span><span class="lineCov">        339 :          if (LLVMCreateMCJITCompilerForModule(&amp;exec_engine, module, &amp;options,</span>
 <span class="lineNum">     288 </span>            :                                               sizeof(options), &amp;error))
 <span class="lineNum">     289 </span><span class="lineNoCov">          0 :             fatal(&quot;error creating MCJIT compiler: %s&quot;, error);</span>
 <span class="lineNum">     290 </span>            :       }
@@ -372,7 +372,7 @@
 <span class="lineNum">     310 </span>            :    }
 <a name="311"><span class="lineNum">     311 </span>            : }</a>
 <span class="lineNum">     312 </span>            : 
-<span class="lineNum">     313 </span><span class="lineCov">        338 : void jit_init(tree_t top)</span>
+<span class="lineNum">     313 </span><span class="lineCov">        339 : void jit_init(tree_t top)</span>
 <span class="lineNum">     314 </span>            : {
 <span class="lineNum">     315 </span>            : #ifdef __MINGW32__
 <span class="lineNum">     316 </span>            :    max_modules = 16;
@@ -383,59 +383,59 @@
 <span class="lineNum">     321 </span>            :                 nmodules, max_modules);
 <span class="lineNum">     322 </span>            : #endif
 <span class="lineNum">     323 </span>            : 
-<span class="lineNum">     324 </span><span class="lineCov">        338 :    const int ncontext = tree_contexts(top);</span>
-<span class="lineNum">     325 </span><span class="lineCov">       3911 :    for (int i = 0; i &lt; ncontext; i++) {</span>
-<span class="lineNum">     326 </span><span class="lineCov">       3573 :       tree_t c = tree_context(top, i);</span>
-<span class="lineNum">     327 </span><span class="lineCov">       3573 :       if (tree_kind(c) == T_USE)</span>
-<span class="lineNum">     328 </span><span class="lineCov">       1000 :          jit_load_module(tree_ident(c), NULL);</span>
+<span class="lineNum">     324 </span><span class="lineCov">        339 :    const int ncontext = tree_contexts(top);</span>
+<span class="lineNum">     325 </span><span class="lineCov">       3918 :    for (int i = 0; i &lt; ncontext; i++) {</span>
+<span class="lineNum">     326 </span><span class="lineCov">       3579 :       tree_t c = tree_context(top, i);</span>
+<span class="lineNum">     327 </span><span class="lineCov">       3579 :       if (tree_kind(c) == T_USE)</span>
+<span class="lineNum">     328 </span><span class="lineCov">       1002 :          jit_load_module(tree_ident(c), NULL);</span>
 <span class="lineNum">     329 </span>            :    }
 <span class="lineNum">     330 </span>            : 
-<span class="lineNum">     331 </span><span class="lineCov">        338 :    jit_load_module(tree_ident(top), tree_attr_ptr(top, llvm_i));</span>
-<span class="lineNum">     332 </span><span class="lineCov">        338 :    tree_remove_attr(top, llvm_i);</span>
-<a name="333"><span class="lineNum">     333 </span><span class="lineCov">        338 : }</span></a>
+<span class="lineNum">     331 </span><span class="lineCov">        339 :    jit_load_module(tree_ident(top), tree_attr_ptr(top, llvm_i));</span>
+<span class="lineNum">     332 </span><span class="lineCov">        339 :    tree_remove_attr(top, llvm_i);</span>
+<a name="333"><span class="lineNum">     333 </span><span class="lineCov">        339 : }</span></a>
 <span class="lineNum">     334 </span>            : 
-<span class="lineNum">     335 </span><span class="lineCov">        315 : void jit_shutdown(void)</span>
+<span class="lineNum">     335 </span><span class="lineCov">        316 : void jit_shutdown(void)</span>
 <span class="lineNum">     336 </span>            : {
 <span class="lineNum">     337 </span>            : #if LLVM_HAS_ORC
 <span class="lineNum">     338 </span>            :    if (orc_ref != NULL)
 <span class="lineNum">     339 </span>            :       LLVMOrcDisposeInstance(orc_ref);
 <span class="lineNum">     340 </span>            : #else
-<span class="lineNum">     341 </span><span class="lineCov">        315 :    if (exec_engine != NULL)</span>
-<span class="lineNum">     342 </span><span class="lineCov">        315 :       LLVMDisposeExecutionEngine(exec_engine);</span>
+<span class="lineNum">     341 </span><span class="lineCov">        316 :    if (exec_engine != NULL)</span>
+<span class="lineNum">     342 </span><span class="lineCov">        316 :       LLVMDisposeExecutionEngine(exec_engine);</span>
 <span class="lineNum">     343 </span>            : #endif
-<a name="344"><span class="lineNum">     344 </span><span class="lineCov">        315 : }</span></a>
+<a name="344"><span class="lineNum">     344 </span><span class="lineCov">        316 : }</span></a>
 <span class="lineNum">     345 </span>            : 
-<span class="lineNum">     346 </span><span class="lineCov">        564 : void jit_trace(jit_trace_t **trace, size_t *count)</span>
+<span class="lineNum">     346 </span><span class="lineCov">        565 : void jit_trace(jit_trace_t **trace, size_t *count)</span>
 <span class="lineNum">     347 </span>            : {
 <span class="lineNum">     348 </span>            : #ifdef HAVE_EXECINFO_H
 <span class="lineNum">     349 </span>            : 
 <span class="lineNum">     350 </span>            :    void *frames[TRACE_MAX];
-<span class="lineNum">     351 </span><span class="lineCov">        564 :    char **messages = NULL;</span>
-<span class="lineNum">     352 </span><span class="lineCov">        564 :    int trace_size = 0;</span>
+<span class="lineNum">     351 </span><span class="lineCov">        565 :    char **messages = NULL;</span>
+<span class="lineNum">     352 </span><span class="lineCov">        565 :    int trace_size = 0;</span>
 <span class="lineNum">     353 </span>            : 
-<span class="lineNum">     354 </span><span class="lineCov">        564 :    trace_size = backtrace(frames, TRACE_MAX);</span>
-<span class="lineNum">     355 </span><span class="lineCov">        564 :    messages = backtrace_symbols(frames, trace_size);</span>
+<span class="lineNum">     354 </span><span class="lineCov">        565 :    trace_size = backtrace(frames, TRACE_MAX);</span>
+<span class="lineNum">     355 </span><span class="lineCov">        565 :    messages = backtrace_symbols(frames, trace_size);</span>
 <span class="lineNum">     356 </span>            : 
-<span class="lineNum">     357 </span><span class="lineCov">        564 :    *count = 0;</span>
-<span class="lineNum">     358 </span><span class="lineCov">        564 :    *trace = xcalloc(sizeof(jit_trace_t) * trace_size);</span>
+<span class="lineNum">     357 </span><span class="lineCov">        565 :    *count = 0;</span>
+<span class="lineNum">     358 </span><span class="lineCov">        565 :    *trace = xcalloc(sizeof(jit_trace_t) * trace_size);</span>
 <span class="lineNum">     359 </span>            : 
-<span class="lineNum">     360 </span><span class="lineCov">       2826 :    for (int i = 0; i &lt; trace_size; i++) {</span>
+<span class="lineNum">     360 </span><span class="lineCov">       2831 :    for (int i = 0; i &lt; trace_size; i++) {</span>
 <span class="lineNum">     361 </span>            :       // This hack only works for native compiled code
-<span class="lineNum">     362 </span><span class="lineCov">       2262 :       char *begin = strchr(messages[i], '(');</span>
-<span class="lineNum">     363 </span><span class="lineCov">       2262 :       char *end = strchr(messages[i], '+');</span>
+<span class="lineNum">     362 </span><span class="lineCov">       2266 :       char *begin = strchr(messages[i], '(');</span>
+<span class="lineNum">     363 </span><span class="lineCov">       2266 :       char *end = strchr(messages[i], '+');</span>
 <span class="lineNum">     364 </span>            : 
-<span class="lineNum">     365 </span><span class="lineCov">       2262 :       if (begin == NULL || end == NULL)</span>
-<span class="lineNum">     366 </span><span class="lineCov">       1129 :          continue;</span>
+<span class="lineNum">     365 </span><span class="lineCov">       2266 :       if (begin == NULL || end == NULL)</span>
+<span class="lineNum">     366 </span><span class="lineCov">       1131 :          continue;</span>
 <span class="lineNum">     367 </span>            : 
-<span class="lineNum">     368 </span><span class="lineCov">       1133 :       *end = '\0';</span>
+<span class="lineNum">     368 </span><span class="lineCov">       1135 :       *end = '\0';</span>
 <span class="lineNum">     369 </span>            : 
-<span class="lineNum">     370 </span><span class="lineCov">       1133 :       bool maybe_vhdl = false;</span>
-<span class="lineNum">     371 </span><span class="lineCov">       3418 :       for (const char *p = begin + 1; *p != '\0'; p++) {</span>
-<span class="lineNum">     372 </span><span class="lineCov">       1709 :          if (isupper((int)*p) || isdigit((int)*p) || *p == '_') {</span>
-<span class="lineNum">     373 </span><span class="lineCov">        576 :             maybe_vhdl = true;</span>
-<span class="lineNum">     374 </span><span class="lineCov">        576 :             continue;</span>
+<span class="lineNum">     370 </span><span class="lineCov">       1135 :       bool maybe_vhdl = false;</span>
+<span class="lineNum">     371 </span><span class="lineCov">       3424 :       for (const char *p = begin + 1; *p != '\0'; p++) {</span>
+<span class="lineNum">     372 </span><span class="lineCov">       1712 :          if (isupper((int)*p) || isdigit((int)*p) || *p == '_') {</span>
+<span class="lineNum">     373 </span><span class="lineCov">        577 :             maybe_vhdl = true;</span>
+<span class="lineNum">     374 </span><span class="lineCov">        577 :             continue;</span>
 <span class="lineNum">     375 </span>            :          }
-<span class="lineNum">     376 </span><span class="lineCov">       1133 :          else if (*p == '.') {</span>
+<span class="lineNum">     376 </span><span class="lineCov">       1135 :          else if (*p == '.') {</span>
 <span class="lineNum">     377 </span><span class="lineCov">          3 :             maybe_vhdl = p &gt; begin + 1;</span>
 <span class="lineNum">     378 </span><span class="lineCov">          3 :             break;</span>
 <span class="lineNum">     379 </span>            :          }
@@ -445,8 +445,8 @@
 <span class="lineNum">     383 </span>            :          }
 <span class="lineNum">     384 </span>            :       }
 <span class="lineNum">     385 </span>            : 
-<span class="lineNum">     386 </span><span class="lineCov">       1133 :       if (!maybe_vhdl)</span>
-<span class="lineNum">     387 </span><span class="lineCov">       1130 :          continue;</span>
+<span class="lineNum">     386 </span><span class="lineCov">       1135 :       if (!maybe_vhdl)</span>
+<span class="lineNum">     387 </span><span class="lineCov">       1132 :          continue;</span>
 <span class="lineNum">     388 </span>            : 
 <span class="lineNum">     389 </span><span class="lineCov">          3 :       ident_t mangled = ident_new(begin + 1);</span>
 <span class="lineNum">     390 </span><span class="lineCov">          3 :       ident_t lib_name = ident_until(mangled, '.');</span>
@@ -486,13 +486,13 @@
 <span class="lineNum">     424 </span><span class="lineCov">          3 :       (*count)++;</span>
 <span class="lineNum">     425 </span>            :    }
 <span class="lineNum">     426 </span>            : 
-<span class="lineNum">     427 </span><span class="lineCov">        564 :    free(messages);</span>
+<span class="lineNum">     427 </span><span class="lineCov">        565 :    free(messages);</span>
 <span class="lineNum">     428 </span>            : 
 <span class="lineNum">     429 </span>            : #else
 <span class="lineNum">     430 </span>            :    *count = 0;
 <span class="lineNum">     431 </span>            :    *trace = NULL;
 <span class="lineNum">     432 </span>            : #endif
-<span class="lineNum">     433 </span><span class="lineCov">        564 : }</span>
+<span class="lineNum">     433 </span><span class="lineCov">        565 : }</span>
 </pre>
       </td>
     </tr>
