@@ -31,13 +31,13 @@
             <td class="headerValue">nvc.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">211</td>
-            <td class="headerCovTableEntry">483</td>
-            <td class="headerCovTableEntryLo">43.7 %</td>
+            <td class="headerCovTableEntry">212</td>
+            <td class="headerCovTableEntry">486</td>
+            <td class="headerCovTableEntryLo">43.6 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2017-12-07</td>
+            <td class="headerValue">2017-12-16</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">14</td>
@@ -494,614 +494,620 @@
 <span class="lineNum">     432 </span>            : {
 <span class="lineNum">     433 </span>            :    static struct option long_options[] = {
 <span class="lineNum">     434 </span>            :       { &quot;trace&quot;,         no_argument,       0, 't' },
-<span class="lineNum">     435 </span>            :       { &quot;stop-time&quot;,     required_argument, 0, 's' },
-<span class="lineNum">     436 </span>            :       { &quot;stats&quot;,         no_argument,       0, 'S' },
-<span class="lineNum">     437 </span>            :       { &quot;wave&quot;,          optional_argument, 0, 'w' },
-<span class="lineNum">     438 </span>            :       { &quot;stop-delta&quot;,    required_argument, 0, 'd' },
-<span class="lineNum">     439 </span>            :       { &quot;format&quot;,        required_argument, 0, 'f' },
-<span class="lineNum">     440 </span>            :       { &quot;include&quot;,       required_argument, 0, 'i' },
-<span class="lineNum">     441 </span>            :       { &quot;exclude&quot;,       required_argument, 0, 'e' },
-<span class="lineNum">     442 </span>            :       { &quot;exit-severity&quot;, required_argument, 0, 'x' },
-<span class="lineNum">     443 </span>            : #if ENABLE_VHPI
-<span class="lineNum">     444 </span>            :       { &quot;load&quot;,          required_argument, 0, 'l' },
-<span class="lineNum">     445 </span>            :       { &quot;vhpi-trace&quot;,    no_argument,       0, 'T' },
-<span class="lineNum">     446 </span>            : #endif
-<span class="lineNum">     447 </span>            :       { 0, 0, 0, 0 }
-<span class="lineNum">     448 </span>            :    };
-<span class="lineNum">     449 </span>            : 
-<span class="lineNum">     450 </span><span class="lineCov">        340 :    enum { LXT, FST, VCD} wave_fmt = FST;</span>
-<span class="lineNum">     451 </span>            : 
-<span class="lineNum">     452 </span><span class="lineCov">        340 :    uint64_t stop_time = UINT64_MAX;</span>
-<span class="lineNum">     453 </span><span class="lineCov">        340 :    const char *wave_fname = NULL;</span>
-<span class="lineNum">     454 </span><span class="lineCov">        340 :    const char *vhpi_plugins = NULL;</span>
-<span class="lineNum">     455 </span>            : 
-<span class="lineNum">     456 </span>            :    static bool have_run = false;
-<span class="lineNum">     457 </span><span class="lineCov">        340 :    if (have_run)</span>
-<span class="lineNum">     458 </span><span class="lineNoCov">          0 :       fatal(&quot;multiple run commands are not supported&quot;);</span>
-<span class="lineNum">     459 </span>            : 
-<span class="lineNum">     460 </span><span class="lineCov">        340 :    have_run = true;</span>
-<span class="lineNum">     461 </span>            : 
-<span class="lineNum">     462 </span><span class="lineCov">        340 :    const int next_cmd = scan_cmd(2, argc, argv);</span>
-<span class="lineNum">     463 </span>            : 
-<span class="lineNum">     464 </span><span class="lineCov">        340 :    int c, index = 0;</span>
-<span class="lineNum">     465 </span><span class="lineCov">        340 :    const char *spec = &quot;w::l:&quot;;</span>
-<span class="lineNum">     466 </span><span class="lineCov">        686 :    while ((c = getopt_long(next_cmd, argv, spec, long_options, &amp;index)) != -1) {</span>
-<span class="lineNum">     467 </span><span class="lineCov">          6 :       switch (c) {</span>
-<span class="lineNum">     468 </span>            :       case 0:
-<span class="lineNum">     469 </span>            :          // Set a flag
-<span class="lineNum">     470 </span>            :          break;
-<span class="lineNum">     471 </span>            :       case '?':
-<span class="lineNum">     472 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised run option %s&quot;, argv[optind - 1]);</span>
-<span class="lineNum">     473 </span>            :       case 't':
-<span class="lineNum">     474 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;rt_trace_en&quot;, 1);</span>
-<span class="lineNum">     475 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     476 </span>            :       case 'T':
-<span class="lineNum">     477 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;vhpi_trace_en&quot;, 1);</span>
-<span class="lineNum">     478 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     479 </span>            :       case 's':
-<span class="lineNum">     480 </span><span class="lineCov">          3 :          stop_time = parse_time(optarg);</span>
-<span class="lineNum">     481 </span><span class="lineCov">          3 :          break;</span>
-<span class="lineNum">     482 </span>            :       case 'f':
-<span class="lineNum">     483 </span><span class="lineNoCov">          0 :          if (strcmp(optarg, &quot;vcd&quot;) == 0)</span>
-<span class="lineNum">     484 </span>            :             wave_fmt = VCD;
-<span class="lineNum">     485 </span><span class="lineNoCov">          0 :          else if (strcmp(optarg, &quot;fst&quot;) == 0)</span>
-<span class="lineNum">     486 </span>            :             wave_fmt = FST;
-<span class="lineNum">     487 </span><span class="lineNoCov">          0 :          else if (strcmp(optarg, &quot;lxt&quot;) == 0)</span>
-<span class="lineNum">     488 </span>            :             wave_fmt = LXT;
-<span class="lineNum">     489 </span>            :          else
-<span class="lineNum">     490 </span><span class="lineNoCov">          0 :             fatal(&quot;invalid waveform format: %s&quot;, optarg);</span>
-<span class="lineNum">     491 </span>            :          break;
-<span class="lineNum">     492 </span>            :       case 'S':
-<span class="lineNum">     493 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;rt-stats&quot;, 1);</span>
-<span class="lineNum">     494 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     495 </span>            :       case 'w':
-<span class="lineNum">     496 </span><span class="lineNoCov">          0 :          if (optarg == NULL)</span>
-<span class="lineNum">     497 </span>            :             wave_fname = &quot;&quot;;
-<span class="lineNum">     498 </span>            :          else
-<span class="lineNum">     499 </span><span class="lineNoCov">          0 :             wave_fname = optarg;</span>
-<span class="lineNum">     500 </span>            :          break;
-<span class="lineNum">     501 </span>            :       case 'd':
-<span class="lineNum">     502 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;stop-delta&quot;, parse_int(optarg));</span>
-<span class="lineNum">     503 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     504 </span>            :       case 'i':
-<span class="lineNum">     505 </span><span class="lineNoCov">          0 :          wave_include_glob(optarg);</span>
-<span class="lineNum">     506 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     507 </span>            :       case 'e':
-<span class="lineNum">     508 </span><span class="lineNoCov">          0 :          wave_exclude_glob(optarg);</span>
-<span class="lineNum">     509 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     510 </span>            :       case 'l':
-<span class="lineNum">     511 </span><span class="lineCov">          3 :          vhpi_plugins = optarg;</span>
-<span class="lineNum">     512 </span><span class="lineCov">          3 :          break;</span>
-<span class="lineNum">     513 </span>            :       case 'x':
-<span class="lineNum">     514 </span><span class="lineNoCov">          0 :          rt_set_exit_severity(parse_severity(optarg));</span>
-<span class="lineNum">     515 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     516 </span>            :       default:
-<span class="lineNum">     517 </span><span class="lineNoCov">          0 :          abort();</span>
-<span class="lineNum">     518 </span>            :       }
-<span class="lineNum">     519 </span>            :    }
-<span class="lineNum">     520 </span>            : 
-<span class="lineNum">     521 </span><span class="lineCov">        340 :    set_top_level(argv, next_cmd);</span>
-<span class="lineNum">     522 </span>            : 
-<span class="lineNum">     523 </span><span class="lineCov">        340 :    ident_t ename = ident_prefix(top_level, ident_new(&quot;elab&quot;), '.');</span>
-<span class="lineNum">     524 </span><span class="lineCov">        340 :    tree_t e = lib_get(lib_work(), ename);</span>
-<span class="lineNum">     525 </span><span class="lineCov">        340 :    if (e == NULL)</span>
-<span class="lineNum">     526 </span><span class="lineNoCov">          0 :       fatal(&quot;%s not elaborated&quot;, istr(top_level));</span>
-<span class="lineNum">     527 </span><span class="lineCov">        340 :    else if (tree_kind(e) != T_ELAB)</span>
-<span class="lineNum">     528 </span><span class="lineNoCov">          0 :       fatal(&quot;%s not suitable top level&quot;, istr(top_level));</span>
-<span class="lineNum">     529 </span>            : 
-<span class="lineNum">     530 </span><span class="lineCov">        340 :    if (wave_fname != NULL) {</span>
-<span class="lineNum">     531 </span><span class="lineNoCov">          0 :       const char *name_map[] = { &quot;LXT&quot;, &quot;FST&quot;, &quot;VCD&quot; };</span>
-<span class="lineNum">     532 </span><span class="lineNoCov">          0 :       const char *ext_map[]  = { &quot;lxt&quot;, &quot;fst&quot;, &quot;vcd&quot; };</span>
-<span class="lineNum">     533 </span><span class="lineNoCov">          0 :       char *tmp LOCAL = NULL;</span>
-<span class="lineNum">     534 </span>            : 
-<span class="lineNum">     535 </span><span class="lineNoCov">          0 :       if (*wave_fname == '\0') {</span>
-<span class="lineNum">     536 </span><span class="lineNoCov">          0 :          tmp = xasprintf(&quot;%s.%s&quot;, top_level_orig, ext_map[wave_fmt]);</span>
-<span class="lineNum">     537 </span><span class="lineNoCov">          0 :          wave_fname = tmp;</span>
-<span class="lineNum">     538 </span><span class="lineNoCov">          0 :          notef(&quot;writing %s waveform data to %s&quot;, name_map[wave_fmt], tmp);</span>
-<span class="lineNum">     539 </span>            :       }
-<span class="lineNum">     540 </span>            : 
-<span class="lineNum">     541 </span><span class="lineNoCov">          0 :       wave_include_file(argv[optind]);</span>
-<span class="lineNum">     542 </span>            : 
-<span class="lineNum">     543 </span><span class="lineNoCov">          0 :       switch (wave_fmt) {</span>
-<span class="lineNum">     544 </span>            :       case LXT:
-<span class="lineNum">     545 </span><span class="lineNoCov">          0 :          lxt_init(wave_fname, e);</span>
-<span class="lineNum">     546 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     547 </span>            :       case VCD:
-<span class="lineNum">     548 </span><span class="lineNoCov">          0 :          vcd_init(wave_fname, e);</span>
-<span class="lineNum">     549 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     550 </span>            :       case FST:
-<span class="lineNum">     551 </span><span class="lineNoCov">          0 :          fst_init(wave_fname, e);</span>
-<span class="lineNum">     552 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     553 </span>            :       }
-<span class="lineNum">     554 </span>            :    }
-<span class="lineNum">     555 </span>            : 
-<span class="lineNum">     556 </span><span class="lineCov">        340 :    rt_start_of_tool(e);</span>
-<span class="lineNum">     557 </span>            : 
-<span class="lineNum">     558 </span><span class="lineCov">        340 :    if (vhpi_plugins != NULL)</span>
-<span class="lineNum">     559 </span><span class="lineCov">          3 :       vhpi_load_plugins(e, vhpi_plugins);</span>
-<span class="lineNum">     560 </span>            : 
-<span class="lineNum">     561 </span><span class="lineCov">        340 :    rt_restart(e);</span>
-<span class="lineNum">     562 </span><span class="lineCov">        338 :    rt_run_sim(stop_time);</span>
-<span class="lineNum">     563 </span><span class="lineCov">        317 :    rt_end_of_tool(e);</span>
+<span class="lineNum">     435 </span>            :       { &quot;profile&quot;,       no_argument,       0, 'p' },
+<span class="lineNum">     436 </span>            :       { &quot;stop-time&quot;,     required_argument, 0, 's' },
+<span class="lineNum">     437 </span>            :       { &quot;stats&quot;,         no_argument,       0, 'S' },
+<span class="lineNum">     438 </span>            :       { &quot;wave&quot;,          optional_argument, 0, 'w' },
+<span class="lineNum">     439 </span>            :       { &quot;stop-delta&quot;,    required_argument, 0, 'd' },
+<span class="lineNum">     440 </span>            :       { &quot;format&quot;,        required_argument, 0, 'f' },
+<span class="lineNum">     441 </span>            :       { &quot;include&quot;,       required_argument, 0, 'i' },
+<span class="lineNum">     442 </span>            :       { &quot;exclude&quot;,       required_argument, 0, 'e' },
+<span class="lineNum">     443 </span>            :       { &quot;exit-severity&quot;, required_argument, 0, 'x' },
+<span class="lineNum">     444 </span>            : #if ENABLE_VHPI
+<span class="lineNum">     445 </span>            :       { &quot;load&quot;,          required_argument, 0, 'l' },
+<span class="lineNum">     446 </span>            :       { &quot;vhpi-trace&quot;,    no_argument,       0, 'T' },
+<span class="lineNum">     447 </span>            : #endif
+<span class="lineNum">     448 </span>            :       { 0, 0, 0, 0 }
+<span class="lineNum">     449 </span>            :    };
+<span class="lineNum">     450 </span>            : 
+<span class="lineNum">     451 </span><span class="lineCov">        340 :    enum { LXT, FST, VCD} wave_fmt = FST;</span>
+<span class="lineNum">     452 </span>            : 
+<span class="lineNum">     453 </span><span class="lineCov">        340 :    uint64_t stop_time = UINT64_MAX;</span>
+<span class="lineNum">     454 </span><span class="lineCov">        340 :    const char *wave_fname = NULL;</span>
+<span class="lineNum">     455 </span><span class="lineCov">        340 :    const char *vhpi_plugins = NULL;</span>
+<span class="lineNum">     456 </span>            : 
+<span class="lineNum">     457 </span>            :    static bool have_run = false;
+<span class="lineNum">     458 </span><span class="lineCov">        340 :    if (have_run)</span>
+<span class="lineNum">     459 </span><span class="lineNoCov">          0 :       fatal(&quot;multiple run commands are not supported&quot;);</span>
+<span class="lineNum">     460 </span>            : 
+<span class="lineNum">     461 </span><span class="lineCov">        340 :    have_run = true;</span>
+<span class="lineNum">     462 </span>            : 
+<span class="lineNum">     463 </span><span class="lineCov">        340 :    const int next_cmd = scan_cmd(2, argc, argv);</span>
+<span class="lineNum">     464 </span>            : 
+<span class="lineNum">     465 </span><span class="lineCov">        340 :    int c, index = 0;</span>
+<span class="lineNum">     466 </span><span class="lineCov">        340 :    const char *spec = &quot;w::l:&quot;;</span>
+<span class="lineNum">     467 </span><span class="lineCov">        686 :    while ((c = getopt_long(next_cmd, argv, spec, long_options, &amp;index)) != -1) {</span>
+<span class="lineNum">     468 </span><span class="lineCov">          6 :       switch (c) {</span>
+<span class="lineNum">     469 </span>            :       case 0:
+<span class="lineNum">     470 </span>            :          // Set a flag
+<span class="lineNum">     471 </span>            :          break;
+<span class="lineNum">     472 </span>            :       case '?':
+<span class="lineNum">     473 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised run option %s&quot;, argv[optind - 1]);</span>
+<span class="lineNum">     474 </span>            :       case 't':
+<span class="lineNum">     475 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;rt_trace_en&quot;, 1);</span>
+<span class="lineNum">     476 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     477 </span>            :       case 'p':
+<span class="lineNum">     478 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;rt_profile&quot;, 1);</span>
+<span class="lineNum">     479 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     480 </span>            :       case 'T':
+<span class="lineNum">     481 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;vhpi_trace_en&quot;, 1);</span>
+<span class="lineNum">     482 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     483 </span>            :       case 's':
+<span class="lineNum">     484 </span><span class="lineCov">          3 :          stop_time = parse_time(optarg);</span>
+<span class="lineNum">     485 </span><span class="lineCov">          3 :          break;</span>
+<span class="lineNum">     486 </span>            :       case 'f':
+<span class="lineNum">     487 </span><span class="lineNoCov">          0 :          if (strcmp(optarg, &quot;vcd&quot;) == 0)</span>
+<span class="lineNum">     488 </span>            :             wave_fmt = VCD;
+<span class="lineNum">     489 </span><span class="lineNoCov">          0 :          else if (strcmp(optarg, &quot;fst&quot;) == 0)</span>
+<span class="lineNum">     490 </span>            :             wave_fmt = FST;
+<span class="lineNum">     491 </span><span class="lineNoCov">          0 :          else if (strcmp(optarg, &quot;lxt&quot;) == 0)</span>
+<span class="lineNum">     492 </span>            :             wave_fmt = LXT;
+<span class="lineNum">     493 </span>            :          else
+<span class="lineNum">     494 </span><span class="lineNoCov">          0 :             fatal(&quot;invalid waveform format: %s&quot;, optarg);</span>
+<span class="lineNum">     495 </span>            :          break;
+<span class="lineNum">     496 </span>            :       case 'S':
+<span class="lineNum">     497 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;rt-stats&quot;, 1);</span>
+<span class="lineNum">     498 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     499 </span>            :       case 'w':
+<span class="lineNum">     500 </span><span class="lineNoCov">          0 :          if (optarg == NULL)</span>
+<span class="lineNum">     501 </span>            :             wave_fname = &quot;&quot;;
+<span class="lineNum">     502 </span>            :          else
+<span class="lineNum">     503 </span><span class="lineNoCov">          0 :             wave_fname = optarg;</span>
+<span class="lineNum">     504 </span>            :          break;
+<span class="lineNum">     505 </span>            :       case 'd':
+<span class="lineNum">     506 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;stop-delta&quot;, parse_int(optarg));</span>
+<span class="lineNum">     507 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     508 </span>            :       case 'i':
+<span class="lineNum">     509 </span><span class="lineNoCov">          0 :          wave_include_glob(optarg);</span>
+<span class="lineNum">     510 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     511 </span>            :       case 'e':
+<span class="lineNum">     512 </span><span class="lineNoCov">          0 :          wave_exclude_glob(optarg);</span>
+<span class="lineNum">     513 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     514 </span>            :       case 'l':
+<span class="lineNum">     515 </span><span class="lineCov">          3 :          vhpi_plugins = optarg;</span>
+<span class="lineNum">     516 </span><span class="lineCov">          3 :          break;</span>
+<span class="lineNum">     517 </span>            :       case 'x':
+<span class="lineNum">     518 </span><span class="lineNoCov">          0 :          rt_set_exit_severity(parse_severity(optarg));</span>
+<span class="lineNum">     519 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     520 </span>            :       default:
+<span class="lineNum">     521 </span><span class="lineNoCov">          0 :          abort();</span>
+<span class="lineNum">     522 </span>            :       }
+<span class="lineNum">     523 </span>            :    }
+<span class="lineNum">     524 </span>            : 
+<span class="lineNum">     525 </span><span class="lineCov">        340 :    set_top_level(argv, next_cmd);</span>
+<span class="lineNum">     526 </span>            : 
+<span class="lineNum">     527 </span><span class="lineCov">        340 :    ident_t ename = ident_prefix(top_level, ident_new(&quot;elab&quot;), '.');</span>
+<span class="lineNum">     528 </span><span class="lineCov">        340 :    tree_t e = lib_get(lib_work(), ename);</span>
+<span class="lineNum">     529 </span><span class="lineCov">        340 :    if (e == NULL)</span>
+<span class="lineNum">     530 </span><span class="lineNoCov">          0 :       fatal(&quot;%s not elaborated&quot;, istr(top_level));</span>
+<span class="lineNum">     531 </span><span class="lineCov">        340 :    else if (tree_kind(e) != T_ELAB)</span>
+<span class="lineNum">     532 </span><span class="lineNoCov">          0 :       fatal(&quot;%s not suitable top level&quot;, istr(top_level));</span>
+<span class="lineNum">     533 </span>            : 
+<span class="lineNum">     534 </span><span class="lineCov">        340 :    if (wave_fname != NULL) {</span>
+<span class="lineNum">     535 </span><span class="lineNoCov">          0 :       const char *name_map[] = { &quot;LXT&quot;, &quot;FST&quot;, &quot;VCD&quot; };</span>
+<span class="lineNum">     536 </span><span class="lineNoCov">          0 :       const char *ext_map[]  = { &quot;lxt&quot;, &quot;fst&quot;, &quot;vcd&quot; };</span>
+<span class="lineNum">     537 </span><span class="lineNoCov">          0 :       char *tmp LOCAL = NULL;</span>
+<span class="lineNum">     538 </span>            : 
+<span class="lineNum">     539 </span><span class="lineNoCov">          0 :       if (*wave_fname == '\0') {</span>
+<span class="lineNum">     540 </span><span class="lineNoCov">          0 :          tmp = xasprintf(&quot;%s.%s&quot;, top_level_orig, ext_map[wave_fmt]);</span>
+<span class="lineNum">     541 </span><span class="lineNoCov">          0 :          wave_fname = tmp;</span>
+<span class="lineNum">     542 </span><span class="lineNoCov">          0 :          notef(&quot;writing %s waveform data to %s&quot;, name_map[wave_fmt], tmp);</span>
+<span class="lineNum">     543 </span>            :       }
+<span class="lineNum">     544 </span>            : 
+<span class="lineNum">     545 </span><span class="lineNoCov">          0 :       wave_include_file(argv[optind]);</span>
+<span class="lineNum">     546 </span>            : 
+<span class="lineNum">     547 </span><span class="lineNoCov">          0 :       switch (wave_fmt) {</span>
+<span class="lineNum">     548 </span>            :       case LXT:
+<span class="lineNum">     549 </span><span class="lineNoCov">          0 :          lxt_init(wave_fname, e);</span>
+<span class="lineNum">     550 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     551 </span>            :       case VCD:
+<span class="lineNum">     552 </span><span class="lineNoCov">          0 :          vcd_init(wave_fname, e);</span>
+<span class="lineNum">     553 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     554 </span>            :       case FST:
+<span class="lineNum">     555 </span><span class="lineNoCov">          0 :          fst_init(wave_fname, e);</span>
+<span class="lineNum">     556 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     557 </span>            :       }
+<span class="lineNum">     558 </span>            :    }
+<span class="lineNum">     559 </span>            : 
+<span class="lineNum">     560 </span><span class="lineCov">        340 :    rt_start_of_tool(e);</span>
+<span class="lineNum">     561 </span>            : 
+<span class="lineNum">     562 </span><span class="lineCov">        340 :    if (vhpi_plugins != NULL)</span>
+<span class="lineNum">     563 </span><span class="lineCov">          3 :       vhpi_load_plugins(e, vhpi_plugins);</span>
 <span class="lineNum">     564 </span>            : 
-<span class="lineNum">     565 </span><span class="lineCov">        317 :    argc -= next_cmd - 1;</span>
-<span class="lineNum">     566 </span><span class="lineCov">        317 :    argv += next_cmd - 1;</span>
-<span class="lineNum">     567 </span>            : 
-<span class="lineNum">     568 </span><span class="lineCov">        317 :    return argc &gt; 1 ? process_command(argc, argv) : EXIT_SUCCESS;</span>
-<a name="569"><span class="lineNum">     569 </span>            : }</a>
-<span class="lineNum">     570 </span>            : 
-<span class="lineNum">     571 </span><span class="lineNoCov">          0 : static int make_cmd(int argc, char **argv)</span>
-<span class="lineNum">     572 </span>            : {
-<span class="lineNum">     573 </span>            :    static struct option long_options[] = {
-<span class="lineNum">     574 </span>            :       { &quot;deps-only&quot;, no_argument, 0, 'd' },
-<span class="lineNum">     575 </span>            :       { &quot;posix&quot;,     no_argument, 0, 'p' },
-<span class="lineNum">     576 </span>            :       { 0, 0, 0, 0 }
-<span class="lineNum">     577 </span>            :    };
-<span class="lineNum">     578 </span>            : 
-<span class="lineNum">     579 </span><span class="lineNoCov">          0 :    const int next_cmd = scan_cmd(2, argc, argv);</span>
-<span class="lineNum">     580 </span><span class="lineNoCov">          0 :    int c, index = 0;</span>
-<span class="lineNum">     581 </span><span class="lineNoCov">          0 :    const char *spec = &quot;&quot;;</span>
-<span class="lineNum">     582 </span><span class="lineNoCov">          0 :    while ((c = getopt_long(next_cmd, argv, spec, long_options, &amp;index)) != -1) {</span>
-<span class="lineNum">     583 </span><span class="lineNoCov">          0 :       switch (c) {</span>
-<span class="lineNum">     584 </span>            :       case 0:
-<span class="lineNum">     585 </span>            :          // Set a flag
-<span class="lineNum">     586 </span>            :          break;
-<span class="lineNum">     587 </span>            :       case '?':
-<span class="lineNum">     588 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised make option %s&quot;, argv[optind - 1]);</span>
-<span class="lineNum">     589 </span>            :       case 'd':
-<span class="lineNum">     590 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;make-deps-only&quot;, 1);</span>
-<span class="lineNum">     591 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     592 </span>            :       case 'p':
-<span class="lineNum">     593 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;make-posix&quot;, 1);</span>
-<span class="lineNum">     594 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     595 </span>            :       default:
-<span class="lineNum">     596 </span><span class="lineNoCov">          0 :          abort();</span>
-<span class="lineNum">     597 </span>            :       }
-<span class="lineNum">     598 </span>            :    }
-<span class="lineNum">     599 </span>            : 
-<span class="lineNum">     600 </span><span class="lineNoCov">          0 :    const int count = next_cmd - optind;</span>
-<span class="lineNum">     601 </span><span class="lineNoCov">          0 :    tree_t *targets = xmalloc(count * sizeof(tree_t));</span>
-<span class="lineNum">     602 </span>            : 
-<span class="lineNum">     603 </span><span class="lineNoCov">          0 :    lib_t work = lib_work();</span>
-<span class="lineNum">     604 </span>            : 
-<span class="lineNum">     605 </span><span class="lineNoCov">          0 :    for (int i = optind; i &lt; next_cmd; i++) {</span>
-<span class="lineNum">     606 </span><span class="lineNoCov">          0 :       ident_t name = to_unit_name(argv[i]);</span>
-<span class="lineNum">     607 </span><span class="lineNoCov">          0 :       ident_t elab = ident_prefix(name, ident_new(&quot;elab&quot;), '.');</span>
-<span class="lineNum">     608 </span><span class="lineNoCov">          0 :       if ((targets[i - optind] = lib_get(work, elab)) == NULL) {</span>
-<span class="lineNum">     609 </span><span class="lineNoCov">          0 :          if ((targets[i - optind] = lib_get(work, name)) == NULL)</span>
-<span class="lineNum">     610 </span><span class="lineNoCov">          0 :             fatal(&quot;cannot find unit %s in library %s&quot;,</span>
-<span class="lineNum">     611 </span>            :                   istr(name), istr(lib_name(work)));
-<span class="lineNum">     612 </span>            :       }
-<span class="lineNum">     613 </span>            :    }
-<span class="lineNum">     614 </span>            : 
-<span class="lineNum">     615 </span><span class="lineNoCov">          0 :    make(targets, count, stdout);</span>
-<span class="lineNum">     616 </span>            : 
-<span class="lineNum">     617 </span><span class="lineNoCov">          0 :    argc -= next_cmd - 1;</span>
-<span class="lineNum">     618 </span><span class="lineNoCov">          0 :    argv += next_cmd - 1;</span>
-<span class="lineNum">     619 </span>            : 
-<span class="lineNum">     620 </span><span class="lineNoCov">          0 :    return argc &gt; 1 ? process_command(argc, argv) : EXIT_SUCCESS;</span>
-<a name="621"><span class="lineNum">     621 </span>            : }</a>
-<span class="lineNum">     622 </span>            : 
-<span class="lineNum">     623 </span><span class="lineNoCov">          0 : static void list_walk_fn(ident_t ident, int kind, void *context)</span>
-<span class="lineNum">     624 </span>            : {
-<span class="lineNum">     625 </span><span class="lineNoCov">          0 :    const char *pretty = &quot;???&quot;;</span>
-<span class="lineNum">     626 </span><span class="lineNoCov">          0 :    switch (kind) {</span>
-<span class="lineNum">     627 </span><span class="lineNoCov">          0 :    case T_ELAB: pretty = &quot;Elaborated&quot;; break;</span>
-<span class="lineNum">     628 </span><span class="lineNoCov">          0 :    case T_ARCH: pretty = &quot;Architecture&quot;; break;</span>
-<span class="lineNum">     629 </span><span class="lineNoCov">          0 :    case T_ENTITY: pretty = &quot;Entity&quot;; break;</span>
-<span class="lineNum">     630 </span><span class="lineNoCov">          0 :    case T_PACKAGE: pretty = &quot;Package&quot;; break;</span>
-<span class="lineNum">     631 </span><span class="lineNoCov">          0 :    case T_PACK_BODY: pretty = &quot;Package body&quot;; break;</span>
-<span class="lineNum">     632 </span><span class="lineNoCov">          0 :    case T_CONFIG: pretty = &quot;Configuration&quot;; break;</span>
-<span class="lineNum">     633 </span>            :    }
-<span class="lineNum">     634 </span>            : 
-<span class="lineNum">     635 </span><span class="lineNoCov">          0 :    printf(&quot;%-30s  : %s\n&quot;, istr(ident), pretty);</span>
-<a name="636"><span class="lineNum">     636 </span><span class="lineNoCov">          0 : }</span></a>
-<span class="lineNum">     637 </span>            : 
-<span class="lineNum">     638 </span><span class="lineNoCov">          0 : static int list_cmd(int argc, char **argv)</span>
-<span class="lineNum">     639 </span>            : {
-<span class="lineNum">     640 </span>            :    static struct option long_options[] = {
-<span class="lineNum">     641 </span>            :       { 0, 0, 0, 0 }
-<span class="lineNum">     642 </span>            :    };
-<span class="lineNum">     643 </span>            : 
-<span class="lineNum">     644 </span><span class="lineNoCov">          0 :    const int next_cmd = scan_cmd(2, argc, argv);</span>
-<span class="lineNum">     645 </span><span class="lineNoCov">          0 :    int c, index = 0;</span>
-<span class="lineNum">     646 </span><span class="lineNoCov">          0 :    const char *spec = &quot;&quot;;</span>
-<span class="lineNum">     647 </span><span class="lineNoCov">          0 :    while ((c = getopt_long(next_cmd, argv, spec, long_options, &amp;index)) != -1) {</span>
-<span class="lineNum">     648 </span><span class="lineNoCov">          0 :       switch (c) {</span>
-<span class="lineNum">     649 </span>            :       case 0:
-<span class="lineNum">     650 </span>            :          // Set a flag
-<span class="lineNum">     651 </span>            :          break;
-<span class="lineNum">     652 </span>            :       case '?':
-<span class="lineNum">     653 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised list option %s&quot;, argv[optind - 1]);</span>
-<span class="lineNum">     654 </span>            :       default:
-<span class="lineNum">     655 </span><span class="lineNoCov">          0 :          abort();</span>
-<span class="lineNum">     656 </span>            :       }
-<span class="lineNum">     657 </span>            :    }
-<span class="lineNum">     658 </span>            : 
-<span class="lineNum">     659 </span><span class="lineNoCov">          0 :    lib_walk_index(lib_work(), list_walk_fn, NULL);</span>
-<span class="lineNum">     660 </span>            : 
-<span class="lineNum">     661 </span><span class="lineNoCov">          0 :    argc -= next_cmd - 1;</span>
-<span class="lineNum">     662 </span><span class="lineNoCov">          0 :    argv += next_cmd - 1;</span>
-<span class="lineNum">     663 </span>            : 
-<span class="lineNum">     664 </span><span class="lineNoCov">          0 :    return argc &gt; 1 ? process_command(argc, argv) : EXIT_SUCCESS;</span>
-<a name="665"><span class="lineNum">     665 </span>            : }</a>
-<span class="lineNum">     666 </span>            : 
-<span class="lineNum">     667 </span><span class="lineNoCov">          0 : static int syntax_cmd(int argc, char **argv)</span>
-<span class="lineNum">     668 </span>            : {
-<span class="lineNum">     669 </span>            :    static struct option long_options[] = {
-<span class="lineNum">     670 </span>            :       { 0, 0, 0, 0 }
-<span class="lineNum">     671 </span>            :    };
-<span class="lineNum">     672 </span>            : 
-<span class="lineNum">     673 </span><span class="lineNoCov">          0 :    const int next_cmd = scan_cmd(2, argc, argv);</span>
-<span class="lineNum">     674 </span><span class="lineNoCov">          0 :    int c, index = 0;</span>
-<span class="lineNum">     675 </span><span class="lineNoCov">          0 :    const char *spec = &quot;&quot;;</span>
-<span class="lineNum">     676 </span><span class="lineNoCov">          0 :    while ((c = getopt_long(next_cmd, argv, spec, long_options, &amp;index)) != -1) {</span>
-<span class="lineNum">     677 </span><span class="lineNoCov">          0 :       switch (c) {</span>
-<span class="lineNum">     678 </span>            :       case 0:
-<span class="lineNum">     679 </span>            :          // Set a flag
-<span class="lineNum">     680 </span>            :          break;
-<span class="lineNum">     681 </span>            :       case '?':
-<span class="lineNum">     682 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised syntax option %s&quot;, argv[optind - 1]);</span>
-<span class="lineNum">     683 </span>            :       default:
-<span class="lineNum">     684 </span><span class="lineNoCov">          0 :          abort();</span>
-<span class="lineNum">     685 </span>            :       }
-<span class="lineNum">     686 </span>            :    }
-<span class="lineNum">     687 </span>            : 
-<span class="lineNum">     688 </span><span class="lineNoCov">          0 :    for (int i = optind; i &lt; next_cmd; i++) {</span>
-<span class="lineNum">     689 </span><span class="lineNoCov">          0 :       input_from_file(argv[i]);</span>
-<span class="lineNum">     690 </span><span class="lineNoCov">          0 :       (void)parse();</span>
-<span class="lineNum">     691 </span>            :    }
-<span class="lineNum">     692 </span>            : 
-<span class="lineNum">     693 </span><span class="lineNoCov">          0 :    if (parse_errors() &gt; 0)</span>
-<span class="lineNum">     694 </span>            :       return EXIT_FAILURE;
-<span class="lineNum">     695 </span>            : 
-<span class="lineNum">     696 </span><span class="lineNoCov">          0 :    argc -= next_cmd - 1;</span>
-<span class="lineNum">     697 </span><span class="lineNoCov">          0 :    argv += next_cmd - 1;</span>
-<span class="lineNum">     698 </span>            : 
-<span class="lineNum">     699 </span><span class="lineNoCov">          0 :    return argc &gt; 1 ? process_command(argc, argv) : EXIT_SUCCESS;</span>
-<a name="700"><span class="lineNum">     700 </span>            : }</a>
-<span class="lineNum">     701 </span>            : 
-<span class="lineNum">     702 </span><span class="lineNoCov">          0 : static int dump_cmd(int argc, char **argv)</span>
-<span class="lineNum">     703 </span>            : {
-<span class="lineNum">     704 </span>            :    static struct option long_options[] = {
-<span class="lineNum">     705 </span>            :       { &quot;elab&quot;, no_argument, 0, 'E' },
-<span class="lineNum">     706 </span>            :       { &quot;body&quot;, no_argument, 0, 'b' },
-<span class="lineNum">     707 </span>            :       { &quot;nets&quot;, no_argument, 0, 'n' },
-<span class="lineNum">     708 </span>            :       { 0, 0, 0, 0 }
-<span class="lineNum">     709 </span>            :    };
-<span class="lineNum">     710 </span>            : 
-<span class="lineNum">     711 </span><span class="lineNoCov">          0 :    const int next_cmd = scan_cmd(2, argc, argv);</span>
-<span class="lineNum">     712 </span><span class="lineNoCov">          0 :    bool add_elab = false, add_body = false, nets = false;</span>
-<span class="lineNum">     713 </span><span class="lineNoCov">          0 :    int c, index = 0;</span>
-<span class="lineNum">     714 </span><span class="lineNoCov">          0 :    const char *spec = &quot;Eb&quot;;</span>
-<span class="lineNum">     715 </span><span class="lineNoCov">          0 :    while ((c = getopt_long(argc, argv, spec, long_options, &amp;index)) != -1) {</span>
-<span class="lineNum">     716 </span><span class="lineNoCov">          0 :       switch (c) {</span>
-<span class="lineNum">     717 </span>            :       case 0:
-<span class="lineNum">     718 </span>            :          // Set a flag
-<span class="lineNum">     719 </span>            :          break;
-<span class="lineNum">     720 </span>            :       case '?':
-<span class="lineNum">     721 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised dump option %s&quot;, argv[optind - 1]);</span>
-<span class="lineNum">     722 </span>            :       case 'E':
-<span class="lineNum">     723 </span><span class="lineNoCov">          0 :          add_elab = true;</span>
-<span class="lineNum">     724 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     725 </span>            :       case 'b':
-<span class="lineNum">     726 </span><span class="lineNoCov">          0 :          add_body = true;</span>
-<span class="lineNum">     727 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     728 </span>            :       case 'n':
-<span class="lineNum">     729 </span><span class="lineNoCov">          0 :          add_elab = true;</span>
-<span class="lineNum">     730 </span><span class="lineNoCov">          0 :          nets = true;</span>
+<span class="lineNum">     565 </span><span class="lineCov">        340 :    rt_restart(e);</span>
+<span class="lineNum">     566 </span><span class="lineCov">        338 :    rt_run_sim(stop_time);</span>
+<span class="lineNum">     567 </span><span class="lineCov">        317 :    rt_end_of_tool(e);</span>
+<span class="lineNum">     568 </span>            : 
+<span class="lineNum">     569 </span><span class="lineCov">        317 :    argc -= next_cmd - 1;</span>
+<span class="lineNum">     570 </span><span class="lineCov">        317 :    argv += next_cmd - 1;</span>
+<span class="lineNum">     571 </span>            : 
+<span class="lineNum">     572 </span><span class="lineCov">        317 :    return argc &gt; 1 ? process_command(argc, argv) : EXIT_SUCCESS;</span>
+<a name="573"><span class="lineNum">     573 </span>            : }</a>
+<span class="lineNum">     574 </span>            : 
+<span class="lineNum">     575 </span><span class="lineNoCov">          0 : static int make_cmd(int argc, char **argv)</span>
+<span class="lineNum">     576 </span>            : {
+<span class="lineNum">     577 </span>            :    static struct option long_options[] = {
+<span class="lineNum">     578 </span>            :       { &quot;deps-only&quot;, no_argument, 0, 'd' },
+<span class="lineNum">     579 </span>            :       { &quot;posix&quot;,     no_argument, 0, 'p' },
+<span class="lineNum">     580 </span>            :       { 0, 0, 0, 0 }
+<span class="lineNum">     581 </span>            :    };
+<span class="lineNum">     582 </span>            : 
+<span class="lineNum">     583 </span><span class="lineNoCov">          0 :    const int next_cmd = scan_cmd(2, argc, argv);</span>
+<span class="lineNum">     584 </span><span class="lineNoCov">          0 :    int c, index = 0;</span>
+<span class="lineNum">     585 </span><span class="lineNoCov">          0 :    const char *spec = &quot;&quot;;</span>
+<span class="lineNum">     586 </span><span class="lineNoCov">          0 :    while ((c = getopt_long(next_cmd, argv, spec, long_options, &amp;index)) != -1) {</span>
+<span class="lineNum">     587 </span><span class="lineNoCov">          0 :       switch (c) {</span>
+<span class="lineNum">     588 </span>            :       case 0:
+<span class="lineNum">     589 </span>            :          // Set a flag
+<span class="lineNum">     590 </span>            :          break;
+<span class="lineNum">     591 </span>            :       case '?':
+<span class="lineNum">     592 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised make option %s&quot;, argv[optind - 1]);</span>
+<span class="lineNum">     593 </span>            :       case 'd':
+<span class="lineNum">     594 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;make-deps-only&quot;, 1);</span>
+<span class="lineNum">     595 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     596 </span>            :       case 'p':
+<span class="lineNum">     597 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;make-posix&quot;, 1);</span>
+<span class="lineNum">     598 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     599 </span>            :       default:
+<span class="lineNum">     600 </span><span class="lineNoCov">          0 :          abort();</span>
+<span class="lineNum">     601 </span>            :       }
+<span class="lineNum">     602 </span>            :    }
+<span class="lineNum">     603 </span>            : 
+<span class="lineNum">     604 </span><span class="lineNoCov">          0 :    const int count = next_cmd - optind;</span>
+<span class="lineNum">     605 </span><span class="lineNoCov">          0 :    tree_t *targets = xmalloc(count * sizeof(tree_t));</span>
+<span class="lineNum">     606 </span>            : 
+<span class="lineNum">     607 </span><span class="lineNoCov">          0 :    lib_t work = lib_work();</span>
+<span class="lineNum">     608 </span>            : 
+<span class="lineNum">     609 </span><span class="lineNoCov">          0 :    for (int i = optind; i &lt; next_cmd; i++) {</span>
+<span class="lineNum">     610 </span><span class="lineNoCov">          0 :       ident_t name = to_unit_name(argv[i]);</span>
+<span class="lineNum">     611 </span><span class="lineNoCov">          0 :       ident_t elab = ident_prefix(name, ident_new(&quot;elab&quot;), '.');</span>
+<span class="lineNum">     612 </span><span class="lineNoCov">          0 :       if ((targets[i - optind] = lib_get(work, elab)) == NULL) {</span>
+<span class="lineNum">     613 </span><span class="lineNoCov">          0 :          if ((targets[i - optind] = lib_get(work, name)) == NULL)</span>
+<span class="lineNum">     614 </span><span class="lineNoCov">          0 :             fatal(&quot;cannot find unit %s in library %s&quot;,</span>
+<span class="lineNum">     615 </span>            :                   istr(name), istr(lib_name(work)));
+<span class="lineNum">     616 </span>            :       }
+<span class="lineNum">     617 </span>            :    }
+<span class="lineNum">     618 </span>            : 
+<span class="lineNum">     619 </span><span class="lineNoCov">          0 :    make(targets, count, stdout);</span>
+<span class="lineNum">     620 </span>            : 
+<span class="lineNum">     621 </span><span class="lineNoCov">          0 :    argc -= next_cmd - 1;</span>
+<span class="lineNum">     622 </span><span class="lineNoCov">          0 :    argv += next_cmd - 1;</span>
+<span class="lineNum">     623 </span>            : 
+<span class="lineNum">     624 </span><span class="lineNoCov">          0 :    return argc &gt; 1 ? process_command(argc, argv) : EXIT_SUCCESS;</span>
+<a name="625"><span class="lineNum">     625 </span>            : }</a>
+<span class="lineNum">     626 </span>            : 
+<span class="lineNum">     627 </span><span class="lineNoCov">          0 : static void list_walk_fn(ident_t ident, int kind, void *context)</span>
+<span class="lineNum">     628 </span>            : {
+<span class="lineNum">     629 </span><span class="lineNoCov">          0 :    const char *pretty = &quot;???&quot;;</span>
+<span class="lineNum">     630 </span><span class="lineNoCov">          0 :    switch (kind) {</span>
+<span class="lineNum">     631 </span><span class="lineNoCov">          0 :    case T_ELAB: pretty = &quot;Elaborated&quot;; break;</span>
+<span class="lineNum">     632 </span><span class="lineNoCov">          0 :    case T_ARCH: pretty = &quot;Architecture&quot;; break;</span>
+<span class="lineNum">     633 </span><span class="lineNoCov">          0 :    case T_ENTITY: pretty = &quot;Entity&quot;; break;</span>
+<span class="lineNum">     634 </span><span class="lineNoCov">          0 :    case T_PACKAGE: pretty = &quot;Package&quot;; break;</span>
+<span class="lineNum">     635 </span><span class="lineNoCov">          0 :    case T_PACK_BODY: pretty = &quot;Package body&quot;; break;</span>
+<span class="lineNum">     636 </span><span class="lineNoCov">          0 :    case T_CONFIG: pretty = &quot;Configuration&quot;; break;</span>
+<span class="lineNum">     637 </span>            :    }
+<span class="lineNum">     638 </span>            : 
+<span class="lineNum">     639 </span><span class="lineNoCov">          0 :    printf(&quot;%-30s  : %s\n&quot;, istr(ident), pretty);</span>
+<a name="640"><span class="lineNum">     640 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     641 </span>            : 
+<span class="lineNum">     642 </span><span class="lineNoCov">          0 : static int list_cmd(int argc, char **argv)</span>
+<span class="lineNum">     643 </span>            : {
+<span class="lineNum">     644 </span>            :    static struct option long_options[] = {
+<span class="lineNum">     645 </span>            :       { 0, 0, 0, 0 }
+<span class="lineNum">     646 </span>            :    };
+<span class="lineNum">     647 </span>            : 
+<span class="lineNum">     648 </span><span class="lineNoCov">          0 :    const int next_cmd = scan_cmd(2, argc, argv);</span>
+<span class="lineNum">     649 </span><span class="lineNoCov">          0 :    int c, index = 0;</span>
+<span class="lineNum">     650 </span><span class="lineNoCov">          0 :    const char *spec = &quot;&quot;;</span>
+<span class="lineNum">     651 </span><span class="lineNoCov">          0 :    while ((c = getopt_long(next_cmd, argv, spec, long_options, &amp;index)) != -1) {</span>
+<span class="lineNum">     652 </span><span class="lineNoCov">          0 :       switch (c) {</span>
+<span class="lineNum">     653 </span>            :       case 0:
+<span class="lineNum">     654 </span>            :          // Set a flag
+<span class="lineNum">     655 </span>            :          break;
+<span class="lineNum">     656 </span>            :       case '?':
+<span class="lineNum">     657 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised list option %s&quot;, argv[optind - 1]);</span>
+<span class="lineNum">     658 </span>            :       default:
+<span class="lineNum">     659 </span><span class="lineNoCov">          0 :          abort();</span>
+<span class="lineNum">     660 </span>            :       }
+<span class="lineNum">     661 </span>            :    }
+<span class="lineNum">     662 </span>            : 
+<span class="lineNum">     663 </span><span class="lineNoCov">          0 :    lib_walk_index(lib_work(), list_walk_fn, NULL);</span>
+<span class="lineNum">     664 </span>            : 
+<span class="lineNum">     665 </span><span class="lineNoCov">          0 :    argc -= next_cmd - 1;</span>
+<span class="lineNum">     666 </span><span class="lineNoCov">          0 :    argv += next_cmd - 1;</span>
+<span class="lineNum">     667 </span>            : 
+<span class="lineNum">     668 </span><span class="lineNoCov">          0 :    return argc &gt; 1 ? process_command(argc, argv) : EXIT_SUCCESS;</span>
+<a name="669"><span class="lineNum">     669 </span>            : }</a>
+<span class="lineNum">     670 </span>            : 
+<span class="lineNum">     671 </span><span class="lineNoCov">          0 : static int syntax_cmd(int argc, char **argv)</span>
+<span class="lineNum">     672 </span>            : {
+<span class="lineNum">     673 </span>            :    static struct option long_options[] = {
+<span class="lineNum">     674 </span>            :       { 0, 0, 0, 0 }
+<span class="lineNum">     675 </span>            :    };
+<span class="lineNum">     676 </span>            : 
+<span class="lineNum">     677 </span><span class="lineNoCov">          0 :    const int next_cmd = scan_cmd(2, argc, argv);</span>
+<span class="lineNum">     678 </span><span class="lineNoCov">          0 :    int c, index = 0;</span>
+<span class="lineNum">     679 </span><span class="lineNoCov">          0 :    const char *spec = &quot;&quot;;</span>
+<span class="lineNum">     680 </span><span class="lineNoCov">          0 :    while ((c = getopt_long(next_cmd, argv, spec, long_options, &amp;index)) != -1) {</span>
+<span class="lineNum">     681 </span><span class="lineNoCov">          0 :       switch (c) {</span>
+<span class="lineNum">     682 </span>            :       case 0:
+<span class="lineNum">     683 </span>            :          // Set a flag
+<span class="lineNum">     684 </span>            :          break;
+<span class="lineNum">     685 </span>            :       case '?':
+<span class="lineNum">     686 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised syntax option %s&quot;, argv[optind - 1]);</span>
+<span class="lineNum">     687 </span>            :       default:
+<span class="lineNum">     688 </span><span class="lineNoCov">          0 :          abort();</span>
+<span class="lineNum">     689 </span>            :       }
+<span class="lineNum">     690 </span>            :    }
+<span class="lineNum">     691 </span>            : 
+<span class="lineNum">     692 </span><span class="lineNoCov">          0 :    for (int i = optind; i &lt; next_cmd; i++) {</span>
+<span class="lineNum">     693 </span><span class="lineNoCov">          0 :       input_from_file(argv[i]);</span>
+<span class="lineNum">     694 </span><span class="lineNoCov">          0 :       (void)parse();</span>
+<span class="lineNum">     695 </span>            :    }
+<span class="lineNum">     696 </span>            : 
+<span class="lineNum">     697 </span><span class="lineNoCov">          0 :    if (parse_errors() &gt; 0)</span>
+<span class="lineNum">     698 </span>            :       return EXIT_FAILURE;
+<span class="lineNum">     699 </span>            : 
+<span class="lineNum">     700 </span><span class="lineNoCov">          0 :    argc -= next_cmd - 1;</span>
+<span class="lineNum">     701 </span><span class="lineNoCov">          0 :    argv += next_cmd - 1;</span>
+<span class="lineNum">     702 </span>            : 
+<span class="lineNum">     703 </span><span class="lineNoCov">          0 :    return argc &gt; 1 ? process_command(argc, argv) : EXIT_SUCCESS;</span>
+<a name="704"><span class="lineNum">     704 </span>            : }</a>
+<span class="lineNum">     705 </span>            : 
+<span class="lineNum">     706 </span><span class="lineNoCov">          0 : static int dump_cmd(int argc, char **argv)</span>
+<span class="lineNum">     707 </span>            : {
+<span class="lineNum">     708 </span>            :    static struct option long_options[] = {
+<span class="lineNum">     709 </span>            :       { &quot;elab&quot;, no_argument, 0, 'E' },
+<span class="lineNum">     710 </span>            :       { &quot;body&quot;, no_argument, 0, 'b' },
+<span class="lineNum">     711 </span>            :       { &quot;nets&quot;, no_argument, 0, 'n' },
+<span class="lineNum">     712 </span>            :       { 0, 0, 0, 0 }
+<span class="lineNum">     713 </span>            :    };
+<span class="lineNum">     714 </span>            : 
+<span class="lineNum">     715 </span><span class="lineNoCov">          0 :    const int next_cmd = scan_cmd(2, argc, argv);</span>
+<span class="lineNum">     716 </span><span class="lineNoCov">          0 :    bool add_elab = false, add_body = false, nets = false;</span>
+<span class="lineNum">     717 </span><span class="lineNoCov">          0 :    int c, index = 0;</span>
+<span class="lineNum">     718 </span><span class="lineNoCov">          0 :    const char *spec = &quot;Eb&quot;;</span>
+<span class="lineNum">     719 </span><span class="lineNoCov">          0 :    while ((c = getopt_long(argc, argv, spec, long_options, &amp;index)) != -1) {</span>
+<span class="lineNum">     720 </span><span class="lineNoCov">          0 :       switch (c) {</span>
+<span class="lineNum">     721 </span>            :       case 0:
+<span class="lineNum">     722 </span>            :          // Set a flag
+<span class="lineNum">     723 </span>            :          break;
+<span class="lineNum">     724 </span>            :       case '?':
+<span class="lineNum">     725 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised dump option %s&quot;, argv[optind - 1]);</span>
+<span class="lineNum">     726 </span>            :       case 'E':
+<span class="lineNum">     727 </span><span class="lineNoCov">          0 :          add_elab = true;</span>
+<span class="lineNum">     728 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     729 </span>            :       case 'b':
+<span class="lineNum">     730 </span><span class="lineNoCov">          0 :          add_body = true;</span>
 <span class="lineNum">     731 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">     732 </span>            :       default:
-<span class="lineNum">     733 </span><span class="lineNoCov">          0 :          abort();</span>
-<span class="lineNum">     734 </span>            :       }
-<span class="lineNum">     735 </span>            :    }
-<span class="lineNum">     736 </span>            : 
-<span class="lineNum">     737 </span><span class="lineNoCov">          0 :    set_top_level(argv, next_cmd);</span>
-<span class="lineNum">     738 </span>            : 
-<span class="lineNum">     739 </span><span class="lineNoCov">          0 :    ident_t name = top_level;</span>
-<span class="lineNum">     740 </span><span class="lineNoCov">          0 :    if (add_elab)</span>
-<span class="lineNum">     741 </span><span class="lineNoCov">          0 :       name = ident_prefix(name, ident_new(&quot;elab&quot;), '.');</span>
-<span class="lineNum">     742 </span><span class="lineNoCov">          0 :    else if (add_body)</span>
-<span class="lineNum">     743 </span><span class="lineNoCov">          0 :       name = ident_prefix(name, ident_new(&quot;body&quot;), '-');</span>
-<span class="lineNum">     744 </span>            : 
-<span class="lineNum">     745 </span><span class="lineNoCov">          0 :    tree_t top = lib_get(lib_work(), name);</span>
-<span class="lineNum">     746 </span><span class="lineNoCov">          0 :    if (top == NULL)</span>
-<span class="lineNum">     747 </span><span class="lineNoCov">          0 :       fatal(&quot;%s not analysed&quot;, istr(name));</span>
-<span class="lineNum">     748 </span><span class="lineNoCov">          0 :    (nets ? dump_nets : dump)(top);</span>
-<span class="lineNum">     749 </span>            : 
-<span class="lineNum">     750 </span><span class="lineNoCov">          0 :    argc -= next_cmd - 1;</span>
-<span class="lineNum">     751 </span><span class="lineNoCov">          0 :    argv += next_cmd - 1;</span>
-<span class="lineNum">     752 </span>            : 
-<span class="lineNum">     753 </span><span class="lineNoCov">          0 :    return argc &gt; 1 ? process_command(argc, argv) : EXIT_SUCCESS;</span>
-<a name="754"><span class="lineNum">     754 </span>            : }</a>
-<span class="lineNum">     755 </span>            : 
-<span class="lineNum">     756 </span><span class="lineCov">        388 : static void set_default_opts(void)</span>
-<span class="lineNum">     757 </span>            : {
-<span class="lineNum">     758 </span><span class="lineCov">        388 :    opt_set_int(&quot;rt-stats&quot;, 0);</span>
-<span class="lineNum">     759 </span><span class="lineCov">        388 :    opt_set_int(&quot;rt_trace_en&quot;, 0);</span>
-<span class="lineNum">     760 </span><span class="lineCov">        388 :    opt_set_int(&quot;vhpi_trace_en&quot;, 0);</span>
-<span class="lineNum">     761 </span><span class="lineCov">        388 :    opt_set_int(&quot;dump-llvm&quot;, 0);</span>
-<span class="lineNum">     762 </span><span class="lineCov">        388 :    opt_set_int(&quot;optimise&quot;, 2);</span>
-<span class="lineNum">     763 </span><span class="lineCov">        388 :    opt_set_int(&quot;native&quot;, 0);</span>
-<span class="lineNum">     764 </span><span class="lineCov">        388 :    opt_set_int(&quot;bootstrap&quot;, 0);</span>
-<span class="lineNum">     765 </span><span class="lineCov">        388 :    opt_set_int(&quot;cover&quot;, 0);</span>
-<span class="lineNum">     766 </span><span class="lineCov">        388 :    opt_set_int(&quot;stop-delta&quot;, 1000);</span>
-<span class="lineNum">     767 </span><span class="lineCov">        388 :    opt_set_int(&quot;unit-test&quot;, 0);</span>
-<span class="lineNum">     768 </span><span class="lineCov">        388 :    opt_set_int(&quot;prefer-explicit&quot;, 0);</span>
-<span class="lineNum">     769 </span><span class="lineCov">        388 :    opt_set_int(&quot;make-deps-only&quot;, 0);</span>
-<span class="lineNum">     770 </span><span class="lineCov">        388 :    opt_set_int(&quot;make-posix&quot;, 0);</span>
-<span class="lineNum">     771 </span><span class="lineCov">        388 :    opt_set_str(&quot;dump-vcode&quot;, NULL);</span>
-<span class="lineNum">     772 </span><span class="lineCov">        388 :    opt_set_int(&quot;relax&quot;, 0);</span>
-<span class="lineNum">     773 </span><span class="lineCov">        388 :    opt_set_int(&quot;ignore-time&quot;, 0);</span>
-<span class="lineNum">     774 </span><span class="lineCov">        388 :    opt_set_int(&quot;force-init&quot;, 0);</span>
-<span class="lineNum">     775 </span><span class="lineCov">        388 :    opt_set_int(&quot;verbose&quot;, 0);</span>
-<a name="776"><span class="lineNum">     776 </span><span class="lineCov">        388 : }</span></a>
-<span class="lineNum">     777 </span>            : 
-<span class="lineNum">     778 </span><span class="lineNoCov">          0 : static void usage(void)</span>
-<span class="lineNum">     779 </span>            : {
-<span class="lineNum">     780 </span><span class="lineNoCov">          0 :    printf(&quot;Usage: %s [OPTION]... COMMAND [OPTION]...\n&quot;</span>
-<span class="lineNum">     781 </span>            :           &quot;\n&quot;
-<span class="lineNum">     782 </span>            :           &quot;COMMAND is one of:\n&quot;
-<span class="lineNum">     783 </span>            :           &quot; -a [OPTION]... FILE...\t\tAnalyse FILEs into work library\n&quot;
-<span class="lineNum">     784 </span>            :           &quot; -e [OPTION]... UNIT\t\tElaborate and generate code for UNIT\n&quot;
-<span class="lineNum">     785 </span>            :           &quot; -r [OPTION]... UNIT\t\tExecute previously elaborated UNIT\n&quot;
-<span class="lineNum">     786 </span>            :           &quot; --dump [OPTION]... UNIT\tPrint out previously analysed UNIT\n&quot;
-<span class="lineNum">     787 </span>            :           &quot; --list\t\t\t\tPrint all units in the library\n&quot;
-<span class="lineNum">     788 </span>            :           &quot; --make [OPTION]... [UNIT]...\tGenerate makefile to rebuild UNITs\n&quot;
-<span class="lineNum">     789 </span>            :           &quot; --syntax FILE...\t\tCheck FILEs for syntax errors only\n&quot;
-<span class="lineNum">     790 </span>            :           &quot;\n&quot;
-<span class="lineNum">     791 </span>            :           &quot;Global options may be placed before COMMAND:\n&quot;
-<span class="lineNum">     792 </span>            :           &quot;     --force-init\tCreate a library in an existing directory\n&quot;
-<span class="lineNum">     793 </span>            :           &quot; -h, --help\t\tDisplay this message and exit\n&quot;
-<span class="lineNum">     794 </span>            :           &quot;     --ignore-time\tSkip source file timestamp check\n&quot;
-<span class="lineNum">     795 </span>            :           &quot; -L PATH\t\tAdd PATH to library search paths\n&quot;
-<span class="lineNum">     796 </span>            :           &quot;     --map=LIB:PATH\tMap library LIB to PATH\n&quot;
-<span class="lineNum">     797 </span>            :           &quot;     --messages=STYLE\tSelect full or compact message format\n&quot;
-<span class="lineNum">     798 </span>            :           &quot;     --native\t\tGenerate native code shared library\n&quot;
-<span class="lineNum">     799 </span>            :           &quot;     --std=REV\t\tVHDL standard revision to use\n&quot;
-<span class="lineNum">     800 </span>            :           &quot; -v, --version\t\tDisplay version and copyright information\n&quot;
-<span class="lineNum">     801 </span>            :           &quot;     --work=NAME\tUse NAME as the work library\n&quot;
-<span class="lineNum">     802 </span>            :           &quot;\n&quot;
-<span class="lineNum">     803 </span>            :           &quot;Analyse options:\n&quot;
-<span class="lineNum">     804 </span>            :           &quot;     --bootstrap\tAllow compilation of STANDARD package\n&quot;
-<span class="lineNum">     805 </span>            :           &quot;     --relax=RULES\tDisable certain pedantic rule checks\n&quot;
-<span class="lineNum">     806 </span>            :           &quot;\n&quot;
-<span class="lineNum">     807 </span>            :           &quot;Elaborate options:\n&quot;
-<span class="lineNum">     808 </span>            :           &quot;     --cover\t\tEnable code coverage reporting\n&quot;
-<span class="lineNum">     809 </span>            :           &quot;     --dump-llvm\tPrint generated LLVM IR\n&quot;
-<span class="lineNum">     810 </span>            :           &quot;     --dump-vcode\tPrint generated intermediate code\n&quot;
-<span class="lineNum">     811 </span>            :           &quot; -g NAME=VALUE\t\tSet top level generic NAME to VALUE\n&quot;
-<span class="lineNum">     812 </span>            :           &quot; -O0, -O1, -O2, -O3\tSet optimisation level (default is -O2)\n&quot;
-<span class="lineNum">     813 </span>            :           &quot; -V, --verbose\t\tPrint resource usage at each step\n&quot;
-<span class="lineNum">     814 </span>            :           &quot;\n&quot;
-<span class="lineNum">     815 </span>            :           &quot;Run options:\n&quot;
-<span class="lineNum">     816 </span>            :           &quot;     --exclude=GLOB\tExclude signals matching GLOB from wave dump\n&quot;
-<span class="lineNum">     817 </span>            :           &quot;     --exit-severity=S\tExit after assertion failure of severity S\n&quot;
-<span class="lineNum">     818 </span>            :           &quot;     --format=FMT\tWaveform format is one of lxt, fst, or vcd\n&quot;
-<span class="lineNum">     819 </span>            :           &quot;     --include=GLOB\tInclude signals matching GLOB in wave dump\n&quot;
-<span class="lineNum">     820 </span>            : #ifdef ENABLE_VHPI
-<span class="lineNum">     821 </span>            :           &quot;     --load=PLUGIN\tLoad VHPI plugin at startup\n&quot;
-<span class="lineNum">     822 </span>            : #endif
-<span class="lineNum">     823 </span>            :           &quot;     --stats\t\tPrint statistics at end of run\n&quot;
-<span class="lineNum">     824 </span>            :           &quot;     --stop-delta=N\tStop after N delta cycles (default %d)\n&quot;
-<span class="lineNum">     825 </span>            :           &quot;     --stop-time=T\tStop after simulation time T (e.g. 5ns)\n&quot;
-<span class="lineNum">     826 </span>            :           &quot;     --trace\t\tTrace simulation events\n&quot;
-<span class="lineNum">     827 </span>            : #ifdef ENABLE_VHPI
-<span class="lineNum">     828 </span>            :           &quot;     --vhpi-trace\tTrace VHPI calls and events\n&quot;
-<span class="lineNum">     829 </span>            : #endif
-<span class="lineNum">     830 </span>            :           &quot; -w, --wave=FILE\tWrite waveform data; file name is optional\n&quot;
-<span class="lineNum">     831 </span>            :           &quot;\n&quot;
-<span class="lineNum">     832 </span>            :           &quot;Dump options:\n&quot;
-<span class="lineNum">     833 </span>            :           &quot; -e, --elab\t\tDump an elaborated unit\n&quot;
-<span class="lineNum">     834 </span>            :           &quot; -b, --body\t\tDump package body\n&quot;
-<span class="lineNum">     835 </span>            :           &quot;     --nets\t\tShow mapping from signals to nets\n&quot;
-<span class="lineNum">     836 </span>            :           &quot;\n&quot;
-<span class="lineNum">     837 </span>            :           &quot;Make options:\n&quot;
-<span class="lineNum">     838 </span>            :           &quot;     --deps-only\tOutput dependencies without actions\n&quot;
-<span class="lineNum">     839 </span>            :           &quot;     --posix\t\tStrictly POSIX compliant makefile\n&quot;
-<span class="lineNum">     840 </span>            :           &quot;\n&quot;,
-<span class="lineNum">     841 </span>            :           PACKAGE,
-<span class="lineNum">     842 </span>            :           opt_get_int(&quot;stop-delta&quot;));
-<span class="lineNum">     843 </span>            : 
-<span class="lineNum">     844 </span>            :    printf(&quot;Library search paths:\n&quot;);
-<span class="lineNum">     845 </span><span class="lineNoCov">          0 :    void *token = NULL;</span>
-<span class="lineNum">     846 </span>            :    const char *path;
-<span class="lineNum">     847 </span><span class="lineNoCov">          0 :    while ((path = lib_enum_search_paths(&amp;token)) != NULL)</span>
-<span class="lineNum">     848 </span>            :       printf(&quot;  %s\n&quot;, path);
+<span class="lineNum">     732 </span>            :       case 'n':
+<span class="lineNum">     733 </span><span class="lineNoCov">          0 :          add_elab = true;</span>
+<span class="lineNum">     734 </span><span class="lineNoCov">          0 :          nets = true;</span>
+<span class="lineNum">     735 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">     736 </span>            :       default:
+<span class="lineNum">     737 </span><span class="lineNoCov">          0 :          abort();</span>
+<span class="lineNum">     738 </span>            :       }
+<span class="lineNum">     739 </span>            :    }
+<span class="lineNum">     740 </span>            : 
+<span class="lineNum">     741 </span><span class="lineNoCov">          0 :    set_top_level(argv, next_cmd);</span>
+<span class="lineNum">     742 </span>            : 
+<span class="lineNum">     743 </span><span class="lineNoCov">          0 :    ident_t name = top_level;</span>
+<span class="lineNum">     744 </span><span class="lineNoCov">          0 :    if (add_elab)</span>
+<span class="lineNum">     745 </span><span class="lineNoCov">          0 :       name = ident_prefix(name, ident_new(&quot;elab&quot;), '.');</span>
+<span class="lineNum">     746 </span><span class="lineNoCov">          0 :    else if (add_body)</span>
+<span class="lineNum">     747 </span><span class="lineNoCov">          0 :       name = ident_prefix(name, ident_new(&quot;body&quot;), '-');</span>
+<span class="lineNum">     748 </span>            : 
+<span class="lineNum">     749 </span><span class="lineNoCov">          0 :    tree_t top = lib_get(lib_work(), name);</span>
+<span class="lineNum">     750 </span><span class="lineNoCov">          0 :    if (top == NULL)</span>
+<span class="lineNum">     751 </span><span class="lineNoCov">          0 :       fatal(&quot;%s not analysed&quot;, istr(name));</span>
+<span class="lineNum">     752 </span><span class="lineNoCov">          0 :    (nets ? dump_nets : dump)(top);</span>
+<span class="lineNum">     753 </span>            : 
+<span class="lineNum">     754 </span><span class="lineNoCov">          0 :    argc -= next_cmd - 1;</span>
+<span class="lineNum">     755 </span><span class="lineNoCov">          0 :    argv += next_cmd - 1;</span>
+<span class="lineNum">     756 </span>            : 
+<span class="lineNum">     757 </span><span class="lineNoCov">          0 :    return argc &gt; 1 ? process_command(argc, argv) : EXIT_SUCCESS;</span>
+<a name="758"><span class="lineNum">     758 </span>            : }</a>
+<span class="lineNum">     759 </span>            : 
+<span class="lineNum">     760 </span><span class="lineCov">        388 : static void set_default_opts(void)</span>
+<span class="lineNum">     761 </span>            : {
+<span class="lineNum">     762 </span><span class="lineCov">        388 :    opt_set_int(&quot;rt-stats&quot;, 0);</span>
+<span class="lineNum">     763 </span><span class="lineCov">        388 :    opt_set_int(&quot;rt_trace_en&quot;, 0);</span>
+<span class="lineNum">     764 </span><span class="lineCov">        388 :    opt_set_int(&quot;vhpi_trace_en&quot;, 0);</span>
+<span class="lineNum">     765 </span><span class="lineCov">        388 :    opt_set_int(&quot;dump-llvm&quot;, 0);</span>
+<span class="lineNum">     766 </span><span class="lineCov">        388 :    opt_set_int(&quot;optimise&quot;, 2);</span>
+<span class="lineNum">     767 </span><span class="lineCov">        388 :    opt_set_int(&quot;native&quot;, 0);</span>
+<span class="lineNum">     768 </span><span class="lineCov">        388 :    opt_set_int(&quot;bootstrap&quot;, 0);</span>
+<span class="lineNum">     769 </span><span class="lineCov">        388 :    opt_set_int(&quot;cover&quot;, 0);</span>
+<span class="lineNum">     770 </span><span class="lineCov">        388 :    opt_set_int(&quot;stop-delta&quot;, 1000);</span>
+<span class="lineNum">     771 </span><span class="lineCov">        388 :    opt_set_int(&quot;unit-test&quot;, 0);</span>
+<span class="lineNum">     772 </span><span class="lineCov">        388 :    opt_set_int(&quot;prefer-explicit&quot;, 0);</span>
+<span class="lineNum">     773 </span><span class="lineCov">        388 :    opt_set_int(&quot;make-deps-only&quot;, 0);</span>
+<span class="lineNum">     774 </span><span class="lineCov">        388 :    opt_set_int(&quot;make-posix&quot;, 0);</span>
+<span class="lineNum">     775 </span><span class="lineCov">        388 :    opt_set_str(&quot;dump-vcode&quot;, NULL);</span>
+<span class="lineNum">     776 </span><span class="lineCov">        388 :    opt_set_int(&quot;relax&quot;, 0);</span>
+<span class="lineNum">     777 </span><span class="lineCov">        388 :    opt_set_int(&quot;ignore-time&quot;, 0);</span>
+<span class="lineNum">     778 </span><span class="lineCov">        388 :    opt_set_int(&quot;force-init&quot;, 0);</span>
+<span class="lineNum">     779 </span><span class="lineCov">        388 :    opt_set_int(&quot;verbose&quot;, 0);</span>
+<span class="lineNum">     780 </span><span class="lineCov">        388 :    opt_set_int(&quot;rt_profile&quot;, 0);</span>
+<a name="781"><span class="lineNum">     781 </span><span class="lineCov">        388 : }</span></a>
+<span class="lineNum">     782 </span>            : 
+<span class="lineNum">     783 </span><span class="lineNoCov">          0 : static void usage(void)</span>
+<span class="lineNum">     784 </span>            : {
+<span class="lineNum">     785 </span><span class="lineNoCov">          0 :    printf(&quot;Usage: %s [OPTION]... COMMAND [OPTION]...\n&quot;</span>
+<span class="lineNum">     786 </span>            :           &quot;\n&quot;
+<span class="lineNum">     787 </span>            :           &quot;COMMAND is one of:\n&quot;
+<span class="lineNum">     788 </span>            :           &quot; -a [OPTION]... FILE...\t\tAnalyse FILEs into work library\n&quot;
+<span class="lineNum">     789 </span>            :           &quot; -e [OPTION]... UNIT\t\tElaborate and generate code for UNIT\n&quot;
+<span class="lineNum">     790 </span>            :           &quot; -r [OPTION]... UNIT\t\tExecute previously elaborated UNIT\n&quot;
+<span class="lineNum">     791 </span>            :           &quot; --dump [OPTION]... UNIT\tPrint out previously analysed UNIT\n&quot;
+<span class="lineNum">     792 </span>            :           &quot; --list\t\t\t\tPrint all units in the library\n&quot;
+<span class="lineNum">     793 </span>            :           &quot; --make [OPTION]... [UNIT]...\tGenerate makefile to rebuild UNITs\n&quot;
+<span class="lineNum">     794 </span>            :           &quot; --syntax FILE...\t\tCheck FILEs for syntax errors only\n&quot;
+<span class="lineNum">     795 </span>            :           &quot;\n&quot;
+<span class="lineNum">     796 </span>            :           &quot;Global options may be placed before COMMAND:\n&quot;
+<span class="lineNum">     797 </span>            :           &quot;     --force-init\tCreate a library in an existing directory\n&quot;
+<span class="lineNum">     798 </span>            :           &quot; -h, --help\t\tDisplay this message and exit\n&quot;
+<span class="lineNum">     799 </span>            :           &quot;     --ignore-time\tSkip source file timestamp check\n&quot;
+<span class="lineNum">     800 </span>            :           &quot; -L PATH\t\tAdd PATH to library search paths\n&quot;
+<span class="lineNum">     801 </span>            :           &quot;     --map=LIB:PATH\tMap library LIB to PATH\n&quot;
+<span class="lineNum">     802 </span>            :           &quot;     --messages=STYLE\tSelect full or compact message format\n&quot;
+<span class="lineNum">     803 </span>            :           &quot;     --native\t\tGenerate native code shared library\n&quot;
+<span class="lineNum">     804 </span>            :           &quot;     --std=REV\t\tVHDL standard revision to use\n&quot;
+<span class="lineNum">     805 </span>            :           &quot; -v, --version\t\tDisplay version and copyright information\n&quot;
+<span class="lineNum">     806 </span>            :           &quot;     --work=NAME\tUse NAME as the work library\n&quot;
+<span class="lineNum">     807 </span>            :           &quot;\n&quot;
+<span class="lineNum">     808 </span>            :           &quot;Analyse options:\n&quot;
+<span class="lineNum">     809 </span>            :           &quot;     --bootstrap\tAllow compilation of STANDARD package\n&quot;
+<span class="lineNum">     810 </span>            :           &quot;     --relax=RULES\tDisable certain pedantic rule checks\n&quot;
+<span class="lineNum">     811 </span>            :           &quot;\n&quot;
+<span class="lineNum">     812 </span>            :           &quot;Elaborate options:\n&quot;
+<span class="lineNum">     813 </span>            :           &quot;     --cover\t\tEnable code coverage reporting\n&quot;
+<span class="lineNum">     814 </span>            :           &quot;     --dump-llvm\tPrint generated LLVM IR\n&quot;
+<span class="lineNum">     815 </span>            :           &quot;     --dump-vcode\tPrint generated intermediate code\n&quot;
+<span class="lineNum">     816 </span>            :           &quot; -g NAME=VALUE\t\tSet top level generic NAME to VALUE\n&quot;
+<span class="lineNum">     817 </span>            :           &quot; -O0, -O1, -O2, -O3\tSet optimisation level (default is -O2)\n&quot;
+<span class="lineNum">     818 </span>            :           &quot; -V, --verbose\t\tPrint resource usage at each step\n&quot;
+<span class="lineNum">     819 </span>            :           &quot;\n&quot;
+<span class="lineNum">     820 </span>            :           &quot;Run options:\n&quot;
+<span class="lineNum">     821 </span>            :           &quot;     --exclude=GLOB\tExclude signals matching GLOB from wave dump\n&quot;
+<span class="lineNum">     822 </span>            :           &quot;     --exit-severity=S\tExit after assertion failure of severity S\n&quot;
+<span class="lineNum">     823 </span>            :           &quot;     --format=FMT\tWaveform format is one of lxt, fst, or vcd\n&quot;
+<span class="lineNum">     824 </span>            :           &quot;     --include=GLOB\tInclude signals matching GLOB in wave dump\n&quot;
+<span class="lineNum">     825 </span>            : #ifdef ENABLE_VHPI
+<span class="lineNum">     826 </span>            :           &quot;     --load=PLUGIN\tLoad VHPI plugin at startup\n&quot;
+<span class="lineNum">     827 </span>            : #endif
+<span class="lineNum">     828 </span>            :           &quot;     --profile\t\tColect profiling data during run\n&quot;
+<span class="lineNum">     829 </span>            :           &quot;     --stats\t\tPrint statistics at end of run\n&quot;
+<span class="lineNum">     830 </span>            :           &quot;     --stop-delta=N\tStop after N delta cycles (default %d)\n&quot;
+<span class="lineNum">     831 </span>            :           &quot;     --stop-time=T\tStop after simulation time T (e.g. 5ns)\n&quot;
+<span class="lineNum">     832 </span>            :           &quot;     --trace\t\tTrace simulation events\n&quot;
+<span class="lineNum">     833 </span>            : #ifdef ENABLE_VHPI
+<span class="lineNum">     834 </span>            :           &quot;     --vhpi-trace\tTrace VHPI calls and events\n&quot;
+<span class="lineNum">     835 </span>            : #endif
+<span class="lineNum">     836 </span>            :           &quot; -w, --wave=FILE\tWrite waveform data; file name is optional\n&quot;
+<span class="lineNum">     837 </span>            :           &quot;\n&quot;
+<span class="lineNum">     838 </span>            :           &quot;Dump options:\n&quot;
+<span class="lineNum">     839 </span>            :           &quot; -e, --elab\t\tDump an elaborated unit\n&quot;
+<span class="lineNum">     840 </span>            :           &quot; -b, --body\t\tDump package body\n&quot;
+<span class="lineNum">     841 </span>            :           &quot;     --nets\t\tShow mapping from signals to nets\n&quot;
+<span class="lineNum">     842 </span>            :           &quot;\n&quot;
+<span class="lineNum">     843 </span>            :           &quot;Make options:\n&quot;
+<span class="lineNum">     844 </span>            :           &quot;     --deps-only\tOutput dependencies without actions\n&quot;
+<span class="lineNum">     845 </span>            :           &quot;     --posix\t\tStrictly POSIX compliant makefile\n&quot;
+<span class="lineNum">     846 </span>            :           &quot;\n&quot;,
+<span class="lineNum">     847 </span>            :           PACKAGE,
+<span class="lineNum">     848 </span>            :           opt_get_int(&quot;stop-delta&quot;));
 <span class="lineNum">     849 </span>            : 
-<span class="lineNum">     850 </span>            :    printf(&quot;\nReport bugs to %s\n&quot;, PACKAGE_BUGREPORT);
-<a name="851"><span class="lineNum">     851 </span><span class="lineNoCov">          0 : }</span></a>
-<span class="lineNum">     852 </span>            : 
-<span class="lineNum">     853 </span><span class="lineCov">         18 : static vhdl_standard_t parse_standard(const char *str)</span>
-<span class="lineNum">     854 </span>            : {
-<span class="lineNum">     855 </span><span class="lineCov">         18 :    char *eptr = NULL;</span>
-<span class="lineNum">     856 </span><span class="lineCov">         18 :    const int year = strtol(str, &amp;eptr, 0);</span>
-<span class="lineNum">     857 </span><span class="lineCov">         18 :    if ((eptr != NULL) &amp;&amp; (*eptr == '\0')) {</span>
-<span class="lineNum">     858 </span><span class="lineCov">         18 :       switch (year) {</span>
-<span class="lineNum">     859 </span>            :       case 1987:
-<span class="lineNum">     860 </span>            :       case 87:
-<span class="lineNum">     861 </span><span class="lineNoCov">          0 :          fatal(&quot;VHDL standard 1076-1987 is not supported&quot;);</span>
-<span class="lineNum">     862 </span>            :       case 1993:
-<span class="lineNum">     863 </span>            :       case 93:
-<span class="lineNum">     864 </span>            :          return STD_93;
-<span class="lineNum">     865 </span>            :       case 2000:
-<span class="lineNum">     866 </span>            :       case 0:
-<span class="lineNum">     867 </span><span class="lineCov">         10 :          return STD_00;</span>
-<span class="lineNum">     868 </span>            :       case 2002:
-<span class="lineNum">     869 </span>            :       case 2:
-<span class="lineNum">     870 </span><span class="lineNoCov">          0 :          return STD_02;</span>
-<span class="lineNum">     871 </span>            :       case 2008:
-<span class="lineNum">     872 </span>            :       case 8:
-<span class="lineNum">     873 </span><span class="lineCov">          8 :          return STD_08;</span>
-<span class="lineNum">     874 </span>            :       }
-<span class="lineNum">     875 </span>            :    }
-<span class="lineNum">     876 </span>            : 
-<span class="lineNum">     877 </span><span class="lineNoCov">          0 :    fatal(&quot;invalid standard revision: %s (allowed 1993, 2000, 2002, 2008)&quot;, str);</span>
-<a name="878"><span class="lineNum">     878 </span>            : }</a>
-<span class="lineNum">     879 </span>            : 
-<span class="lineNum">     880 </span><span class="lineNoCov">          0 : static message_style_t parse_message_style(const char *str)</span>
-<span class="lineNum">     881 </span>            : {
-<span class="lineNum">     882 </span><span class="lineNoCov">          0 :    if (strcmp(optarg, &quot;full&quot;) == 0)</span>
-<span class="lineNum">     883 </span>            :       return MESSAGE_FULL;
-<span class="lineNum">     884 </span><span class="lineNoCov">          0 :    else if (strcmp(optarg, &quot;compact&quot;) == 0)</span>
-<span class="lineNum">     885 </span>            :       return MESSAGE_COMPACT;
-<span class="lineNum">     886 </span>            : 
-<span class="lineNum">     887 </span><span class="lineNoCov">          0 :    fatal(&quot;invalid message style '%s' (allowed are 'full' and 'compact')&quot;, str);</span>
-<a name="888"><span class="lineNum">     888 </span>            : }</a>
-<span class="lineNum">     889 </span>            : 
-<span class="lineNum">     890 </span><span class="lineNoCov">          0 : static void parse_library_map(char *str)</span>
-<span class="lineNum">     891 </span>            : {
-<span class="lineNum">     892 </span><span class="lineNoCov">          0 :    char *split = strchr(str, ':');</span>
-<span class="lineNum">     893 </span><span class="lineNoCov">          0 :    if (split == NULL)</span>
-<span class="lineNum">     894 </span><span class="lineNoCov">          0 :       fatal(&quot;invalid library map syntax '%s': use NAME:PATH&quot;, str);</span>
+<span class="lineNum">     850 </span>            :    printf(&quot;Library search paths:\n&quot;);
+<span class="lineNum">     851 </span><span class="lineNoCov">          0 :    void *token = NULL;</span>
+<span class="lineNum">     852 </span>            :    const char *path;
+<span class="lineNum">     853 </span><span class="lineNoCov">          0 :    while ((path = lib_enum_search_paths(&amp;token)) != NULL)</span>
+<span class="lineNum">     854 </span>            :       printf(&quot;  %s\n&quot;, path);
+<span class="lineNum">     855 </span>            : 
+<span class="lineNum">     856 </span>            :    printf(&quot;\nReport bugs to %s\n&quot;, PACKAGE_BUGREPORT);
+<a name="857"><span class="lineNum">     857 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     858 </span>            : 
+<span class="lineNum">     859 </span><span class="lineCov">         18 : static vhdl_standard_t parse_standard(const char *str)</span>
+<span class="lineNum">     860 </span>            : {
+<span class="lineNum">     861 </span><span class="lineCov">         18 :    char *eptr = NULL;</span>
+<span class="lineNum">     862 </span><span class="lineCov">         18 :    const int year = strtol(str, &amp;eptr, 0);</span>
+<span class="lineNum">     863 </span><span class="lineCov">         18 :    if ((eptr != NULL) &amp;&amp; (*eptr == '\0')) {</span>
+<span class="lineNum">     864 </span><span class="lineCov">         18 :       switch (year) {</span>
+<span class="lineNum">     865 </span>            :       case 1987:
+<span class="lineNum">     866 </span>            :       case 87:
+<span class="lineNum">     867 </span><span class="lineNoCov">          0 :          fatal(&quot;VHDL standard 1076-1987 is not supported&quot;);</span>
+<span class="lineNum">     868 </span>            :       case 1993:
+<span class="lineNum">     869 </span>            :       case 93:
+<span class="lineNum">     870 </span>            :          return STD_93;
+<span class="lineNum">     871 </span>            :       case 2000:
+<span class="lineNum">     872 </span>            :       case 0:
+<span class="lineNum">     873 </span><span class="lineCov">         10 :          return STD_00;</span>
+<span class="lineNum">     874 </span>            :       case 2002:
+<span class="lineNum">     875 </span>            :       case 2:
+<span class="lineNum">     876 </span><span class="lineNoCov">          0 :          return STD_02;</span>
+<span class="lineNum">     877 </span>            :       case 2008:
+<span class="lineNum">     878 </span>            :       case 8:
+<span class="lineNum">     879 </span><span class="lineCov">          8 :          return STD_08;</span>
+<span class="lineNum">     880 </span>            :       }
+<span class="lineNum">     881 </span>            :    }
+<span class="lineNum">     882 </span>            : 
+<span class="lineNum">     883 </span><span class="lineNoCov">          0 :    fatal(&quot;invalid standard revision: %s (allowed 1993, 2000, 2002, 2008)&quot;, str);</span>
+<a name="884"><span class="lineNum">     884 </span>            : }</a>
+<span class="lineNum">     885 </span>            : 
+<span class="lineNum">     886 </span><span class="lineNoCov">          0 : static message_style_t parse_message_style(const char *str)</span>
+<span class="lineNum">     887 </span>            : {
+<span class="lineNum">     888 </span><span class="lineNoCov">          0 :    if (strcmp(optarg, &quot;full&quot;) == 0)</span>
+<span class="lineNum">     889 </span>            :       return MESSAGE_FULL;
+<span class="lineNum">     890 </span><span class="lineNoCov">          0 :    else if (strcmp(optarg, &quot;compact&quot;) == 0)</span>
+<span class="lineNum">     891 </span>            :       return MESSAGE_COMPACT;
+<span class="lineNum">     892 </span>            : 
+<span class="lineNum">     893 </span><span class="lineNoCov">          0 :    fatal(&quot;invalid message style '%s' (allowed are 'full' and 'compact')&quot;, str);</span>
+<a name="894"><span class="lineNum">     894 </span>            : }</a>
 <span class="lineNum">     895 </span>            : 
-<span class="lineNum">     896 </span><span class="lineNoCov">          0 :    *split = '\0';</span>
-<span class="lineNum">     897 </span>            : 
-<span class="lineNum">     898 </span><span class="lineNoCov">          0 :    if (strcasecmp(str, &quot;work&quot;) == 0)</span>
-<span class="lineNum">     899 </span><span class="lineNoCov">          0 :       fatal(&quot;use --work option to specify work library name and path&quot;);</span>
-<span class="lineNum">     900 </span>            : 
-<span class="lineNum">     901 </span><span class="lineNoCov">          0 :    lib_add_map(str, split + 1);</span>
-<a name="902"><span class="lineNum">     902 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     896 </span><span class="lineNoCov">          0 : static void parse_library_map(char *str)</span>
+<span class="lineNum">     897 </span>            : {
+<span class="lineNum">     898 </span><span class="lineNoCov">          0 :    char *split = strchr(str, ':');</span>
+<span class="lineNum">     899 </span><span class="lineNoCov">          0 :    if (split == NULL)</span>
+<span class="lineNum">     900 </span><span class="lineNoCov">          0 :       fatal(&quot;invalid library map syntax '%s': use NAME:PATH&quot;, str);</span>
+<span class="lineNum">     901 </span>            : 
+<span class="lineNum">     902 </span><span class="lineNoCov">          0 :    *split = '\0';</span>
 <span class="lineNum">     903 </span>            : 
-<span class="lineNum">     904 </span><span class="lineCov">         27 : static void parse_work_name(char *str, const char **name, const char **path)</span>
-<span class="lineNum">     905 </span>            : {
-<span class="lineNum">     906 </span><span class="lineCov">         27 :    char *split = strchr(str, ':');</span>
-<span class="lineNum">     907 </span><span class="lineCov">         27 :    if (split == NULL)</span>
-<span class="lineNum">     908 </span><span class="lineCov">         27 :       *name = *path = str;</span>
-<span class="lineNum">     909 </span>            :    else {
-<span class="lineNum">     910 </span><span class="lineNoCov">          0 :       *split = '\0';</span>
-<span class="lineNum">     911 </span><span class="lineNoCov">          0 :       *name = str;</span>
-<span class="lineNum">     912 </span><span class="lineNoCov">          0 :       *path = split + 1;</span>
-<span class="lineNum">     913 </span>            :    }
-<a name="914"><span class="lineNum">     914 </span><span class="lineCov">         27 : }</span></a>
-<span class="lineNum">     915 </span>            : 
-<span class="lineNum">     916 </span><span class="lineCov">       1047 : static int process_command(int argc, char **argv)</span>
-<span class="lineNum">     917 </span>            : {
-<span class="lineNum">     918 </span>            :    static struct option long_options[] = {
-<span class="lineNum">     919 </span>            :       { &quot;dump&quot;,    no_argument, 0, 'd' },
-<span class="lineNum">     920 </span>            :       { &quot;codegen&quot;, no_argument, 0, 'c' },   // DEPRECATED
-<span class="lineNum">     921 </span>            :       { &quot;make&quot;,    no_argument, 0, 'm' },
-<span class="lineNum">     922 </span>            :       { &quot;syntax&quot;,  no_argument, 0, 's' },
-<span class="lineNum">     923 </span>            :       { &quot;list&quot;,    no_argument, 0, 'l' },
-<span class="lineNum">     924 </span>            :       { 0, 0, 0, 0 }
-<span class="lineNum">     925 </span>            :    };
-<span class="lineNum">     926 </span>            : 
-<span class="lineNum">     927 </span><span class="lineCov">       1047 :    opterr = 0;</span>
-<span class="lineNum">     928 </span><span class="lineCov">       1047 :    optind = 1;</span>
-<span class="lineNum">     929 </span>            : 
-<span class="lineNum">     930 </span><span class="lineCov">       1047 :    int index = 0;</span>
-<span class="lineNum">     931 </span><span class="lineCov">       1047 :    const char *spec = &quot;aer&quot;;</span>
-<span class="lineNum">     932 </span><span class="lineCov">       1047 :    switch (getopt_long(MIN(argc, 2), argv, spec, long_options, &amp;index)) {</span>
-<span class="lineNum">     933 </span>            :    case 'a':
-<span class="lineNum">     934 </span><span class="lineCov">        367 :       return analyse(argc, argv);</span>
-<span class="lineNum">     935 </span>            :    case 'e':
-<span class="lineNum">     936 </span><span class="lineCov">        340 :       return elaborate(argc, argv);</span>
-<span class="lineNum">     937 </span>            :    case 'r':
-<span class="lineNum">     938 </span><span class="lineCov">        340 :       return run(argc, argv);</span>
-<span class="lineNum">     939 </span>            :    case 'd':
-<span class="lineNum">     940 </span><span class="lineNoCov">          0 :       return dump_cmd(argc, argv);</span>
-<span class="lineNum">     941 </span>            :    case 'c':
-<span class="lineNum">     942 </span><span class="lineNoCov">          0 :       return codegen(argc, argv);</span>
-<span class="lineNum">     943 </span>            :    case 'm':
-<span class="lineNum">     944 </span><span class="lineNoCov">          0 :       return make_cmd(argc, argv);</span>
-<span class="lineNum">     945 </span>            :    case 's':
-<span class="lineNum">     946 </span><span class="lineNoCov">          0 :       return syntax_cmd(argc, argv);</span>
-<span class="lineNum">     947 </span>            :    case 'l':
-<span class="lineNum">     948 </span><span class="lineNoCov">          0 :       return list_cmd(argc, argv);</span>
-<span class="lineNum">     949 </span>            :    default:
-<span class="lineNum">     950 </span><span class="lineNoCov">          0 :       fatal(&quot;missing command, try %s --help for usage&quot;, PACKAGE);</span>
-<span class="lineNum">     951 </span>            :       return EXIT_FAILURE;
-<span class="lineNum">     952 </span>            :    }
-<a name="953"><span class="lineNum">     953 </span>            : }</a>
-<span class="lineNum">     954 </span>            : 
-<span class="lineNum">     955 </span><span class="lineCov">        388 : int main(int argc, char **argv)</span>
-<span class="lineNum">     956 </span>            : {
-<span class="lineNum">     957 </span><span class="lineCov">        388 :    term_init();</span>
-<span class="lineNum">     958 </span><span class="lineCov">        388 :    set_default_opts();</span>
-<span class="lineNum">     959 </span><span class="lineCov">        388 :    intern_strings();</span>
+<span class="lineNum">     904 </span><span class="lineNoCov">          0 :    if (strcasecmp(str, &quot;work&quot;) == 0)</span>
+<span class="lineNum">     905 </span><span class="lineNoCov">          0 :       fatal(&quot;use --work option to specify work library name and path&quot;);</span>
+<span class="lineNum">     906 </span>            : 
+<span class="lineNum">     907 </span><span class="lineNoCov">          0 :    lib_add_map(str, split + 1);</span>
+<a name="908"><span class="lineNum">     908 </span><span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     909 </span>            : 
+<span class="lineNum">     910 </span><span class="lineCov">         27 : static void parse_work_name(char *str, const char **name, const char **path)</span>
+<span class="lineNum">     911 </span>            : {
+<span class="lineNum">     912 </span><span class="lineCov">         27 :    char *split = strchr(str, ':');</span>
+<span class="lineNum">     913 </span><span class="lineCov">         27 :    if (split == NULL)</span>
+<span class="lineNum">     914 </span><span class="lineCov">         27 :       *name = *path = str;</span>
+<span class="lineNum">     915 </span>            :    else {
+<span class="lineNum">     916 </span><span class="lineNoCov">          0 :       *split = '\0';</span>
+<span class="lineNum">     917 </span><span class="lineNoCov">          0 :       *name = str;</span>
+<span class="lineNum">     918 </span><span class="lineNoCov">          0 :       *path = split + 1;</span>
+<span class="lineNum">     919 </span>            :    }
+<a name="920"><span class="lineNum">     920 </span><span class="lineCov">         27 : }</span></a>
+<span class="lineNum">     921 </span>            : 
+<span class="lineNum">     922 </span><span class="lineCov">       1047 : static int process_command(int argc, char **argv)</span>
+<span class="lineNum">     923 </span>            : {
+<span class="lineNum">     924 </span>            :    static struct option long_options[] = {
+<span class="lineNum">     925 </span>            :       { &quot;dump&quot;,    no_argument, 0, 'd' },
+<span class="lineNum">     926 </span>            :       { &quot;codegen&quot;, no_argument, 0, 'c' },   // DEPRECATED
+<span class="lineNum">     927 </span>            :       { &quot;make&quot;,    no_argument, 0, 'm' },
+<span class="lineNum">     928 </span>            :       { &quot;syntax&quot;,  no_argument, 0, 's' },
+<span class="lineNum">     929 </span>            :       { &quot;list&quot;,    no_argument, 0, 'l' },
+<span class="lineNum">     930 </span>            :       { 0, 0, 0, 0 }
+<span class="lineNum">     931 </span>            :    };
+<span class="lineNum">     932 </span>            : 
+<span class="lineNum">     933 </span><span class="lineCov">       1047 :    opterr = 0;</span>
+<span class="lineNum">     934 </span><span class="lineCov">       1047 :    optind = 1;</span>
+<span class="lineNum">     935 </span>            : 
+<span class="lineNum">     936 </span><span class="lineCov">       1047 :    int index = 0;</span>
+<span class="lineNum">     937 </span><span class="lineCov">       1047 :    const char *spec = &quot;aer&quot;;</span>
+<span class="lineNum">     938 </span><span class="lineCov">       1047 :    switch (getopt_long(MIN(argc, 2), argv, spec, long_options, &amp;index)) {</span>
+<span class="lineNum">     939 </span>            :    case 'a':
+<span class="lineNum">     940 </span><span class="lineCov">        367 :       return analyse(argc, argv);</span>
+<span class="lineNum">     941 </span>            :    case 'e':
+<span class="lineNum">     942 </span><span class="lineCov">        340 :       return elaborate(argc, argv);</span>
+<span class="lineNum">     943 </span>            :    case 'r':
+<span class="lineNum">     944 </span><span class="lineCov">        340 :       return run(argc, argv);</span>
+<span class="lineNum">     945 </span>            :    case 'd':
+<span class="lineNum">     946 </span><span class="lineNoCov">          0 :       return dump_cmd(argc, argv);</span>
+<span class="lineNum">     947 </span>            :    case 'c':
+<span class="lineNum">     948 </span><span class="lineNoCov">          0 :       return codegen(argc, argv);</span>
+<span class="lineNum">     949 </span>            :    case 'm':
+<span class="lineNum">     950 </span><span class="lineNoCov">          0 :       return make_cmd(argc, argv);</span>
+<span class="lineNum">     951 </span>            :    case 's':
+<span class="lineNum">     952 </span><span class="lineNoCov">          0 :       return syntax_cmd(argc, argv);</span>
+<span class="lineNum">     953 </span>            :    case 'l':
+<span class="lineNum">     954 </span><span class="lineNoCov">          0 :       return list_cmd(argc, argv);</span>
+<span class="lineNum">     955 </span>            :    default:
+<span class="lineNum">     956 </span><span class="lineNoCov">          0 :       fatal(&quot;missing command, try %s --help for usage&quot;, PACKAGE);</span>
+<span class="lineNum">     957 </span>            :       return EXIT_FAILURE;
+<span class="lineNum">     958 </span>            :    }
+<a name="959"><span class="lineNum">     959 </span>            : }</a>
 <span class="lineNum">     960 </span>            : 
-<span class="lineNum">     961 </span><span class="lineCov">        388 :    if (getenv(&quot;NVC_GDB&quot;) != NULL)</span>
-<span class="lineNum">     962 </span><span class="lineNoCov">          0 :       register_gdb_signal_handlers();</span>
-<span class="lineNum">     963 </span>            :    else
-<span class="lineNum">     964 </span><span class="lineCov">        388 :       register_trace_signal_handlers();</span>
-<span class="lineNum">     965 </span>            : 
-<span class="lineNum">     966 </span><span class="lineCov">        388 :    if (is_debugger_running())</span>
-<span class="lineNum">     967 </span><span class="lineNoCov">          0 :       atexit(tree_gc);</span>
-<span class="lineNum">     968 </span>            : 
-<span class="lineNum">     969 </span><span class="lineCov">        388 :    atexit(fbuf_cleanup);</span>
-<span class="lineNum">     970 </span>            : 
-<span class="lineNum">     971 </span>            :    static struct option long_options[] = {
-<span class="lineNum">     972 </span>            :       { &quot;help&quot;,        no_argument,       0, 'h' },
-<span class="lineNum">     973 </span>            :       { &quot;version&quot;,     no_argument,       0, 'v' },
-<span class="lineNum">     974 </span>            :       { &quot;work&quot;,        required_argument, 0, 'w' },
-<span class="lineNum">     975 </span>            :       { &quot;std&quot;,         required_argument, 0, 's' },
-<span class="lineNum">     976 </span>            :       { &quot;messages&quot;,    required_argument, 0, 'M' },
-<span class="lineNum">     977 </span>            :       { &quot;native&quot;,      no_argument,       0, 'n' },
-<span class="lineNum">     978 </span>            :       { &quot;map&quot;,         required_argument, 0, 'p' },
-<span class="lineNum">     979 </span>            :       { &quot;ignore-time&quot;, no_argument,       0, 'i' },
-<span class="lineNum">     980 </span>            :       { &quot;force-init&quot;,  no_argument,       0, 'f' },
-<span class="lineNum">     981 </span>            :       { 0, 0, 0, 0 }
-<span class="lineNum">     982 </span>            :    };
-<span class="lineNum">     983 </span>            : 
-<span class="lineNum">     984 </span><span class="lineCov">        388 :    opterr = 0;</span>
-<span class="lineNum">     985 </span>            : 
-<span class="lineNum">     986 </span><span class="lineCov">        388 :    const char *work_name = &quot;work&quot;;</span>
-<span class="lineNum">     987 </span><span class="lineCov">        388 :    const char *work_path = work_name;</span>
-<span class="lineNum">     988 </span><span class="lineCov">        388 :    lib_t work = NULL;</span>
+<span class="lineNum">     961 </span><span class="lineCov">        388 : int main(int argc, char **argv)</span>
+<span class="lineNum">     962 </span>            : {
+<span class="lineNum">     963 </span><span class="lineCov">        388 :    term_init();</span>
+<span class="lineNum">     964 </span><span class="lineCov">        388 :    set_default_opts();</span>
+<span class="lineNum">     965 </span><span class="lineCov">        388 :    intern_strings();</span>
+<span class="lineNum">     966 </span>            : 
+<span class="lineNum">     967 </span><span class="lineCov">        388 :    if (getenv(&quot;NVC_GDB&quot;) != NULL)</span>
+<span class="lineNum">     968 </span><span class="lineNoCov">          0 :       register_gdb_signal_handlers();</span>
+<span class="lineNum">     969 </span>            :    else
+<span class="lineNum">     970 </span><span class="lineCov">        388 :       register_trace_signal_handlers();</span>
+<span class="lineNum">     971 </span>            : 
+<span class="lineNum">     972 </span><span class="lineCov">        388 :    if (is_debugger_running())</span>
+<span class="lineNum">     973 </span><span class="lineNoCov">          0 :       atexit(tree_gc);</span>
+<span class="lineNum">     974 </span>            : 
+<span class="lineNum">     975 </span><span class="lineCov">        388 :    atexit(fbuf_cleanup);</span>
+<span class="lineNum">     976 </span>            : 
+<span class="lineNum">     977 </span>            :    static struct option long_options[] = {
+<span class="lineNum">     978 </span>            :       { &quot;help&quot;,        no_argument,       0, 'h' },
+<span class="lineNum">     979 </span>            :       { &quot;version&quot;,     no_argument,       0, 'v' },
+<span class="lineNum">     980 </span>            :       { &quot;work&quot;,        required_argument, 0, 'w' },
+<span class="lineNum">     981 </span>            :       { &quot;std&quot;,         required_argument, 0, 's' },
+<span class="lineNum">     982 </span>            :       { &quot;messages&quot;,    required_argument, 0, 'M' },
+<span class="lineNum">     983 </span>            :       { &quot;native&quot;,      no_argument,       0, 'n' },
+<span class="lineNum">     984 </span>            :       { &quot;map&quot;,         required_argument, 0, 'p' },
+<span class="lineNum">     985 </span>            :       { &quot;ignore-time&quot;, no_argument,       0, 'i' },
+<span class="lineNum">     986 </span>            :       { &quot;force-init&quot;,  no_argument,       0, 'f' },
+<span class="lineNum">     987 </span>            :       { 0, 0, 0, 0 }
+<span class="lineNum">     988 </span>            :    };
 <span class="lineNum">     989 </span>            : 
-<span class="lineNum">     990 </span><span class="lineCov">        388 :    const int next_cmd = scan_cmd(1, argc, argv);</span>
-<span class="lineNum">     991 </span><span class="lineCov">        388 :    int c, index = 0;</span>
-<span class="lineNum">     992 </span><span class="lineCov">        388 :    const char *spec = &quot;aehrvL:&quot;;</span>
-<span class="lineNum">     993 </span><span class="lineCov">        897 :    while ((c = getopt_long(next_cmd, argv, spec, long_options, &amp;index)) != -1) {</span>
-<span class="lineNum">     994 </span><span class="lineCov">        121 :       switch (c) {</span>
-<span class="lineNum">     995 </span>            :       case 0:
-<span class="lineNum">     996 </span>            :          // Set a flag
-<span class="lineNum">     997 </span>            :          break;
-<span class="lineNum">     998 </span>            :       case 'h':
-<span class="lineNum">     999 </span><span class="lineNoCov">          0 :          usage();</span>
-<span class="lineNum">    1000 </span><span class="lineNoCov">          0 :          exit(EXIT_SUCCESS);</span>
-<span class="lineNum">    1001 </span>            :       case 'v':
-<span class="lineNum">    1002 </span><span class="lineNoCov">          0 :          printf(&quot;%s\n%s\n&quot;, version_string, copy_string);</span>
-<span class="lineNum">    1003 </span><span class="lineNoCov">          0 :          exit(EXIT_SUCCESS);</span>
-<span class="lineNum">    1004 </span>            :       case 'w':
-<span class="lineNum">    1005 </span><span class="lineCov">         27 :          parse_work_name(optarg, &amp;work_name, &amp;work_path);</span>
-<span class="lineNum">    1006 </span><span class="lineCov">         27 :          break;</span>
-<span class="lineNum">    1007 </span>            :       case 'L':
-<span class="lineNum">    1008 </span><span class="lineCov">         22 :          lib_add_search_path(optarg);</span>
-<span class="lineNum">    1009 </span><span class="lineCov">         22 :          break;</span>
-<span class="lineNum">    1010 </span>            :       case 's':
-<span class="lineNum">    1011 </span><span class="lineCov">         18 :          set_standard(parse_standard(optarg));</span>
-<span class="lineNum">    1012 </span><span class="lineCov">         18 :          break;</span>
-<span class="lineNum">    1013 </span>            :       case 'M':
-<span class="lineNum">    1014 </span><span class="lineNoCov">          0 :          set_message_style(parse_message_style(optarg));</span>
-<span class="lineNum">    1015 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">    1016 </span>            :       case 'p':
-<span class="lineNum">    1017 </span><span class="lineNoCov">          0 :          parse_library_map(optarg);</span>
-<span class="lineNum">    1018 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">    1019 </span>            :       case 'i':
-<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;ignore-time&quot;, 1);</span>
+<span class="lineNum">     990 </span><span class="lineCov">        388 :    opterr = 0;</span>
+<span class="lineNum">     991 </span>            : 
+<span class="lineNum">     992 </span><span class="lineCov">        388 :    const char *work_name = &quot;work&quot;;</span>
+<span class="lineNum">     993 </span><span class="lineCov">        388 :    const char *work_path = work_name;</span>
+<span class="lineNum">     994 </span><span class="lineCov">        388 :    lib_t work = NULL;</span>
+<span class="lineNum">     995 </span>            : 
+<span class="lineNum">     996 </span><span class="lineCov">        388 :    const int next_cmd = scan_cmd(1, argc, argv);</span>
+<span class="lineNum">     997 </span><span class="lineCov">        388 :    int c, index = 0;</span>
+<span class="lineNum">     998 </span><span class="lineCov">        388 :    const char *spec = &quot;aehrvL:&quot;;</span>
+<span class="lineNum">     999 </span><span class="lineCov">        897 :    while ((c = getopt_long(next_cmd, argv, spec, long_options, &amp;index)) != -1) {</span>
+<span class="lineNum">    1000 </span><span class="lineCov">        121 :       switch (c) {</span>
+<span class="lineNum">    1001 </span>            :       case 0:
+<span class="lineNum">    1002 </span>            :          // Set a flag
+<span class="lineNum">    1003 </span>            :          break;
+<span class="lineNum">    1004 </span>            :       case 'h':
+<span class="lineNum">    1005 </span><span class="lineNoCov">          0 :          usage();</span>
+<span class="lineNum">    1006 </span><span class="lineNoCov">          0 :          exit(EXIT_SUCCESS);</span>
+<span class="lineNum">    1007 </span>            :       case 'v':
+<span class="lineNum">    1008 </span><span class="lineNoCov">          0 :          printf(&quot;%s\n%s\n&quot;, version_string, copy_string);</span>
+<span class="lineNum">    1009 </span><span class="lineNoCov">          0 :          exit(EXIT_SUCCESS);</span>
+<span class="lineNum">    1010 </span>            :       case 'w':
+<span class="lineNum">    1011 </span><span class="lineCov">         27 :          parse_work_name(optarg, &amp;work_name, &amp;work_path);</span>
+<span class="lineNum">    1012 </span><span class="lineCov">         27 :          break;</span>
+<span class="lineNum">    1013 </span>            :       case 'L':
+<span class="lineNum">    1014 </span><span class="lineCov">         22 :          lib_add_search_path(optarg);</span>
+<span class="lineNum">    1015 </span><span class="lineCov">         22 :          break;</span>
+<span class="lineNum">    1016 </span>            :       case 's':
+<span class="lineNum">    1017 </span><span class="lineCov">         18 :          set_standard(parse_standard(optarg));</span>
+<span class="lineNum">    1018 </span><span class="lineCov">         18 :          break;</span>
+<span class="lineNum">    1019 </span>            :       case 'M':
+<span class="lineNum">    1020 </span><span class="lineNoCov">          0 :          set_message_style(parse_message_style(optarg));</span>
 <span class="lineNum">    1021 </span><span class="lineNoCov">          0 :          break;</span>
-<span class="lineNum">    1022 </span>            :       case 'f':
-<span class="lineNum">    1023 </span><span class="lineCov">         27 :          opt_set_int(&quot;force-init&quot;, 1);</span>
-<span class="lineNum">    1024 </span><span class="lineCov">         27 :          break;</span>
-<span class="lineNum">    1025 </span>            :       case 'n':
-<span class="lineNum">    1026 </span><span class="lineCov">         27 :          opt_set_int(&quot;native&quot;, 1);</span>
-<span class="lineNum">    1027 </span><span class="lineCov">         27 :          break;</span>
-<span class="lineNum">    1028 </span>            :       case '?':
-<span class="lineNum">    1029 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised global option %s&quot;, argv[optind - 1]);</span>
-<span class="lineNum">    1030 </span>            :       default:
-<span class="lineNum">    1031 </span><span class="lineNoCov">          0 :          abort();</span>
-<span class="lineNum">    1032 </span>            :       }
-<span class="lineNum">    1033 </span>            :    }
-<span class="lineNum">    1034 </span>            : 
-<span class="lineNum">    1035 </span><span class="lineCov">        388 :    work = lib_new(work_name, work_path);</span>
-<span class="lineNum">    1036 </span><span class="lineCov">        388 :    lib_set_work(work);</span>
-<span class="lineNum">    1037 </span>            : 
-<span class="lineNum">    1038 </span><span class="lineCov">        388 :    argc -= next_cmd - 1;</span>
-<span class="lineNum">    1039 </span><span class="lineCov">        388 :    argv += next_cmd - 1;</span>
+<span class="lineNum">    1022 </span>            :       case 'p':
+<span class="lineNum">    1023 </span><span class="lineNoCov">          0 :          parse_library_map(optarg);</span>
+<span class="lineNum">    1024 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">    1025 </span>            :       case 'i':
+<span class="lineNum">    1026 </span><span class="lineNoCov">          0 :          opt_set_int(&quot;ignore-time&quot;, 1);</span>
+<span class="lineNum">    1027 </span><span class="lineNoCov">          0 :          break;</span>
+<span class="lineNum">    1028 </span>            :       case 'f':
+<span class="lineNum">    1029 </span><span class="lineCov">         27 :          opt_set_int(&quot;force-init&quot;, 1);</span>
+<span class="lineNum">    1030 </span><span class="lineCov">         27 :          break;</span>
+<span class="lineNum">    1031 </span>            :       case 'n':
+<span class="lineNum">    1032 </span><span class="lineCov">         27 :          opt_set_int(&quot;native&quot;, 1);</span>
+<span class="lineNum">    1033 </span><span class="lineCov">         27 :          break;</span>
+<span class="lineNum">    1034 </span>            :       case '?':
+<span class="lineNum">    1035 </span><span class="lineNoCov">          0 :          fatal(&quot;unrecognised global option %s&quot;, argv[optind - 1]);</span>
+<span class="lineNum">    1036 </span>            :       default:
+<span class="lineNum">    1037 </span><span class="lineNoCov">          0 :          abort();</span>
+<span class="lineNum">    1038 </span>            :       }
+<span class="lineNum">    1039 </span>            :    }
 <span class="lineNum">    1040 </span>            : 
-<span class="lineNum">    1041 </span><span class="lineCov">        388 :    return process_command(argc, argv);</span>
-<span class="lineNum">    1042 </span>            : }
+<span class="lineNum">    1041 </span><span class="lineCov">        388 :    work = lib_new(work_name, work_path);</span>
+<span class="lineNum">    1042 </span><span class="lineCov">        388 :    lib_set_work(work);</span>
+<span class="lineNum">    1043 </span>            : 
+<span class="lineNum">    1044 </span><span class="lineCov">        388 :    argc -= next_cmd - 1;</span>
+<span class="lineNum">    1045 </span><span class="lineCov">        388 :    argv += next_cmd - 1;</span>
+<span class="lineNum">    1046 </span>            : 
+<span class="lineNum">    1047 </span><span class="lineCov">        388 :    return process_command(argc, argv);</span>
+<span class="lineNum">    1048 </span>            : }
 </pre>
       </td>
     </tr>
