@@ -1,0 +1,177 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - nvc.info - src/rt/bitmap.h</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">src/rt</a> - bitmap.h<span style="font-size: 80%;"> (source / <a href="bitmap.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">nvc.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntryHi">94.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2017-12-22</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryMed">88.9 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>            : //</a>
+<span class="lineNum">       2 </span>            : //  Copyright (C) 2017  Nick Gasson
+<span class="lineNum">       3 </span>            : //
+<span class="lineNum">       4 </span>            : //  This program is free software: you can redistribute it and/or modify
+<span class="lineNum">       5 </span>            : //  it under the terms of the GNU General Public License as published by
+<span class="lineNum">       6 </span>            : //  the Free Software Foundation, either version 3 of the License, or
+<span class="lineNum">       7 </span>            : //  (at your option) any later version.
+<span class="lineNum">       8 </span>            : //
+<span class="lineNum">       9 </span>            : //  This program is distributed in the hope that it will be useful,
+<span class="lineNum">      10 </span>            : //  but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      11 </span>            : //  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      12 </span>            : //  GNU General Public License for more details.
+<span class="lineNum">      13 </span>            : //
+<span class="lineNum">      14 </span>            : //  You should have received a copy of the GNU General Public License
+<span class="lineNum">      15 </span>            : //  along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+<span class="lineNum">      16 </span>            : //
+<span class="lineNum">      17 </span>            : 
+<span class="lineNum">      18 </span>            : #ifndef _RT_BITMAP_H
+<span class="lineNum">      19 </span>            : #define _RT_BITMAP_H
+<span class="lineNum">      20 </span>            : 
+<span class="lineNum">      21 </span>            : #include &quot;util.h&quot;
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span>            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      24 </span>            : #include &lt;string.h&gt;
+<span class="lineNum">      25 </span>            : 
+<span class="lineNum">      26 </span>            : #define BITMAP_WORDS(s) (((s) + 63) &gt;&gt; 6)
+<span class="lineNum">      27 </span>            : 
+<span class="lineNum">      28 </span>            : typedef struct {
+<span class="lineNum">      29 </span>            :    size_t   size;
+<span class="lineNum">      30 </span>            :    uint64_t data[0];
+<a name="31"><span class="lineNum">      31 </span>            : } bitmap_t;</a>
+<span class="lineNum">      32 </span>            : 
+<span class="lineNum">      33 </span><span class="lineCov">       1289 : static inline bitmap_t *bitmap_new(size_t size)</span>
+<span class="lineNum">      34 </span>            : {
+<span class="lineNum">      35 </span><span class="lineCov">       1289 :    bitmap_t *b = xcalloc(sizeof(bitmap_t) + 8 * BITMAP_WORDS(size));</span>
+<span class="lineNum">      36 </span><span class="lineCov">       1289 :    b-&gt;size = size;</span>
+<span class="lineNum">      37 </span><span class="lineCov">       1289 :    return b;</span>
+<a name="38"><span class="lineNum">      38 </span>            : }</a>
+<span class="lineNum">      39 </span>            : 
+<span class="lineNum">      40 </span><span class="lineCov">       1992 : static inline void bitmap_free(bitmap_t *b)</span>
+<span class="lineNum">      41 </span>            : {
+<span class="lineNum">      42 </span><span class="lineCov">       1992 :    free(b);</span>
+<a name="43"><span class="lineNum">      43 </span><span class="lineCov">       1992 : }</span></a>
+<span class="lineNum">      44 </span>            : 
+<span class="lineNum">      45 </span><span class="lineCov">       7061 : static inline void bitmap_zero(bitmap_t *b)</span>
+<span class="lineNum">      46 </span>            : {
+<span class="lineNum">      47 </span><span class="lineCov">       7061 :    const size_t nwords = BITMAP_WORDS(b-&gt;size);</span>
+<span class="lineNum">      48 </span><span class="lineCov">       7061 :    if (nwords == 1)</span>
+<span class="lineNum">      49 </span><span class="lineCov">       7045 :       b-&gt;data[0] = 0;</span>
+<span class="lineNum">      50 </span>            :    else
+<span class="lineNum">      51 </span><span class="lineCov">         16 :       memset(b-&gt;data, '\0', 8 * nwords);</span>
+<a name="52"><span class="lineNum">      52 </span><span class="lineCov">       7061 : }</span></a>
+<span class="lineNum">      53 </span>            : 
+<span class="lineNum">      54 </span><span class="lineCov">       1527 : static inline void bitmap_set(bitmap_t *b, unsigned bit)</span>
+<span class="lineNum">      55 </span>            : {
+<span class="lineNum">      56 </span><span class="lineCov">       1527 :    b-&gt;data[bit &gt;&gt; 6] |= UINT64_C(1) &lt;&lt; (bit &amp; 63);</span>
+<a name="57"><span class="lineNum">      57 </span><span class="lineCov">       1527 : }</span></a>
+<span class="lineNum">      58 </span>            : 
+<span class="lineNum">      59 </span><span class="lineCov">        142 : static inline void bitmap_clear(bitmap_t *b, unsigned bit)</span>
+<span class="lineNum">      60 </span>            : {
+<span class="lineNum">      61 </span><span class="lineCov">        142 :    b-&gt;data[bit &gt;&gt; 6] &amp;= ~(UINT64_C(1) &lt;&lt; (bit &amp; 63));</span>
+<a name="62"><span class="lineNum">      62 </span><span class="lineCov">        142 : }</span></a>
+<span class="lineNum">      63 </span>            : 
+<span class="lineNum">      64 </span><span class="lineNoCov">          0 : static inline bool bitmap_isset(const bitmap_t *b, unsigned bit)</span>
+<span class="lineNum">      65 </span>            : {
+<span class="lineNum">      66 </span><span class="lineNoCov">          0 :    return !!(b-&gt;data[bit &gt;&gt; 6] &amp; (UINT64_C(1) &lt;&lt; (bit &amp; 63)));</span>
+<a name="67"><span class="lineNum">      67 </span>            : }</a>
+<span class="lineNum">      68 </span>            : 
+<span class="lineNum">      69 </span><span class="lineCov">       2539 : static inline void bitmap_or(bitmap_t *dst, const bitmap_t *src)</span>
+<span class="lineNum">      70 </span>            : {
+<span class="lineNum">      71 </span><span class="lineCov">       5124 :    for (size_t i = 0; i &lt; BITMAP_WORDS(dst-&gt;size); i++)</span>
+<span class="lineNum">      72 </span><span class="lineCov">       2585 :       dst-&gt;data[i] |= src-&gt;data[i];</span>
+<a name="73"><span class="lineNum">      73 </span><span class="lineCov">       2539 : }</span></a>
+<span class="lineNum">      74 </span>            : 
+<span class="lineNum">      75 </span><span class="lineCov">        193 : static inline void bitmap_move(bitmap_t *dst, bitmap_t *src)</span>
+<span class="lineNum">      76 </span>            : {
+<span class="lineNum">      77 </span><span class="lineCov">        386 :    for (size_t i = 0; i &lt; BITMAP_WORDS(dst-&gt;size); i++) {</span>
+<span class="lineNum">      78 </span><span class="lineCov">        193 :       dst-&gt;data[i] |= src-&gt;data[i];</span>
+<span class="lineNum">      79 </span><span class="lineCov">        193 :       src-&gt;data[i] = 0;</span>
+<span class="lineNum">      80 </span>            :    };
+<a name="81"><span class="lineNum">      81 </span><span class="lineCov">        193 : }</span></a>
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span><span class="lineCov">      10907 : static inline int bitmap_next_set(const bitmap_t *b, unsigned from)</span>
+<span class="lineNum">      84 </span>            : {
+<span class="lineNum">      85 </span><span class="lineCov">      28626 :    while (from &lt; b-&gt;size) {</span>
+<span class="lineNum">      86 </span><span class="lineCov">      10658 :       const int word = from &gt;&gt; 6;</span>
+<span class="lineNum">      87 </span><span class="lineCov">      10658 :       const int bit = from &amp; 63;</span>
+<span class="lineNum">      88 </span><span class="lineCov">      10658 :       const uint64_t masked = b-&gt;data[word] &amp; ~((UINT64_C(1) &lt;&lt; bit) - 1);</span>
+<span class="lineNum">      89 </span>            : 
+<span class="lineNum">      90 </span><span class="lineCov">      10658 :       if (masked != 0) {</span>
+<span class="lineNum">      91 </span><span class="lineCov">       3846 :          const int ctz = __builtin_ctzll(masked);</span>
+<span class="lineNum">      92 </span><span class="lineCov">       3846 :          return (from &amp; ~63) + ctz;</span>
+<span class="lineNum">      93 </span>            :       }
+<span class="lineNum">      94 </span>            : 
+<span class="lineNum">      95 </span><span class="lineCov">       6812 :       from = (from + 64) &amp; ~63;</span>
+<span class="lineNum">      96 </span>            :    }
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span>            :    return -1;
+<span class="lineNum">      99 </span>            : }
+<span class="lineNum">     100 </span>            : 
+<span class="lineNum">     101 </span>            : #endif  // _RT_BITMAP_H
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.10</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
