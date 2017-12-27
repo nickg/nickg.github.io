@@ -142,200 +142,200 @@
 <span class="lineNum">      80 </span>            : 
 <a name="81"><span class="lineNum">      81 </span>            : static const char *lib_file_path(lib_t lib, const char *name);</a>
 <span class="lineNum">      82 </span>            : 
-<span class="lineNum">      83 </span><span class="lineCov">       1067 : static const char *standard_suffix(vhdl_standard_t std)</span>
+<span class="lineNum">      83 </span><span class="lineCov">       1068 : static const char *standard_suffix(vhdl_standard_t std)</span>
 <span class="lineNum">      84 </span>            : {
 <span class="lineNum">      85 </span>            :    static const char *ext[] = {
 <span class="lineNum">      86 </span>            :       &quot;87&quot;, &quot;93&quot;, &quot;00&quot;, &quot;02&quot;, &quot;08&quot;
 <span class="lineNum">      87 </span>            :    };
 <span class="lineNum">      88 </span>            : 
-<span class="lineNum">      89 </span><span class="lineCov">       1067 :    assert(std &lt; ARRAY_LEN(ext));</span>
-<span class="lineNum">      90 </span><span class="lineCov">       1067 :    return ext[std];</span>
+<span class="lineNum">      89 </span><span class="lineCov">       1068 :    assert(std &lt; ARRAY_LEN(ext));</span>
+<span class="lineNum">      90 </span><span class="lineCov">       1068 :    return ext[std];</span>
 <a name="91"><span class="lineNum">      91 </span>            : }</a>
 <span class="lineNum">      92 </span>            : 
-<span class="lineNum">      93 </span><span class="lineCov">       1697 : static ident_t upcase_name(const char * name)</span>
+<span class="lineNum">      93 </span><span class="lineCov">       1699 : static ident_t upcase_name(const char * name)</span>
 <span class="lineNum">      94 </span>            : {
-<span class="lineNum">      95 </span><span class="lineCov">       3394 :    char *name_copy LOCAL = xstrdup(name);</span>
+<span class="lineNum">      95 </span><span class="lineCov">       3398 :    char *name_copy LOCAL = xstrdup(name);</span>
 <span class="lineNum">      96 </span>            : 
-<span class="lineNum">      97 </span><span class="lineCov">       1697 :    char *last_slash = strrchr(name_copy, '/');</span>
-<span class="lineNum">      98 </span><span class="lineCov">       3394 :    while ((last_slash != NULL) &amp;&amp; (*(last_slash + 1) == '\0')) {</span>
+<span class="lineNum">      97 </span><span class="lineCov">       1699 :    char *last_slash = strrchr(name_copy, '/');</span>
+<span class="lineNum">      98 </span><span class="lineCov">       3398 :    while ((last_slash != NULL) &amp;&amp; (*(last_slash + 1) == '\0')) {</span>
 <span class="lineNum">      99 </span><span class="lineNoCov">          0 :       *last_slash = '\0';</span>
 <span class="lineNum">     100 </span><span class="lineNoCov">          0 :       last_slash = strrchr(name_copy, '/');</span>
 <span class="lineNum">     101 </span>            :    }
 <span class="lineNum">     102 </span>            : 
-<span class="lineNum">     103 </span><span class="lineCov">       1697 :    char *name_up = (last_slash != NULL) ? last_slash + 1 : name_copy;</span>
-<span class="lineNum">     104 </span><span class="lineCov">       7929 :    for (char *p = name_up; *p != '\0'; p++)</span>
-<span class="lineNum">     105 </span><span class="lineCov">       6232 :       *p = toupper((int)*p);</span>
+<span class="lineNum">     103 </span><span class="lineCov">       1699 :    char *name_up = (last_slash != NULL) ? last_slash + 1 : name_copy;</span>
+<span class="lineNum">     104 </span><span class="lineCov">       7938 :    for (char *p = name_up; *p != '\0'; p++)</span>
+<span class="lineNum">     105 </span><span class="lineCov">       6239 :       *p = toupper((int)*p);</span>
 <span class="lineNum">     106 </span>            : 
-<span class="lineNum">     107 </span><span class="lineCov">       1697 :    char *last_dot = strrchr(name_up, '.');</span>
-<span class="lineNum">     108 </span><span class="lineCov">       1697 :    if (last_dot != NULL)</span>
+<span class="lineNum">     107 </span><span class="lineCov">       1699 :    char *last_dot = strrchr(name_up, '.');</span>
+<span class="lineNum">     108 </span><span class="lineCov">       1699 :    if (last_dot != NULL)</span>
 <span class="lineNum">     109 </span><span class="lineCov">          6 :       *last_dot = '\0';</span>
 <span class="lineNum">     110 </span>            : 
-<span class="lineNum">     111 </span><span class="lineCov">       1697 :    ident_t i = ident_new(name_up);</span>
-<span class="lineNum">     112 </span><span class="lineCov">       1697 :    return i;</span>
+<span class="lineNum">     111 </span><span class="lineCov">       1699 :    ident_t i = ident_new(name_up);</span>
+<span class="lineNum">     112 </span><span class="lineCov">       1699 :    return i;</span>
 <a name="113"><span class="lineNum">     113 </span>            : }</a>
 <span class="lineNum">     114 </span>            : 
-<span class="lineNum">     115 </span><span class="lineCov">       1306 : static lib_t lib_init(const char *name, const char *rpath, int lock_fd)</span>
+<span class="lineNum">     115 </span><span class="lineCov">       1308 : static lib_t lib_init(const char *name, const char *rpath, int lock_fd)</span>
 <span class="lineNum">     116 </span>            : {
-<span class="lineNum">     117 </span><span class="lineCov">       1306 :    struct lib *l = xmalloc(sizeof(struct lib));</span>
-<span class="lineNum">     118 </span><span class="lineCov">       1306 :    l-&gt;n_units = 0;</span>
-<span class="lineNum">     119 </span><span class="lineCov">       1306 :    l-&gt;units   = NULL;</span>
-<span class="lineNum">     120 </span><span class="lineCov">       1306 :    l-&gt;name    = upcase_name(name);</span>
-<span class="lineNum">     121 </span><span class="lineCov">       1306 :    l-&gt;index   = NULL;</span>
-<span class="lineNum">     122 </span><span class="lineCov">       1306 :    l-&gt;lock_fd = lock_fd;</span>
+<span class="lineNum">     117 </span><span class="lineCov">       1308 :    struct lib *l = xmalloc(sizeof(struct lib));</span>
+<span class="lineNum">     118 </span><span class="lineCov">       1308 :    l-&gt;n_units = 0;</span>
+<span class="lineNum">     119 </span><span class="lineCov">       1308 :    l-&gt;units   = NULL;</span>
+<span class="lineNum">     120 </span><span class="lineCov">       1308 :    l-&gt;name    = upcase_name(name);</span>
+<span class="lineNum">     121 </span><span class="lineCov">       1308 :    l-&gt;index   = NULL;</span>
+<span class="lineNum">     122 </span><span class="lineCov">       1308 :    l-&gt;lock_fd = lock_fd;</span>
 <span class="lineNum">     123 </span>            : 
-<span class="lineNum">     124 </span><span class="lineCov">       1306 :    if (rpath == NULL)</span>
-<span class="lineNum">     125 </span><span class="lineCov">        294 :       l-&gt;path[0] = '\0';</span>
-<span class="lineNum">     126 </span><span class="lineCov">       2024 :    else if (realpath(rpath, l-&gt;path) == NULL)</span>
+<span class="lineNum">     124 </span><span class="lineCov">       1308 :    if (rpath == NULL)</span>
+<span class="lineNum">     125 </span><span class="lineCov">        295 :       l-&gt;path[0] = '\0';</span>
+<span class="lineNum">     126 </span><span class="lineCov">       2026 :    else if (realpath(rpath, l-&gt;path) == NULL)</span>
 <span class="lineNum">     127 </span><span class="lineNoCov">          0 :       strncpy(l-&gt;path, rpath, PATH_MAX);</span>
 <span class="lineNum">     128 </span>            : 
-<span class="lineNum">     129 </span><span class="lineCov">       1306 :    lib_list_t *el = xmalloc(sizeof(lib_list_t));</span>
-<span class="lineNum">     130 </span><span class="lineCov">       1306 :    el-&gt;item = l;</span>
-<span class="lineNum">     131 </span><span class="lineCov">       1306 :    el-&gt;next = loaded;</span>
-<span class="lineNum">     132 </span><span class="lineCov">       1306 :    loaded = el;</span>
+<span class="lineNum">     129 </span><span class="lineCov">       1308 :    lib_list_t *el = xmalloc(sizeof(lib_list_t));</span>
+<span class="lineNum">     130 </span><span class="lineCov">       1308 :    el-&gt;item = l;</span>
+<span class="lineNum">     131 </span><span class="lineCov">       1308 :    el-&gt;next = loaded;</span>
+<span class="lineNum">     132 </span><span class="lineCov">       1308 :    loaded = el;</span>
 <span class="lineNum">     133 </span>            : 
-<span class="lineNum">     134 </span><span class="lineCov">       1306 :    if (l-&gt;lock_fd == -1 &amp;&amp; rpath != NULL) {</span>
-<span class="lineNum">     135 </span><span class="lineCov">        664 :       const char *lock_path = lib_file_path(l, &quot;_NVC_LIB&quot;);</span>
-<span class="lineNum">     136 </span><span class="lineCov">        664 :       if ((l-&gt;lock_fd = open(lock_path, O_RDONLY)) &lt; 0)</span>
+<span class="lineNum">     134 </span><span class="lineCov">       1308 :    if (l-&gt;lock_fd == -1 &amp;&amp; rpath != NULL) {</span>
+<span class="lineNum">     135 </span><span class="lineCov">        665 :       const char *lock_path = lib_file_path(l, &quot;_NVC_LIB&quot;);</span>
+<span class="lineNum">     136 </span><span class="lineCov">        665 :       if ((l-&gt;lock_fd = open(lock_path, O_RDONLY)) &lt; 0)</span>
 <span class="lineNum">     137 </span><span class="lineNoCov">          0 :          fatal_errno(&quot;lib_init: %s&quot;, lock_path);</span>
 <span class="lineNum">     138 </span>            : 
-<span class="lineNum">     139 </span><span class="lineCov">        664 :       file_read_lock(l-&gt;lock_fd);</span>
+<span class="lineNum">     139 </span><span class="lineCov">        665 :       file_read_lock(l-&gt;lock_fd);</span>
 <span class="lineNum">     140 </span>            :    }
 <span class="lineNum">     141 </span>            : 
-<span class="lineNum">     142 </span><span class="lineCov">       1306 :    fbuf_t *f = lib_fbuf_open(l, &quot;_index&quot;, FBUF_IN);</span>
-<span class="lineNum">     143 </span><span class="lineCov">       1306 :    if (f != NULL) {</span>
-<span class="lineNum">     144 </span><span class="lineCov">        663 :       ident_rd_ctx_t ictx = ident_read_begin(f);</span>
+<span class="lineNum">     142 </span><span class="lineCov">       1308 :    fbuf_t *f = lib_fbuf_open(l, &quot;_index&quot;, FBUF_IN);</span>
+<span class="lineNum">     143 </span><span class="lineCov">       1308 :    if (f != NULL) {</span>
+<span class="lineNum">     144 </span><span class="lineCov">        664 :       ident_rd_ctx_t ictx = ident_read_begin(f);</span>
 <span class="lineNum">     145 </span>            : 
-<span class="lineNum">     146 </span><span class="lineCov">        663 :       const int entries = read_u32(f);</span>
-<span class="lineNum">     147 </span><span class="lineCov">       3245 :       for (int i = 0; i &lt; entries; i++) {</span>
-<span class="lineNum">     148 </span><span class="lineCov">       2582 :          ident_t name = ident_read(ictx);</span>
-<span class="lineNum">     149 </span><span class="lineCov">       2582 :          tree_kind_t kind = read_u16(f);</span>
-<span class="lineNum">     150 </span><span class="lineCov">       2582 :          assert(kind &lt; T_LAST_TREE_KIND);</span>
+<span class="lineNum">     146 </span><span class="lineCov">        664 :       const int entries = read_u32(f);</span>
+<span class="lineNum">     147 </span><span class="lineCov">       3249 :       for (int i = 0; i &lt; entries; i++) {</span>
+<span class="lineNum">     148 </span><span class="lineCov">       2585 :          ident_t name = ident_read(ictx);</span>
+<span class="lineNum">     149 </span><span class="lineCov">       2585 :          tree_kind_t kind = read_u16(f);</span>
+<span class="lineNum">     150 </span><span class="lineCov">       2585 :          assert(kind &lt; T_LAST_TREE_KIND);</span>
 <span class="lineNum">     151 </span>            : 
-<span class="lineNum">     152 </span><span class="lineCov">       2582 :          lib_index_t *in = xmalloc(sizeof(lib_index_t));</span>
-<span class="lineNum">     153 </span><span class="lineCov">       2582 :          in-&gt;name = name;</span>
-<span class="lineNum">     154 </span><span class="lineCov">       2582 :          in-&gt;kind = kind;</span>
-<span class="lineNum">     155 </span><span class="lineCov">       2582 :          in-&gt;next = l-&gt;index;</span>
+<span class="lineNum">     152 </span><span class="lineCov">       2585 :          lib_index_t *in = xmalloc(sizeof(lib_index_t));</span>
+<span class="lineNum">     153 </span><span class="lineCov">       2585 :          in-&gt;name = name;</span>
+<span class="lineNum">     154 </span><span class="lineCov">       2585 :          in-&gt;kind = kind;</span>
+<span class="lineNum">     155 </span><span class="lineCov">       2585 :          in-&gt;next = l-&gt;index;</span>
 <span class="lineNum">     156 </span>            : 
-<span class="lineNum">     157 </span><span class="lineCov">       2582 :          l-&gt;index = in;</span>
+<span class="lineNum">     157 </span><span class="lineCov">       2585 :          l-&gt;index = in;</span>
 <span class="lineNum">     158 </span>            :       }
 <span class="lineNum">     159 </span>            : 
-<span class="lineNum">     160 </span><span class="lineCov">        663 :       ident_read_end(ictx);</span>
-<span class="lineNum">     161 </span><span class="lineCov">        663 :       fbuf_close(f);</span>
+<span class="lineNum">     160 </span><span class="lineCov">        664 :       ident_read_end(ictx);</span>
+<span class="lineNum">     161 </span><span class="lineCov">        664 :       fbuf_close(f);</span>
 <span class="lineNum">     162 </span>            :    }
 <span class="lineNum">     163 </span>            : 
-<span class="lineNum">     164 </span><span class="lineCov">       1306 :    if (l-&gt;lock_fd != -1)</span>
-<span class="lineNum">     165 </span><span class="lineCov">       1012 :       file_unlock(l-&gt;lock_fd);</span>
+<span class="lineNum">     164 </span><span class="lineCov">       1308 :    if (l-&gt;lock_fd != -1)</span>
+<span class="lineNum">     165 </span><span class="lineCov">       1013 :       file_unlock(l-&gt;lock_fd);</span>
 <span class="lineNum">     166 </span>            : 
-<span class="lineNum">     167 </span><span class="lineCov">       1306 :    return l;</span>
+<span class="lineNum">     167 </span><span class="lineCov">       1308 :    return l;</span>
 <a name="168"><span class="lineNum">     168 </span>            : }</a>
 <span class="lineNum">     169 </span>            : 
-<span class="lineNum">     170 </span><span class="lineCov">       2963 : static lib_index_t *lib_find_in_index(lib_t lib, ident_t name)</span>
+<span class="lineNum">     170 </span><span class="lineCov">       2967 : static lib_index_t *lib_find_in_index(lib_t lib, ident_t name)</span>
 <span class="lineNum">     171 </span>            : {
 <span class="lineNum">     172 </span>            :    lib_index_t *it;
-<span class="lineNum">     173 </span><span class="lineCov">      10885 :    for (it = lib-&gt;index;</span>
-<span class="lineNum">     174 </span><span class="lineCov">       5830 :         (it != NULL) &amp;&amp; (it-&gt;name != name);</span>
-<span class="lineNum">     175 </span><span class="lineCov">       4959 :         it = it-&gt;next)</span>
+<span class="lineNum">     173 </span><span class="lineCov">      10896 :    for (it = lib-&gt;index;</span>
+<span class="lineNum">     174 </span><span class="lineCov">       5834 :         (it != NULL) &amp;&amp; (it-&gt;name != name);</span>
+<span class="lineNum">     175 </span><span class="lineCov">       4962 :         it = it-&gt;next)</span>
 <span class="lineNum">     176 </span>            :       ;
 <span class="lineNum">     177 </span>            : 
-<span class="lineNum">     178 </span><span class="lineCov">       2963 :    return it;</span>
+<span class="lineNum">     178 </span><span class="lineCov">       2967 :    return it;</span>
 <a name="179"><span class="lineNum">     179 </span>            : }</a>
 <span class="lineNum">     180 </span>            : 
-<span class="lineNum">     181 </span><span class="lineCov">       5892 : static lib_unit_t *lib_put_aux(lib_t lib, tree_t unit,</span>
+<span class="lineNum">     181 </span><span class="lineCov">       5900 : static lib_unit_t *lib_put_aux(lib_t lib, tree_t unit,</span>
 <span class="lineNum">     182 </span>            :                                tree_rd_ctx_t ctx, bool dirty,
 <span class="lineNum">     183 </span>            :                                lib_mtime_t mtime)
 <span class="lineNum">     184 </span>            : {
-<span class="lineNum">     185 </span><span class="lineCov">       2946 :    assert(lib != NULL);</span>
-<span class="lineNum">     186 </span><span class="lineCov">       2946 :    assert(unit != NULL);</span>
+<span class="lineNum">     185 </span><span class="lineCov">       2950 :    assert(lib != NULL);</span>
+<span class="lineNum">     186 </span><span class="lineCov">       2950 :    assert(unit != NULL);</span>
 <span class="lineNum">     187 </span>            : 
-<span class="lineNum">     188 </span><span class="lineCov">       2946 :    lib_unit_t *where = NULL;</span>
-<span class="lineNum">     189 </span><span class="lineCov">       2946 :    ident_t name = tree_ident(unit);</span>
+<span class="lineNum">     188 </span><span class="lineCov">       2950 :    lib_unit_t *where = NULL;</span>
+<span class="lineNum">     189 </span><span class="lineCov">       2950 :    ident_t name = tree_ident(unit);</span>
 <span class="lineNum">     190 </span>            : 
-<span class="lineNum">     191 </span><span class="lineCov">       6698 :    for (unsigned i = 0; (where == NULL) &amp;&amp; (i &lt; lib-&gt;n_units); i++) {</span>
-<span class="lineNum">     192 </span><span class="lineCov">       3752 :       if (tree_ident(lib-&gt;units[i].top) == tree_ident(unit))</span>
+<span class="lineNum">     191 </span><span class="lineCov">       6705 :    for (unsigned i = 0; (where == NULL) &amp;&amp; (i &lt; lib-&gt;n_units); i++) {</span>
+<span class="lineNum">     192 </span><span class="lineCov">       3755 :       if (tree_ident(lib-&gt;units[i].top) == tree_ident(unit))</span>
 <span class="lineNum">     193 </span><span class="lineCov">         96 :          where = &amp;(lib-&gt;units[i]);</span>
 <span class="lineNum">     194 </span>            :    }
 <span class="lineNum">     195 </span>            : 
-<span class="lineNum">     196 </span><span class="lineCov">       2946 :    if (where == NULL) {</span>
-<span class="lineNum">     197 </span><span class="lineCov">       2850 :       if (lib-&gt;n_units == 0) {</span>
-<span class="lineNum">     198 </span><span class="lineCov">       1250 :          lib-&gt;units_alloc = 16;</span>
-<span class="lineNum">     199 </span><span class="lineCov">       1250 :          lib-&gt;units = xmalloc(sizeof(lib_unit_t) * lib-&gt;units_alloc);</span>
+<span class="lineNum">     196 </span><span class="lineCov">       2950 :    if (where == NULL) {</span>
+<span class="lineNum">     197 </span><span class="lineCov">       2854 :       if (lib-&gt;n_units == 0) {</span>
+<span class="lineNum">     198 </span><span class="lineCov">       1252 :          lib-&gt;units_alloc = 16;</span>
+<span class="lineNum">     199 </span><span class="lineCov">       1252 :          lib-&gt;units = xmalloc(sizeof(lib_unit_t) * lib-&gt;units_alloc);</span>
 <span class="lineNum">     200 </span>            :       }
-<span class="lineNum">     201 </span><span class="lineCov">       1600 :       else if (lib-&gt;n_units == lib-&gt;units_alloc) {</span>
+<span class="lineNum">     201 </span><span class="lineCov">       1602 :       else if (lib-&gt;n_units == lib-&gt;units_alloc) {</span>
 <span class="lineNum">     202 </span><span class="lineCov">          1 :          lib-&gt;units_alloc *= 2;</span>
 <span class="lineNum">     203 </span><span class="lineCov">          1 :          lib-&gt;units = xrealloc(lib-&gt;units,</span>
 <span class="lineNum">     204 </span>            :                                sizeof(lib_unit_t) * lib-&gt;units_alloc);
 <span class="lineNum">     205 </span>            :       }
 <span class="lineNum">     206 </span>            : 
-<span class="lineNum">     207 </span><span class="lineCov">       2850 :       where = &amp;(lib-&gt;units[lib-&gt;n_units++]);</span>
+<span class="lineNum">     207 </span><span class="lineCov">       2854 :       where = &amp;(lib-&gt;units[lib-&gt;n_units++]);</span>
 <span class="lineNum">     208 </span>            :    }
 <span class="lineNum">     209 </span>            : 
-<span class="lineNum">     210 </span><span class="lineCov">       2946 :    where-&gt;top      = unit;</span>
-<span class="lineNum">     211 </span><span class="lineCov">       2946 :    where-&gt;read_ctx = ctx;</span>
-<span class="lineNum">     212 </span><span class="lineCov">       2946 :    where-&gt;dirty    = dirty;</span>
-<span class="lineNum">     213 </span><span class="lineCov">       2946 :    where-&gt;mtime    = mtime;</span>
-<span class="lineNum">     214 </span><span class="lineCov">       2946 :    where-&gt;kind     = tree_kind(unit);</span>
+<span class="lineNum">     210 </span><span class="lineCov">       2950 :    where-&gt;top      = unit;</span>
+<span class="lineNum">     211 </span><span class="lineCov">       2950 :    where-&gt;read_ctx = ctx;</span>
+<span class="lineNum">     212 </span><span class="lineCov">       2950 :    where-&gt;dirty    = dirty;</span>
+<span class="lineNum">     213 </span><span class="lineCov">       2950 :    where-&gt;mtime    = mtime;</span>
+<span class="lineNum">     214 </span><span class="lineCov">       2950 :    where-&gt;kind     = tree_kind(unit);</span>
 <span class="lineNum">     215 </span>            : 
-<span class="lineNum">     216 </span><span class="lineCov">       2946 :    lib_index_t *it = lib_find_in_index(lib, name);</span>
-<span class="lineNum">     217 </span><span class="lineCov">       2946 :    if (it == NULL) {</span>
-<span class="lineNum">     218 </span><span class="lineCov">       2075 :       lib_index_t *new = xmalloc(sizeof(lib_index_t));</span>
-<span class="lineNum">     219 </span><span class="lineCov">       2075 :       new-&gt;name = name;</span>
-<span class="lineNum">     220 </span><span class="lineCov">       2075 :       new-&gt;kind = tree_kind(unit);</span>
-<span class="lineNum">     221 </span><span class="lineCov">       2075 :       new-&gt;next = lib-&gt;index;</span>
+<span class="lineNum">     216 </span><span class="lineCov">       2950 :    lib_index_t *it = lib_find_in_index(lib, name);</span>
+<span class="lineNum">     217 </span><span class="lineCov">       2950 :    if (it == NULL) {</span>
+<span class="lineNum">     218 </span><span class="lineCov">       2078 :       lib_index_t *new = xmalloc(sizeof(lib_index_t));</span>
+<span class="lineNum">     219 </span><span class="lineCov">       2078 :       new-&gt;name = name;</span>
+<span class="lineNum">     220 </span><span class="lineCov">       2078 :       new-&gt;kind = tree_kind(unit);</span>
+<span class="lineNum">     221 </span><span class="lineCov">       2078 :       new-&gt;next = lib-&gt;index;</span>
 <span class="lineNum">     222 </span>            : 
-<span class="lineNum">     223 </span><span class="lineCov">       2075 :       lib-&gt;index = new;</span>
+<span class="lineNum">     223 </span><span class="lineCov">       2078 :       lib-&gt;index = new;</span>
 <span class="lineNum">     224 </span>            :    }
 <span class="lineNum">     225 </span>            :    else
-<span class="lineNum">     226 </span><span class="lineCov">        871 :       it-&gt;kind = tree_kind(unit);</span>
+<span class="lineNum">     226 </span><span class="lineCov">        872 :       it-&gt;kind = tree_kind(unit);</span>
 <span class="lineNum">     227 </span>            : 
-<span class="lineNum">     228 </span><span class="lineCov">       2946 :    return where;</span>
+<span class="lineNum">     228 </span><span class="lineCov">       2950 :    return where;</span>
 <a name="229"><span class="lineNum">     229 </span>            : }</a>
 <span class="lineNum">     230 </span>            : 
-<span class="lineNum">     231 </span><span class="lineCov">       1012 : static lib_t lib_find_at(const char *name, const char *path, bool exact)</span>
+<span class="lineNum">     231 </span><span class="lineCov">       1013 : static lib_t lib_find_at(const char *name, const char *path, bool exact)</span>
 <span class="lineNum">     232 </span>            : {
 <span class="lineNum">     233 </span>            :    char dir[PATH_MAX];
-<span class="lineNum">     234 </span><span class="lineCov">       2024 :    char *p = dir + snprintf(dir, sizeof(dir) - 4 - strlen(name), &quot;%s/&quot;, path);</span>
-<span class="lineNum">     235 </span><span class="lineCov">       1012 :    bool found = false;</span>
+<span class="lineNum">     234 </span><span class="lineCov">       2026 :    char *p = dir + snprintf(dir, sizeof(dir) - 4 - strlen(name), &quot;%s/&quot;, path);</span>
+<span class="lineNum">     235 </span><span class="lineCov">       1013 :    bool found = false;</span>
 <span class="lineNum">     236 </span>            : 
-<span class="lineNum">     237 </span><span class="lineCov">       1012 :    if (!exact) {</span>
+<span class="lineNum">     237 </span><span class="lineCov">       1013 :    if (!exact) {</span>
 <span class="lineNum">     238 </span>            :       // Append library name converting to lower case
-<span class="lineNum">     239 </span><span class="lineCov">       3482 :       for (const char *n = name; *n != '\0'; n++)</span>
-<span class="lineNum">     240 </span><span class="lineCov">       3482 :          *p++ = tolower((int)*n);</span>
+<span class="lineNum">     239 </span><span class="lineCov">       3485 :       for (const char *n = name; *n != '\0'; n++)</span>
+<span class="lineNum">     240 </span><span class="lineCov">       3485 :          *p++ = tolower((int)*n);</span>
 <span class="lineNum">     241 </span>            : 
 <span class="lineNum">     242 </span>            :       // Try suffixing standard revision extensions first
-<span class="lineNum">     243 </span><span class="lineCov">       2078 :       for (vhdl_standard_t s = standard(); (s &gt; STD_87) &amp;&amp; !found; s--) {</span>
-<span class="lineNum">     244 </span><span class="lineCov">       1066 :          snprintf(p, 4, &quot;.%s&quot;, standard_suffix(s));</span>
-<span class="lineNum">     245 </span><span class="lineCov">       1066 :          found = (access(dir, F_OK) == 0);</span>
+<span class="lineNum">     243 </span><span class="lineCov">       2080 :       for (vhdl_standard_t s = standard(); (s &gt; STD_87) &amp;&amp; !found; s--) {</span>
+<span class="lineNum">     244 </span><span class="lineCov">       1067 :          snprintf(p, 4, &quot;.%s&quot;, standard_suffix(s));</span>
+<span class="lineNum">     245 </span><span class="lineCov">       1067 :          found = (access(dir, F_OK) == 0);</span>
 <span class="lineNum">     246 </span>            :       }
 <span class="lineNum">     247 </span>            :    }
 <span class="lineNum">     248 </span>            : 
-<span class="lineNum">     249 </span><span class="lineCov">       1012 :    if (!found) {</span>
-<span class="lineNum">     250 </span><span class="lineCov">       1003 :       *p = '\0';</span>
-<span class="lineNum">     251 </span><span class="lineCov">       1003 :       if (access(dir, F_OK) &lt; 0)</span>
+<span class="lineNum">     249 </span><span class="lineCov">       1013 :    if (!found) {</span>
+<span class="lineNum">     250 </span><span class="lineCov">       1004 :       *p = '\0';</span>
+<span class="lineNum">     251 </span><span class="lineCov">       1004 :       if (access(dir, F_OK) &lt; 0)</span>
 <span class="lineNum">     252 </span>            :          return NULL;
 <span class="lineNum">     253 </span>            :    }
 <span class="lineNum">     254 </span>            : 
 <span class="lineNum">     255 </span>            :    char marker[PATH_MAX];
 <span class="lineNum">     256 </span>            :    snprintf(marker, sizeof(marker), &quot;%s&quot; PATH_SEP &quot;_NVC_LIB&quot;, dir);
-<span class="lineNum">     257 </span><span class="lineCov">        664 :    if (access(marker, F_OK) &lt; 0)</span>
+<span class="lineNum">     257 </span><span class="lineCov">        665 :    if (access(marker, F_OK) &lt; 0)</span>
 <span class="lineNum">     258 </span>            :       return NULL;
 <span class="lineNum">     259 </span>            : 
-<span class="lineNum">     260 </span><span class="lineCov">        664 :    return lib_init(name, dir, -1);</span>
+<span class="lineNum">     260 </span><span class="lineCov">        665 :    return lib_init(name, dir, -1);</span>
 <a name="261"><span class="lineNum">     261 </span>            : }</a>
 <span class="lineNum">     262 </span>            : 
-<span class="lineNum">     263 </span><span class="lineCov">      10187 : static const char *lib_file_path(lib_t lib, const char *name)</span>
+<span class="lineNum">     263 </span><span class="lineCov">      10192 : static const char *lib_file_path(lib_t lib, const char *name)</span>
 <span class="lineNum">     264 </span>            : {
 <span class="lineNum">     265 </span>            :    static char buf[PATH_MAX];
-<span class="lineNum">     266 </span><span class="lineCov">      10187 :    snprintf(buf, sizeof(buf), &quot;%s&quot; PATH_SEP &quot;%s&quot;, lib-&gt;path, name);</span>
-<span class="lineNum">     267 </span><span class="lineCov">      10187 :    return buf;</span>
+<span class="lineNum">     266 </span><span class="lineCov">      10192 :    snprintf(buf, sizeof(buf), &quot;%s&quot; PATH_SEP &quot;%s&quot;, lib-&gt;path, name);</span>
+<span class="lineNum">     267 </span><span class="lineCov">      10192 :    return buf;</span>
 <a name="268"><span class="lineNum">     268 </span>            : }</a>
 <span class="lineNum">     269 </span>            : 
-<span class="lineNum">     270 </span><span class="lineCov">      10830 : lib_t lib_loaded(ident_t name_i)</span>
+<span class="lineNum">     270 </span><span class="lineCov">      10839 : lib_t lib_loaded(ident_t name_i)</span>
 <span class="lineNum">     271 </span>            : {
-<span class="lineNum">     272 </span><span class="lineCov">      10830 :    if (name_i == work_i &amp;&amp; work != NULL)</span>
+<span class="lineNum">     272 </span><span class="lineCov">      10839 :    if (name_i == work_i &amp;&amp; work != NULL)</span>
 <span class="lineNum">     273 </span>            :       return work;
 <span class="lineNum">     274 </span>            : 
-<span class="lineNum">     275 </span><span class="lineCov">       8834 :    for (lib_list_t *it = loaded; it != NULL; it = it-&gt;next) {</span>
-<span class="lineNum">     276 </span><span class="lineCov">       7821 :       if (lib_name(it-&gt;item) == name_i)</span>
+<span class="lineNum">     275 </span><span class="lineCov">       8841 :    for (lib_list_t *it = loaded; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">     276 </span><span class="lineCov">       7827 :       if (lib_name(it-&gt;item) == name_i)</span>
 <span class="lineNum">     277 </span>            :          return it-&gt;item;
 <span class="lineNum">     278 </span>            :    }
 <span class="lineNum">     279 </span>            : 
@@ -421,51 +421,51 @@
 <span class="lineNum">     359 </span><span class="lineCov">        348 :    return lib_init(name, path, fd);</span>
 <a name="360"><span class="lineNum">     360 </span>            : }</a>
 <span class="lineNum">     361 </span>            : 
-<span class="lineNum">     362 </span><span class="lineCov">        294 : lib_t lib_tmp(const char *name)</span>
+<span class="lineNum">     362 </span><span class="lineCov">        295 : lib_t lib_tmp(const char *name)</span>
 <span class="lineNum">     363 </span>            : {
 <span class="lineNum">     364 </span>            :    // For unit tests, avoids creating files
-<span class="lineNum">     365 </span><span class="lineCov">        294 :    return lib_init(name, NULL, -1);</span>
+<span class="lineNum">     365 </span><span class="lineCov">        295 :    return lib_init(name, NULL, -1);</span>
 <a name="366"><span class="lineNum">     366 </span>            : }</a>
 <span class="lineNum">     367 </span>            : 
-<span class="lineNum">     368 </span><span class="lineCov">       2232 : static void push_path(const char *path)</span>
+<span class="lineNum">     368 </span><span class="lineCov">       2236 : static void push_path(const char *path)</span>
 <span class="lineNum">     369 </span>            : {
-<span class="lineNum">     370 </span><span class="lineCov">       5034 :    for (search_path_t *it = search_paths; it != NULL; it = it-&gt;next) {</span>
-<span class="lineNum">     371 </span><span class="lineCov">       2802 :       if (strcmp(it-&gt;path, path) == 0)</span>
-<span class="lineNum">     372 </span><span class="lineCov">       2232 :          return;</span>
+<span class="lineNum">     370 </span><span class="lineCov">       5044 :    for (search_path_t *it = search_paths; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">     371 </span><span class="lineCov">       2808 :       if (strcmp(it-&gt;path, path) == 0)</span>
+<span class="lineNum">     372 </span><span class="lineCov">       2236 :          return;</span>
 <span class="lineNum">     373 </span>            :    }
 <span class="lineNum">     374 </span>            : 
-<span class="lineNum">     375 </span><span class="lineCov">       2232 :    search_path_t *s = xmalloc(sizeof(search_path_t));</span>
-<span class="lineNum">     376 </span><span class="lineCov">       2232 :    s-&gt;next = search_paths;</span>
-<span class="lineNum">     377 </span><span class="lineCov">       2232 :    s-&gt;path = path;</span>
+<span class="lineNum">     375 </span><span class="lineCov">       2236 :    search_path_t *s = xmalloc(sizeof(search_path_t));</span>
+<span class="lineNum">     376 </span><span class="lineCov">       2236 :    s-&gt;next = search_paths;</span>
+<span class="lineNum">     377 </span><span class="lineCov">       2236 :    s-&gt;path = path;</span>
 <span class="lineNum">     378 </span>            : 
-<span class="lineNum">     379 </span><span class="lineCov">       2232 :    search_paths = s;</span>
+<span class="lineNum">     379 </span><span class="lineCov">       2236 :    search_paths = s;</span>
 <a name="380"><span class="lineNum">     380 </span>            : }</a>
 <span class="lineNum">     381 </span>            : 
-<span class="lineNum">     382 </span><span class="lineCov">        930 : static void lib_default_search_paths(void)</span>
+<span class="lineNum">     382 </span><span class="lineCov">        932 : static void lib_default_search_paths(void)</span>
 <span class="lineNum">     383 </span>            : {
-<span class="lineNum">     384 </span><span class="lineCov">        930 :    if (search_paths == NULL) {</span>
-<span class="lineNum">     385 </span><span class="lineCov">        649 :       push_path(DATADIR);</span>
+<span class="lineNum">     384 </span><span class="lineCov">        932 :    if (search_paths == NULL) {</span>
+<span class="lineNum">     385 </span><span class="lineCov">        650 :       push_path(DATADIR);</span>
 <span class="lineNum">     386 </span>            : 
-<span class="lineNum">     387 </span><span class="lineCov">        649 :       const char *home_env = getenv(&quot;HOME&quot;);</span>
-<span class="lineNum">     388 </span><span class="lineCov">        649 :       if (home_env) {</span>
+<span class="lineNum">     387 </span><span class="lineCov">        650 :       const char *home_env = getenv(&quot;HOME&quot;);</span>
+<span class="lineNum">     388 </span><span class="lineCov">        650 :       if (home_env) {</span>
 <span class="lineNum">     389 </span>            :          char *path;
-<span class="lineNum">     390 </span><span class="lineCov">        649 :          if (asprintf(&amp;path, &quot;%s/.%s/lib&quot;, home_env, PACKAGE) &lt; 0)</span>
+<span class="lineNum">     390 </span><span class="lineCov">        650 :          if (asprintf(&amp;path, &quot;%s/.%s/lib&quot;, home_env, PACKAGE) &lt; 0)</span>
 <span class="lineNum">     391 </span><span class="lineNoCov">          0 :             fatal_errno(&quot;asprintf&quot;);</span>
-<span class="lineNum">     392 </span><span class="lineCov">        649 :          push_path(path);</span>
+<span class="lineNum">     392 </span><span class="lineCov">        650 :          push_path(path);</span>
 <span class="lineNum">     393 </span>            :       }
 <span class="lineNum">     394 </span>            : 
-<span class="lineNum">     395 </span><span class="lineCov">        649 :       char *env_copy = NULL;</span>
-<span class="lineNum">     396 </span><span class="lineCov">        649 :       const char *libpath_env = getenv(&quot;NVC_LIBPATH&quot;);</span>
-<span class="lineNum">     397 </span><span class="lineCov">        649 :       if (libpath_env) {</span>
-<span class="lineNum">     398 </span><span class="lineCov">        625 :          env_copy = strdup(libpath_env);</span>
+<span class="lineNum">     395 </span><span class="lineCov">        650 :       char *env_copy = NULL;</span>
+<span class="lineNum">     396 </span><span class="lineCov">        650 :       const char *libpath_env = getenv(&quot;NVC_LIBPATH&quot;);</span>
+<span class="lineNum">     397 </span><span class="lineCov">        650 :       if (libpath_env) {</span>
+<span class="lineNum">     398 </span><span class="lineCov">        626 :          env_copy = strdup(libpath_env);</span>
 <span class="lineNum">     399 </span>            : 
-<span class="lineNum">     400 </span><span class="lineCov">        625 :          char *path_tok = strtok(env_copy, &quot;:&quot;);</span>
+<span class="lineNum">     400 </span><span class="lineCov">        626 :          char *path_tok = strtok(env_copy, &quot;:&quot;);</span>
 <span class="lineNum">     401 </span>            :          do {
-<span class="lineNum">     402 </span><span class="lineCov">        625 :             push_path(path_tok);</span>
-<span class="lineNum">     403 </span><span class="lineCov">        625 :          } while ((path_tok = strtok(NULL, &quot;:&quot;)));</span>
+<span class="lineNum">     402 </span><span class="lineCov">        626 :             push_path(path_tok);</span>
+<span class="lineNum">     403 </span><span class="lineCov">        626 :          } while ((path_tok = strtok(NULL, &quot;:&quot;)));</span>
 <span class="lineNum">     404 </span>            :       }
 <span class="lineNum">     405 </span>            :    }
-<a name="406"><span class="lineNum">     406 </span><span class="lineCov">        930 : }</span></a>
+<a name="406"><span class="lineNum">     406 </span><span class="lineCov">        932 : }</span></a>
 <span class="lineNum">     407 </span>            : 
 <span class="lineNum">     408 </span><span class="lineNoCov">          0 : const char *lib_enum_search_paths(void **token)</span>
 <span class="lineNum">     409 </span>            : {
@@ -484,11 +484,11 @@
 <span class="lineNum">     422 </span>            :    }
 <a name="423"><span class="lineNum">     423 </span>            : }</a>
 <span class="lineNum">     424 </span>            : 
-<span class="lineNum">     425 </span><span class="lineCov">        309 : void lib_add_search_path(const char *path)</span>
+<span class="lineNum">     425 </span><span class="lineCov">        310 : void lib_add_search_path(const char *path)</span>
 <span class="lineNum">     426 </span>            : {
-<span class="lineNum">     427 </span><span class="lineCov">        309 :    lib_default_search_paths();</span>
-<span class="lineNum">     428 </span><span class="lineCov">        309 :    push_path(strdup(path));</span>
-<a name="429"><span class="lineNum">     429 </span><span class="lineCov">        309 : }</span></a>
+<span class="lineNum">     427 </span><span class="lineCov">        310 :    lib_default_search_paths();</span>
+<span class="lineNum">     428 </span><span class="lineCov">        310 :    push_path(strdup(path));</span>
+<a name="429"><span class="lineNum">     429 </span><span class="lineCov">        310 : }</span></a>
 <span class="lineNum">     430 </span>            : 
 <span class="lineNum">     431 </span><span class="lineNoCov">          0 : void lib_add_map(const char *name, const char *path)</span>
 <span class="lineNum">     432 </span>            : {
@@ -497,21 +497,21 @@
 <span class="lineNum">     435 </span><span class="lineNoCov">          0 :       warnf(&quot;library %s not found at %s&quot;, name, path);</span>
 <a name="436"><span class="lineNum">     436 </span><span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">     437 </span>            : 
-<span class="lineNum">     438 </span><span class="lineCov">       9924 : lib_t lib_find(ident_t name_i, bool required)</span>
+<span class="lineNum">     438 </span><span class="lineCov">       9933 : lib_t lib_find(ident_t name_i, bool required)</span>
 <span class="lineNum">     439 </span>            : {
-<span class="lineNum">     440 </span><span class="lineCov">       9924 :    lib_t lib = lib_loaded(name_i);</span>
-<span class="lineNum">     441 </span><span class="lineCov">       9924 :    if (lib != NULL)</span>
+<span class="lineNum">     440 </span><span class="lineCov">       9933 :    lib_t lib = lib_loaded(name_i);</span>
+<span class="lineNum">     441 </span><span class="lineCov">       9933 :    if (lib != NULL)</span>
 <span class="lineNum">     442 </span>            :       return lib;
 <span class="lineNum">     443 </span>            : 
-<span class="lineNum">     444 </span><span class="lineCov">        621 :    lib_default_search_paths();</span>
+<span class="lineNum">     444 </span><span class="lineCov">        622 :    lib_default_search_paths();</span>
 <span class="lineNum">     445 </span>            : 
-<span class="lineNum">     446 </span><span class="lineCov">        621 :    const char *name_str = istr(name_i);</span>
-<span class="lineNum">     447 </span><span class="lineCov">        621 :    for (search_path_t *it = search_paths; it != NULL; it = it-&gt;next) {</span>
-<span class="lineNum">     448 </span><span class="lineCov">        621 :       if ((lib = lib_find_at(name_str, it-&gt;path, false)))</span>
+<span class="lineNum">     446 </span><span class="lineCov">        622 :    const char *name_str = istr(name_i);</span>
+<span class="lineNum">     447 </span><span class="lineCov">        622 :    for (search_path_t *it = search_paths; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">     448 </span><span class="lineCov">        622 :       if ((lib = lib_find_at(name_str, it-&gt;path, false)))</span>
 <span class="lineNum">     449 </span>            :          break;
 <span class="lineNum">     450 </span>            :    }
 <span class="lineNum">     451 </span>            : 
-<span class="lineNum">     452 </span><span class="lineCov">        621 :    if (lib == NULL) {</span>
+<span class="lineNum">     452 </span><span class="lineCov">        622 :    if (lib == NULL) {</span>
 <span class="lineNum">     453 </span><span class="lineNoCov">          0 :       text_buf_t *tb = tb_new();</span>
 <span class="lineNum">     454 </span><span class="lineNoCov">          0 :       tb_printf(tb, &quot;library %s not found in:\n&quot;, name_str);</span>
 <span class="lineNum">     455 </span><span class="lineNoCov">          0 :       for (search_path_t *it = search_paths; it != NULL; it = it-&gt;next)</span>
@@ -522,7 +522,7 @@
 <span class="lineNum">     460 </span><span class="lineNoCov">          0 :          errorf(&quot;%s&quot;, tb_get(tb));</span>
 <span class="lineNum">     461 </span>            :    }
 <span class="lineNum">     462 </span>            : 
-<span class="lineNum">     463 </span><span class="lineCov">        621 :    return lib;</span>
+<span class="lineNum">     463 </span><span class="lineCov">        622 :    return lib;</span>
 <a name="464"><span class="lineNum">     464 </span>            : }</a>
 <span class="lineNum">     465 </span>            : 
 <span class="lineNum">     466 </span><span class="lineCov">        428 : FILE *lib_fopen(lib_t lib, const char *name, const char *mode)</span>
@@ -531,40 +531,40 @@
 <span class="lineNum">     469 </span><span class="lineCov">        428 :    return fopen(lib_file_path(lib, name), mode);</span>
 <a name="470"><span class="lineNum">     470 </span>            : }</a>
 <span class="lineNum">     471 </span>            : 
-<span class="lineNum">     472 </span><span class="lineCov">       6916 : fbuf_t *lib_fbuf_open(lib_t lib, const char *name, fbuf_mode_t mode)</span>
+<span class="lineNum">     472 </span><span class="lineCov">       6919 : fbuf_t *lib_fbuf_open(lib_t lib, const char *name, fbuf_mode_t mode)</span>
 <span class="lineNum">     473 </span>            : {
-<span class="lineNum">     474 </span><span class="lineCov">       6916 :    assert(lib != NULL);</span>
-<span class="lineNum">     475 </span><span class="lineCov">       6916 :    if (lib-&gt;path[0] == '\0')</span>
+<span class="lineNum">     474 </span><span class="lineCov">       6919 :    assert(lib != NULL);</span>
+<span class="lineNum">     475 </span><span class="lineCov">       6919 :    if (lib-&gt;path[0] == '\0')</span>
 <span class="lineNum">     476 </span>            :       return NULL;
 <span class="lineNum">     477 </span>            :    else
-<span class="lineNum">     478 </span><span class="lineCov">       6598 :       return fbuf_open(lib_file_path(lib, name), mode);</span>
+<span class="lineNum">     478 </span><span class="lineCov">       6600 :       return fbuf_open(lib_file_path(lib, name), mode);</span>
 <a name="479"><span class="lineNum">     479 </span>            : }</a>
 <span class="lineNum">     480 </span>            : 
-<span class="lineNum">     481 </span><span class="lineCov">        283 : void lib_free(lib_t lib)</span>
+<span class="lineNum">     481 </span><span class="lineCov">        284 : void lib_free(lib_t lib)</span>
 <span class="lineNum">     482 </span>            : {
-<span class="lineNum">     483 </span><span class="lineCov">        283 :    assert(lib != NULL);</span>
-<span class="lineNum">     484 </span><span class="lineCov">        283 :    assert(lib != work);</span>
+<span class="lineNum">     483 </span><span class="lineCov">        284 :    assert(lib != NULL);</span>
+<span class="lineNum">     484 </span><span class="lineCov">        284 :    assert(lib != work);</span>
 <span class="lineNum">     485 </span>            : 
-<span class="lineNum">     486 </span><span class="lineCov">        283 :    if (lib-&gt;lock_fd != -1)</span>
+<span class="lineNum">     486 </span><span class="lineCov">        284 :    if (lib-&gt;lock_fd != -1)</span>
 <span class="lineNum">     487 </span><span class="lineCov">          2 :       close(lib-&gt;lock_fd);</span>
 <span class="lineNum">     488 </span>            : 
-<span class="lineNum">     489 </span><span class="lineCov">        820 :    for (lib_list_t *it = loaded, *prev = NULL;</span>
-<span class="lineNum">     490 </span><span class="lineCov">        254 :         it != NULL; loaded = it, it = it-&gt;next) {</span>
+<span class="lineNum">     489 </span><span class="lineCov">        823 :    for (lib_list_t *it = loaded, *prev = NULL;</span>
+<span class="lineNum">     490 </span><span class="lineCov">        255 :         it != NULL; loaded = it, it = it-&gt;next) {</span>
 <span class="lineNum">     491 </span>            : 
-<span class="lineNum">     492 </span><span class="lineCov">        537 :       if (it-&gt;item == lib) {</span>
+<span class="lineNum">     492 </span><span class="lineCov">        539 :       if (it-&gt;item == lib) {</span>
 <span class="lineNum">     493 </span>            :          if (prev)
 <span class="lineNum">     494 </span>            :             prev-&gt;next = it-&gt;next;
 <span class="lineNum">     495 </span>            :          else
-<span class="lineNum">     496 </span><span class="lineCov">        283 :             loaded = it-&gt;next;</span>
-<span class="lineNum">     497 </span><span class="lineCov">        283 :          free(it);</span>
-<span class="lineNum">     498 </span><span class="lineCov">        283 :          break;</span>
+<span class="lineNum">     496 </span><span class="lineCov">        284 :             loaded = it-&gt;next;</span>
+<span class="lineNum">     497 </span><span class="lineCov">        284 :          free(it);</span>
+<span class="lineNum">     498 </span><span class="lineCov">        284 :          break;</span>
 <span class="lineNum">     499 </span>            :       }
 <span class="lineNum">     500 </span>            :    }
 <span class="lineNum">     501 </span>            : 
-<span class="lineNum">     502 </span><span class="lineCov">        283 :    if (lib-&gt;units != NULL)</span>
-<span class="lineNum">     503 </span><span class="lineCov">        227 :       free(lib-&gt;units);</span>
-<span class="lineNum">     504 </span><span class="lineCov">        283 :    free(lib);</span>
-<a name="505"><span class="lineNum">     505 </span><span class="lineCov">        283 : }</span></a>
+<span class="lineNum">     502 </span><span class="lineCov">        284 :    if (lib-&gt;units != NULL)</span>
+<span class="lineNum">     503 </span><span class="lineCov">        228 :       free(lib-&gt;units);</span>
+<span class="lineNum">     504 </span><span class="lineCov">        284 :    free(lib);</span>
+<a name="505"><span class="lineNum">     505 </span><span class="lineCov">        284 : }</span></a>
 <span class="lineNum">     506 </span>            : 
 <span class="lineNum">     507 </span><span class="lineCov">          3 : void lib_destroy(lib_t lib)</span>
 <span class="lineNum">     508 </span>            : {
@@ -598,16 +598,16 @@
 <span class="lineNum">     536 </span><span class="lineNoCov">          0 :       perror(&quot;rmdir&quot;);</span>
 <a name="537"><span class="lineNum">     537 </span>            : }</a>
 <span class="lineNum">     538 </span>            : 
-<span class="lineNum">     539 </span><span class="lineCov">      16505 : lib_t lib_work(void)</span>
+<span class="lineNum">     539 </span><span class="lineCov">      16520 : lib_t lib_work(void)</span>
 <span class="lineNum">     540 </span>            : {
-<span class="lineNum">     541 </span><span class="lineCov">      16505 :    assert(work != NULL);</span>
-<span class="lineNum">     542 </span><span class="lineCov">      16505 :    return work;</span>
+<span class="lineNum">     541 </span><span class="lineCov">      16520 :    assert(work != NULL);</span>
+<span class="lineNum">     542 </span><span class="lineCov">      16520 :    return work;</span>
 <a name="543"><span class="lineNum">     543 </span>            : }</a>
 <span class="lineNum">     544 </span>            : 
-<span class="lineNum">     545 </span><span class="lineCov">        963 : void lib_set_work(lib_t lib)</span>
+<span class="lineNum">     545 </span><span class="lineCov">        965 : void lib_set_work(lib_t lib)</span>
 <span class="lineNum">     546 </span>            : {
-<span class="lineNum">     547 </span><span class="lineCov">        963 :    work = lib;</span>
-<a name="548"><span class="lineNum">     548 </span><span class="lineCov">        963 : }</span></a>
+<span class="lineNum">     547 </span><span class="lineCov">        965 :    work = lib;</span>
+<a name="548"><span class="lineNum">     548 </span><span class="lineCov">        965 : }</span></a>
 <span class="lineNum">     549 </span>            : 
 <span class="lineNum">     550 </span><span class="lineNoCov">          0 : const char *lib_path(lib_t lib)</span>
 <span class="lineNum">     551 </span>            : {
@@ -615,86 +615,86 @@
 <span class="lineNum">     553 </span><span class="lineNoCov">          0 :    return lib-&gt;path;</span>
 <a name="554"><span class="lineNum">     554 </span>            : }</a>
 <span class="lineNum">     555 </span>            : 
-<span class="lineNum">     556 </span><span class="lineCov">       4126 : static lib_mtime_t lib_time_to_usecs(time_t t)</span>
+<span class="lineNum">     556 </span><span class="lineCov">       4132 : static lib_mtime_t lib_time_to_usecs(time_t t)</span>
 <span class="lineNum">     557 </span>            : {
-<span class="lineNum">     558 </span><span class="lineCov">       4126 :    return (lib_mtime_t)t * 1000 * 1000;</span>
+<span class="lineNum">     558 </span><span class="lineCov">       4132 :    return (lib_mtime_t)t * 1000 * 1000;</span>
 <a name="559"><span class="lineNum">     559 </span>            : }</a>
 <span class="lineNum">     560 </span>            : 
-<span class="lineNum">     561 </span><span class="lineCov">       2171 : void lib_put(lib_t lib, tree_t unit)</span>
+<span class="lineNum">     561 </span><span class="lineCov">       2174 : void lib_put(lib_t lib, tree_t unit)</span>
 <span class="lineNum">     562 </span>            : {
 <span class="lineNum">     563 </span>            :    struct timeval tv;
-<span class="lineNum">     564 </span><span class="lineCov">       2171 :    if (gettimeofday(&amp;tv, NULL) != 0)</span>
+<span class="lineNum">     564 </span><span class="lineCov">       2174 :    if (gettimeofday(&amp;tv, NULL) != 0)</span>
 <span class="lineNum">     565 </span><span class="lineNoCov">          0 :       fatal_errno(&quot;gettimeofday&quot;);</span>
 <span class="lineNum">     566 </span>            : 
-<span class="lineNum">     567 </span><span class="lineCov">       2171 :    lib_mtime_t usecs = ((lib_mtime_t)tv.tv_sec * 1000000) + tv.tv_usec;</span>
-<span class="lineNum">     568 </span><span class="lineCov">       2171 :    lib_put_aux(lib, unit, NULL, true, usecs);</span>
-<a name="569"><span class="lineNum">     569 </span><span class="lineCov">       2171 : }</span></a>
+<span class="lineNum">     567 </span><span class="lineCov">       2174 :    lib_mtime_t usecs = ((lib_mtime_t)tv.tv_sec * 1000000) + tv.tv_usec;</span>
+<span class="lineNum">     568 </span><span class="lineCov">       2174 :    lib_put_aux(lib, unit, NULL, true, usecs);</span>
+<a name="569"><span class="lineNum">     569 </span><span class="lineCov">       2174 : }</span></a>
 <span class="lineNum">     570 </span>            : 
-<span class="lineNum">     571 </span><span class="lineCov">       4126 : static lib_mtime_t lib_stat_mtime(struct stat *st)</span>
+<span class="lineNum">     571 </span><span class="lineCov">       4132 : static lib_mtime_t lib_stat_mtime(struct stat *st)</span>
 <span class="lineNum">     572 </span>            : {
-<span class="lineNum">     573 </span><span class="lineCov">       4126 :    lib_mtime_t mt = lib_time_to_usecs(st-&gt;st_mtime);</span>
+<span class="lineNum">     573 </span><span class="lineCov">       4132 :    lib_mtime_t mt = lib_time_to_usecs(st-&gt;st_mtime);</span>
 <span class="lineNum">     574 </span>            : #if defined HAVE_STRUCT_STAT_ST_MTIMESPEC_TV_NSEC
 <span class="lineNum">     575 </span>            :    mt += st-&gt;st_mtimespec.tv_nsec / 1000;
 <span class="lineNum">     576 </span>            : #elif defined HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC
-<span class="lineNum">     577 </span><span class="lineCov">       4126 :    mt += st-&gt;st_mtim.tv_nsec / 1000;</span>
+<span class="lineNum">     577 </span><span class="lineCov">       4132 :    mt += st-&gt;st_mtim.tv_nsec / 1000;</span>
 <span class="lineNum">     578 </span>            : #endif
-<span class="lineNum">     579 </span><span class="lineCov">       4126 :    return mt;</span>
+<span class="lineNum">     579 </span><span class="lineCov">       4132 :    return mt;</span>
 <a name="580"><span class="lineNum">     580 </span>            : }</a>
 <span class="lineNum">     581 </span>            : 
-<span class="lineNum">     582 </span><span class="lineCov">       7402 : static lib_unit_t *lib_get_aux(lib_t lib, ident_t ident)</span>
+<span class="lineNum">     582 </span><span class="lineCov">       7407 : static lib_unit_t *lib_get_aux(lib_t lib, ident_t ident)</span>
 <span class="lineNum">     583 </span>            : {
-<span class="lineNum">     584 </span><span class="lineCov">       7385 :    assert(lib != NULL);</span>
+<span class="lineNum">     584 </span><span class="lineCov">       7390 :    assert(lib != NULL);</span>
 <span class="lineNum">     585 </span>            : 
 <span class="lineNum">     586 </span>            :    // Handle aliased library names
-<span class="lineNum">     587 </span><span class="lineCov">       7385 :    ident_t lname = ident_until(ident, '.');</span>
-<span class="lineNum">     588 </span><span class="lineCov">       7385 :    if ((lname != NULL) &amp;&amp; (lname != lib-&gt;name)) {</span>
+<span class="lineNum">     587 </span><span class="lineCov">       7390 :    ident_t lname = ident_until(ident, '.');</span>
+<span class="lineNum">     588 </span><span class="lineCov">       7390 :    if ((lname != NULL) &amp;&amp; (lname != lib-&gt;name)) {</span>
 <span class="lineNum">     589 </span><span class="lineCov">         16 :       ident_t uname = ident_rfrom(ident, '.');</span>
 <span class="lineNum">     590 </span><span class="lineCov">         16 :       if (uname != NULL)</span>
 <span class="lineNum">     591 </span><span class="lineCov">         14 :          ident = ident_prefix(lib-&gt;name, uname, '.');</span>
 <span class="lineNum">     592 </span>            :    }
 <span class="lineNum">     593 </span>            : 
 <span class="lineNum">     594 </span>            :    // Search in the list of already loaded units
-<span class="lineNum">     595 </span><span class="lineCov">      13761 :    for (unsigned n = 0; n &lt; lib-&gt;n_units; n++) {</span>
-<span class="lineNum">     596 </span><span class="lineCov">      12944 :       if (tree_ident(lib-&gt;units[n].top) == ident)</span>
-<span class="lineNum">     597 </span><span class="lineCov">       6568 :          return &amp;(lib-&gt;units[n]);</span>
+<span class="lineNum">     595 </span><span class="lineCov">      13767 :    for (unsigned n = 0; n &lt; lib-&gt;n_units; n++) {</span>
+<span class="lineNum">     596 </span><span class="lineCov">      12949 :       if (tree_ident(lib-&gt;units[n].top) == ident)</span>
+<span class="lineNum">     597 </span><span class="lineCov">       6572 :          return &amp;(lib-&gt;units[n]);</span>
 <span class="lineNum">     598 </span>            :    }
 <span class="lineNum">     599 </span>            : 
-<span class="lineNum">     600 </span><span class="lineCov">        817 :    if (*(lib-&gt;path) == '\0')   // Temporary library</span>
+<span class="lineNum">     600 </span><span class="lineCov">        818 :    if (*(lib-&gt;path) == '\0')   // Temporary library</span>
 <span class="lineNum">     601 </span>            :       return NULL;
 <span class="lineNum">     602 </span>            : 
-<span class="lineNum">     603 </span><span class="lineCov">        792 :    assert(lib-&gt;lock_fd != -1);   // Should not be called in unit tests</span>
-<span class="lineNum">     604 </span><span class="lineCov">        792 :    file_read_lock(lib-&gt;lock_fd);</span>
+<span class="lineNum">     603 </span><span class="lineCov">        793 :    assert(lib-&gt;lock_fd != -1);   // Should not be called in unit tests</span>
+<span class="lineNum">     604 </span><span class="lineCov">        793 :    file_read_lock(lib-&gt;lock_fd);</span>
 <span class="lineNum">     605 </span>            : 
 <span class="lineNum">     606 </span>            :    // Otherwise search in the filesystem
-<span class="lineNum">     607 </span><span class="lineCov">        792 :    DIR *d = opendir(lib-&gt;path);</span>
-<span class="lineNum">     608 </span><span class="lineCov">        792 :    if (d == NULL)</span>
+<span class="lineNum">     607 </span><span class="lineCov">        793 :    DIR *d = opendir(lib-&gt;path);</span>
+<span class="lineNum">     608 </span><span class="lineCov">        793 :    if (d == NULL)</span>
 <span class="lineNum">     609 </span><span class="lineNoCov">          0 :       fatal(&quot;%s: %s&quot;, lib-&gt;path, strerror(errno));</span>
 <span class="lineNum">     610 </span>            : 
-<span class="lineNum">     611 </span><span class="lineCov">        792 :    lib_unit_t *unit = NULL;</span>
-<span class="lineNum">     612 </span><span class="lineCov">        792 :    const char *search = istr(ident);</span>
+<span class="lineNum">     611 </span><span class="lineCov">        793 :    lib_unit_t *unit = NULL;</span>
+<span class="lineNum">     612 </span><span class="lineCov">        793 :    const char *search = istr(ident);</span>
 <span class="lineNum">     613 </span>            :    struct dirent *e;
-<span class="lineNum">     614 </span><span class="lineCov">        792 :    while ((e = readdir(d))) {</span>
-<span class="lineNum">     615 </span><span class="lineCov">       5635 :       if (strcmp(e-&gt;d_name, search) == 0) {</span>
-<span class="lineNum">     616 </span><span class="lineCov">        775 :          fbuf_t *f = lib_fbuf_open(lib, e-&gt;d_name, FBUF_IN);</span>
-<span class="lineNum">     617 </span><span class="lineCov">        775 :          tree_rd_ctx_t ctx = tree_read_begin(f, lib_file_path(lib, e-&gt;d_name));</span>
-<span class="lineNum">     618 </span><span class="lineCov">        775 :          tree_t top = tree_read(ctx);</span>
-<span class="lineNum">     619 </span><span class="lineCov">        775 :          fbuf_close(f);</span>
+<span class="lineNum">     614 </span><span class="lineCov">        793 :    while ((e = readdir(d))) {</span>
+<span class="lineNum">     615 </span><span class="lineCov">       5639 :       if (strcmp(e-&gt;d_name, search) == 0) {</span>
+<span class="lineNum">     616 </span><span class="lineCov">        776 :          fbuf_t *f = lib_fbuf_open(lib, e-&gt;d_name, FBUF_IN);</span>
+<span class="lineNum">     617 </span><span class="lineCov">        776 :          tree_rd_ctx_t ctx = tree_read_begin(f, lib_file_path(lib, e-&gt;d_name));</span>
+<span class="lineNum">     618 </span><span class="lineCov">        776 :          tree_t top = tree_read(ctx);</span>
+<span class="lineNum">     619 </span><span class="lineCov">        776 :          fbuf_close(f);</span>
 <span class="lineNum">     620 </span>            : 
 <span class="lineNum">     621 </span>            :          struct stat st;
-<span class="lineNum">     622 </span><span class="lineCov">        775 :          if (stat(lib_file_path(lib, e-&gt;d_name), &amp;st) &lt; 0)</span>
+<span class="lineNum">     622 </span><span class="lineCov">        776 :          if (stat(lib_file_path(lib, e-&gt;d_name), &amp;st) &lt; 0)</span>
 <span class="lineNum">     623 </span><span class="lineNoCov">          0 :             fatal_errno(&quot;%s&quot;, e-&gt;d_name);</span>
 <span class="lineNum">     624 </span>            : 
-<span class="lineNum">     625 </span><span class="lineCov">        775 :          lib_mtime_t mt = lib_stat_mtime(&amp;st);</span>
+<span class="lineNum">     625 </span><span class="lineCov">        776 :          lib_mtime_t mt = lib_stat_mtime(&amp;st);</span>
 <span class="lineNum">     626 </span>            : 
-<span class="lineNum">     627 </span><span class="lineCov">        775 :          unit = lib_put_aux(lib, top, ctx, false, mt);</span>
+<span class="lineNum">     627 </span><span class="lineCov">        776 :          unit = lib_put_aux(lib, top, ctx, false, mt);</span>
 <span class="lineNum">     628 </span>            :          break;
 <span class="lineNum">     629 </span>            :       }
 <span class="lineNum">     630 </span>            :    }
 <span class="lineNum">     631 </span>            : 
-<span class="lineNum">     632 </span><span class="lineCov">        792 :    closedir(d);</span>
-<span class="lineNum">     633 </span><span class="lineCov">        792 :    file_unlock(lib-&gt;lock_fd);</span>
+<span class="lineNum">     632 </span><span class="lineCov">        793 :    closedir(d);</span>
+<span class="lineNum">     633 </span><span class="lineCov">        793 :    file_unlock(lib-&gt;lock_fd);</span>
 <span class="lineNum">     634 </span>            : 
-<span class="lineNum">     635 </span><span class="lineCov">        809 :    if (unit == NULL &amp;&amp; lib_find_in_index(lib, ident) != NULL)</span>
+<span class="lineNum">     635 </span><span class="lineCov">        810 :    if (unit == NULL &amp;&amp; lib_find_in_index(lib, ident) != NULL)</span>
 <span class="lineNum">     636 </span><span class="lineNoCov">          0 :       fatal(&quot;library %s corrupt: unit %s present in index but missing &quot;</span>
 <span class="lineNum">     637 </span>            :             &quot;on disk&quot;, istr(lib-&gt;name), istr(ident));
 <span class="lineNum">     638 </span>            : 
@@ -734,35 +734,35 @@
 <span class="lineNum">     672 </span>            :       return NULL;
 <a name="673"><span class="lineNum">     673 </span>            : }</a>
 <span class="lineNum">     674 </span>            : 
-<span class="lineNum">     675 </span><span class="lineCov">       4357 : tree_t lib_get_check_stale(lib_t lib, ident_t ident)</span>
+<span class="lineNum">     675 </span><span class="lineCov">       4362 : tree_t lib_get_check_stale(lib_t lib, ident_t ident)</span>
 <span class="lineNum">     676 </span>            : {
-<span class="lineNum">     677 </span><span class="lineCov">       4357 :    lib_unit_t *lu = lib_get_aux(lib, ident);</span>
-<span class="lineNum">     678 </span><span class="lineCov">       4357 :    if (lu != NULL) {</span>
-<span class="lineNum">     679 </span><span class="lineCov">       4354 :       if (lu-&gt;read_ctx != NULL) {</span>
-<span class="lineNum">     680 </span><span class="lineCov">        690 :          tree_read_end(lu-&gt;read_ctx);</span>
-<span class="lineNum">     681 </span><span class="lineCov">        690 :          lu-&gt;read_ctx = NULL;</span>
+<span class="lineNum">     677 </span><span class="lineCov">       4362 :    lib_unit_t *lu = lib_get_aux(lib, ident);</span>
+<span class="lineNum">     678 </span><span class="lineCov">       4362 :    if (lu != NULL) {</span>
+<span class="lineNum">     679 </span><span class="lineCov">       4359 :       if (lu-&gt;read_ctx != NULL) {</span>
+<span class="lineNum">     680 </span><span class="lineCov">        691 :          tree_read_end(lu-&gt;read_ctx);</span>
+<span class="lineNum">     681 </span><span class="lineCov">        691 :          lu-&gt;read_ctx = NULL;</span>
 <span class="lineNum">     682 </span>            :       }
 <span class="lineNum">     683 </span>            : 
-<span class="lineNum">     684 </span><span class="lineCov">       4354 :       if (!opt_get_int(&quot;ignore-time&quot;)) {</span>
-<span class="lineNum">     685 </span><span class="lineCov">       4354 :          const loc_t *loc = tree_loc(lu-&gt;top);</span>
+<span class="lineNum">     684 </span><span class="lineCov">       4359 :       if (!opt_get_int(&quot;ignore-time&quot;)) {</span>
+<span class="lineNum">     685 </span><span class="lineCov">       4359 :          const loc_t *loc = tree_loc(lu-&gt;top);</span>
 <span class="lineNum">     686 </span>            : 
 <span class="lineNum">     687 </span>            :          struct stat st;
-<span class="lineNum">     688 </span><span class="lineCov">       4354 :          if (stat(istr(loc-&gt;file), &amp;st) == 0 &amp;&amp; lu-&gt;mtime &lt; lib_stat_mtime(&amp;st))</span>
+<span class="lineNum">     688 </span><span class="lineCov">       4359 :          if (stat(istr(loc-&gt;file), &amp;st) == 0 &amp;&amp; lu-&gt;mtime &lt; lib_stat_mtime(&amp;st))</span>
 <span class="lineNum">     689 </span><span class="lineNoCov">          0 :             fatal(&quot;design unit %s is older than its source file %s and must &quot;</span>
 <span class="lineNum">     690 </span>            :                   &quot;be reanalysed\n(You can use the --ignore-time option to &quot;
 <span class="lineNum">     691 </span>            :                   &quot;skip this check)&quot;, istr(ident), istr(loc-&gt;file));
 <span class="lineNum">     692 </span>            :       }
 <span class="lineNum">     693 </span>            : 
-<span class="lineNum">     694 </span><span class="lineCov">       4354 :       return lu-&gt;top;</span>
+<span class="lineNum">     694 </span><span class="lineCov">       4359 :       return lu-&gt;top;</span>
 <span class="lineNum">     695 </span>            :    }
 <span class="lineNum">     696 </span>            :    else
 <span class="lineNum">     697 </span>            :       return NULL;
 <a name="698"><span class="lineNum">     698 </span>            : }</a>
 <span class="lineNum">     699 </span>            : 
-<span class="lineNum">     700 </span><span class="lineCov">      18040 : ident_t lib_name(lib_t lib)</span>
+<span class="lineNum">     700 </span><span class="lineCov">      18057 : ident_t lib_name(lib_t lib)</span>
 <span class="lineNum">     701 </span>            : {
-<span class="lineNum">     702 </span><span class="lineCov">      18040 :    assert(lib != NULL);</span>
-<span class="lineNum">     703 </span><span class="lineCov">      18040 :    return lib-&gt;name;</span>
+<span class="lineNum">     702 </span><span class="lineCov">      18057 :    assert(lib != NULL);</span>
+<span class="lineNum">     703 </span><span class="lineCov">      18057 :    return lib-&gt;name;</span>
 <a name="704"><span class="lineNum">     704 </span>            : }</a>
 <span class="lineNum">     705 </span>            : 
 <span class="lineNum">     706 </span><span class="lineCov">        708 : void lib_save(lib_t lib)</span>
@@ -822,14 +822,14 @@
 <span class="lineNum">     760 </span>            :    return T_LAST_TREE_KIND;
 <a name="761"><span class="lineNum">     761 </span>            : }</a>
 <span class="lineNum">     762 </span>            : 
-<span class="lineNum">     763 </span><span class="lineCov">        732 : void lib_walk_index(lib_t lib, lib_index_fn_t fn, void *context)</span>
+<span class="lineNum">     763 </span><span class="lineCov">        733 : void lib_walk_index(lib_t lib, lib_index_fn_t fn, void *context)</span>
 <span class="lineNum">     764 </span>            : {
-<span class="lineNum">     765 </span><span class="lineCov">        732 :    assert(lib != NULL);</span>
+<span class="lineNum">     765 </span><span class="lineCov">        733 :    assert(lib != NULL);</span>
 <span class="lineNum">     766 </span>            : 
 <span class="lineNum">     767 </span>            :    lib_index_t *it;
-<span class="lineNum">     768 </span><span class="lineCov">       3303 :    for (it = lib-&gt;index; it != NULL; it = it-&gt;next)</span>
-<span class="lineNum">     769 </span><span class="lineCov">       2571 :       (*fn)(it-&gt;name, it-&gt;kind, context);</span>
-<a name="770"><span class="lineNum">     770 </span><span class="lineCov">        732 : }</span></a>
+<span class="lineNum">     768 </span><span class="lineCov">       3306 :    for (it = lib-&gt;index; it != NULL; it = it-&gt;next)</span>
+<span class="lineNum">     769 </span><span class="lineCov">       2573 :       (*fn)(it-&gt;name, it-&gt;kind, context);</span>
+<a name="770"><span class="lineNum">     770 </span><span class="lineCov">        733 : }</span></a>
 <span class="lineNum">     771 </span>            : 
 <span class="lineNum">     772 </span><span class="lineNoCov">          0 : unsigned lib_index_size(lib_t lib)</span>
 <span class="lineNum">     773 </span>            : {
