@@ -83,21 +83,21 @@
 <span class="lineNum">      21 </span>            : #include &lt;stdlib.h&gt;
 <a name="22"><span class="lineNum">      22 </span>            : #include &lt;assert.h&gt;</a>
 <span class="lineNum">      23 </span>            : 
-<span class="lineNum">      24 </span><span class="lineCov">        340 : netdb_t *netdb_open(tree_t top)</span>
+<span class="lineNum">      24 </span><span class="lineCov">        341 : netdb_t *netdb_open(tree_t top)</span>
 <span class="lineNum">      25 </span>            : {
-<span class="lineNum">      26 </span><span class="lineCov">        340 :    char *name = xasprintf(&quot;_%s.netdb&quot;, istr(tree_ident(top)));</span>
-<span class="lineNum">      27 </span><span class="lineCov">        340 :    fbuf_t *f = lib_fbuf_open(lib_work(), name, FBUF_IN);</span>
-<span class="lineNum">      28 </span><span class="lineCov">        340 :    if (f == NULL)</span>
+<span class="lineNum">      26 </span><span class="lineCov">        341 :    char *name = xasprintf(&quot;_%s.netdb&quot;, istr(tree_ident(top)));</span>
+<span class="lineNum">      27 </span><span class="lineCov">        341 :    fbuf_t *f = lib_fbuf_open(lib_work(), name, FBUF_IN);</span>
+<span class="lineNum">      28 </span><span class="lineCov">        341 :    if (f == NULL)</span>
 <span class="lineNum">      29 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to open net database file %s&quot;, name);</span>
-<span class="lineNum">      30 </span><span class="lineCov">        340 :    free(name);</span>
+<span class="lineNum">      30 </span><span class="lineCov">        341 :    free(name);</span>
 <span class="lineNum">      31 </span>            : 
-<span class="lineNum">      32 </span><span class="lineCov">        340 :    netdb_t *db = xmalloc(sizeof(struct netdb));</span>
-<span class="lineNum">      33 </span><span class="lineCov">        340 :    db-&gt;groups = NULL;</span>
-<span class="lineNum">      34 </span><span class="lineCov">        340 :    db-&gt;max    = 0;</span>
-<span class="lineNum">      35 </span><span class="lineCov">        340 :    db-&gt;nnets  = 0;</span>
+<span class="lineNum">      32 </span><span class="lineCov">        341 :    netdb_t *db = xmalloc(sizeof(struct netdb));</span>
+<span class="lineNum">      33 </span><span class="lineCov">        341 :    db-&gt;groups = NULL;</span>
+<span class="lineNum">      34 </span><span class="lineCov">        341 :    db-&gt;max    = 0;</span>
+<span class="lineNum">      35 </span><span class="lineCov">        341 :    db-&gt;nnets  = 0;</span>
 <span class="lineNum">      36 </span>            : 
 <span class="lineNum">      37 </span>            :    groupid_t gid;
-<span class="lineNum">      38 </span><span class="lineCov">       1691 :    while ((gid = read_u32(f)) != GROUPID_INVALID) {</span>
+<span class="lineNum">      38 </span><span class="lineCov">       1693 :    while ((gid = read_u32(f)) != GROUPID_INVALID) {</span>
 <span class="lineNum">      39 </span><span class="lineCov">       1011 :       group_t *g = xmalloc(sizeof(struct group));</span>
 <span class="lineNum">      40 </span><span class="lineCov">       1011 :       g-&gt;next   = db-&gt;groups;</span>
 <span class="lineNum">      41 </span><span class="lineCov">       1011 :       g-&gt;gid    = gid;</span>
@@ -109,42 +109,42 @@
 <span class="lineNum">      47 </span><span class="lineCov">       1011 :       db-&gt;nnets  = MAX(db-&gt;nnets, g-&gt;first + g-&gt;length);</span>
 <span class="lineNum">      48 </span>            :    }
 <span class="lineNum">      49 </span>            : 
-<span class="lineNum">      50 </span><span class="lineCov">        340 :    fbuf_close(f);</span>
+<span class="lineNum">      50 </span><span class="lineCov">        341 :    fbuf_close(f);</span>
 <span class="lineNum">      51 </span>            : 
-<span class="lineNum">      52 </span><span class="lineCov">        340 :    db-&gt;map = xmalloc(sizeof(groupid_t) * db-&gt;nnets);</span>
-<span class="lineNum">      53 </span><span class="lineCov">       4268 :    for (netid_t i = 0; i &lt; db-&gt;nnets; i++)</span>
+<span class="lineNum">      52 </span><span class="lineCov">        341 :    db-&gt;map = xmalloc(sizeof(groupid_t) * db-&gt;nnets);</span>
+<span class="lineNum">      53 </span><span class="lineCov">       4269 :    for (netid_t i = 0; i &lt; db-&gt;nnets; i++)</span>
 <span class="lineNum">      54 </span><span class="lineCov">       3928 :       db-&gt;map[i] = GROUPID_INVALID;</span>
 <span class="lineNum">      55 </span>            : 
-<span class="lineNum">      56 </span><span class="lineCov">       1351 :    for (group_t *it = db-&gt;groups; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">      56 </span><span class="lineCov">       1352 :    for (group_t *it = db-&gt;groups; it != NULL; it = it-&gt;next) {</span>
 <span class="lineNum">      57 </span><span class="lineCov">       4939 :       for (netid_t i = it-&gt;first; i &lt; it-&gt;first + it-&gt;length; i++)</span>
 <span class="lineNum">      58 </span><span class="lineCov">       3928 :          db-&gt;map[i] = it-&gt;gid;</span>
 <span class="lineNum">      59 </span>            :    }
 <span class="lineNum">      60 </span>            : 
-<span class="lineNum">      61 </span><span class="lineCov">        340 :    return db;</span>
+<span class="lineNum">      61 </span><span class="lineCov">        341 :    return db;</span>
 <a name="62"><span class="lineNum">      62 </span>            : }</a>
 <span class="lineNum">      63 </span>            : 
-<span class="lineNum">      64 </span><span class="lineCov">        317 : void netdb_close(netdb_t *db)</span>
+<span class="lineNum">      64 </span><span class="lineCov">        318 : void netdb_close(netdb_t *db)</span>
 <span class="lineNum">      65 </span>            : {
-<span class="lineNum">      66 </span><span class="lineCov">       1628 :    while (db-&gt;groups != NULL) {</span>
+<span class="lineNum">      66 </span><span class="lineCov">       1630 :    while (db-&gt;groups != NULL) {</span>
 <span class="lineNum">      67 </span><span class="lineCov">        994 :       group_t *next = db-&gt;groups-&gt;next;</span>
 <span class="lineNum">      68 </span><span class="lineCov">        994 :       free(db-&gt;groups);</span>
 <span class="lineNum">      69 </span><span class="lineCov">        994 :       db-&gt;groups = next;</span>
 <span class="lineNum">      70 </span>            :    }
 <span class="lineNum">      71 </span>            : 
-<span class="lineNum">      72 </span><span class="lineCov">        317 :    free(db-&gt;map);</span>
-<span class="lineNum">      73 </span><span class="lineCov">        317 :    free(db);</span>
-<a name="74"><span class="lineNum">      74 </span><span class="lineCov">        317 : }</span></a>
+<span class="lineNum">      72 </span><span class="lineCov">        318 :    free(db-&gt;map);</span>
+<span class="lineNum">      73 </span><span class="lineCov">        318 :    free(db);</span>
+<a name="74"><span class="lineNum">      74 </span><span class="lineCov">        318 : }</span></a>
 <span class="lineNum">      75 </span>            : 
-<span class="lineNum">      76 </span><span class="lineCov">        340 : unsigned netdb_size(netdb_t *db)</span>
+<span class="lineNum">      76 </span><span class="lineCov">        341 : unsigned netdb_size(netdb_t *db)</span>
 <span class="lineNum">      77 </span>            : {
-<span class="lineNum">      78 </span><span class="lineCov">        340 :    return db-&gt;max + 1;</span>
+<span class="lineNum">      78 </span><span class="lineCov">        341 :    return db-&gt;max + 1;</span>
 <a name="79"><span class="lineNum">      79 </span>            : }</a>
 <span class="lineNum">      80 </span>            : 
-<span class="lineNum">      81 </span><span class="lineCov">        995 : void netdb_walk(netdb_t *db, netdb_walk_fn_t fn)</span>
+<span class="lineNum">      81 </span><span class="lineCov">        998 : void netdb_walk(netdb_t *db, netdb_walk_fn_t fn)</span>
 <span class="lineNum">      82 </span>            : {
-<span class="lineNum">      83 </span><span class="lineCov">       4010 :    for (group_t *it = db-&gt;groups; it != NULL; it = it-&gt;next)</span>
+<span class="lineNum">      83 </span><span class="lineCov">       4013 :    for (group_t *it = db-&gt;groups; it != NULL; it = it-&gt;next)</span>
 <span class="lineNum">      84 </span><span class="lineCov">       3015 :       (*fn)(it-&gt;gid, it-&gt;first, it-&gt;length);</span>
-<span class="lineNum">      85 </span><span class="lineCov">        995 : }</span>
+<span class="lineNum">      85 </span><span class="lineCov">        998 : }</span>
 </pre>
       </td>
     </tr>

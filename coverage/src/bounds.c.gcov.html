@@ -102,43 +102,43 @@
 <span class="lineNum">      40 </span>            : #define bounds_error(t, ...) \
 <a name="41"><span class="lineNum">      41 </span>            :    do { errors++; error_at(tree_loc(t), __VA_ARGS__); } while (0)</a>
 <span class="lineNum">      42 </span>            : 
-<span class="lineNum">      43 </span><span class="lineCov">       2347 : static void bounds_check_string_literal(tree_t t)</span>
+<span class="lineNum">      43 </span><span class="lineCov">       2351 : static void bounds_check_string_literal(tree_t t)</span>
 <span class="lineNum">      44 </span>            : {
-<span class="lineNum">      45 </span><span class="lineCov">       2347 :    type_t type = tree_type(t);</span>
-<span class="lineNum">      46 </span><span class="lineCov">       2347 :    if (type_is_unconstrained(type))</span>
+<span class="lineNum">      45 </span><span class="lineCov">       2351 :    type_t type = tree_type(t);</span>
+<span class="lineNum">      46 </span><span class="lineCov">       2351 :    if (type_is_unconstrained(type))</span>
 <span class="lineNum">      47 </span><span class="lineCov">          1 :       return;</span>
 <span class="lineNum">      48 </span>            : 
 <span class="lineNum">      49 </span>            :    int64_t expect;
-<span class="lineNum">      50 </span><span class="lineCov">       2346 :    if (folded_length(range_of(type, 0), &amp;expect) &amp;&amp; expect != tree_chars(t))</span>
+<span class="lineNum">      50 </span><span class="lineCov">       2350 :    if (folded_length(range_of(type, 0), &amp;expect) &amp;&amp; expect != tree_chars(t))</span>
 <span class="lineNum">      51 </span><span class="lineCov">          2 :       bounds_error(t, &quot;expected %&quot;PRIi64&quot; elements in string literal but &quot;</span>
 <span class="lineNum">      52 </span>            :                    &quot;have %d&quot;, expect, tree_chars(t));
 <a name="53"><span class="lineNum">      53 </span>            : }</a>
 <span class="lineNum">      54 </span>            : 
-<span class="lineNum">      55 </span><span class="lineCov">      13095 : static void bounds_check_literal(tree_t t)</span>
+<span class="lineNum">      55 </span><span class="lineCov">      13100 : static void bounds_check_literal(tree_t t)</span>
 <span class="lineNum">      56 </span>            : {
-<span class="lineNum">      57 </span><span class="lineCov">      13095 :    switch (tree_subkind(t)) {</span>
+<span class="lineNum">      57 </span><span class="lineCov">      13100 :    switch (tree_subkind(t)) {</span>
 <span class="lineNum">      58 </span>            :    case L_STRING:
-<span class="lineNum">      59 </span><span class="lineCov">       2347 :       bounds_check_string_literal(t);</span>
-<span class="lineNum">      60 </span><span class="lineCov">       2347 :       break;</span>
+<span class="lineNum">      59 </span><span class="lineCov">       2351 :       bounds_check_string_literal(t);</span>
+<span class="lineNum">      60 </span><span class="lineCov">       2351 :       break;</span>
 <span class="lineNum">      61 </span>            :    default:
 <span class="lineNum">      62 </span>            :       break;
 <span class="lineNum">      63 </span>            :    }
-<a name="64"><span class="lineNum">      64 </span><span class="lineCov">      13095 : }</span></a>
+<a name="64"><span class="lineNum">      64 </span><span class="lineCov">      13100 : }</span></a>
 <span class="lineNum">      65 </span>            : 
-<span class="lineNum">      66 </span><span class="lineCov">      25040 : static bool is_out_of_range(tree_t value, range_t range, bool *checked)</span>
+<span class="lineNum">      66 </span><span class="lineCov">      25049 : static bool is_out_of_range(tree_t value, range_t range, bool *checked)</span>
 <span class="lineNum">      67 </span>            : {
-<span class="lineNum">      68 </span><span class="lineCov">      25040 :    type_kind_t base_kind = type_base_kind(tree_type(value));</span>
+<span class="lineNum">      68 </span><span class="lineCov">      25049 :    type_kind_t base_kind = type_base_kind(tree_type(value));</span>
 <span class="lineNum">      69 </span>            : 
-<span class="lineNum">      70 </span><span class="lineCov">      25040 :    switch (base_kind) {</span>
+<span class="lineNum">      70 </span><span class="lineCov">      25049 :    switch (base_kind) {</span>
 <span class="lineNum">      71 </span>            :    case T_INTEGER:
 <span class="lineNum">      72 </span>            :    case T_PHYSICAL:
 <span class="lineNum">      73 </span>            :       {
 <span class="lineNum">      74 </span>            :          int64_t ival, low, high;
-<span class="lineNum">      75 </span><span class="lineCov">      13691 :          *checked = folded_int(value, &amp;ival) &amp;&amp; folded_bounds(range, &amp;low, &amp;high);</span>
-<span class="lineNum">      76 </span><span class="lineCov">      13691 :          if (*checked &amp;&amp; (ival &lt; low || ival &gt; high))</span>
+<span class="lineNum">      75 </span><span class="lineCov">      13698 :          *checked = folded_int(value, &amp;ival) &amp;&amp; folded_bounds(range, &amp;low, &amp;high);</span>
+<span class="lineNum">      76 </span><span class="lineCov">      13698 :          if (*checked &amp;&amp; (ival &lt; low || ival &gt; high))</span>
 <span class="lineNum">      77 </span>            :             return true;
 <span class="lineNum">      78 </span>            : 
-<span class="lineNum">      79 </span><span class="lineCov">      13671 :          return false;</span>
+<span class="lineNum">      79 </span><span class="lineCov">      13678 :          return false;</span>
 <span class="lineNum">      80 </span>            :       }
 <span class="lineNum">      81 </span>            :       break;
 <span class="lineNum">      82 </span>            :    case T_REAL:
@@ -155,11 +155,11 @@
 <span class="lineNum">      93 </span>            :       {
 <span class="lineNum">      94 </span>            :          unsigned uval;
 <span class="lineNum">      95 </span>            :          int64_t low, high;
-<span class="lineNum">      96 </span><span class="lineCov">       9015 :          *checked = folded_enum(value, &amp;uval) &amp;&amp; folded_bounds(range, &amp;low, &amp;high);</span>
-<span class="lineNum">      97 </span><span class="lineCov">       9015 :          if (*checked &amp;&amp; (((int64_t) uval &lt; low) || ((int64_t) uval &gt; high)))</span>
+<span class="lineNum">      96 </span><span class="lineCov">       9017 :          *checked = folded_enum(value, &amp;uval) &amp;&amp; folded_bounds(range, &amp;low, &amp;high);</span>
+<span class="lineNum">      97 </span><span class="lineCov">       9017 :          if (*checked &amp;&amp; (((int64_t) uval &lt; low) || ((int64_t) uval &gt; high)))</span>
 <span class="lineNum">      98 </span>            :             return true;
 <span class="lineNum">      99 </span>            : 
-<span class="lineNum">     100 </span><span class="lineCov">       9008 :          return false;</span>
+<span class="lineNum">     100 </span><span class="lineCov">       9010 :          return false;</span>
 <span class="lineNum">     101 </span>            :       }
 <span class="lineNum">     102 </span>            :       break;
 <span class="lineNum">     103 </span>            :    default:
@@ -235,28 +235,28 @@
 <span class="lineNum">     173 </span><span class="lineCov">         69 :    return (const char *) buf;</span>
 <a name="174"><span class="lineNum">     174 </span>            : }</a>
 <span class="lineNum">     175 </span>            : 
-<span class="lineNum">     176 </span><span class="lineCov">      11410 : static tree_t bounds_check_call_args(tree_t t)</span>
+<span class="lineNum">     176 </span><span class="lineCov">      11417 : static tree_t bounds_check_call_args(tree_t t)</span>
 <span class="lineNum">     177 </span>            : {
-<span class="lineNum">     178 </span><span class="lineCov">      11410 :    tree_t decl = tree_ref(t);</span>
+<span class="lineNum">     178 </span><span class="lineCov">      11417 :    tree_t decl = tree_ref(t);</span>
 <span class="lineNum">     179 </span>            : 
-<span class="lineNum">     180 </span><span class="lineCov">      11410 :    const int nparams = tree_params(t);</span>
-<span class="lineNum">     181 </span><span class="lineCov">      11410 :    const int nports  = tree_ports(decl);</span>
+<span class="lineNum">     180 </span><span class="lineCov">      11417 :    const int nparams = tree_params(t);</span>
+<span class="lineNum">     181 </span><span class="lineCov">      11417 :    const int nports  = tree_ports(decl);</span>
 <span class="lineNum">     182 </span>            : 
-<span class="lineNum">     183 </span><span class="lineCov">      33669 :    for (int i = 0; (i &lt; nparams) &amp;&amp; (i &lt; nports); i++) {</span>
-<span class="lineNum">     184 </span><span class="lineCov">      22259 :       tree_t param = tree_param(t, i);</span>
-<span class="lineNum">     185 </span><span class="lineCov">      22259 :       assert(tree_subkind(param) == P_POS);</span>
+<span class="lineNum">     183 </span><span class="lineCov">      33687 :    for (int i = 0; (i &lt; nparams) &amp;&amp; (i &lt; nports); i++) {</span>
+<span class="lineNum">     184 </span><span class="lineCov">      22270 :       tree_t param = tree_param(t, i);</span>
+<span class="lineNum">     185 </span><span class="lineCov">      22270 :       assert(tree_subkind(param) == P_POS);</span>
 <span class="lineNum">     186 </span>            : 
-<span class="lineNum">     187 </span><span class="lineCov">      22259 :       tree_t value = tree_value(param);</span>
-<span class="lineNum">     188 </span><span class="lineCov">      22259 :       tree_t port  = tree_port(decl, tree_pos(param));</span>
+<span class="lineNum">     187 </span><span class="lineCov">      22270 :       tree_t value = tree_value(param);</span>
+<span class="lineNum">     188 </span><span class="lineCov">      22270 :       tree_t port  = tree_port(decl, tree_pos(param));</span>
 <span class="lineNum">     189 </span>            : 
-<span class="lineNum">     190 </span><span class="lineCov">      22259 :       type_t ftype = tree_type(port);</span>
-<span class="lineNum">     191 </span><span class="lineCov">      22259 :       type_t atype = tree_type(tree_value(param));</span>
+<span class="lineNum">     190 </span><span class="lineCov">      22270 :       type_t ftype = tree_type(port);</span>
+<span class="lineNum">     191 </span><span class="lineCov">      22270 :       type_t atype = tree_type(tree_value(param));</span>
 <span class="lineNum">     192 </span>            : 
-<span class="lineNum">     193 </span><span class="lineCov">      22259 :       if (type_is_array(ftype)) {</span>
+<span class="lineNum">     193 </span><span class="lineCov">      22270 :       if (type_is_array(ftype)) {</span>
 <span class="lineNum">     194 </span>            :          // Check bounds of constrained array parameters
 <span class="lineNum">     195 </span>            : 
-<span class="lineNum">     196 </span><span class="lineCov">       4206 :          if ((type_is_unconstrained(atype)) || (type_is_unconstrained(ftype)))</span>
-<span class="lineNum">     197 </span><span class="lineCov">       3828 :             continue;</span>
+<span class="lineNum">     196 </span><span class="lineCov">       4212 :          if ((type_is_unconstrained(atype)) || (type_is_unconstrained(ftype)))</span>
+<span class="lineNum">     197 </span><span class="lineCov">       3834 :             continue;</span>
 <span class="lineNum">     198 </span>            : 
 <span class="lineNum">     199 </span><span class="lineCov">        378 :          const int ndims = array_dimension(ftype);</span>
 <span class="lineNum">     200 </span>            : 
@@ -284,11 +284,11 @@
 <span class="lineNum">     222 </span>            :             }
 <span class="lineNum">     223 </span>            :          }
 <span class="lineNum">     224 </span>            :       }
-<span class="lineNum">     225 </span><span class="lineCov">      18053 :       else if (type_is_scalar(ftype)) {</span>
-<span class="lineNum">     226 </span><span class="lineCov">      16533 :          range_t r = range_of(ftype, 0);</span>
+<span class="lineNum">     225 </span><span class="lineCov">      18058 :       else if (type_is_scalar(ftype)) {</span>
+<span class="lineNum">     226 </span><span class="lineCov">      16538 :          range_t r = range_of(ftype, 0);</span>
 <span class="lineNum">     227 </span>            :          bool checked;
 <span class="lineNum">     228 </span>            : 
-<span class="lineNum">     229 </span><span class="lineCov">      16533 :          if (is_out_of_range(value, r, &amp;checked))</span>
+<span class="lineNum">     229 </span><span class="lineCov">      16538 :          if (is_out_of_range(value, r, &amp;checked))</span>
 <span class="lineNum">     230 </span><span class="lineCov">          8 :             bounds_error(value, &quot;value %s out of bounds %s %s %s for &quot;</span>
 <span class="lineNum">     231 </span>            :                          &quot;parameter %s&quot;, value_str(value),
 <span class="lineNum">     232 </span>            :                          value_str(r.left),
@@ -297,29 +297,29 @@
 <span class="lineNum">     235 </span>            :       }
 <span class="lineNum">     236 </span>            :    }
 <span class="lineNum">     237 </span>            : 
-<span class="lineNum">     238 </span><span class="lineCov">      11410 :    return t;</span>
+<span class="lineNum">     238 </span><span class="lineCov">      11417 :    return t;</span>
 <a name="239"><span class="lineNum">     239 </span>            : }</a>
 <span class="lineNum">     240 </span>            : 
-<span class="lineNum">     241 </span><span class="lineCov">       3006 : static void bounds_check_array_ref(tree_t t)</span>
+<span class="lineNum">     241 </span><span class="lineCov">       3008 : static void bounds_check_array_ref(tree_t t)</span>
 <span class="lineNum">     242 </span>            : {
-<span class="lineNum">     243 </span><span class="lineCov">       3006 :    tree_t value = tree_value(t);</span>
+<span class="lineNum">     243 </span><span class="lineCov">       3008 :    tree_t value = tree_value(t);</span>
 <span class="lineNum">     244 </span>            : 
-<span class="lineNum">     245 </span><span class="lineCov">       3006 :    if (!tree_has_type(value))</span>
+<span class="lineNum">     245 </span><span class="lineCov">       3008 :    if (!tree_has_type(value))</span>
 <span class="lineNum">     246 </span>            :       return;
 <span class="lineNum">     247 </span>            : 
-<span class="lineNum">     248 </span><span class="lineCov">       3006 :    type_t value_type = tree_type(value);</span>
+<span class="lineNum">     248 </span><span class="lineCov">       3008 :    type_t value_type = tree_type(value);</span>
 <span class="lineNum">     249 </span>            : 
-<span class="lineNum">     250 </span><span class="lineCov">       3006 :    if (type_is_unconstrained(value_type))</span>
+<span class="lineNum">     250 </span><span class="lineCov">       3008 :    if (type_is_unconstrained(value_type))</span>
 <span class="lineNum">     251 </span>            :       return;
 <span class="lineNum">     252 </span>            : 
-<span class="lineNum">     253 </span><span class="lineCov">       2579 :    int nstatic = 0;</span>
-<span class="lineNum">     254 </span><span class="lineCov">       2579 :    const int nparams = tree_params(t);</span>
-<span class="lineNum">     255 </span><span class="lineCov">       5512 :    for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">     256 </span><span class="lineCov">       2933 :       tree_t p = tree_param(t, i);</span>
-<span class="lineNum">     257 </span><span class="lineCov">       2933 :       tree_t pvalue = tree_value(p);</span>
-<span class="lineNum">     258 </span><span class="lineCov">       2933 :       range_t r = range_of(value_type, i);</span>
+<span class="lineNum">     253 </span><span class="lineCov">       2580 :    int nstatic = 0;</span>
+<span class="lineNum">     254 </span><span class="lineCov">       2580 :    const int nparams = tree_params(t);</span>
+<span class="lineNum">     255 </span><span class="lineCov">       5514 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">     256 </span><span class="lineCov">       2934 :       tree_t p = tree_param(t, i);</span>
+<span class="lineNum">     257 </span><span class="lineCov">       2934 :       tree_t pvalue = tree_value(p);</span>
+<span class="lineNum">     258 </span><span class="lineCov">       2934 :       range_t r = range_of(value_type, i);</span>
 <span class="lineNum">     259 </span>            :       bool checked;
-<span class="lineNum">     260 </span><span class="lineCov">       2933 :       if (is_out_of_range(pvalue, r, &amp;checked)) {</span>
+<span class="lineNum">     260 </span><span class="lineCov">       2934 :       if (is_out_of_range(pvalue, r, &amp;checked)) {</span>
 <span class="lineNum">     261 </span><span class="lineCov">         16 :          const char *name = (tree_kind(value) == T_REF)</span>
 <span class="lineNum">     262 </span><span class="lineCov">          8 :             ? istr(tree_ident(value)) : NULL;</span>
 <span class="lineNum">     263 </span><span class="lineCov">          8 :          bounds_error(t, &quot;array %s%sindex %s out of bounds %s %s %s&quot;,</span>
@@ -329,11 +329,11 @@
 <span class="lineNum">     267 </span>            :                       value_str(r.right));
 <span class="lineNum">     268 </span>            :       }
 <span class="lineNum">     269 </span>            : 
-<span class="lineNum">     270 </span><span class="lineCov">       2933 :       if (checked)</span>
+<span class="lineNum">     270 </span><span class="lineCov">       2934 :       if (checked)</span>
 <span class="lineNum">     271 </span><span class="lineCov">       1569 :          nstatic++;</span>
 <span class="lineNum">     272 </span>            :    }
 <span class="lineNum">     273 </span>            : 
-<span class="lineNum">     274 </span><span class="lineCov">       2579 :    if (nstatic == nparams)</span>
+<span class="lineNum">     274 </span><span class="lineCov">       2580 :    if (nstatic == nparams)</span>
 <span class="lineNum">     275 </span><span class="lineCov">       1313 :       tree_set_flag(t, TREE_F_ELIDE_BOUNDS);</span>
 <a name="276"><span class="lineNum">     276 </span>            : }</a>
 <span class="lineNum">     277 </span>            : 
@@ -410,24 +410,24 @@
 <span class="lineNum">     348 </span>            :    }
 <a name="349"><span class="lineNum">     349 </span><span class="lineCov">        350 : }</span></a>
 <span class="lineNum">     350 </span>            : 
-<span class="lineNum">     351 </span><span class="lineCov">       2799 : static void bounds_check_aggregate(tree_t t)</span>
+<span class="lineNum">     351 </span><span class="lineCov">       2800 : static void bounds_check_aggregate(tree_t t)</span>
 <span class="lineNum">     352 </span>            : {
-<span class="lineNum">     353 </span><span class="lineCov">       2799 :    type_t type = tree_type(t);</span>
-<span class="lineNum">     354 </span><span class="lineCov">       2799 :    if (!type_is_array(type))</span>
-<span class="lineNum">     355 </span><span class="lineCov">       1184 :       return;</span>
+<span class="lineNum">     353 </span><span class="lineCov">       2800 :    type_t type = tree_type(t);</span>
+<span class="lineNum">     354 </span><span class="lineCov">       2800 :    if (!type_is_array(type))</span>
+<span class="lineNum">     355 </span><span class="lineCov">       1185 :       return;</span>
 <span class="lineNum">     356 </span>            : 
-<span class="lineNum">     357 </span><span class="lineCov">       2213 :    assert(type_kind(type) != T_UARRAY);</span>
+<span class="lineNum">     357 </span><span class="lineCov">       2214 :    assert(type_kind(type) != T_UARRAY);</span>
 <span class="lineNum">     358 </span>            : 
 <span class="lineNum">     359 </span>            :    // Find the tightest bounds for the index
 <span class="lineNum">     360 </span>            : 
 <span class="lineNum">     361 </span>            :    int64_t low, high;
-<span class="lineNum">     362 </span><span class="lineCov">       2213 :    bool have_bounds = false;</span>
+<span class="lineNum">     362 </span><span class="lineCov">       2214 :    bool have_bounds = false;</span>
 <span class="lineNum">     363 </span>            : 
-<span class="lineNum">     364 </span><span class="lineCov">       2213 :    range_t type_r = range_of(type, 0);</span>
+<span class="lineNum">     364 </span><span class="lineCov">       2214 :    range_t type_r = range_of(type, 0);</span>
 <span class="lineNum">     365 </span>            : 
-<span class="lineNum">     366 </span><span class="lineCov">       2213 :    const bool unconstrained = tree_flags(t) &amp; TREE_F_UNCONSTRAINED;</span>
+<span class="lineNum">     366 </span><span class="lineCov">       2214 :    const bool unconstrained = tree_flags(t) &amp; TREE_F_UNCONSTRAINED;</span>
 <span class="lineNum">     367 </span>            : 
-<span class="lineNum">     368 </span><span class="lineCov">       2213 :    if (unconstrained) {</span>
+<span class="lineNum">     368 </span><span class="lineCov">       2214 :    if (unconstrained) {</span>
 <span class="lineNum">     369 </span>            :       // Aggregate of unconstrained array type
 <span class="lineNum">     370 </span><span class="lineCov">        282 :       type_t base = type_base_recur(type);</span>
 <span class="lineNum">     371 </span><span class="lineCov">        282 :       assert(type_kind(base) == T_UARRAY);</span>
@@ -439,9 +439,9 @@
 <span class="lineNum">     377 </span><span class="lineCov">        282 :       have_bounds = folded_bounds(base_r, &amp;low, &amp;high);</span>
 <span class="lineNum">     378 </span>            :    }
 <span class="lineNum">     379 </span>            :    else
-<span class="lineNum">     380 </span><span class="lineCov">       1931 :       have_bounds = folded_bounds(type_r, &amp;low, &amp;high);</span>
+<span class="lineNum">     380 </span><span class="lineCov">       1932 :       have_bounds = folded_bounds(type_r, &amp;low, &amp;high);</span>
 <span class="lineNum">     381 </span>            : 
-<span class="lineNum">     382 </span><span class="lineCov">       2213 :    if (!have_bounds)</span>
+<span class="lineNum">     382 </span><span class="lineCov">       2214 :    if (!have_bounds)</span>
 <span class="lineNum">     383 </span>            :       return;
 <span class="lineNum">     384 </span>            : 
 <span class="lineNum">     385 </span>            :    // Check for out of bounds indexes
@@ -516,53 +516,53 @@
 <span class="lineNum">     454 </span>            :    }
 <a name="455"><span class="lineNum">     455 </span>            : }</a>
 <span class="lineNum">     456 </span>            : 
-<span class="lineNum">     457 </span><span class="lineCov">      16584 : static void bounds_check_decl(tree_t t)</span>
+<span class="lineNum">     457 </span><span class="lineCov">      16590 : static void bounds_check_decl(tree_t t)</span>
 <span class="lineNum">     458 </span>            : {
-<span class="lineNum">     459 </span><span class="lineCov">      16584 :    type_t type = tree_type(t);</span>
+<span class="lineNum">     459 </span><span class="lineCov">      16590 :    type_t type = tree_type(t);</span>
 <span class="lineNum">     460 </span>            : 
-<span class="lineNum">     461 </span><span class="lineCov">      16584 :    if (tree_has_value(t))</span>
-<span class="lineNum">     462 </span><span class="lineCov">       4651 :       bounds_check_assignment(t, tree_value(t));</span>
+<span class="lineNum">     461 </span><span class="lineCov">      16590 :    if (tree_has_value(t))</span>
+<span class="lineNum">     462 </span><span class="lineCov">       4655 :       bounds_check_assignment(t, tree_value(t));</span>
 <span class="lineNum">     463 </span>            : 
-<span class="lineNum">     464 </span><span class="lineCov">      16584 :    const bool is_constrained_array_subtype =</span>
-<span class="lineNum">     465 </span><span class="lineCov">      16584 :       type_is_array(type)</span>
-<span class="lineNum">     466 </span><span class="lineCov">       7630 :       &amp;&amp; !type_is_unconstrained(type)</span>
-<span class="lineNum">     467 </span><span class="lineCov">      18567 :       &amp;&amp; type_kind(type) == T_SUBTYPE;</span>
+<span class="lineNum">     464 </span><span class="lineCov">      16590 :    const bool is_constrained_array_subtype =</span>
+<span class="lineNum">     465 </span><span class="lineCov">      16590 :       type_is_array(type)</span>
+<span class="lineNum">     466 </span><span class="lineCov">       7635 :       &amp;&amp; !type_is_unconstrained(type)</span>
+<span class="lineNum">     467 </span><span class="lineCov">      18576 :       &amp;&amp; type_kind(type) == T_SUBTYPE;</span>
 <span class="lineNum">     468 </span>            : 
-<span class="lineNum">     469 </span><span class="lineCov">      16584 :    if (is_constrained_array_subtype) {</span>
+<span class="lineNum">     469 </span><span class="lineCov">      16590 :    if (is_constrained_array_subtype) {</span>
 <span class="lineNum">     470 </span>            :       // Check folded range does not violate index constraints of base type
 <span class="lineNum">     471 </span>            : 
-<span class="lineNum">     472 </span><span class="lineCov">       1537 :       type_t base = type_base(type);</span>
+<span class="lineNum">     472 </span><span class="lineCov">       1540 :       type_t base = type_base(type);</span>
 <span class="lineNum">     473 </span>            : 
-<span class="lineNum">     474 </span><span class="lineCov">       1537 :       const int ndims = array_dimension(base);</span>
-<span class="lineNum">     475 </span><span class="lineCov">       3097 :       for (int i = 0; i &lt; ndims; i++) {</span>
-<span class="lineNum">     476 </span><span class="lineCov">       1560 :          range_t dim = range_of(type, i);</span>
+<span class="lineNum">     474 </span><span class="lineCov">       1540 :       const int ndims = array_dimension(base);</span>
+<span class="lineNum">     475 </span><span class="lineCov">       3103 :       for (int i = 0; i &lt; ndims; i++) {</span>
+<span class="lineNum">     476 </span><span class="lineCov">       1563 :          range_t dim = range_of(type, i);</span>
 <span class="lineNum">     477 </span>            : 
-<span class="lineNum">     478 </span><span class="lineCov">       1560 :          type_t cons = index_type_of(base, i);</span>
-<span class="lineNum">     479 </span><span class="lineCov">       1560 :          type_t cons_base  = type_base_recur(cons);</span>
+<span class="lineNum">     478 </span><span class="lineCov">       1563 :          type_t cons = index_type_of(base, i);</span>
+<span class="lineNum">     479 </span><span class="lineCov">       1563 :          type_t cons_base  = type_base_recur(cons);</span>
 <span class="lineNum">     480 </span>            : 
-<span class="lineNum">     481 </span><span class="lineCov">       1560 :          const bool is_enum = (type_kind(cons_base) == T_ENUM);</span>
+<span class="lineNum">     481 </span><span class="lineCov">       1563 :          const bool is_enum = (type_kind(cons_base) == T_ENUM);</span>
 <span class="lineNum">     482 </span>            : 
-<span class="lineNum">     483 </span><span class="lineCov">       1560 :          range_t bounds = range_of(cons, 0);</span>
+<span class="lineNum">     483 </span><span class="lineCov">       1563 :          range_t bounds = range_of(cons, 0);</span>
 <span class="lineNum">     484 </span>            : 
 <span class="lineNum">     485 </span>            :          // Only check here if range can be determined to be non-null
 <span class="lineNum">     486 </span>            : 
 <span class="lineNum">     487 </span>            :          int64_t dim_low, bounds_low;
 <span class="lineNum">     488 </span>            :          int64_t dim_high, bounds_high;
 <span class="lineNum">     489 </span>            : 
-<span class="lineNum">     490 </span><span class="lineCov">       1560 :          const bool is_static =</span>
-<span class="lineNum">     491 </span><span class="lineCov">       1560 :             folded_bounds(dim, &amp;dim_low, &amp;dim_high)</span>
-<span class="lineNum">     492 </span><span class="lineCov">       1560 :             &amp;&amp; folded_bounds(bounds, &amp;bounds_low, &amp;bounds_high);</span>
+<span class="lineNum">     490 </span><span class="lineCov">       1563 :          const bool is_static =</span>
+<span class="lineNum">     491 </span><span class="lineCov">       1563 :             folded_bounds(dim, &amp;dim_low, &amp;dim_high)</span>
+<span class="lineNum">     492 </span><span class="lineCov">       1563 :             &amp;&amp; folded_bounds(bounds, &amp;bounds_low, &amp;bounds_high);</span>
 <span class="lineNum">     493 </span>            : 
-<span class="lineNum">     494 </span><span class="lineCov">       1560 :          if (!is_static)</span>
-<span class="lineNum">     495 </span><span class="lineCov">       1112 :             continue;</span>
+<span class="lineNum">     494 </span><span class="lineCov">       1563 :          if (!is_static)</span>
+<span class="lineNum">     495 </span><span class="lineCov">       1114 :             continue;</span>
 <span class="lineNum">     496 </span>            : 
-<span class="lineNum">     497 </span><span class="lineCov">       1015 :          const bool is_null =</span>
-<span class="lineNum">     498 </span><span class="lineCov">       1015 :             dim_low &gt; dim_high || bounds_low &gt; bounds_high;</span>
+<span class="lineNum">     497 </span><span class="lineCov">       1017 :          const bool is_null =</span>
+<span class="lineNum">     498 </span><span class="lineCov">       1017 :             dim_low &gt; dim_high || bounds_low &gt; bounds_high;</span>
 <span class="lineNum">     499 </span>            : 
-<span class="lineNum">     500 </span><span class="lineCov">       1015 :          if (is_null)</span>
+<span class="lineNum">     500 </span><span class="lineCov">       1017 :          if (is_null)</span>
 <span class="lineNum">     501 </span><span class="lineCov">         22 :             continue;</span>
 <span class="lineNum">     502 </span>            : 
-<span class="lineNum">     503 </span><span class="lineCov">        993 :          if (dim_low &lt; bounds_low) {</span>
+<span class="lineNum">     503 </span><span class="lineCov">        995 :          if (dim_low &lt; bounds_low) {</span>
 <span class="lineNum">     504 </span><span class="lineCov">          2 :             if (is_enum) {</span>
 <span class="lineNum">     505 </span><span class="lineCov">          1 :                tree_t lit = type_enum_literal(cons_base, (unsigned) dim_low);</span>
 <span class="lineNum">     506 </span><span class="lineCov">          1 :                bounds_error((dim.kind == RANGE_TO) ? dim.left : dim.right,</span>
@@ -578,7 +578,7 @@
 <span class="lineNum">     516 </span>            : 
 <span class="lineNum">     517 </span>            :          }
 <span class="lineNum">     518 </span>            : 
-<span class="lineNum">     519 </span><span class="lineCov">        993 :          if (dim_high &gt; bounds_high) {</span>
+<span class="lineNum">     519 </span><span class="lineCov">        995 :          if (dim_high &gt; bounds_high) {</span>
 <span class="lineNum">     520 </span><span class="lineCov">          2 :             if (is_enum) {</span>
 <span class="lineNum">     521 </span><span class="lineCov">          1 :                tree_t lit = type_enum_literal(cons_base, (unsigned) dim_high);</span>
 <span class="lineNum">     522 </span><span class="lineCov">          1 :                bounds_error((dim.kind == RANGE_TO) ? dim.right : dim.left,</span>
@@ -594,25 +594,25 @@
 <span class="lineNum">     532 </span>            :          }
 <span class="lineNum">     533 </span>            :       }
 <span class="lineNum">     534 </span>            :    }
-<a name="535"><span class="lineNum">     535 </span><span class="lineCov">      16584 : }</span></a>
+<a name="535"><span class="lineNum">     535 </span><span class="lineCov">      16590 : }</span></a>
 <span class="lineNum">     536 </span>            : 
-<span class="lineNum">     537 </span><span class="lineCov">       9224 : static void bounds_check_assignment(tree_t target, tree_t value)</span>
+<span class="lineNum">     537 </span><span class="lineCov">       9230 : static void bounds_check_assignment(tree_t target, tree_t value)</span>
 <span class="lineNum">     538 </span>            : {
-<span class="lineNum">     539 </span><span class="lineCov">       9224 :    type_t target_type = tree_type(target);</span>
-<span class="lineNum">     540 </span><span class="lineCov">       9224 :    type_t value_type  = tree_type(value);</span>
+<span class="lineNum">     539 </span><span class="lineCov">       9230 :    type_t target_type = tree_type(target);</span>
+<span class="lineNum">     540 </span><span class="lineCov">       9230 :    type_t value_type  = tree_type(value);</span>
 <span class="lineNum">     541 </span>            : 
-<span class="lineNum">     542 </span><span class="lineCov">       9224 :    const bool check_array_length =</span>
-<span class="lineNum">     543 </span><span class="lineCov">       9224 :       type_is_array(target_type)</span>
-<span class="lineNum">     544 </span><span class="lineCov">       2968 :       &amp;&amp; !type_is_unconstrained(target_type)</span>
-<span class="lineNum">     545 </span><span class="lineCov">      12024 :       &amp;&amp; !type_is_unconstrained(value_type);</span>
+<span class="lineNum">     542 </span><span class="lineCov">       9230 :    const bool check_array_length =</span>
+<span class="lineNum">     543 </span><span class="lineCov">       9230 :       type_is_array(target_type)</span>
+<span class="lineNum">     544 </span><span class="lineCov">       2971 :       &amp;&amp; !type_is_unconstrained(target_type)</span>
+<span class="lineNum">     545 </span><span class="lineCov">      12033 :       &amp;&amp; !type_is_unconstrained(value_type);</span>
 <span class="lineNum">     546 </span>            : 
-<span class="lineNum">     547 </span><span class="lineCov">       9224 :    if (check_array_length) {</span>
-<span class="lineNum">     548 </span><span class="lineCov">       2390 :       const int ndims = array_dimension(target_type);</span>
-<span class="lineNum">     549 </span><span class="lineCov">       4843 :       for (int i = 0; i &lt; ndims; i++) {</span>
+<span class="lineNum">     547 </span><span class="lineCov">       9230 :    if (check_array_length) {</span>
+<span class="lineNum">     548 </span><span class="lineCov">       2393 :       const int ndims = array_dimension(target_type);</span>
+<span class="lineNum">     549 </span><span class="lineCov">       4849 :       for (int i = 0; i &lt; ndims; i++) {</span>
 <span class="lineNum">     550 </span>            :          int64_t target_w, value_w;
-<span class="lineNum">     551 </span><span class="lineCov">       2453 :          if (folded_length(range_of(target_type, i), &amp;target_w)</span>
-<span class="lineNum">     552 </span><span class="lineCov">       1810 :              &amp;&amp; folded_length(range_of(value_type, i), &amp;value_w)) {</span>
-<span class="lineNum">     553 </span><span class="lineCov">       1797 :             if (target_w != value_w) {</span>
+<span class="lineNum">     551 </span><span class="lineCov">       2456 :          if (folded_length(range_of(target_type, i), &amp;target_w)</span>
+<span class="lineNum">     552 </span><span class="lineCov">       1812 :              &amp;&amp; folded_length(range_of(value_type, i), &amp;value_w)) {</span>
+<span class="lineNum">     553 </span><span class="lineCov">       1799 :             if (target_w != value_w) {</span>
 <span class="lineNum">     554 </span><span class="lineCov">          5 :                if (i &gt; 0)</span>
 <span class="lineNum">     555 </span><span class="lineNoCov">          0 :                   bounds_error(value, &quot;length of dimension %d of value %&quot;PRIi64</span>
 <span class="lineNum">     556 </span>            :                                &quot; does not match length of target %&quot;PRIi64,
@@ -626,18 +626,18 @@
 <span class="lineNum">     564 </span>            :       }
 <span class="lineNum">     565 </span>            :    }
 <span class="lineNum">     566 </span>            : 
-<span class="lineNum">     567 </span><span class="lineCov">       9224 :    if (type_is_scalar(target_type)) {</span>
-<span class="lineNum">     568 </span><span class="lineCov">       5574 :       range_t r = range_of(target_type, 0);</span>
+<span class="lineNum">     567 </span><span class="lineCov">       9230 :    if (type_is_scalar(target_type)) {</span>
+<span class="lineNum">     568 </span><span class="lineCov">       5577 :       range_t r = range_of(target_type, 0);</span>
 <span class="lineNum">     569 </span>            :       bool checked;
 <span class="lineNum">     570 </span>            : 
-<span class="lineNum">     571 </span><span class="lineCov">       5574 :       if (is_out_of_range(value, r, &amp;checked)) {</span>
+<span class="lineNum">     571 </span><span class="lineCov">       5577 :       if (is_out_of_range(value, r, &amp;checked)) {</span>
 <span class="lineNum">     572 </span><span class="lineCov">         14 :          bounds_error(value, &quot;value %s out of target bounds %s %s %s&quot;,</span>
 <span class="lineNum">     573 </span>            :                       value_str(value), value_str(r.left),
 <span class="lineNum">     574 </span>            :                       (r.kind == RANGE_TO) ? &quot;to&quot; : &quot;downto&quot;,
 <span class="lineNum">     575 </span>            :                       value_str(r.right));
 <span class="lineNum">     576 </span>            :       }
 <span class="lineNum">     577 </span>            :    }
-<a name="578"><span class="lineNum">     578 </span><span class="lineCov">       9224 : }</span></a>
+<a name="578"><span class="lineNum">     578 </span><span class="lineCov">       9230 : }</span></a>
 <span class="lineNum">     579 </span>            : 
 <span class="lineNum">     580 </span><span class="lineCov">       1515 : static void bounds_check_signal_assign(tree_t t)</span>
 <span class="lineNum">     581 </span>            : {
@@ -681,10 +681,10 @@
 <span class="lineNum">     619 </span>            :    }
 <a name="620"><span class="lineNum">     620 </span><span class="lineCov">       1515 : }</span></a>
 <span class="lineNum">     621 </span>            : 
-<span class="lineNum">     622 </span><span class="lineCov">       3026 : static void bounds_check_var_assign(tree_t t)</span>
+<span class="lineNum">     622 </span><span class="lineCov">       3028 : static void bounds_check_var_assign(tree_t t)</span>
 <span class="lineNum">     623 </span>            : {
-<span class="lineNum">     624 </span><span class="lineCov">       3026 :    bounds_check_assignment(tree_target(t), tree_value(t));</span>
-<a name="625"><span class="lineNum">     625 </span><span class="lineCov">       3026 : }</span></a>
+<span class="lineNum">     624 </span><span class="lineCov">       3028 :    bounds_check_assignment(tree_target(t), tree_value(t));</span>
+<a name="625"><span class="lineNum">     625 </span><span class="lineCov">       3028 : }</span></a>
 <span class="lineNum">     626 </span>            : 
 <span class="lineNum">     627 </span><span class="lineCov">         51 : static void bounds_case_cover(interval_t **isp, tree_t t,</span>
 <span class="lineNum">     628 </span>            :                               int64_t low, int64_t high)
@@ -948,16 +948,16 @@
 <span class="lineNum">     886 </span>            :    }
 <a name="887"><span class="lineNum">     887 </span><span class="lineCov">        465 : }</span></a>
 <span class="lineNum">     888 </span>            : 
-<span class="lineNum">     889 </span><span class="lineCov">       2110 : static void bounds_check_attr_ref(tree_t t)</span>
+<span class="lineNum">     889 </span><span class="lineCov">       2113 : static void bounds_check_attr_ref(tree_t t)</span>
 <span class="lineNum">     890 </span>            : {
-<span class="lineNum">     891 </span><span class="lineCov">       2110 :    const predef_attr_t predef = tree_attr_int(t, builtin_i, -1);</span>
-<span class="lineNum">     892 </span><span class="lineCov">       2110 :    switch (predef) {</span>
+<span class="lineNum">     891 </span><span class="lineCov">       2113 :    const predef_attr_t predef = tree_attr_int(t, builtin_i, -1);</span>
+<span class="lineNum">     892 </span><span class="lineCov">       2113 :    switch (predef) {</span>
 <span class="lineNum">     893 </span>            :    case ATTR_LENGTH:
 <span class="lineNum">     894 </span>            :    case ATTR_LOW:
 <span class="lineNum">     895 </span>            :    case ATTR_HIGH:
 <span class="lineNum">     896 </span>            :    case ATTR_LEFT:
 <span class="lineNum">     897 </span>            :    case ATTR_RIGHT:
-<span class="lineNum">     898 </span><span class="lineCov">       1471 :       if (tree_params(t) &gt; 0)</span>
+<span class="lineNum">     898 </span><span class="lineCov">       1473 :       if (tree_params(t) &gt; 0)</span>
 <span class="lineNum">     899 </span>            :       {
 <span class="lineNum">     900 </span><span class="lineCov">         18 :          type_t type = tree_type(tree_name(t));</span>
 <span class="lineNum">     901 </span><span class="lineCov">         18 :          if (type_is_array(type) &amp;&amp; !type_is_unconstrained(type)) {</span>
@@ -977,78 +977,78 @@
 <span class="lineNum">     915 </span>            :    default:
 <span class="lineNum">     916 </span>            :       break;
 <span class="lineNum">     917 </span>            :    }
-<a name="918"><span class="lineNum">     918 </span><span class="lineCov">       2110 : }</span></a>
+<a name="918"><span class="lineNum">     918 </span><span class="lineCov">       2113 : }</span></a>
 <span class="lineNum">     919 </span>            : 
-<span class="lineNum">     920 </span><span class="lineCov">       2521 : static void bounds_check_wait(tree_t t)</span>
+<span class="lineNum">     920 </span><span class="lineCov">       2523 : static void bounds_check_wait(tree_t t)</span>
 <span class="lineNum">     921 </span>            : {
-<span class="lineNum">     922 </span><span class="lineCov">       2521 :    int64_t delay = 0;</span>
-<span class="lineNum">     923 </span><span class="lineCov">       2521 :    if (tree_has_delay(t) &amp;&amp; folded_int(tree_delay(t), &amp;delay))</span>
+<span class="lineNum">     922 </span><span class="lineCov">       2523 :    int64_t delay = 0;</span>
+<span class="lineNum">     923 </span><span class="lineCov">       2523 :    if (tree_has_delay(t) &amp;&amp; folded_int(tree_delay(t), &amp;delay))</span>
 <span class="lineNum">     924 </span><span class="lineCov">        805 :       if (delay &lt; 0)</span>
 <span class="lineNum">     925 </span><span class="lineCov">          1 :          bounds_error(tree_delay(t), &quot;wait timeout may not be negative&quot;);</span>
-<a name="926"><span class="lineNum">     926 </span><span class="lineCov">       2521 : }</span></a>
+<a name="926"><span class="lineNum">     926 </span><span class="lineCov">       2523 : }</span></a>
 <span class="lineNum">     927 </span>            : 
-<span class="lineNum">     928 </span><span class="lineCov">     178331 : static void bounds_visit_fn(tree_t t, void *context)</span>
+<span class="lineNum">     928 </span><span class="lineCov">     178431 : static void bounds_visit_fn(tree_t t, void *context)</span>
 <span class="lineNum">     929 </span>            : {
-<span class="lineNum">     930 </span><span class="lineCov">     178331 :    switch (tree_kind(t)) {</span>
+<span class="lineNum">     930 </span><span class="lineCov">     178431 :    switch (tree_kind(t)) {</span>
 <span class="lineNum">     931 </span>            :    case T_PCALL:
 <span class="lineNum">     932 </span>            :    case T_FCALL:
-<span class="lineNum">     933 </span><span class="lineCov">      11410 :       bounds_check_call_args(t);</span>
-<span class="lineNum">     934 </span><span class="lineCov">      11410 :       break;</span>
+<span class="lineNum">     933 </span><span class="lineCov">      11417 :       bounds_check_call_args(t);</span>
+<span class="lineNum">     934 </span><span class="lineCov">      11417 :       break;</span>
 <span class="lineNum">     935 </span>            :    case T_ARRAY_REF:
-<span class="lineNum">     936 </span><span class="lineCov">       3006 :       bounds_check_array_ref(t);</span>
-<span class="lineNum">     937 </span><span class="lineCov">       3006 :       break;</span>
+<span class="lineNum">     936 </span><span class="lineCov">       3008 :       bounds_check_array_ref(t);</span>
+<span class="lineNum">     937 </span><span class="lineCov">       3008 :       break;</span>
 <span class="lineNum">     938 </span>            :    case T_ARRAY_SLICE:
 <span class="lineNum">     939 </span><span class="lineCov">        420 :       bounds_check_array_slice(t);</span>
 <span class="lineNum">     940 </span><span class="lineCov">        420 :       break;</span>
 <span class="lineNum">     941 </span>            :    case T_AGGREGATE:
-<span class="lineNum">     942 </span><span class="lineCov">       2799 :       bounds_check_aggregate(t);</span>
-<span class="lineNum">     943 </span><span class="lineCov">       2799 :       break;</span>
+<span class="lineNum">     942 </span><span class="lineCov">       2800 :       bounds_check_aggregate(t);</span>
+<span class="lineNum">     943 </span><span class="lineCov">       2800 :       break;</span>
 <span class="lineNum">     944 </span>            :    case T_SIGNAL_DECL:
 <span class="lineNum">     945 </span>            :    case T_CONST_DECL:
 <span class="lineNum">     946 </span>            :    case T_VAR_DECL:
 <span class="lineNum">     947 </span>            :    case T_PORT_DECL:
-<span class="lineNum">     948 </span><span class="lineCov">      16584 :       bounds_check_decl(t);</span>
-<span class="lineNum">     949 </span><span class="lineCov">      16584 :       break;</span>
+<span class="lineNum">     948 </span><span class="lineCov">      16590 :       bounds_check_decl(t);</span>
+<span class="lineNum">     949 </span><span class="lineCov">      16590 :       break;</span>
 <span class="lineNum">     950 </span>            :    case T_SIGNAL_ASSIGN:
 <span class="lineNum">     951 </span><span class="lineCov">       1515 :       bounds_check_signal_assign(t);</span>
 <span class="lineNum">     952 </span><span class="lineCov">       1515 :       break;</span>
 <span class="lineNum">     953 </span>            :    case T_VAR_ASSIGN:
-<span class="lineNum">     954 </span><span class="lineCov">       3026 :       bounds_check_var_assign(t);</span>
-<span class="lineNum">     955 </span><span class="lineCov">       3026 :       break;</span>
+<span class="lineNum">     954 </span><span class="lineCov">       3028 :       bounds_check_var_assign(t);</span>
+<span class="lineNum">     955 </span><span class="lineCov">       3028 :       break;</span>
 <span class="lineNum">     956 </span>            :    case T_CASE:
 <span class="lineNum">     957 </span><span class="lineCov">        119 :       bounds_check_case(t);</span>
 <span class="lineNum">     958 </span><span class="lineCov">        119 :       break;</span>
 <span class="lineNum">     959 </span>            :    case T_LITERAL:
-<span class="lineNum">     960 </span><span class="lineCov">      13095 :       bounds_check_literal(t);</span>
-<span class="lineNum">     961 </span><span class="lineCov">      13095 :       break;</span>
+<span class="lineNum">     960 </span><span class="lineCov">      13100 :       bounds_check_literal(t);</span>
+<span class="lineNum">     961 </span><span class="lineCov">      13100 :       break;</span>
 <span class="lineNum">     962 </span>            :    case T_TYPE_CONV:
 <span class="lineNum">     963 </span><span class="lineCov">        465 :       bounds_check_type_conv(t);</span>
 <span class="lineNum">     964 </span><span class="lineCov">        465 :       break;</span>
 <span class="lineNum">     965 </span>            :    case T_ATTR_REF:
-<span class="lineNum">     966 </span><span class="lineCov">       2110 :       bounds_check_attr_ref(t);</span>
-<span class="lineNum">     967 </span><span class="lineCov">       2110 :       break;</span>
+<span class="lineNum">     966 </span><span class="lineCov">       2113 :       bounds_check_attr_ref(t);</span>
+<span class="lineNum">     967 </span><span class="lineCov">       2113 :       break;</span>
 <span class="lineNum">     968 </span>            :    case T_WAIT:
-<span class="lineNum">     969 </span><span class="lineCov">       2521 :       bounds_check_wait(t);</span>
-<span class="lineNum">     970 </span><span class="lineCov">       2521 :       break;</span>
+<span class="lineNum">     969 </span><span class="lineCov">       2523 :       bounds_check_wait(t);</span>
+<span class="lineNum">     970 </span><span class="lineCov">       2523 :       break;</span>
 <span class="lineNum">     971 </span>            :    default:
 <span class="lineNum">     972 </span>            :       break;
 <span class="lineNum">     973 </span>            :    }
-<a name="974"><span class="lineNum">     974 </span><span class="lineCov">     178331 : }</span></a>
+<a name="974"><span class="lineNum">     974 </span><span class="lineCov">     178431 : }</span></a>
 <span class="lineNum">     975 </span>            : 
-<span class="lineNum">     976 </span><span class="lineCov">       1865 : void bounds_check(tree_t top)</span>
+<span class="lineNum">     976 </span><span class="lineCov">       1870 : void bounds_check(tree_t top)</span>
 <span class="lineNum">     977 </span>            : {
-<span class="lineNum">     978 </span><span class="lineCov">       1865 :    tree_visit(top, bounds_visit_fn, NULL);</span>
-<a name="979"><span class="lineNum">     979 </span><span class="lineCov">       1865 : }</span></a>
+<span class="lineNum">     978 </span><span class="lineCov">       1870 :    tree_visit(top, bounds_visit_fn, NULL);</span>
+<a name="979"><span class="lineNum">     979 </span><span class="lineCov">       1870 : }</span></a>
 <span class="lineNum">     980 </span>            : 
-<span class="lineNum">     981 </span><span class="lineCov">       1533 : int bounds_errors(void)</span>
+<span class="lineNum">     981 </span><span class="lineCov">       1536 : int bounds_errors(void)</span>
 <span class="lineNum">     982 </span>            : {
-<span class="lineNum">     983 </span><span class="lineCov">       1533 :    return errors;</span>
+<span class="lineNum">     983 </span><span class="lineCov">       1536 :    return errors;</span>
 <a name="984"><span class="lineNum">     984 </span>            : }</a>
 <span class="lineNum">     985 </span>            : 
-<span class="lineNum">     986 </span><span class="lineCov">        280 : void reset_bounds_errors(void)</span>
+<span class="lineNum">     986 </span><span class="lineCov">        281 : void reset_bounds_errors(void)</span>
 <span class="lineNum">     987 </span>            : {
-<span class="lineNum">     988 </span><span class="lineCov">        280 :    errors = 0;</span>
-<span class="lineNum">     989 </span><span class="lineCov">        280 : }</span>
+<span class="lineNum">     988 </span><span class="lineCov">        281 :    errors = 0;</span>
+<span class="lineNum">     989 </span><span class="lineCov">        281 : }</span>
 </pre>
       </td>
     </tr>
