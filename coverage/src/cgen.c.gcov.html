@@ -31,8 +31,8 @@
             <td class="headerValue">nvc.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">2109</td>
-            <td class="headerCovTableEntry">2164</td>
+            <td class="headerCovTableEntry">2111</td>
+            <td class="headerCovTableEntry">2166</td>
             <td class="headerCovTableEntryHi">97.5 %</td>
           </tr>
           <tr>
@@ -61,7 +61,7 @@
 <pre class="sourceHeading">          Line data    Source code</pre>
 <pre class="source">
 <a name="1"><span class="lineNum">       1 </span>            : //</a>
-<span class="lineNum">       2 </span>            : //  Copyright (C) 2011-2017  Nick Gasson
+<span class="lineNum">       2 </span>            : //  Copyright (C) 2011-2018  Nick Gasson
 <span class="lineNum">       3 </span>            : //
 <span class="lineNum">       4 </span>            : //  This program is free software: you can redistribute it and/or modify
 <span class="lineNum">       5 </span>            : //  it under the terms of the GNU General Public License as published by
@@ -687,7 +687,7 @@
 <span class="lineNum">     625 </span><span class="lineCov">       4861 :    const int nargs = vcode_count_args(op);</span>
 <span class="lineNum">     626 </span><span class="lineCov">       4861 :    const int total_args = nargs + (nested ? 1 : 0) + (proc ? 1 : 0);</span>
 <span class="lineNum">     627 </span>            : 
-<span class="lineNum">     628 </span><span class="lineCov">       4861 :    LLVMValueRef fn = LLVMGetNamedFunction(module, istr(func));</span>
+<span class="lineNum">     628 </span><span class="lineCov">       4861 :    LLVMValueRef fn = LLVMGetNamedFunction(module, safe_symbol(istr(func)));</span>
 <span class="lineNum">     629 </span><span class="lineCov">       4861 :    if (fn == NULL) {</span>
 <span class="lineNum">     630 </span><span class="lineCov">        337 :       LLVMTypeRef atypes[total_args];</span>
 <span class="lineNum">     631 </span><span class="lineCov">        337 :       LLVMTypeRef *pa = atypes;</span>
@@ -706,7 +706,7 @@
 <span class="lineNum">     644 </span>            : 
 <span class="lineNum">     645 </span><span class="lineCov">        337 :       fn = LLVMAddFunction(</span>
 <span class="lineNum">     646 </span>            :          module,
-<span class="lineNum">     647 </span>            :          istr(func),
+<span class="lineNum">     647 </span>            :          safe_symbol(istr(func)),
 <span class="lineNum">     648 </span>            :          LLVMFunctionType(rtype, atypes, total_args, false));
 <span class="lineNum">     649 </span>            : 
 <span class="lineNum">     650 </span><span class="lineCov">        337 :       cgen_add_func_attr(fn, FUNC_ATTR_NOUNWIND);</span>
@@ -1966,7 +1966,7 @@
 <span class="lineNum">    1904 </span><span class="lineCov">         46 :    ident_t func = vcode_get_func(op);</span>
 <span class="lineNum">    1905 </span><span class="lineCov">         46 :    const int nargs = vcode_count_args(op);</span>
 <span class="lineNum">    1906 </span>            : 
-<span class="lineNum">    1907 </span><span class="lineCov">         46 :    LLVMValueRef fn = LLVMGetNamedFunction(module, istr(func));</span>
+<span class="lineNum">    1907 </span><span class="lineCov">         46 :    LLVMValueRef fn = LLVMGetNamedFunction(module, safe_symbol(istr(func)));</span>
 <span class="lineNum">    1908 </span><span class="lineCov">         46 :    if (fn == NULL) {</span>
 <span class="lineNum">    1909 </span><span class="lineCov">          4 :       LLVMTypeRef atypes[nargs + 1];</span>
 <span class="lineNum">    1910 </span><span class="lineCov">         14 :       for (int i = 0; i &lt; nargs; i++)</span>
@@ -1975,7 +1975,7 @@
 <span class="lineNum">    1913 </span>            : 
 <span class="lineNum">    1914 </span><span class="lineCov">          4 :       fn = LLVMAddFunction(</span>
 <span class="lineNum">    1915 </span>            :          module,
-<span class="lineNum">    1916 </span>            :          istr(func),
+<span class="lineNum">    1916 </span>            :          safe_symbol(istr(func)),
 <span class="lineNum">    1917 </span>            :          LLVMFunctionType(llvm_void_ptr(), atypes, nargs + 1, false));
 <span class="lineNum">    1918 </span>            : 
 <span class="lineNum">    1919 </span><span class="lineCov">          4 :       cgen_add_func_attr(fn, FUNC_ATTR_NOUNWIND);</span>
@@ -3020,954 +3020,956 @@
 <span class="lineNum">    2958 </span>            : {
 <span class="lineNum">    2959 </span><span class="lineCov">       1144 :    assert(vcode_unit_kind() == VCODE_UNIT_FUNCTION);</span>
 <span class="lineNum">    2960 </span>            : 
-<span class="lineNum">    2961 </span><span class="lineCov">       1144 :    LLVMValueRef fn = LLVMGetNamedFunction(module, istr(vcode_unit_name()));</span>
-<span class="lineNum">    2962 </span><span class="lineCov">       1144 :    if (fn == NULL)</span>
-<span class="lineNum">    2963 </span><span class="lineCov">       1091 :       fn = LLVMAddFunction(module, istr(vcode_unit_name()),</span>
-<span class="lineNum">    2964 </span>            :                            cgen_subprogram_type(display_type, false));
-<span class="lineNum">    2965 </span>            : 
-<span class="lineNum">    2966 </span><span class="lineCov">       1144 :    cgen_add_func_attr(fn, FUNC_ATTR_DLLEXPORT);</span>
-<span class="lineNum">    2967 </span><span class="lineCov">       1144 :    cgen_add_func_attr(fn, FUNC_ATTR_NOUNWIND);</span>
-<span class="lineNum">    2968 </span>            : 
-<span class="lineNum">    2969 </span><span class="lineCov">       1144 :    const bool pure =</span>
-<span class="lineNum">    2970 </span>            :       display_type == NULL
-<span class="lineNum">    2971 </span><span class="lineCov">       1113 :       &amp;&amp; vcode_unit_result() != VCODE_INVALID_TYPE</span>
-<span class="lineNum">    2972 </span><span class="lineCov">       2026 :       &amp;&amp; vcode_unit_pure();</span>
-<span class="lineNum">    2973 </span>            : 
-<span class="lineNum">    2974 </span><span class="lineCov">       1144 :    if (pure)</span>
-<span class="lineNum">    2975 </span><span class="lineCov">        688 :       cgen_add_func_attr(fn, FUNC_ATTR_READONLY);</span>
-<span class="lineNum">    2976 </span>            : 
-<span class="lineNum">    2977 </span><span class="lineCov">       1144 :    cgen_ctx_t ctx = {</span>
-<span class="lineNum">    2978 </span>            :       .fn = fn
-<span class="lineNum">    2979 </span>            :    };
-<span class="lineNum">    2980 </span><span class="lineCov">       1144 :    cgen_alloc_context(&amp;ctx);</span>
-<span class="lineNum">    2981 </span>            : 
-<span class="lineNum">    2982 </span><span class="lineCov">       1144 :    if (display_type != NULL)</span>
-<span class="lineNum">    2983 </span><span class="lineCov">         31 :       ctx.display = LLVMGetParam(fn, vcode_count_params());</span>
-<span class="lineNum">    2984 </span>            : 
-<span class="lineNum">    2985 </span><span class="lineCov">       1144 :    cgen_params(&amp;ctx);</span>
-<span class="lineNum">    2986 </span><span class="lineCov">       1144 :    cgen_locals(&amp;ctx);</span>
-<span class="lineNum">    2987 </span><span class="lineCov">       1144 :    cgen_code(&amp;ctx);</span>
-<span class="lineNum">    2988 </span><span class="lineCov">       1144 :    cgen_free_context(&amp;ctx);</span>
-<a name="2989"><span class="lineNum">    2989 </span><span class="lineCov">       1144 : }</span></a>
-<span class="lineNum">    2990 </span>            : 
-<span class="lineNum">    2991 </span><span class="lineCov">        891 : static LLVMTypeRef cgen_state_type(cgen_ctx_t *ctx)</span>
-<span class="lineNum">    2992 </span>            : {
-<span class="lineNum">    2993 </span><span class="lineCov">        891 :    const bool is_procedure = vcode_unit_kind() == VCODE_UNIT_PROCEDURE;</span>
-<span class="lineNum">    2994 </span>            : 
-<span class="lineNum">    2995 </span><span class="lineCov">        891 :    const int nparams = is_procedure ? vcode_count_params() : 0;</span>
-<span class="lineNum">    2996 </span><span class="lineCov">        891 :    const int nvars   = vcode_count_vars();</span>
-<span class="lineNum">    2997 </span><span class="lineCov">        891 :    const int nfields = nvars + nparams + 2;</span>
-<span class="lineNum">    2998 </span>            : 
-<span class="lineNum">    2999 </span><span class="lineCov">        891 :    LLVMTypeRef fields[nfields];</span>
-<span class="lineNum">    3000 </span><span class="lineCov">        891 :    fields[0] = LLVMInt32Type();</span>
-<span class="lineNum">    3001 </span><span class="lineCov">        891 :    fields[1] = llvm_void_ptr();</span>
-<span class="lineNum">    3002 </span>            : 
-<span class="lineNum">    3003 </span><span class="lineCov">        891 :    ctx-&gt;var_base = ctx-&gt;param_base = 2;</span>
-<span class="lineNum">    3004 </span>            : 
-<span class="lineNum">    3005 </span><span class="lineCov">        891 :    if (is_procedure) {</span>
-<span class="lineNum">    3006 </span><span class="lineCov">        298 :       for (int i = 0; i &lt; nparams; i++)</span>
-<span class="lineNum">    3007 </span><span class="lineCov">        298 :          fields[ctx-&gt;param_base + i] = cgen_type(vcode_param_type(i));</span>
-<span class="lineNum">    3008 </span>            : 
-<span class="lineNum">    3009 </span><span class="lineCov">         67 :       ctx-&gt;var_base += nparams;</span>
-<span class="lineNum">    3010 </span>            :    }
-<span class="lineNum">    3011 </span>            : 
-<span class="lineNum">    3012 </span><span class="lineCov">        758 :    for (int i = 0; i &lt; nvars; i++) {</span>
-<span class="lineNum">    3013 </span><span class="lineCov">        758 :       vcode_var_t var = vcode_var_handle(i);</span>
-<span class="lineNum">    3014 </span><span class="lineCov">        758 :       fields[ctx-&gt;var_base + i] = cgen_type(vcode_var_type(var));</span>
-<span class="lineNum">    3015 </span>            :    }
-<span class="lineNum">    3016 </span>            : 
-<span class="lineNum">    3017 </span><span class="lineCov">        891 :    return LLVMStructType(fields, nfields, false);</span>
-<a name="3018"><span class="lineNum">    3018 </span>            : }</a>
-<span class="lineNum">    3019 </span>            : 
-<span class="lineNum">    3020 </span><span class="lineCov">        824 : static void cgen_state_struct(cgen_ctx_t *ctx)</span>
-<span class="lineNum">    3021 </span>            : {
-<span class="lineNum">    3022 </span><span class="lineCov">       1648 :    char *name LOCAL = xasprintf(&quot;%s__state&quot;, istr(vcode_unit_name()));</span>
-<span class="lineNum">    3023 </span><span class="lineCov">        824 :    LLVMTypeRef state_ty = cgen_state_type(ctx);</span>
-<span class="lineNum">    3024 </span><span class="lineCov">        824 :    ctx-&gt;state = LLVMAddGlobal(module, state_ty, name);</span>
-<span class="lineNum">    3025 </span><span class="lineCov">        824 :    LLVMSetLinkage(ctx-&gt;state, LLVMInternalLinkage);</span>
-<span class="lineNum">    3026 </span><span class="lineCov">        824 :    LLVMSetInitializer(ctx-&gt;state, LLVMGetUndef(state_ty));</span>
-<a name="3027"><span class="lineNum">    3027 </span><span class="lineCov">        824 : }</span></a>
-<span class="lineNum">    3028 </span>            : 
-<span class="lineNum">    3029 </span><span class="lineCov">        891 : static void cgen_jump_table(cgen_ctx_t *ctx)</span>
-<span class="lineNum">    3030 </span>            : {
-<span class="lineNum">    3031 </span><span class="lineCov">        891 :    assert(ctx-&gt;state != NULL);</span>
-<span class="lineNum">    3032 </span>            : 
-<span class="lineNum">    3033 </span><span class="lineCov">        891 :    const int first = vcode_unit_kind() == VCODE_UNIT_PROCESS ? 1 : 0;</span>
-<span class="lineNum">    3034 </span>            : 
-<span class="lineNum">    3035 </span><span class="lineCov">        891 :    LLVMValueRef state_ptr = LLVMBuildStructGEP(builder, ctx-&gt;state, 0, &quot;&quot;);</span>
-<span class="lineNum">    3036 </span><span class="lineCov">        891 :    LLVMValueRef jtarget = LLVMBuildLoad(builder, state_ptr, &quot;&quot;);</span>
-<span class="lineNum">    3037 </span><span class="lineCov">        891 :    LLVMValueRef jswitch = LLVMBuildSwitch(builder, jtarget,</span>
-<span class="lineNum">    3038 </span><span class="lineCov">        891 :                                           ctx-&gt;blocks[first], 10);</span>
-<span class="lineNum">    3039 </span>            : 
-<span class="lineNum">    3040 </span><span class="lineCov">        891 :    const int nblocks = vcode_count_blocks();</span>
-<span class="lineNum">    3041 </span><span class="lineCov">       1782 :    bool *have LOCAL = xcalloc(sizeof(bool) * nblocks);</span>
-<span class="lineNum">    3042 </span><span class="lineCov">       5875 :    for (int i = 0; i &lt; nblocks; i++) {</span>
-<span class="lineNum">    3043 </span><span class="lineCov">       4984 :       vcode_select_block(i);</span>
-<span class="lineNum">    3044 </span>            : 
-<span class="lineNum">    3045 </span><span class="lineCov">       4984 :       const int last = vcode_count_ops() - 1;</span>
-<span class="lineNum">    3046 </span><span class="lineCov">       4984 :       if (last &lt; 0)</span>
-<span class="lineNum">    3047 </span><span class="lineNoCov">          0 :          continue;</span>
-<span class="lineNum">    3048 </span>            : 
-<span class="lineNum">    3049 </span><span class="lineCov">       4984 :       vcode_op_t last_op = vcode_get_op(last);</span>
-<span class="lineNum">    3050 </span><span class="lineCov">       4984 :       if (last_op != VCODE_OP_WAIT &amp;&amp; last_op != VCODE_OP_PCALL</span>
-<span class="lineNum">    3051 </span><span class="lineCov">       3593 :           &amp;&amp; last_op != VCODE_OP_NESTED_PCALL)</span>
-<span class="lineNum">    3052 </span><span class="lineCov">       3589 :          continue;</span>
-<span class="lineNum">    3053 </span>            : 
-<span class="lineNum">    3054 </span><span class="lineCov">       1395 :       const vcode_block_t target = vcode_get_target(last, 0);</span>
-<span class="lineNum">    3055 </span><span class="lineCov">       1395 :       if (have[target])</span>
-<span class="lineNum">    3056 </span><span class="lineCov">         20 :          continue;</span>
-<span class="lineNum">    3057 </span>            : 
-<span class="lineNum">    3058 </span><span class="lineCov">       1375 :       LLVMAddCase(jswitch, llvm_int32(target), ctx-&gt;blocks[target]);</span>
-<span class="lineNum">    3059 </span><span class="lineCov">       1375 :       have[target] = true;</span>
-<span class="lineNum">    3060 </span>            :    }
-<a name="3061"><span class="lineNum">    3061 </span><span class="lineCov">        891 : }</span></a>
-<span class="lineNum">    3062 </span>            : 
-<span class="lineNum">    3063 </span><span class="lineCov">         67 : static void cgen_procedure(LLVMTypeRef display_type)</span>
-<span class="lineNum">    3064 </span>            : {
-<span class="lineNum">    3065 </span><span class="lineCov">         67 :    assert(vcode_unit_kind() == VCODE_UNIT_PROCEDURE);</span>
-<span class="lineNum">    3066 </span>            : 
-<span class="lineNum">    3067 </span><span class="lineCov">         67 :    LLVMValueRef fn = LLVMGetNamedFunction(module, istr(vcode_unit_name()));</span>
-<span class="lineNum">    3068 </span><span class="lineCov">         67 :    if (fn == NULL)</span>
-<span class="lineNum">    3069 </span><span class="lineCov">         66 :       fn = LLVMAddFunction(module, istr(vcode_unit_name()),</span>
-<span class="lineNum">    3070 </span>            :                            cgen_subprogram_type(display_type, true));
-<span class="lineNum">    3071 </span>            : 
-<span class="lineNum">    3072 </span><span class="lineCov">         67 :    cgen_add_func_attr(fn, FUNC_ATTR_NOUNWIND);</span>
+<span class="lineNum">    2961 </span><span class="lineCov">       1144 :    const char *safe_name = safe_symbol(istr(vcode_unit_name()));</span>
+<span class="lineNum">    2962 </span><span class="lineCov">       1144 :    LLVMValueRef fn = LLVMGetNamedFunction(module, safe_name);</span>
+<span class="lineNum">    2963 </span><span class="lineCov">       1144 :    if (fn == NULL)</span>
+<span class="lineNum">    2964 </span><span class="lineCov">       1091 :       fn = LLVMAddFunction(module, safe_name,</span>
+<span class="lineNum">    2965 </span>            :                            cgen_subprogram_type(display_type, false));
+<span class="lineNum">    2966 </span>            : 
+<span class="lineNum">    2967 </span><span class="lineCov">       1144 :    cgen_add_func_attr(fn, FUNC_ATTR_DLLEXPORT);</span>
+<span class="lineNum">    2968 </span><span class="lineCov">       1144 :    cgen_add_func_attr(fn, FUNC_ATTR_NOUNWIND);</span>
+<span class="lineNum">    2969 </span>            : 
+<span class="lineNum">    2970 </span><span class="lineCov">       1144 :    const bool pure =</span>
+<span class="lineNum">    2971 </span>            :       display_type == NULL
+<span class="lineNum">    2972 </span><span class="lineCov">       1113 :       &amp;&amp; vcode_unit_result() != VCODE_INVALID_TYPE</span>
+<span class="lineNum">    2973 </span><span class="lineCov">       2026 :       &amp;&amp; vcode_unit_pure();</span>
+<span class="lineNum">    2974 </span>            : 
+<span class="lineNum">    2975 </span><span class="lineCov">       1144 :    if (pure)</span>
+<span class="lineNum">    2976 </span><span class="lineCov">        688 :       cgen_add_func_attr(fn, FUNC_ATTR_READONLY);</span>
+<span class="lineNum">    2977 </span>            : 
+<span class="lineNum">    2978 </span><span class="lineCov">       1144 :    cgen_ctx_t ctx = {</span>
+<span class="lineNum">    2979 </span>            :       .fn = fn
+<span class="lineNum">    2980 </span>            :    };
+<span class="lineNum">    2981 </span><span class="lineCov">       1144 :    cgen_alloc_context(&amp;ctx);</span>
+<span class="lineNum">    2982 </span>            : 
+<span class="lineNum">    2983 </span><span class="lineCov">       1144 :    if (display_type != NULL)</span>
+<span class="lineNum">    2984 </span><span class="lineCov">         31 :       ctx.display = LLVMGetParam(fn, vcode_count_params());</span>
+<span class="lineNum">    2985 </span>            : 
+<span class="lineNum">    2986 </span><span class="lineCov">       1144 :    cgen_params(&amp;ctx);</span>
+<span class="lineNum">    2987 </span><span class="lineCov">       1144 :    cgen_locals(&amp;ctx);</span>
+<span class="lineNum">    2988 </span><span class="lineCov">       1144 :    cgen_code(&amp;ctx);</span>
+<span class="lineNum">    2989 </span><span class="lineCov">       1144 :    cgen_free_context(&amp;ctx);</span>
+<a name="2990"><span class="lineNum">    2990 </span><span class="lineCov">       1144 : }</span></a>
+<span class="lineNum">    2991 </span>            : 
+<span class="lineNum">    2992 </span><span class="lineCov">        891 : static LLVMTypeRef cgen_state_type(cgen_ctx_t *ctx)</span>
+<span class="lineNum">    2993 </span>            : {
+<span class="lineNum">    2994 </span><span class="lineCov">        891 :    const bool is_procedure = vcode_unit_kind() == VCODE_UNIT_PROCEDURE;</span>
+<span class="lineNum">    2995 </span>            : 
+<span class="lineNum">    2996 </span><span class="lineCov">        891 :    const int nparams = is_procedure ? vcode_count_params() : 0;</span>
+<span class="lineNum">    2997 </span><span class="lineCov">        891 :    const int nvars   = vcode_count_vars();</span>
+<span class="lineNum">    2998 </span><span class="lineCov">        891 :    const int nfields = nvars + nparams + 2;</span>
+<span class="lineNum">    2999 </span>            : 
+<span class="lineNum">    3000 </span><span class="lineCov">        891 :    LLVMTypeRef fields[nfields];</span>
+<span class="lineNum">    3001 </span><span class="lineCov">        891 :    fields[0] = LLVMInt32Type();</span>
+<span class="lineNum">    3002 </span><span class="lineCov">        891 :    fields[1] = llvm_void_ptr();</span>
+<span class="lineNum">    3003 </span>            : 
+<span class="lineNum">    3004 </span><span class="lineCov">        891 :    ctx-&gt;var_base = ctx-&gt;param_base = 2;</span>
+<span class="lineNum">    3005 </span>            : 
+<span class="lineNum">    3006 </span><span class="lineCov">        891 :    if (is_procedure) {</span>
+<span class="lineNum">    3007 </span><span class="lineCov">        298 :       for (int i = 0; i &lt; nparams; i++)</span>
+<span class="lineNum">    3008 </span><span class="lineCov">        298 :          fields[ctx-&gt;param_base + i] = cgen_type(vcode_param_type(i));</span>
+<span class="lineNum">    3009 </span>            : 
+<span class="lineNum">    3010 </span><span class="lineCov">         67 :       ctx-&gt;var_base += nparams;</span>
+<span class="lineNum">    3011 </span>            :    }
+<span class="lineNum">    3012 </span>            : 
+<span class="lineNum">    3013 </span><span class="lineCov">        758 :    for (int i = 0; i &lt; nvars; i++) {</span>
+<span class="lineNum">    3014 </span><span class="lineCov">        758 :       vcode_var_t var = vcode_var_handle(i);</span>
+<span class="lineNum">    3015 </span><span class="lineCov">        758 :       fields[ctx-&gt;var_base + i] = cgen_type(vcode_var_type(var));</span>
+<span class="lineNum">    3016 </span>            :    }
+<span class="lineNum">    3017 </span>            : 
+<span class="lineNum">    3018 </span><span class="lineCov">        891 :    return LLVMStructType(fields, nfields, false);</span>
+<a name="3019"><span class="lineNum">    3019 </span>            : }</a>
+<span class="lineNum">    3020 </span>            : 
+<span class="lineNum">    3021 </span><span class="lineCov">        824 : static void cgen_state_struct(cgen_ctx_t *ctx)</span>
+<span class="lineNum">    3022 </span>            : {
+<span class="lineNum">    3023 </span><span class="lineCov">       1648 :    char *name LOCAL = xasprintf(&quot;%s__state&quot;, istr(vcode_unit_name()));</span>
+<span class="lineNum">    3024 </span><span class="lineCov">        824 :    LLVMTypeRef state_ty = cgen_state_type(ctx);</span>
+<span class="lineNum">    3025 </span><span class="lineCov">        824 :    ctx-&gt;state = LLVMAddGlobal(module, state_ty, name);</span>
+<span class="lineNum">    3026 </span><span class="lineCov">        824 :    LLVMSetLinkage(ctx-&gt;state, LLVMInternalLinkage);</span>
+<span class="lineNum">    3027 </span><span class="lineCov">        824 :    LLVMSetInitializer(ctx-&gt;state, LLVMGetUndef(state_ty));</span>
+<a name="3028"><span class="lineNum">    3028 </span><span class="lineCov">        824 : }</span></a>
+<span class="lineNum">    3029 </span>            : 
+<span class="lineNum">    3030 </span><span class="lineCov">        891 : static void cgen_jump_table(cgen_ctx_t *ctx)</span>
+<span class="lineNum">    3031 </span>            : {
+<span class="lineNum">    3032 </span><span class="lineCov">        891 :    assert(ctx-&gt;state != NULL);</span>
+<span class="lineNum">    3033 </span>            : 
+<span class="lineNum">    3034 </span><span class="lineCov">        891 :    const int first = vcode_unit_kind() == VCODE_UNIT_PROCESS ? 1 : 0;</span>
+<span class="lineNum">    3035 </span>            : 
+<span class="lineNum">    3036 </span><span class="lineCov">        891 :    LLVMValueRef state_ptr = LLVMBuildStructGEP(builder, ctx-&gt;state, 0, &quot;&quot;);</span>
+<span class="lineNum">    3037 </span><span class="lineCov">        891 :    LLVMValueRef jtarget = LLVMBuildLoad(builder, state_ptr, &quot;&quot;);</span>
+<span class="lineNum">    3038 </span><span class="lineCov">        891 :    LLVMValueRef jswitch = LLVMBuildSwitch(builder, jtarget,</span>
+<span class="lineNum">    3039 </span><span class="lineCov">        891 :                                           ctx-&gt;blocks[first], 10);</span>
+<span class="lineNum">    3040 </span>            : 
+<span class="lineNum">    3041 </span><span class="lineCov">        891 :    const int nblocks = vcode_count_blocks();</span>
+<span class="lineNum">    3042 </span><span class="lineCov">       1782 :    bool *have LOCAL = xcalloc(sizeof(bool) * nblocks);</span>
+<span class="lineNum">    3043 </span><span class="lineCov">       5875 :    for (int i = 0; i &lt; nblocks; i++) {</span>
+<span class="lineNum">    3044 </span><span class="lineCov">       4984 :       vcode_select_block(i);</span>
+<span class="lineNum">    3045 </span>            : 
+<span class="lineNum">    3046 </span><span class="lineCov">       4984 :       const int last = vcode_count_ops() - 1;</span>
+<span class="lineNum">    3047 </span><span class="lineCov">       4984 :       if (last &lt; 0)</span>
+<span class="lineNum">    3048 </span><span class="lineNoCov">          0 :          continue;</span>
+<span class="lineNum">    3049 </span>            : 
+<span class="lineNum">    3050 </span><span class="lineCov">       4984 :       vcode_op_t last_op = vcode_get_op(last);</span>
+<span class="lineNum">    3051 </span><span class="lineCov">       4984 :       if (last_op != VCODE_OP_WAIT &amp;&amp; last_op != VCODE_OP_PCALL</span>
+<span class="lineNum">    3052 </span><span class="lineCov">       3593 :           &amp;&amp; last_op != VCODE_OP_NESTED_PCALL)</span>
+<span class="lineNum">    3053 </span><span class="lineCov">       3589 :          continue;</span>
+<span class="lineNum">    3054 </span>            : 
+<span class="lineNum">    3055 </span><span class="lineCov">       1395 :       const vcode_block_t target = vcode_get_target(last, 0);</span>
+<span class="lineNum">    3056 </span><span class="lineCov">       1395 :       if (have[target])</span>
+<span class="lineNum">    3057 </span><span class="lineCov">         20 :          continue;</span>
+<span class="lineNum">    3058 </span>            : 
+<span class="lineNum">    3059 </span><span class="lineCov">       1375 :       LLVMAddCase(jswitch, llvm_int32(target), ctx-&gt;blocks[target]);</span>
+<span class="lineNum">    3060 </span><span class="lineCov">       1375 :       have[target] = true;</span>
+<span class="lineNum">    3061 </span>            :    }
+<a name="3062"><span class="lineNum">    3062 </span><span class="lineCov">        891 : }</span></a>
+<span class="lineNum">    3063 </span>            : 
+<span class="lineNum">    3064 </span><span class="lineCov">         67 : static void cgen_procedure(LLVMTypeRef display_type)</span>
+<span class="lineNum">    3065 </span>            : {
+<span class="lineNum">    3066 </span><span class="lineCov">         67 :    assert(vcode_unit_kind() == VCODE_UNIT_PROCEDURE);</span>
+<span class="lineNum">    3067 </span>            : 
+<span class="lineNum">    3068 </span><span class="lineCov">         67 :    const char *safe_name = safe_symbol(istr(vcode_unit_name()));</span>
+<span class="lineNum">    3069 </span><span class="lineCov">         67 :    LLVMValueRef fn = LLVMGetNamedFunction(module, safe_name);</span>
+<span class="lineNum">    3070 </span><span class="lineCov">         67 :    if (fn == NULL)</span>
+<span class="lineNum">    3071 </span><span class="lineCov">         66 :       fn = LLVMAddFunction(module, safe_name,</span>
+<span class="lineNum">    3072 </span>            :                            cgen_subprogram_type(display_type, true));
 <span class="lineNum">    3073 </span>            : 
-<span class="lineNum">    3074 </span><span class="lineCov">         67 :    cgen_ctx_t ctx = {</span>
-<span class="lineNum">    3075 </span>            :       .fn = fn
-<span class="lineNum">    3076 </span>            :    };
-<span class="lineNum">    3077 </span>            : 
-<span class="lineNum">    3078 </span><span class="lineCov">         67 :    const int nparams = vcode_count_params();</span>
+<span class="lineNum">    3074 </span><span class="lineCov">         67 :    cgen_add_func_attr(fn, FUNC_ATTR_NOUNWIND);</span>
+<span class="lineNum">    3075 </span>            : 
+<span class="lineNum">    3076 </span><span class="lineCov">         67 :    cgen_ctx_t ctx = {</span>
+<span class="lineNum">    3077 </span>            :       .fn = fn
+<span class="lineNum">    3078 </span>            :    };
 <span class="lineNum">    3079 </span>            : 
-<span class="lineNum">    3080 </span><span class="lineCov">         67 :    if (display_type != NULL)</span>
-<span class="lineNum">    3081 </span><span class="lineCov">          3 :       ctx.display = LLVMGetParam(fn, nparams);</span>
-<span class="lineNum">    3082 </span>            : 
-<span class="lineNum">    3083 </span><span class="lineCov">         67 :    LLVMBasicBlockRef entry_bb = LLVMAppendBasicBlock(fn, &quot;entry&quot;);</span>
-<span class="lineNum">    3084 </span><span class="lineCov">         67 :    LLVMBasicBlockRef alloc_bb = LLVMAppendBasicBlock(fn, &quot;alloc&quot;);</span>
-<span class="lineNum">    3085 </span><span class="lineCov">         67 :    LLVMBasicBlockRef jump_bb  = LLVMAppendBasicBlock(fn, &quot;jump_table&quot;);</span>
-<span class="lineNum">    3086 </span>            : 
-<span class="lineNum">    3087 </span><span class="lineCov">         67 :    cgen_alloc_context(&amp;ctx);</span>
-<span class="lineNum">    3088 </span><span class="lineCov">         67 :    cgen_params(&amp;ctx);</span>
-<span class="lineNum">    3089 </span>            : 
-<span class="lineNum">    3090 </span><span class="lineCov">         67 :    LLVMPositionBuilderAtEnd(builder, entry_bb);</span>
+<span class="lineNum">    3080 </span><span class="lineCov">         67 :    const int nparams = vcode_count_params();</span>
+<span class="lineNum">    3081 </span>            : 
+<span class="lineNum">    3082 </span><span class="lineCov">         67 :    if (display_type != NULL)</span>
+<span class="lineNum">    3083 </span><span class="lineCov">          3 :       ctx.display = LLVMGetParam(fn, nparams);</span>
+<span class="lineNum">    3084 </span>            : 
+<span class="lineNum">    3085 </span><span class="lineCov">         67 :    LLVMBasicBlockRef entry_bb = LLVMAppendBasicBlock(fn, &quot;entry&quot;);</span>
+<span class="lineNum">    3086 </span><span class="lineCov">         67 :    LLVMBasicBlockRef alloc_bb = LLVMAppendBasicBlock(fn, &quot;alloc&quot;);</span>
+<span class="lineNum">    3087 </span><span class="lineCov">         67 :    LLVMBasicBlockRef jump_bb  = LLVMAppendBasicBlock(fn, &quot;jump_table&quot;);</span>
+<span class="lineNum">    3088 </span>            : 
+<span class="lineNum">    3089 </span><span class="lineCov">         67 :    cgen_alloc_context(&amp;ctx);</span>
+<span class="lineNum">    3090 </span><span class="lineCov">         67 :    cgen_params(&amp;ctx);</span>
 <span class="lineNum">    3091 </span>            : 
-<span class="lineNum">    3092 </span><span class="lineCov">         67 :    const int state_param = nparams + (display_type == NULL ? 0 : 1);</span>
+<span class="lineNum">    3092 </span><span class="lineCov">         67 :    LLVMPositionBuilderAtEnd(builder, entry_bb);</span>
 <span class="lineNum">    3093 </span>            : 
-<span class="lineNum">    3094 </span><span class="lineCov">         67 :    LLVMTypeRef state_type = cgen_state_type(&amp;ctx);</span>
-<span class="lineNum">    3095 </span><span class="lineCov">         67 :    LLVMTypeRef pointer_type = LLVMPointerType(state_type, 0);</span>
-<span class="lineNum">    3096 </span><span class="lineCov">         67 :    LLVMValueRef old_state =</span>
-<span class="lineNum">    3097 </span><span class="lineCov">         67 :       LLVMBuildPointerCast(builder, LLVMGetParam(fn, state_param),</span>
-<span class="lineNum">    3098 </span>            :                            pointer_type, &quot;old_state&quot;);
-<span class="lineNum">    3099 </span>            : 
-<span class="lineNum">    3100 </span><span class="lineCov">         67 :    LLVMValueRef is_null = LLVMBuildICmp(builder, LLVMIntEQ, old_state,</span>
-<span class="lineNum">    3101 </span>            :                                         LLVMConstNull(pointer_type), &quot;&quot;);
-<span class="lineNum">    3102 </span><span class="lineCov">         67 :    LLVMBuildCondBr(builder, is_null, alloc_bb, jump_bb);</span>
-<span class="lineNum">    3103 </span>            : 
-<span class="lineNum">    3104 </span><span class="lineCov">         67 :    LLVMPositionBuilderAtEnd(builder, alloc_bb);</span>
+<span class="lineNum">    3094 </span><span class="lineCov">         67 :    const int state_param = nparams + (display_type == NULL ? 0 : 1);</span>
+<span class="lineNum">    3095 </span>            : 
+<span class="lineNum">    3096 </span><span class="lineCov">         67 :    LLVMTypeRef state_type = cgen_state_type(&amp;ctx);</span>
+<span class="lineNum">    3097 </span><span class="lineCov">         67 :    LLVMTypeRef pointer_type = LLVMPointerType(state_type, 0);</span>
+<span class="lineNum">    3098 </span><span class="lineCov">         67 :    LLVMValueRef old_state =</span>
+<span class="lineNum">    3099 </span><span class="lineCov">         67 :       LLVMBuildPointerCast(builder, LLVMGetParam(fn, state_param),</span>
+<span class="lineNum">    3100 </span>            :                            pointer_type, &quot;old_state&quot;);
+<span class="lineNum">    3101 </span>            : 
+<span class="lineNum">    3102 </span><span class="lineCov">         67 :    LLVMValueRef is_null = LLVMBuildICmp(builder, LLVMIntEQ, old_state,</span>
+<span class="lineNum">    3103 </span>            :                                         LLVMConstNull(pointer_type), &quot;&quot;);
+<span class="lineNum">    3104 </span><span class="lineCov">         67 :    LLVMBuildCondBr(builder, is_null, alloc_bb, jump_bb);</span>
 <span class="lineNum">    3105 </span>            : 
-<span class="lineNum">    3106 </span><span class="lineCov">         67 :    LLVMValueRef new_state = LLVMBuildMalloc(builder, state_type, &quot;new_state&quot;);</span>
+<span class="lineNum">    3106 </span><span class="lineCov">         67 :    LLVMPositionBuilderAtEnd(builder, alloc_bb);</span>
 <span class="lineNum">    3107 </span>            : 
-<span class="lineNum">    3108 </span><span class="lineCov">         67 :    LLVMValueRef state_ptr = LLVMBuildStructGEP(builder, new_state, 0, &quot;&quot;);</span>
-<span class="lineNum">    3109 </span><span class="lineCov">         67 :    LLVMBuildStore(builder, llvm_int32(0), state_ptr);</span>
-<span class="lineNum">    3110 </span>            : 
-<span class="lineNum">    3111 </span><span class="lineCov">        365 :    for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">    3112 </span><span class="lineCov">        298 :       LLVMValueRef param_ptr =</span>
-<span class="lineNum">    3113 </span><span class="lineCov">        298 :          LLVMBuildStructGEP(builder, new_state, ctx.param_base + i, &quot;&quot;);</span>
-<span class="lineNum">    3114 </span><span class="lineCov">        298 :       LLVMBuildStore(builder, ctx.regs[vcode_param_reg(i)], param_ptr);</span>
-<span class="lineNum">    3115 </span>            :    }
-<span class="lineNum">    3116 </span>            : 
-<span class="lineNum">    3117 </span><span class="lineCov">         67 :    LLVMBuildBr(builder, jump_bb);</span>
+<span class="lineNum">    3108 </span><span class="lineCov">         67 :    LLVMValueRef new_state = LLVMBuildMalloc(builder, state_type, &quot;new_state&quot;);</span>
+<span class="lineNum">    3109 </span>            : 
+<span class="lineNum">    3110 </span><span class="lineCov">         67 :    LLVMValueRef state_ptr = LLVMBuildStructGEP(builder, new_state, 0, &quot;&quot;);</span>
+<span class="lineNum">    3111 </span><span class="lineCov">         67 :    LLVMBuildStore(builder, llvm_int32(0), state_ptr);</span>
+<span class="lineNum">    3112 </span>            : 
+<span class="lineNum">    3113 </span><span class="lineCov">        365 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">    3114 </span><span class="lineCov">        298 :       LLVMValueRef param_ptr =</span>
+<span class="lineNum">    3115 </span><span class="lineCov">        298 :          LLVMBuildStructGEP(builder, new_state, ctx.param_base + i, &quot;&quot;);</span>
+<span class="lineNum">    3116 </span><span class="lineCov">        298 :       LLVMBuildStore(builder, ctx.regs[vcode_param_reg(i)], param_ptr);</span>
+<span class="lineNum">    3117 </span>            :    }
 <span class="lineNum">    3118 </span>            : 
-<span class="lineNum">    3119 </span><span class="lineCov">         67 :    LLVMPositionBuilderAtEnd(builder, jump_bb);</span>
+<span class="lineNum">    3119 </span><span class="lineCov">         67 :    LLVMBuildBr(builder, jump_bb);</span>
 <span class="lineNum">    3120 </span>            : 
-<span class="lineNum">    3121 </span><span class="lineCov">         67 :    ctx.state = LLVMBuildPhi(builder, pointer_type, &quot;state&quot;);</span>
+<span class="lineNum">    3121 </span><span class="lineCov">         67 :    LLVMPositionBuilderAtEnd(builder, jump_bb);</span>
 <span class="lineNum">    3122 </span>            : 
-<span class="lineNum">    3123 </span><span class="lineCov">         67 :    LLVMValueRef phi_values[]   = { old_state, new_state };</span>
-<span class="lineNum">    3124 </span><span class="lineCov">         67 :    LLVMBasicBlockRef phi_bbs[] = { entry_bb,  alloc_bb  };</span>
-<span class="lineNum">    3125 </span><span class="lineCov">         67 :    LLVMAddIncoming(ctx.state, phi_values, phi_bbs, 2);</span>
-<span class="lineNum">    3126 </span>            : 
-<span class="lineNum">    3127 </span><span class="lineCov">        365 :    for (int i = 0; i &lt; nparams; i++) {</span>
-<span class="lineNum">    3128 </span><span class="lineCov">        298 :       LLVMValueRef param_ptr =</span>
-<span class="lineNum">    3129 </span><span class="lineCov">        298 :          LLVMBuildStructGEP(builder, ctx.state, ctx.param_base + i, &quot;&quot;);</span>
-<span class="lineNum">    3130 </span><span class="lineCov">        298 :       ctx.regs[vcode_param_reg(i)] = LLVMBuildLoad(builder, param_ptr, &quot;&quot;);</span>
-<span class="lineNum">    3131 </span>            :    }
-<span class="lineNum">    3132 </span>            : 
-<span class="lineNum">    3133 </span><span class="lineCov">         67 :    cgen_jump_table(&amp;ctx);</span>
-<span class="lineNum">    3134 </span><span class="lineCov">         67 :    cgen_code(&amp;ctx);</span>
-<span class="lineNum">    3135 </span><span class="lineCov">         67 :    cgen_free_context(&amp;ctx);</span>
-<a name="3136"><span class="lineNum">    3136 </span><span class="lineCov">         67 : }</span></a>
-<span class="lineNum">    3137 </span>            : 
-<span class="lineNum">    3138 </span><span class="lineCov">        824 : static void cgen_process(vcode_unit_t code)</span>
-<span class="lineNum">    3139 </span>            : {
-<span class="lineNum">    3140 </span><span class="lineCov">        824 :    vcode_select_unit(code);</span>
-<span class="lineNum">    3141 </span><span class="lineCov">        824 :    assert(vcode_unit_kind() == VCODE_UNIT_PROCESS);</span>
-<span class="lineNum">    3142 </span>            : 
-<span class="lineNum">    3143 </span><span class="lineCov">        824 :    LLVMTypeRef pargs[] = { LLVMInt32Type() };</span>
-<span class="lineNum">    3144 </span><span class="lineCov">        824 :    LLVMTypeRef ftype = LLVMFunctionType(LLVMVoidType(), pargs, 1, false);</span>
-<span class="lineNum">    3145 </span><span class="lineCov">        824 :    LLVMValueRef fn = LLVMAddFunction(module, istr(vcode_unit_name()), ftype);</span>
-<span class="lineNum">    3146 </span><span class="lineCov">        824 :    cgen_add_func_attr(fn, FUNC_ATTR_NOUNWIND);</span>
-<span class="lineNum">    3147 </span><span class="lineCov">        824 :    cgen_add_func_attr(fn, FUNC_ATTR_DLLEXPORT);</span>
-<span class="lineNum">    3148 </span>            : 
-<span class="lineNum">    3149 </span><span class="lineCov">        824 :    LLVMBasicBlockRef entry_bb = LLVMAppendBasicBlock(fn, &quot;entry&quot;);</span>
-<span class="lineNum">    3150 </span><span class="lineCov">        824 :    LLVMBasicBlockRef reset_bb = LLVMAppendBasicBlock(fn, &quot;reset&quot;);</span>
-<span class="lineNum">    3151 </span><span class="lineCov">        824 :    LLVMBasicBlockRef jump_bb  = LLVMAppendBasicBlock(fn, &quot;jump_table&quot;);</span>
-<span class="lineNum">    3152 </span>            : 
-<span class="lineNum">    3153 </span><span class="lineCov">        824 :    cgen_ctx_t ctx = {</span>
-<span class="lineNum">    3154 </span>            :       .fn = fn
-<span class="lineNum">    3155 </span>            :    };
-<span class="lineNum">    3156 </span><span class="lineCov">        824 :    cgen_state_struct(&amp;ctx);</span>
-<span class="lineNum">    3157 </span><span class="lineCov">        824 :    cgen_alloc_context(&amp;ctx);</span>
-<span class="lineNum">    3158 </span>            : 
-<span class="lineNum">    3159 </span>            :    // If the parameter is non-zero jump to the init block
+<span class="lineNum">    3123 </span><span class="lineCov">         67 :    ctx.state = LLVMBuildPhi(builder, pointer_type, &quot;state&quot;);</span>
+<span class="lineNum">    3124 </span>            : 
+<span class="lineNum">    3125 </span><span class="lineCov">         67 :    LLVMValueRef phi_values[]   = { old_state, new_state };</span>
+<span class="lineNum">    3126 </span><span class="lineCov">         67 :    LLVMBasicBlockRef phi_bbs[] = { entry_bb,  alloc_bb  };</span>
+<span class="lineNum">    3127 </span><span class="lineCov">         67 :    LLVMAddIncoming(ctx.state, phi_values, phi_bbs, 2);</span>
+<span class="lineNum">    3128 </span>            : 
+<span class="lineNum">    3129 </span><span class="lineCov">        365 :    for (int i = 0; i &lt; nparams; i++) {</span>
+<span class="lineNum">    3130 </span><span class="lineCov">        298 :       LLVMValueRef param_ptr =</span>
+<span class="lineNum">    3131 </span><span class="lineCov">        298 :          LLVMBuildStructGEP(builder, ctx.state, ctx.param_base + i, &quot;&quot;);</span>
+<span class="lineNum">    3132 </span><span class="lineCov">        298 :       ctx.regs[vcode_param_reg(i)] = LLVMBuildLoad(builder, param_ptr, &quot;&quot;);</span>
+<span class="lineNum">    3133 </span>            :    }
+<span class="lineNum">    3134 </span>            : 
+<span class="lineNum">    3135 </span><span class="lineCov">         67 :    cgen_jump_table(&amp;ctx);</span>
+<span class="lineNum">    3136 </span><span class="lineCov">         67 :    cgen_code(&amp;ctx);</span>
+<span class="lineNum">    3137 </span><span class="lineCov">         67 :    cgen_free_context(&amp;ctx);</span>
+<a name="3138"><span class="lineNum">    3138 </span><span class="lineCov">         67 : }</span></a>
+<span class="lineNum">    3139 </span>            : 
+<span class="lineNum">    3140 </span><span class="lineCov">        824 : static void cgen_process(vcode_unit_t code)</span>
+<span class="lineNum">    3141 </span>            : {
+<span class="lineNum">    3142 </span><span class="lineCov">        824 :    vcode_select_unit(code);</span>
+<span class="lineNum">    3143 </span><span class="lineCov">        824 :    assert(vcode_unit_kind() == VCODE_UNIT_PROCESS);</span>
+<span class="lineNum">    3144 </span>            : 
+<span class="lineNum">    3145 </span><span class="lineCov">        824 :    LLVMTypeRef pargs[] = { LLVMInt32Type() };</span>
+<span class="lineNum">    3146 </span><span class="lineCov">        824 :    LLVMTypeRef ftype = LLVMFunctionType(LLVMVoidType(), pargs, 1, false);</span>
+<span class="lineNum">    3147 </span><span class="lineCov">        824 :    LLVMValueRef fn = LLVMAddFunction(module, istr(vcode_unit_name()), ftype);</span>
+<span class="lineNum">    3148 </span><span class="lineCov">        824 :    cgen_add_func_attr(fn, FUNC_ATTR_NOUNWIND);</span>
+<span class="lineNum">    3149 </span><span class="lineCov">        824 :    cgen_add_func_attr(fn, FUNC_ATTR_DLLEXPORT);</span>
+<span class="lineNum">    3150 </span>            : 
+<span class="lineNum">    3151 </span><span class="lineCov">        824 :    LLVMBasicBlockRef entry_bb = LLVMAppendBasicBlock(fn, &quot;entry&quot;);</span>
+<span class="lineNum">    3152 </span><span class="lineCov">        824 :    LLVMBasicBlockRef reset_bb = LLVMAppendBasicBlock(fn, &quot;reset&quot;);</span>
+<span class="lineNum">    3153 </span><span class="lineCov">        824 :    LLVMBasicBlockRef jump_bb  = LLVMAppendBasicBlock(fn, &quot;jump_table&quot;);</span>
+<span class="lineNum">    3154 </span>            : 
+<span class="lineNum">    3155 </span><span class="lineCov">        824 :    cgen_ctx_t ctx = {</span>
+<span class="lineNum">    3156 </span>            :       .fn = fn
+<span class="lineNum">    3157 </span>            :    };
+<span class="lineNum">    3158 </span><span class="lineCov">        824 :    cgen_state_struct(&amp;ctx);</span>
+<span class="lineNum">    3159 </span><span class="lineCov">        824 :    cgen_alloc_context(&amp;ctx);</span>
 <span class="lineNum">    3160 </span>            : 
-<span class="lineNum">    3161 </span><span class="lineCov">        824 :    LLVMPositionBuilderAtEnd(builder, entry_bb);</span>
-<span class="lineNum">    3162 </span><span class="lineCov">        824 :    LLVMValueRef reset = LLVMBuildICmp(builder, LLVMIntNE, LLVMGetParam(fn, 0),</span>
-<span class="lineNum">    3163 </span>            :                                       llvm_int32(0), &quot;reset&quot;);
-<span class="lineNum">    3164 </span><span class="lineCov">        824 :    LLVMBuildCondBr(builder, reset, reset_bb, jump_bb);</span>
-<span class="lineNum">    3165 </span>            : 
-<span class="lineNum">    3166 </span><span class="lineCov">        824 :    LLVMPositionBuilderAtEnd(builder, reset_bb);</span>
+<span class="lineNum">    3161 </span>            :    // If the parameter is non-zero jump to the init block
+<span class="lineNum">    3162 </span>            : 
+<span class="lineNum">    3163 </span><span class="lineCov">        824 :    LLVMPositionBuilderAtEnd(builder, entry_bb);</span>
+<span class="lineNum">    3164 </span><span class="lineCov">        824 :    LLVMValueRef reset = LLVMBuildICmp(builder, LLVMIntNE, LLVMGetParam(fn, 0),</span>
+<span class="lineNum">    3165 </span>            :                                       llvm_int32(0), &quot;reset&quot;);
+<span class="lineNum">    3166 </span><span class="lineCov">        824 :    LLVMBuildCondBr(builder, reset, reset_bb, jump_bb);</span>
 <span class="lineNum">    3167 </span>            : 
-<span class="lineNum">    3168 </span><span class="lineCov">        824 :    LLVMValueRef state_ptr = LLVMBuildStructGEP(builder, ctx.state, 0, &quot;&quot;);</span>
-<span class="lineNum">    3169 </span><span class="lineCov">        824 :    LLVMBuildStore(builder, llvm_int32(1), state_ptr);</span>
-<span class="lineNum">    3170 </span>            : 
-<span class="lineNum">    3171 </span><span class="lineCov">        824 :    LLVMValueRef pcall_ptr = LLVMBuildStructGEP(builder, ctx.state, 1, &quot;&quot;);</span>
-<span class="lineNum">    3172 </span><span class="lineCov">        824 :    LLVMBuildStore(builder, LLVMConstNull(llvm_void_ptr()), pcall_ptr);</span>
-<span class="lineNum">    3173 </span>            : 
-<span class="lineNum">    3174 </span>            :    // Schedule the process to run immediately
-<span class="lineNum">    3175 </span><span class="lineCov">        824 :    cgen_sched_process(llvm_int64(0));</span>
-<span class="lineNum">    3176 </span>            : 
-<span class="lineNum">    3177 </span><span class="lineCov">        824 :    LLVMBuildBr(builder, ctx.blocks[0]);</span>
+<span class="lineNum">    3168 </span><span class="lineCov">        824 :    LLVMPositionBuilderAtEnd(builder, reset_bb);</span>
+<span class="lineNum">    3169 </span>            : 
+<span class="lineNum">    3170 </span><span class="lineCov">        824 :    LLVMValueRef state_ptr = LLVMBuildStructGEP(builder, ctx.state, 0, &quot;&quot;);</span>
+<span class="lineNum">    3171 </span><span class="lineCov">        824 :    LLVMBuildStore(builder, llvm_int32(1), state_ptr);</span>
+<span class="lineNum">    3172 </span>            : 
+<span class="lineNum">    3173 </span><span class="lineCov">        824 :    LLVMValueRef pcall_ptr = LLVMBuildStructGEP(builder, ctx.state, 1, &quot;&quot;);</span>
+<span class="lineNum">    3174 </span><span class="lineCov">        824 :    LLVMBuildStore(builder, LLVMConstNull(llvm_void_ptr()), pcall_ptr);</span>
+<span class="lineNum">    3175 </span>            : 
+<span class="lineNum">    3176 </span>            :    // Schedule the process to run immediately
+<span class="lineNum">    3177 </span><span class="lineCov">        824 :    cgen_sched_process(llvm_int64(0));</span>
 <span class="lineNum">    3178 </span>            : 
-<span class="lineNum">    3179 </span><span class="lineCov">        824 :    LLVMPositionBuilderAtEnd(builder, jump_bb);</span>
-<span class="lineNum">    3180 </span><span class="lineCov">        824 :    cgen_jump_table(&amp;ctx);</span>
-<span class="lineNum">    3181 </span>            : 
-<span class="lineNum">    3182 </span><span class="lineCov">        824 :    cgen_code(&amp;ctx);</span>
-<span class="lineNum">    3183 </span><span class="lineCov">        824 :    cgen_free_context(&amp;ctx);</span>
-<a name="3184"><span class="lineNum">    3184 </span><span class="lineCov">        824 : }</span></a>
-<span class="lineNum">    3185 </span>            : 
-<span class="lineNum">    3186 </span><span class="lineCov">          3 : static void cgen_net_mapping_table(vcode_signal_t sig, int offset,</span>
-<span class="lineNum">    3187 </span>            :                                    netid_t first, netid_t last, LLVMValueRef fn)
-<span class="lineNum">    3188 </span>            : {
-<span class="lineNum">    3189 </span><span class="lineCov">          3 :    LLVMValueRef nets = cgen_signal_nets(sig);</span>
-<span class="lineNum">    3190 </span>            : 
-<span class="lineNum">    3191 </span><span class="lineCov">          3 :    LLVMValueRef i = LLVMBuildAlloca(builder, cgen_net_id_type(), &quot;i&quot;);</span>
-<span class="lineNum">    3192 </span><span class="lineCov">          3 :    LLVMBuildStore(builder, llvm_int32(first), i);</span>
-<span class="lineNum">    3193 </span>            : 
-<span class="lineNum">    3194 </span><span class="lineCov">          3 :    LLVMBasicBlockRef test_bb = LLVMAppendBasicBlock(fn, &quot;nm_test&quot;);</span>
-<span class="lineNum">    3195 </span><span class="lineCov">          3 :    LLVMBasicBlockRef body_bb = LLVMAppendBasicBlock(fn, &quot;nm_body&quot;);</span>
-<span class="lineNum">    3196 </span><span class="lineCov">          3 :    LLVMBasicBlockRef exit_bb = LLVMAppendBasicBlock(fn, &quot;nm_exit&quot;);</span>
-<span class="lineNum">    3197 </span>            : 
-<span class="lineNum">    3198 </span><span class="lineCov">          3 :    LLVMBuildBr(builder, test_bb);</span>
+<span class="lineNum">    3179 </span><span class="lineCov">        824 :    LLVMBuildBr(builder, ctx.blocks[0]);</span>
+<span class="lineNum">    3180 </span>            : 
+<span class="lineNum">    3181 </span><span class="lineCov">        824 :    LLVMPositionBuilderAtEnd(builder, jump_bb);</span>
+<span class="lineNum">    3182 </span><span class="lineCov">        824 :    cgen_jump_table(&amp;ctx);</span>
+<span class="lineNum">    3183 </span>            : 
+<span class="lineNum">    3184 </span><span class="lineCov">        824 :    cgen_code(&amp;ctx);</span>
+<span class="lineNum">    3185 </span><span class="lineCov">        824 :    cgen_free_context(&amp;ctx);</span>
+<a name="3186"><span class="lineNum">    3186 </span><span class="lineCov">        824 : }</span></a>
+<span class="lineNum">    3187 </span>            : 
+<span class="lineNum">    3188 </span><span class="lineCov">          3 : static void cgen_net_mapping_table(vcode_signal_t sig, int offset,</span>
+<span class="lineNum">    3189 </span>            :                                    netid_t first, netid_t last, LLVMValueRef fn)
+<span class="lineNum">    3190 </span>            : {
+<span class="lineNum">    3191 </span><span class="lineCov">          3 :    LLVMValueRef nets = cgen_signal_nets(sig);</span>
+<span class="lineNum">    3192 </span>            : 
+<span class="lineNum">    3193 </span><span class="lineCov">          3 :    LLVMValueRef i = LLVMBuildAlloca(builder, cgen_net_id_type(), &quot;i&quot;);</span>
+<span class="lineNum">    3194 </span><span class="lineCov">          3 :    LLVMBuildStore(builder, llvm_int32(first), i);</span>
+<span class="lineNum">    3195 </span>            : 
+<span class="lineNum">    3196 </span><span class="lineCov">          3 :    LLVMBasicBlockRef test_bb = LLVMAppendBasicBlock(fn, &quot;nm_test&quot;);</span>
+<span class="lineNum">    3197 </span><span class="lineCov">          3 :    LLVMBasicBlockRef body_bb = LLVMAppendBasicBlock(fn, &quot;nm_body&quot;);</span>
+<span class="lineNum">    3198 </span><span class="lineCov">          3 :    LLVMBasicBlockRef exit_bb = LLVMAppendBasicBlock(fn, &quot;nm_exit&quot;);</span>
 <span class="lineNum">    3199 </span>            : 
-<span class="lineNum">    3200 </span>            :    // Loop test
+<span class="lineNum">    3200 </span><span class="lineCov">          3 :    LLVMBuildBr(builder, test_bb);</span>
 <span class="lineNum">    3201 </span>            : 
-<span class="lineNum">    3202 </span><span class="lineCov">          3 :    LLVMPositionBuilderAtEnd(builder, test_bb);</span>
+<span class="lineNum">    3202 </span>            :    // Loop test
 <span class="lineNum">    3203 </span>            : 
-<span class="lineNum">    3204 </span><span class="lineCov">          3 :    LLVMValueRef i_loaded = LLVMBuildLoad(builder, i, &quot;i&quot;);</span>
-<span class="lineNum">    3205 </span><span class="lineCov">          3 :    LLVMValueRef done = LLVMBuildICmp(builder, LLVMIntUGT, i_loaded,</span>
-<span class="lineNum">    3206 </span>            :                                      llvm_int32(last), &quot;done&quot;);
-<span class="lineNum">    3207 </span><span class="lineCov">          3 :    LLVMBuildCondBr(builder, done, exit_bb, body_bb);</span>
-<span class="lineNum">    3208 </span>            : 
-<span class="lineNum">    3209 </span>            :    // Loop body
+<span class="lineNum">    3204 </span><span class="lineCov">          3 :    LLVMPositionBuilderAtEnd(builder, test_bb);</span>
+<span class="lineNum">    3205 </span>            : 
+<span class="lineNum">    3206 </span><span class="lineCov">          3 :    LLVMValueRef i_loaded = LLVMBuildLoad(builder, i, &quot;i&quot;);</span>
+<span class="lineNum">    3207 </span><span class="lineCov">          3 :    LLVMValueRef done = LLVMBuildICmp(builder, LLVMIntUGT, i_loaded,</span>
+<span class="lineNum">    3208 </span>            :                                      llvm_int32(last), &quot;done&quot;);
+<span class="lineNum">    3209 </span><span class="lineCov">          3 :    LLVMBuildCondBr(builder, done, exit_bb, body_bb);</span>
 <span class="lineNum">    3210 </span>            : 
-<span class="lineNum">    3211 </span><span class="lineCov">          3 :    LLVMPositionBuilderAtEnd(builder, body_bb);</span>
+<span class="lineNum">    3211 </span>            :    // Loop body
 <span class="lineNum">    3212 </span>            : 
-<span class="lineNum">    3213 </span><span class="lineCov">          3 :    LLVMValueRef indexes[] = {</span>
-<span class="lineNum">    3214 </span><span class="lineCov">          3 :       LLVMBuildAdd(builder,</span>
-<span class="lineNum">    3215 </span>            :                    LLVMBuildSub(builder, i_loaded, llvm_int32(first), &quot;&quot;),
-<span class="lineNum">    3216 </span>            :                    llvm_int32(offset), &quot;&quot;)
-<span class="lineNum">    3217 </span>            :    };
-<span class="lineNum">    3218 </span><span class="lineCov">          3 :    LLVMValueRef ptr = LLVMBuildGEP(builder, nets,</span>
-<span class="lineNum">    3219 </span>            :                                    indexes, ARRAY_LEN(indexes), &quot;ptr&quot;);
-<span class="lineNum">    3220 </span><span class="lineCov">          3 :    LLVMBuildStore(builder, i_loaded, ptr);</span>
-<span class="lineNum">    3221 </span>            : 
-<span class="lineNum">    3222 </span><span class="lineCov">          3 :    LLVMValueRef i_plus_1 = LLVMBuildAdd(builder, i_loaded, llvm_int32(1), &quot;&quot;);</span>
-<span class="lineNum">    3223 </span><span class="lineCov">          3 :    LLVMBuildStore(builder, i_plus_1, i);</span>
-<span class="lineNum">    3224 </span>            : 
-<span class="lineNum">    3225 </span><span class="lineCov">          3 :    LLVMBuildBr(builder, test_bb);</span>
+<span class="lineNum">    3213 </span><span class="lineCov">          3 :    LLVMPositionBuilderAtEnd(builder, body_bb);</span>
+<span class="lineNum">    3214 </span>            : 
+<span class="lineNum">    3215 </span><span class="lineCov">          3 :    LLVMValueRef indexes[] = {</span>
+<span class="lineNum">    3216 </span><span class="lineCov">          3 :       LLVMBuildAdd(builder,</span>
+<span class="lineNum">    3217 </span>            :                    LLVMBuildSub(builder, i_loaded, llvm_int32(first), &quot;&quot;),
+<span class="lineNum">    3218 </span>            :                    llvm_int32(offset), &quot;&quot;)
+<span class="lineNum">    3219 </span>            :    };
+<span class="lineNum">    3220 </span><span class="lineCov">          3 :    LLVMValueRef ptr = LLVMBuildGEP(builder, nets,</span>
+<span class="lineNum">    3221 </span>            :                                    indexes, ARRAY_LEN(indexes), &quot;ptr&quot;);
+<span class="lineNum">    3222 </span><span class="lineCov">          3 :    LLVMBuildStore(builder, i_loaded, ptr);</span>
+<span class="lineNum">    3223 </span>            : 
+<span class="lineNum">    3224 </span><span class="lineCov">          3 :    LLVMValueRef i_plus_1 = LLVMBuildAdd(builder, i_loaded, llvm_int32(1), &quot;&quot;);</span>
+<span class="lineNum">    3225 </span><span class="lineCov">          3 :    LLVMBuildStore(builder, i_plus_1, i);</span>
 <span class="lineNum">    3226 </span>            : 
-<span class="lineNum">    3227 </span>            :    // Epilogue
+<span class="lineNum">    3227 </span><span class="lineCov">          3 :    LLVMBuildBr(builder, test_bb);</span>
 <span class="lineNum">    3228 </span>            : 
-<span class="lineNum">    3229 </span><span class="lineCov">          3 :    LLVMPositionBuilderAtEnd(builder, exit_bb);</span>
-<a name="3230"><span class="lineNum">    3230 </span><span class="lineCov">          3 : }</span></a>
-<span class="lineNum">    3231 </span>            : 
-<span class="lineNum">    3232 </span><span class="lineCov">        426 : static void cgen_reset_function(tree_t top)</span>
-<span class="lineNum">    3233 </span>            : {
-<span class="lineNum">    3234 </span><span class="lineCov">        852 :    char *name LOCAL = xasprintf(&quot;%s_reset&quot;, istr(vcode_unit_name()));</span>
-<span class="lineNum">    3235 </span><span class="lineCov">        426 :    LLVMValueRef fn =</span>
-<span class="lineNum">    3236 </span><span class="lineCov">        426 :       LLVMAddFunction(module, name,</span>
-<span class="lineNum">    3237 </span>            :                       LLVMFunctionType(LLVMVoidType(), NULL, 0, false));
-<span class="lineNum">    3238 </span><span class="lineCov">        426 :    cgen_add_func_attr(fn, FUNC_ATTR_DLLEXPORT);</span>
-<span class="lineNum">    3239 </span>            : 
-<span class="lineNum">    3240 </span><span class="lineCov">        426 :    LLVMBasicBlockRef init_bb = NULL;</span>
+<span class="lineNum">    3229 </span>            :    // Epilogue
+<span class="lineNum">    3230 </span>            : 
+<span class="lineNum">    3231 </span><span class="lineCov">          3 :    LLVMPositionBuilderAtEnd(builder, exit_bb);</span>
+<a name="3232"><span class="lineNum">    3232 </span><span class="lineCov">          3 : }</span></a>
+<span class="lineNum">    3233 </span>            : 
+<span class="lineNum">    3234 </span><span class="lineCov">        426 : static void cgen_reset_function(tree_t top)</span>
+<span class="lineNum">    3235 </span>            : {
+<span class="lineNum">    3236 </span><span class="lineCov">        852 :    char *name LOCAL = xasprintf(&quot;%s_reset&quot;, istr(vcode_unit_name()));</span>
+<span class="lineNum">    3237 </span><span class="lineCov">        426 :    LLVMValueRef fn =</span>
+<span class="lineNum">    3238 </span><span class="lineCov">        426 :       LLVMAddFunction(module, name,</span>
+<span class="lineNum">    3239 </span>            :                       LLVMFunctionType(LLVMVoidType(), NULL, 0, false));
+<span class="lineNum">    3240 </span><span class="lineCov">        426 :    cgen_add_func_attr(fn, FUNC_ATTR_DLLEXPORT);</span>
 <span class="lineNum">    3241 </span>            : 
-<span class="lineNum">    3242 </span><span class="lineCov">        426 :    const int nsignals = vcode_count_signals();</span>
-<span class="lineNum">    3243 </span><span class="lineCov">       1310 :    for (int i = 0 ; i &lt; nsignals; i++) {</span>
-<span class="lineNum">    3244 </span><span class="lineCov">        884 :       const int nnets = vcode_signal_count_nets(i);</span>
-<span class="lineNum">    3245 </span><span class="lineCov">        884 :       if (nnets &lt;= MAX_STATIC_NETS &amp;&amp; (!vcode_signal_extern(i) || nnets == 0))</span>
-<span class="lineNum">    3246 </span><span class="lineCov">        881 :          continue;</span>
-<span class="lineNum">    3247 </span>            : 
-<span class="lineNum">    3248 </span>            :       // Need to generate runtime code to fill in net mapping table
+<span class="lineNum">    3242 </span><span class="lineCov">        426 :    LLVMBasicBlockRef init_bb = NULL;</span>
+<span class="lineNum">    3243 </span>            : 
+<span class="lineNum">    3244 </span><span class="lineCov">        426 :    const int nsignals = vcode_count_signals();</span>
+<span class="lineNum">    3245 </span><span class="lineCov">       1310 :    for (int i = 0 ; i &lt; nsignals; i++) {</span>
+<span class="lineNum">    3246 </span><span class="lineCov">        884 :       const int nnets = vcode_signal_count_nets(i);</span>
+<span class="lineNum">    3247 </span><span class="lineCov">        884 :       if (nnets &lt;= MAX_STATIC_NETS &amp;&amp; (!vcode_signal_extern(i) || nnets == 0))</span>
+<span class="lineNum">    3248 </span><span class="lineCov">        881 :          continue;</span>
 <span class="lineNum">    3249 </span>            : 
-<span class="lineNum">    3250 </span><span class="lineCov">          3 :       if (init_bb == NULL) {</span>
-<span class="lineNum">    3251 </span><span class="lineCov">          3 :          init_bb = LLVMAppendBasicBlock(fn, &quot;signal_net_init&quot;);</span>
-<span class="lineNum">    3252 </span><span class="lineCov">          3 :          LLVMPositionBuilderAtEnd(builder, init_bb);</span>
-<span class="lineNum">    3253 </span>            :       }
-<span class="lineNum">    3254 </span>            : 
-<span class="lineNum">    3255 </span><span class="lineCov">          3 :       const netid_t *nets = vcode_signal_nets(i);</span>
-<span class="lineNum">    3256 </span><span class="lineCov">          3 :       netid_t first = nets[0];</span>
-<span class="lineNum">    3257 </span><span class="lineCov">          3 :       int     off   = 0;</span>
-<span class="lineNum">    3258 </span><span class="lineCov">          3 :       netid_t last  = first;</span>
-<span class="lineNum">    3259 </span><span class="lineCov">       2050 :       for (int i = 1; i &lt; nnets; i++) {</span>
-<span class="lineNum">    3260 </span><span class="lineCov">       2047 :          const netid_t this = nets[i];</span>
-<span class="lineNum">    3261 </span><span class="lineCov">       2047 :          if (this != last + 1) {</span>
-<span class="lineNum">    3262 </span><span class="lineNoCov">          0 :             cgen_net_mapping_table(i, off, first, last, fn);</span>
-<span class="lineNum">    3263 </span><span class="lineNoCov">          0 :             first = last = this;</span>
-<span class="lineNum">    3264 </span><span class="lineNoCov">          0 :             off = i;</span>
-<span class="lineNum">    3265 </span>            :          }
-<span class="lineNum">    3266 </span>            :          else
-<span class="lineNum">    3267 </span>            :             last = this;
-<span class="lineNum">    3268 </span>            :       }
-<span class="lineNum">    3269 </span><span class="lineCov">          3 :       cgen_net_mapping_table(i, off, first, last, fn);</span>
-<span class="lineNum">    3270 </span>            :    }
-<span class="lineNum">    3271 </span>            : 
-<span class="lineNum">    3272 </span><span class="lineCov">        426 :    cgen_ctx_t ctx = {</span>
-<span class="lineNum">    3273 </span>            :       .fn = fn
-<span class="lineNum">    3274 </span>            :    };
-<span class="lineNum">    3275 </span><span class="lineCov">        426 :    cgen_alloc_context(&amp;ctx);</span>
-<span class="lineNum">    3276 </span><span class="lineCov">        426 :    if (init_bb != NULL)</span>
-<span class="lineNum">    3277 </span><span class="lineCov">          3 :       LLVMBuildBr(builder, ctx.blocks[0]);</span>
-<span class="lineNum">    3278 </span><span class="lineCov">        426 :    cgen_code(&amp;ctx);</span>
-<span class="lineNum">    3279 </span><span class="lineCov">        426 :    cgen_free_context(&amp;ctx);</span>
-<a name="3280"><span class="lineNum">    3280 </span><span class="lineCov">        426 : }</span></a>
-<span class="lineNum">    3281 </span>            : 
-<span class="lineNum">    3282 </span><span class="lineCov">        426 : static void cgen_coverage_state(tree_t t)</span>
-<span class="lineNum">    3283 </span>            : {
-<span class="lineNum">    3284 </span><span class="lineCov">        426 :    const int stmt_tags = tree_attr_int(t, ident_new(&quot;stmt_tags&quot;), 0);</span>
-<span class="lineNum">    3285 </span><span class="lineCov">        426 :    if (stmt_tags &gt; 0) {</span>
-<span class="lineNum">    3286 </span><span class="lineCov">          1 :       LLVMTypeRef type = LLVMArrayType(LLVMInt32Type(), stmt_tags);</span>
-<span class="lineNum">    3287 </span><span class="lineCov">          1 :       LLVMValueRef var = LLVMAddGlobal(module, type, &quot;cover_stmts&quot;);</span>
-<span class="lineNum">    3288 </span><span class="lineCov">          1 :       LLVMSetInitializer(var, LLVMGetUndef(type));</span>
-<span class="lineNum">    3289 </span>            :    }
-<span class="lineNum">    3290 </span>            : 
-<span class="lineNum">    3291 </span><span class="lineCov">        426 :    const int cond_tags = tree_attr_int(t, ident_new(&quot;cond_tags&quot;), 0);</span>
-<span class="lineNum">    3292 </span><span class="lineCov">        426 :    if (cond_tags &gt; 0) {</span>
-<span class="lineNum">    3293 </span><span class="lineCov">          1 :       LLVMTypeRef type = LLVMArrayType(LLVMInt32Type(), stmt_tags);</span>
-<span class="lineNum">    3294 </span><span class="lineCov">          1 :       LLVMValueRef var = LLVMAddGlobal(module, type, &quot;cover_conds&quot;);</span>
-<span class="lineNum">    3295 </span><span class="lineCov">          1 :       LLVMSetInitializer(var, LLVMGetUndef(type));</span>
-<span class="lineNum">    3296 </span>            :    }
-<a name="3297"><span class="lineNum">    3297 </span><span class="lineCov">        426 : }</span></a>
-<span class="lineNum">    3298 </span>            : 
-<span class="lineNum">    3299 </span><span class="lineCov">       2461 : static void cgen_subprograms(vcode_unit_t vcode)</span>
-<span class="lineNum">    3300 </span>            : {
-<span class="lineNum">    3301 </span><span class="lineCov">       2461 :    vcode_select_unit(vcode);</span>
-<span class="lineNum">    3302 </span>            : 
-<span class="lineNum">    3303 </span><span class="lineCov">       2461 :    LLVMTypeRef display = NULL;</span>
-<span class="lineNum">    3304 </span><span class="lineCov">       2461 :    const vunit_kind_t scope_kind = vcode_unit_kind();</span>
-<span class="lineNum">    3305 </span><span class="lineCov">       2461 :    const bool needs_display = scope_kind != VCODE_UNIT_CONTEXT;</span>
-<span class="lineNum">    3306 </span>            : 
-<span class="lineNum">    3307 </span><span class="lineCov">       6957 :    for (vcode_unit_t it = vcode_unit_child(vcode);</span>
-<span class="lineNum">    3308 </span>            :         it != NULL;
-<span class="lineNum">    3309 </span><span class="lineCov">       2035 :         it = vcode_unit_next(it)) {</span>
-<span class="lineNum">    3310 </span>            : 
-<span class="lineNum">    3311 </span><span class="lineCov">       2035 :       vcode_select_unit(it);</span>
+<span class="lineNum">    3250 </span>            :       // Need to generate runtime code to fill in net mapping table
+<span class="lineNum">    3251 </span>            : 
+<span class="lineNum">    3252 </span><span class="lineCov">          3 :       if (init_bb == NULL) {</span>
+<span class="lineNum">    3253 </span><span class="lineCov">          3 :          init_bb = LLVMAppendBasicBlock(fn, &quot;signal_net_init&quot;);</span>
+<span class="lineNum">    3254 </span><span class="lineCov">          3 :          LLVMPositionBuilderAtEnd(builder, init_bb);</span>
+<span class="lineNum">    3255 </span>            :       }
+<span class="lineNum">    3256 </span>            : 
+<span class="lineNum">    3257 </span><span class="lineCov">          3 :       const netid_t *nets = vcode_signal_nets(i);</span>
+<span class="lineNum">    3258 </span><span class="lineCov">          3 :       netid_t first = nets[0];</span>
+<span class="lineNum">    3259 </span><span class="lineCov">          3 :       int     off   = 0;</span>
+<span class="lineNum">    3260 </span><span class="lineCov">          3 :       netid_t last  = first;</span>
+<span class="lineNum">    3261 </span><span class="lineCov">       2050 :       for (int i = 1; i &lt; nnets; i++) {</span>
+<span class="lineNum">    3262 </span><span class="lineCov">       2047 :          const netid_t this = nets[i];</span>
+<span class="lineNum">    3263 </span><span class="lineCov">       2047 :          if (this != last + 1) {</span>
+<span class="lineNum">    3264 </span><span class="lineNoCov">          0 :             cgen_net_mapping_table(i, off, first, last, fn);</span>
+<span class="lineNum">    3265 </span><span class="lineNoCov">          0 :             first = last = this;</span>
+<span class="lineNum">    3266 </span><span class="lineNoCov">          0 :             off = i;</span>
+<span class="lineNum">    3267 </span>            :          }
+<span class="lineNum">    3268 </span>            :          else
+<span class="lineNum">    3269 </span>            :             last = this;
+<span class="lineNum">    3270 </span>            :       }
+<span class="lineNum">    3271 </span><span class="lineCov">          3 :       cgen_net_mapping_table(i, off, first, last, fn);</span>
+<span class="lineNum">    3272 </span>            :    }
+<span class="lineNum">    3273 </span>            : 
+<span class="lineNum">    3274 </span><span class="lineCov">        426 :    cgen_ctx_t ctx = {</span>
+<span class="lineNum">    3275 </span>            :       .fn = fn
+<span class="lineNum">    3276 </span>            :    };
+<span class="lineNum">    3277 </span><span class="lineCov">        426 :    cgen_alloc_context(&amp;ctx);</span>
+<span class="lineNum">    3278 </span><span class="lineCov">        426 :    if (init_bb != NULL)</span>
+<span class="lineNum">    3279 </span><span class="lineCov">          3 :       LLVMBuildBr(builder, ctx.blocks[0]);</span>
+<span class="lineNum">    3280 </span><span class="lineCov">        426 :    cgen_code(&amp;ctx);</span>
+<span class="lineNum">    3281 </span><span class="lineCov">        426 :    cgen_free_context(&amp;ctx);</span>
+<a name="3282"><span class="lineNum">    3282 </span><span class="lineCov">        426 : }</span></a>
+<span class="lineNum">    3283 </span>            : 
+<span class="lineNum">    3284 </span><span class="lineCov">        426 : static void cgen_coverage_state(tree_t t)</span>
+<span class="lineNum">    3285 </span>            : {
+<span class="lineNum">    3286 </span><span class="lineCov">        426 :    const int stmt_tags = tree_attr_int(t, ident_new(&quot;stmt_tags&quot;), 0);</span>
+<span class="lineNum">    3287 </span><span class="lineCov">        426 :    if (stmt_tags &gt; 0) {</span>
+<span class="lineNum">    3288 </span><span class="lineCov">          1 :       LLVMTypeRef type = LLVMArrayType(LLVMInt32Type(), stmt_tags);</span>
+<span class="lineNum">    3289 </span><span class="lineCov">          1 :       LLVMValueRef var = LLVMAddGlobal(module, type, &quot;cover_stmts&quot;);</span>
+<span class="lineNum">    3290 </span><span class="lineCov">          1 :       LLVMSetInitializer(var, LLVMGetUndef(type));</span>
+<span class="lineNum">    3291 </span>            :    }
+<span class="lineNum">    3292 </span>            : 
+<span class="lineNum">    3293 </span><span class="lineCov">        426 :    const int cond_tags = tree_attr_int(t, ident_new(&quot;cond_tags&quot;), 0);</span>
+<span class="lineNum">    3294 </span><span class="lineCov">        426 :    if (cond_tags &gt; 0) {</span>
+<span class="lineNum">    3295 </span><span class="lineCov">          1 :       LLVMTypeRef type = LLVMArrayType(LLVMInt32Type(), stmt_tags);</span>
+<span class="lineNum">    3296 </span><span class="lineCov">          1 :       LLVMValueRef var = LLVMAddGlobal(module, type, &quot;cover_conds&quot;);</span>
+<span class="lineNum">    3297 </span><span class="lineCov">          1 :       LLVMSetInitializer(var, LLVMGetUndef(type));</span>
+<span class="lineNum">    3298 </span>            :    }
+<a name="3299"><span class="lineNum">    3299 </span><span class="lineCov">        426 : }</span></a>
+<span class="lineNum">    3300 </span>            : 
+<span class="lineNum">    3301 </span><span class="lineCov">       2461 : static void cgen_subprograms(vcode_unit_t vcode)</span>
+<span class="lineNum">    3302 </span>            : {
+<span class="lineNum">    3303 </span><span class="lineCov">       2461 :    vcode_select_unit(vcode);</span>
+<span class="lineNum">    3304 </span>            : 
+<span class="lineNum">    3305 </span><span class="lineCov">       2461 :    LLVMTypeRef display = NULL;</span>
+<span class="lineNum">    3306 </span><span class="lineCov">       2461 :    const vunit_kind_t scope_kind = vcode_unit_kind();</span>
+<span class="lineNum">    3307 </span><span class="lineCov">       2461 :    const bool needs_display = scope_kind != VCODE_UNIT_CONTEXT;</span>
+<span class="lineNum">    3308 </span>            : 
+<span class="lineNum">    3309 </span><span class="lineCov">       6957 :    for (vcode_unit_t it = vcode_unit_child(vcode);</span>
+<span class="lineNum">    3310 </span>            :         it != NULL;
+<span class="lineNum">    3311 </span><span class="lineCov">       2035 :         it = vcode_unit_next(it)) {</span>
 <span class="lineNum">    3312 </span>            : 
-<span class="lineNum">    3313 </span><span class="lineCov">       2035 :       switch (vcode_unit_kind()) {</span>
-<span class="lineNum">    3314 </span>            :       case VCODE_UNIT_PROCEDURE:
-<span class="lineNum">    3315 </span>            :       case VCODE_UNIT_FUNCTION:
-<span class="lineNum">    3316 </span><span class="lineCov">       1211 :          cgen_subprograms(it);</span>
-<span class="lineNum">    3317 </span><span class="lineCov">       1211 :          if (display == NULL &amp;&amp; needs_display)</span>
-<span class="lineNum">    3318 </span><span class="lineCov">         26 :             display = cgen_display_type(vcode);</span>
-<span class="lineNum">    3319 </span><span class="lineCov">       1211 :          vcode_select_unit(it);</span>
-<span class="lineNum">    3320 </span><span class="lineCov">       1211 :          if (vcode_unit_kind() == VCODE_UNIT_FUNCTION)</span>
-<span class="lineNum">    3321 </span><span class="lineCov">       1144 :             cgen_function(display);</span>
-<span class="lineNum">    3322 </span>            :          else
-<span class="lineNum">    3323 </span><span class="lineCov">         67 :             cgen_procedure(display);</span>
-<span class="lineNum">    3324 </span>            :          break;
-<span class="lineNum">    3325 </span>            :       case VCODE_UNIT_PROCESS:
-<span class="lineNum">    3326 </span><span class="lineCov">        824 :          cgen_subprograms(it);</span>
-<span class="lineNum">    3327 </span><span class="lineCov">        824 :          cgen_process(it);</span>
-<span class="lineNum">    3328 </span><span class="lineCov">        824 :          break;</span>
-<span class="lineNum">    3329 </span>            :       default:
-<span class="lineNum">    3330 </span>            :          break;
-<span class="lineNum">    3331 </span>            :       }
-<span class="lineNum">    3332 </span>            :    }
-<a name="3333"><span class="lineNum">    3333 </span><span class="lineCov">       2461 : }</span></a>
-<span class="lineNum">    3334 </span>            : 
-<span class="lineNum">    3335 </span><span class="lineCov">        426 : static void cgen_shared_variables(void)</span>
-<span class="lineNum">    3336 </span>            : {
-<span class="lineNum">    3337 </span><span class="lineCov">        426 :    const int nvars = vcode_count_vars();</span>
-<span class="lineNum">    3338 </span><span class="lineCov">       1470 :    for (int i = 0; i &lt; nvars; i++) {</span>
-<span class="lineNum">    3339 </span><span class="lineCov">       1044 :       vcode_var_t var = vcode_var_handle(i);</span>
-<span class="lineNum">    3340 </span>            : 
-<span class="lineNum">    3341 </span><span class="lineCov">       1044 :       LLVMTypeRef type = cgen_type(vcode_var_type(var));</span>
-<span class="lineNum">    3342 </span><span class="lineCov">       1044 :       LLVMValueRef global = LLVMAddGlobal(module, type,</span>
-<span class="lineNum">    3343 </span>            :                                           istr(vcode_var_name(var)));
-<span class="lineNum">    3344 </span><span class="lineCov">       1044 :       if (vcode_var_extern(var)) {</span>
-<span class="lineNum">    3345 </span>            : #ifdef IMPLIB_REQUIRED
-<span class="lineNum">    3346 </span>            :          LLVMSetDLLStorageClass(global, LLVMDLLImportStorageClass);
-<span class="lineNum">    3347 </span>            : #endif
-<span class="lineNum">    3348 </span><span class="lineCov">         30 :          LLVMSetLinkage(global, LLVMExternalLinkage);</span>
-<span class="lineNum">    3349 </span>            :       }
-<span class="lineNum">    3350 </span>            :       else {
-<span class="lineNum">    3351 </span>            : #ifdef IMPLIB_REQUIRED
-<span class="lineNum">    3352 </span>            :          LLVMSetDLLStorageClass(global, LLVMDLLExportStorageClass);
-<span class="lineNum">    3353 </span>            : #endif
-<span class="lineNum">    3354 </span><span class="lineCov">       1014 :          LLVMSetInitializer(global, LLVMConstNull(type));</span>
-<span class="lineNum">    3355 </span>            :       }
-<span class="lineNum">    3356 </span>            :    }
-<a name="3357"><span class="lineNum">    3357 </span><span class="lineCov">        426 : }</span></a>
-<span class="lineNum">    3358 </span>            : 
-<span class="lineNum">    3359 </span><span class="lineCov">        426 : static void cgen_signals(void)</span>
-<span class="lineNum">    3360 </span>            : {
-<span class="lineNum">    3361 </span><span class="lineCov">        426 :    const int nsignals = vcode_count_signals();</span>
-<span class="lineNum">    3362 </span><span class="lineCov">       1310 :    for (int i = 0 ; i &lt; nsignals; i++) {</span>
-<span class="lineNum">    3363 </span><span class="lineCov">       1768 :       char *buf LOCAL = cgen_signal_nets_name(i);</span>
-<span class="lineNum">    3364 </span>            : 
-<span class="lineNum">    3365 </span><span class="lineCov">        884 :       const int nnets     = vcode_signal_count_nets(i);</span>
-<span class="lineNum">    3366 </span><span class="lineCov">        884 :       const netid_t *nets = vcode_signal_nets(i);</span>
-<span class="lineNum">    3367 </span>            : 
-<span class="lineNum">    3368 </span><span class="lineCov">        884 :       LLVMTypeRef nid_type = cgen_net_id_type();</span>
-<span class="lineNum">    3369 </span><span class="lineCov">        884 :       LLVMTypeRef map_type = LLVMArrayType(nid_type, nnets);</span>
-<span class="lineNum">    3370 </span>            : 
-<span class="lineNum">    3371 </span><span class="lineCov">        884 :       LLVMValueRef map_var = LLVMAddGlobal(module, map_type, buf);</span>
-<span class="lineNum">    3372 </span><span class="lineCov">        884 :       if (vcode_signal_extern(i))</span>
-<span class="lineNum">    3373 </span><span class="lineCov">          3 :          LLVMSetLinkage(map_var, LLVMExternalLinkage);</span>
-<span class="lineNum">    3374 </span>            :       else {
-<span class="lineNum">    3375 </span><span class="lineCov">        881 :          if (nnets &lt;= MAX_STATIC_NETS &amp;&amp; nnets &gt; 0</span>
-<span class="lineNum">    3376 </span><span class="lineCov">       1756 :              &amp;&amp; nets[0] != NETID_INVALID) {</span>
-<span class="lineNum">    3377 </span>            :             // Generate a constant mapping table from sub-element to net ID
-<span class="lineNum">    3378 </span><span class="lineCov">        877 :             LLVMSetGlobalConstant(map_var, true);</span>
-<span class="lineNum">    3379 </span><span class="lineCov">        877 :             LLVMSetUnnamedAddr(map_var, true);</span>
-<span class="lineNum">    3380 </span>            : 
-<span class="lineNum">    3381 </span><span class="lineCov">        877 :             LLVMValueRef *init = xmalloc(sizeof(LLVMValueRef) * nnets);</span>
-<span class="lineNum">    3382 </span><span class="lineCov">       3799 :             for (int i = 0; i &lt; nnets; i++)</span>
-<span class="lineNum">    3383 </span><span class="lineCov">       2922 :                init[i] = LLVMConstInt(nid_type, nets[i], false);</span>
-<span class="lineNum">    3384 </span>            : 
-<span class="lineNum">    3385 </span><span class="lineCov">        877 :             LLVMSetInitializer(map_var, LLVMConstArray(nid_type, init, nnets));</span>
-<span class="lineNum">    3386 </span><span class="lineCov">        877 :             free(init);</span>
-<span class="lineNum">    3387 </span>            :          }
-<span class="lineNum">    3388 </span>            :          else {
-<span class="lineNum">    3389 </span>            :             // Values will be filled in by reset function
-<span class="lineNum">    3390 </span><span class="lineCov">          4 :             LLVMSetInitializer(map_var, LLVMGetUndef(map_type));</span>
-<span class="lineNum">    3391 </span>            :          }
-<span class="lineNum">    3392 </span>            :       }
-<span class="lineNum">    3393 </span>            :    }
-<a name="3394"><span class="lineNum">    3394 </span><span class="lineCov">        426 : }</span></a>
-<span class="lineNum">    3395 </span>            : 
-<span class="lineNum">    3396 </span><span class="lineCov">        426 : static void cgen_top(tree_t t, vcode_unit_t vcode)</span>
-<span class="lineNum">    3397 </span>            : {
-<span class="lineNum">    3398 </span><span class="lineCov">        426 :    vcode_select_unit(vcode);</span>
-<span class="lineNum">    3399 </span>            : 
-<span class="lineNum">    3400 </span><span class="lineCov">        426 :    cgen_coverage_state(t);</span>
-<span class="lineNum">    3401 </span><span class="lineCov">        426 :    cgen_shared_variables();</span>
-<span class="lineNum">    3402 </span><span class="lineCov">        426 :    cgen_signals();</span>
-<span class="lineNum">    3403 </span><span class="lineCov">        426 :    cgen_reset_function(t);</span>
-<span class="lineNum">    3404 </span><span class="lineCov">        426 :    cgen_subprograms(vcode);</span>
-<a name="3405"><span class="lineNum">    3405 </span><span class="lineCov">        426 : }</span></a>
-<span class="lineNum">    3406 </span>            : 
-<span class="lineNum">    3407 </span><span class="lineCov">        426 : static void cgen_optimise(void)</span>
-<span class="lineNum">    3408 </span>            : {
-<span class="lineNum">    3409 </span><span class="lineCov">        426 :    LLVMPassManagerRef pass_mgr = LLVMCreatePassManager();</span>
-<span class="lineNum">    3410 </span>            : 
-<span class="lineNum">    3411 </span><span class="lineCov">        426 :    LLVMAddPromoteMemoryToRegisterPass(pass_mgr);</span>
-<span class="lineNum">    3412 </span><span class="lineCov">        426 :    LLVMAddInstructionCombiningPass(pass_mgr);</span>
-<span class="lineNum">    3413 </span><span class="lineCov">        426 :    LLVMAddReassociatePass(pass_mgr);</span>
-<span class="lineNum">    3414 </span><span class="lineCov">        426 :    LLVMAddGVNPass(pass_mgr);</span>
-<span class="lineNum">    3415 </span><span class="lineCov">        426 :    LLVMAddCFGSimplificationPass(pass_mgr);</span>
-<span class="lineNum">    3416 </span>            : 
-<span class="lineNum">    3417 </span><span class="lineCov">        426 :    LLVMPassManagerBuilderRef builder = LLVMPassManagerBuilderCreate();</span>
-<span class="lineNum">    3418 </span><span class="lineCov">        426 :    LLVMPassManagerBuilderSetOptLevel(builder, opt_get_int(&quot;optimise&quot;));</span>
-<span class="lineNum">    3419 </span><span class="lineCov">        426 :    LLVMPassManagerBuilderPopulateModulePassManager(builder, pass_mgr);</span>
-<span class="lineNum">    3420 </span>            : 
-<span class="lineNum">    3421 </span><span class="lineCov">        426 :    LLVMRunPassManager(pass_mgr, module);</span>
+<span class="lineNum">    3313 </span><span class="lineCov">       2035 :       vcode_select_unit(it);</span>
+<span class="lineNum">    3314 </span>            : 
+<span class="lineNum">    3315 </span><span class="lineCov">       2035 :       switch (vcode_unit_kind()) {</span>
+<span class="lineNum">    3316 </span>            :       case VCODE_UNIT_PROCEDURE:
+<span class="lineNum">    3317 </span>            :       case VCODE_UNIT_FUNCTION:
+<span class="lineNum">    3318 </span><span class="lineCov">       1211 :          cgen_subprograms(it);</span>
+<span class="lineNum">    3319 </span><span class="lineCov">       1211 :          if (display == NULL &amp;&amp; needs_display)</span>
+<span class="lineNum">    3320 </span><span class="lineCov">         26 :             display = cgen_display_type(vcode);</span>
+<span class="lineNum">    3321 </span><span class="lineCov">       1211 :          vcode_select_unit(it);</span>
+<span class="lineNum">    3322 </span><span class="lineCov">       1211 :          if (vcode_unit_kind() == VCODE_UNIT_FUNCTION)</span>
+<span class="lineNum">    3323 </span><span class="lineCov">       1144 :             cgen_function(display);</span>
+<span class="lineNum">    3324 </span>            :          else
+<span class="lineNum">    3325 </span><span class="lineCov">         67 :             cgen_procedure(display);</span>
+<span class="lineNum">    3326 </span>            :          break;
+<span class="lineNum">    3327 </span>            :       case VCODE_UNIT_PROCESS:
+<span class="lineNum">    3328 </span><span class="lineCov">        824 :          cgen_subprograms(it);</span>
+<span class="lineNum">    3329 </span><span class="lineCov">        824 :          cgen_process(it);</span>
+<span class="lineNum">    3330 </span><span class="lineCov">        824 :          break;</span>
+<span class="lineNum">    3331 </span>            :       default:
+<span class="lineNum">    3332 </span>            :          break;
+<span class="lineNum">    3333 </span>            :       }
+<span class="lineNum">    3334 </span>            :    }
+<a name="3335"><span class="lineNum">    3335 </span><span class="lineCov">       2461 : }</span></a>
+<span class="lineNum">    3336 </span>            : 
+<span class="lineNum">    3337 </span><span class="lineCov">        426 : static void cgen_shared_variables(void)</span>
+<span class="lineNum">    3338 </span>            : {
+<span class="lineNum">    3339 </span><span class="lineCov">        426 :    const int nvars = vcode_count_vars();</span>
+<span class="lineNum">    3340 </span><span class="lineCov">       1470 :    for (int i = 0; i &lt; nvars; i++) {</span>
+<span class="lineNum">    3341 </span><span class="lineCov">       1044 :       vcode_var_t var = vcode_var_handle(i);</span>
+<span class="lineNum">    3342 </span>            : 
+<span class="lineNum">    3343 </span><span class="lineCov">       1044 :       LLVMTypeRef type = cgen_type(vcode_var_type(var));</span>
+<span class="lineNum">    3344 </span><span class="lineCov">       1044 :       LLVMValueRef global = LLVMAddGlobal(module, type,</span>
+<span class="lineNum">    3345 </span>            :                                           istr(vcode_var_name(var)));
+<span class="lineNum">    3346 </span><span class="lineCov">       1044 :       if (vcode_var_extern(var)) {</span>
+<span class="lineNum">    3347 </span>            : #ifdef IMPLIB_REQUIRED
+<span class="lineNum">    3348 </span>            :          LLVMSetDLLStorageClass(global, LLVMDLLImportStorageClass);
+<span class="lineNum">    3349 </span>            : #endif
+<span class="lineNum">    3350 </span><span class="lineCov">         30 :          LLVMSetLinkage(global, LLVMExternalLinkage);</span>
+<span class="lineNum">    3351 </span>            :       }
+<span class="lineNum">    3352 </span>            :       else {
+<span class="lineNum">    3353 </span>            : #ifdef IMPLIB_REQUIRED
+<span class="lineNum">    3354 </span>            :          LLVMSetDLLStorageClass(global, LLVMDLLExportStorageClass);
+<span class="lineNum">    3355 </span>            : #endif
+<span class="lineNum">    3356 </span><span class="lineCov">       1014 :          LLVMSetInitializer(global, LLVMConstNull(type));</span>
+<span class="lineNum">    3357 </span>            :       }
+<span class="lineNum">    3358 </span>            :    }
+<a name="3359"><span class="lineNum">    3359 </span><span class="lineCov">        426 : }</span></a>
+<span class="lineNum">    3360 </span>            : 
+<span class="lineNum">    3361 </span><span class="lineCov">        426 : static void cgen_signals(void)</span>
+<span class="lineNum">    3362 </span>            : {
+<span class="lineNum">    3363 </span><span class="lineCov">        426 :    const int nsignals = vcode_count_signals();</span>
+<span class="lineNum">    3364 </span><span class="lineCov">       1310 :    for (int i = 0 ; i &lt; nsignals; i++) {</span>
+<span class="lineNum">    3365 </span><span class="lineCov">       1768 :       char *buf LOCAL = cgen_signal_nets_name(i);</span>
+<span class="lineNum">    3366 </span>            : 
+<span class="lineNum">    3367 </span><span class="lineCov">        884 :       const int nnets     = vcode_signal_count_nets(i);</span>
+<span class="lineNum">    3368 </span><span class="lineCov">        884 :       const netid_t *nets = vcode_signal_nets(i);</span>
+<span class="lineNum">    3369 </span>            : 
+<span class="lineNum">    3370 </span><span class="lineCov">        884 :       LLVMTypeRef nid_type = cgen_net_id_type();</span>
+<span class="lineNum">    3371 </span><span class="lineCov">        884 :       LLVMTypeRef map_type = LLVMArrayType(nid_type, nnets);</span>
+<span class="lineNum">    3372 </span>            : 
+<span class="lineNum">    3373 </span><span class="lineCov">        884 :       LLVMValueRef map_var = LLVMAddGlobal(module, map_type, buf);</span>
+<span class="lineNum">    3374 </span><span class="lineCov">        884 :       if (vcode_signal_extern(i))</span>
+<span class="lineNum">    3375 </span><span class="lineCov">          3 :          LLVMSetLinkage(map_var, LLVMExternalLinkage);</span>
+<span class="lineNum">    3376 </span>            :       else {
+<span class="lineNum">    3377 </span><span class="lineCov">        881 :          if (nnets &lt;= MAX_STATIC_NETS &amp;&amp; nnets &gt; 0</span>
+<span class="lineNum">    3378 </span><span class="lineCov">       1756 :              &amp;&amp; nets[0] != NETID_INVALID) {</span>
+<span class="lineNum">    3379 </span>            :             // Generate a constant mapping table from sub-element to net ID
+<span class="lineNum">    3380 </span><span class="lineCov">        877 :             LLVMSetGlobalConstant(map_var, true);</span>
+<span class="lineNum">    3381 </span><span class="lineCov">        877 :             LLVMSetUnnamedAddr(map_var, true);</span>
+<span class="lineNum">    3382 </span>            : 
+<span class="lineNum">    3383 </span><span class="lineCov">        877 :             LLVMValueRef *init = xmalloc(sizeof(LLVMValueRef) * nnets);</span>
+<span class="lineNum">    3384 </span><span class="lineCov">       3799 :             for (int i = 0; i &lt; nnets; i++)</span>
+<span class="lineNum">    3385 </span><span class="lineCov">       2922 :                init[i] = LLVMConstInt(nid_type, nets[i], false);</span>
+<span class="lineNum">    3386 </span>            : 
+<span class="lineNum">    3387 </span><span class="lineCov">        877 :             LLVMSetInitializer(map_var, LLVMConstArray(nid_type, init, nnets));</span>
+<span class="lineNum">    3388 </span><span class="lineCov">        877 :             free(init);</span>
+<span class="lineNum">    3389 </span>            :          }
+<span class="lineNum">    3390 </span>            :          else {
+<span class="lineNum">    3391 </span>            :             // Values will be filled in by reset function
+<span class="lineNum">    3392 </span><span class="lineCov">          4 :             LLVMSetInitializer(map_var, LLVMGetUndef(map_type));</span>
+<span class="lineNum">    3393 </span>            :          }
+<span class="lineNum">    3394 </span>            :       }
+<span class="lineNum">    3395 </span>            :    }
+<a name="3396"><span class="lineNum">    3396 </span><span class="lineCov">        426 : }</span></a>
+<span class="lineNum">    3397 </span>            : 
+<span class="lineNum">    3398 </span><span class="lineCov">        426 : static void cgen_top(tree_t t, vcode_unit_t vcode)</span>
+<span class="lineNum">    3399 </span>            : {
+<span class="lineNum">    3400 </span><span class="lineCov">        426 :    vcode_select_unit(vcode);</span>
+<span class="lineNum">    3401 </span>            : 
+<span class="lineNum">    3402 </span><span class="lineCov">        426 :    cgen_coverage_state(t);</span>
+<span class="lineNum">    3403 </span><span class="lineCov">        426 :    cgen_shared_variables();</span>
+<span class="lineNum">    3404 </span><span class="lineCov">        426 :    cgen_signals();</span>
+<span class="lineNum">    3405 </span><span class="lineCov">        426 :    cgen_reset_function(t);</span>
+<span class="lineNum">    3406 </span><span class="lineCov">        426 :    cgen_subprograms(vcode);</span>
+<a name="3407"><span class="lineNum">    3407 </span><span class="lineCov">        426 : }</span></a>
+<span class="lineNum">    3408 </span>            : 
+<span class="lineNum">    3409 </span><span class="lineCov">        426 : static void cgen_optimise(void)</span>
+<span class="lineNum">    3410 </span>            : {
+<span class="lineNum">    3411 </span><span class="lineCov">        426 :    LLVMPassManagerRef pass_mgr = LLVMCreatePassManager();</span>
+<span class="lineNum">    3412 </span>            : 
+<span class="lineNum">    3413 </span><span class="lineCov">        426 :    LLVMAddPromoteMemoryToRegisterPass(pass_mgr);</span>
+<span class="lineNum">    3414 </span><span class="lineCov">        426 :    LLVMAddInstructionCombiningPass(pass_mgr);</span>
+<span class="lineNum">    3415 </span><span class="lineCov">        426 :    LLVMAddReassociatePass(pass_mgr);</span>
+<span class="lineNum">    3416 </span><span class="lineCov">        426 :    LLVMAddGVNPass(pass_mgr);</span>
+<span class="lineNum">    3417 </span><span class="lineCov">        426 :    LLVMAddCFGSimplificationPass(pass_mgr);</span>
+<span class="lineNum">    3418 </span>            : 
+<span class="lineNum">    3419 </span><span class="lineCov">        426 :    LLVMPassManagerBuilderRef builder = LLVMPassManagerBuilderCreate();</span>
+<span class="lineNum">    3420 </span><span class="lineCov">        426 :    LLVMPassManagerBuilderSetOptLevel(builder, opt_get_int(&quot;optimise&quot;));</span>
+<span class="lineNum">    3421 </span><span class="lineCov">        426 :    LLVMPassManagerBuilderPopulateModulePassManager(builder, pass_mgr);</span>
 <span class="lineNum">    3422 </span>            : 
-<span class="lineNum">    3423 </span><span class="lineCov">        426 :    LLVMDisposePassManager(pass_mgr);</span>
-<span class="lineNum">    3424 </span><span class="lineCov">        426 :    LLVMPassManagerBuilderDispose(builder);</span>
-<a name="3425"><span class="lineNum">    3425 </span><span class="lineCov">        426 : }</span></a>
-<span class="lineNum">    3426 </span>            : 
-<span class="lineNum">    3427 </span><span class="lineCov">       1905 : static LLVMValueRef cgen_support_fn(const char *name)</span>
-<span class="lineNum">    3428 </span>            : {
-<span class="lineNum">    3429 </span><span class="lineCov">       1905 :    LLVMValueRef fn = NULL;</span>
-<span class="lineNum">    3430 </span><span class="lineCov">       1905 :    if (strcmp(name, &quot;_sched_process&quot;) == 0) {</span>
-<span class="lineNum">    3431 </span><span class="lineCov">        327 :       LLVMTypeRef args[] = { LLVMInt64Type() };</span>
-<span class="lineNum">    3432 </span><span class="lineCov">        327 :       fn = LLVMAddFunction(module, &quot;_sched_process&quot;,</span>
-<span class="lineNum">    3433 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3434 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3435 </span>            :    }
-<span class="lineNum">    3436 </span><span class="lineCov">       1578 :    else if (strcmp(name, &quot;_sched_waveform&quot;) == 0) {</span>
-<span class="lineNum">    3437 </span><span class="lineCov">        700 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3438 </span><span class="lineCov">        140 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3439 </span><span class="lineCov">        140 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3440 </span><span class="lineCov">        140 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3441 </span><span class="lineCov">        140 :          LLVMInt64Type(),</span>
-<span class="lineNum">    3442 </span><span class="lineCov">        140 :          LLVMInt64Type()</span>
-<span class="lineNum">    3443 </span>            :       };
-<span class="lineNum">    3444 </span><span class="lineCov">        140 :       fn = LLVMAddFunction(module, &quot;_sched_waveform&quot;,</span>
-<span class="lineNum">    3445 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3446 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3447 </span>            :    }
-<span class="lineNum">    3448 </span><span class="lineCov">       1438 :    else if (strcmp(name, &quot;_sched_event&quot;) == 0) {</span>
-<span class="lineNum">    3449 </span><span class="lineCov">        246 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3450 </span><span class="lineCov">         82 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3451 </span><span class="lineCov">         82 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3452 </span><span class="lineCov">         82 :          LLVMInt32Type()</span>
-<span class="lineNum">    3453 </span>            :       };
-<span class="lineNum">    3454 </span><span class="lineCov">         82 :       fn = LLVMAddFunction(module, &quot;_sched_event&quot;,</span>
-<span class="lineNum">    3455 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3456 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3457 </span>            :    }
-<span class="lineNum">    3458 </span><span class="lineCov">       1356 :    else if (strcmp(name, &quot;_set_initial&quot;) == 0) {</span>
-<span class="lineNum">    3459 </span><span class="lineCov">        912 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3460 </span><span class="lineCov">        152 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3461 </span><span class="lineCov">        152 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3462 </span><span class="lineCov">        152 :          LLVMPointerType(LLVMInt32Type(), 0),</span>
-<span class="lineNum">    3463 </span><span class="lineCov">        152 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3464 </span><span class="lineCov">        152 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3465 </span><span class="lineCov">        152 :          LLVMPointerType(LLVMInt8Type(), 0)</span>
-<span class="lineNum">    3466 </span>            :       };
-<span class="lineNum">    3467 </span><span class="lineCov">        152 :       fn = LLVMAddFunction(module, &quot;_set_initial&quot;,</span>
-<span class="lineNum">    3468 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3469 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3470 </span>            :    }
-<span class="lineNum">    3471 </span><span class="lineCov">       1204 :    else if (strcmp(name, &quot;_needs_last_value&quot;) == 0) {</span>
-<span class="lineNum">    3472 </span><span class="lineCov">         46 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3473 </span><span class="lineCov">         23 :          LLVMPointerType(LLVMInt32Type(), 0),</span>
-<span class="lineNum">    3474 </span><span class="lineCov">         23 :          LLVMInt32Type()</span>
-<span class="lineNum">    3475 </span>            :       };
-<span class="lineNum">    3476 </span><span class="lineCov">         23 :       fn = LLVMAddFunction(module, &quot;_needs_last_value&quot;,</span>
-<span class="lineNum">    3477 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3478 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3479 </span>            :    }
-<span class="lineNum">    3480 </span><span class="lineCov">       1181 :    else if (strcmp(name, &quot;_resolved_address&quot;) == 0) {</span>
-<span class="lineNum">    3481 </span><span class="lineCov">        152 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3482 </span><span class="lineCov">        152 :          LLVMInt32Type()</span>
-<span class="lineNum">    3483 </span>            :       };
-<span class="lineNum">    3484 </span><span class="lineCov">        152 :       fn = LLVMAddFunction(module, &quot;_resolved_address&quot;,</span>
-<span class="lineNum">    3485 </span>            :                            LLVMFunctionType(llvm_void_ptr(),
-<span class="lineNum">    3486 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3487 </span>            :    }
-<span class="lineNum">    3488 </span><span class="lineCov">       1029 :    else if (strcmp(name, &quot;_alloc_driver&quot;) == 0) {</span>
-<span class="lineNum">    3489 </span><span class="lineCov">        695 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3490 </span><span class="lineCov">        139 :          LLVMPointerType(LLVMInt32Type(), 0),</span>
-<span class="lineNum">    3491 </span><span class="lineCov">        139 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3423 </span><span class="lineCov">        426 :    LLVMRunPassManager(pass_mgr, module);</span>
+<span class="lineNum">    3424 </span>            : 
+<span class="lineNum">    3425 </span><span class="lineCov">        426 :    LLVMDisposePassManager(pass_mgr);</span>
+<span class="lineNum">    3426 </span><span class="lineCov">        426 :    LLVMPassManagerBuilderDispose(builder);</span>
+<a name="3427"><span class="lineNum">    3427 </span><span class="lineCov">        426 : }</span></a>
+<span class="lineNum">    3428 </span>            : 
+<span class="lineNum">    3429 </span><span class="lineCov">       1905 : static LLVMValueRef cgen_support_fn(const char *name)</span>
+<span class="lineNum">    3430 </span>            : {
+<span class="lineNum">    3431 </span><span class="lineCov">       1905 :    LLVMValueRef fn = NULL;</span>
+<span class="lineNum">    3432 </span><span class="lineCov">       1905 :    if (strcmp(name, &quot;_sched_process&quot;) == 0) {</span>
+<span class="lineNum">    3433 </span><span class="lineCov">        327 :       LLVMTypeRef args[] = { LLVMInt64Type() };</span>
+<span class="lineNum">    3434 </span><span class="lineCov">        327 :       fn = LLVMAddFunction(module, &quot;_sched_process&quot;,</span>
+<span class="lineNum">    3435 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3436 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3437 </span>            :    }
+<span class="lineNum">    3438 </span><span class="lineCov">       1578 :    else if (strcmp(name, &quot;_sched_waveform&quot;) == 0) {</span>
+<span class="lineNum">    3439 </span><span class="lineCov">        700 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3440 </span><span class="lineCov">        140 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3441 </span><span class="lineCov">        140 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3442 </span><span class="lineCov">        140 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3443 </span><span class="lineCov">        140 :          LLVMInt64Type(),</span>
+<span class="lineNum">    3444 </span><span class="lineCov">        140 :          LLVMInt64Type()</span>
+<span class="lineNum">    3445 </span>            :       };
+<span class="lineNum">    3446 </span><span class="lineCov">        140 :       fn = LLVMAddFunction(module, &quot;_sched_waveform&quot;,</span>
+<span class="lineNum">    3447 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3448 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3449 </span>            :    }
+<span class="lineNum">    3450 </span><span class="lineCov">       1438 :    else if (strcmp(name, &quot;_sched_event&quot;) == 0) {</span>
+<span class="lineNum">    3451 </span><span class="lineCov">        246 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3452 </span><span class="lineCov">         82 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3453 </span><span class="lineCov">         82 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3454 </span><span class="lineCov">         82 :          LLVMInt32Type()</span>
+<span class="lineNum">    3455 </span>            :       };
+<span class="lineNum">    3456 </span><span class="lineCov">         82 :       fn = LLVMAddFunction(module, &quot;_sched_event&quot;,</span>
+<span class="lineNum">    3457 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3458 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3459 </span>            :    }
+<span class="lineNum">    3460 </span><span class="lineCov">       1356 :    else if (strcmp(name, &quot;_set_initial&quot;) == 0) {</span>
+<span class="lineNum">    3461 </span><span class="lineCov">        912 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3462 </span><span class="lineCov">        152 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3463 </span><span class="lineCov">        152 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3464 </span><span class="lineCov">        152 :          LLVMPointerType(LLVMInt32Type(), 0),</span>
+<span class="lineNum">    3465 </span><span class="lineCov">        152 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3466 </span><span class="lineCov">        152 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3467 </span><span class="lineCov">        152 :          LLVMPointerType(LLVMInt8Type(), 0)</span>
+<span class="lineNum">    3468 </span>            :       };
+<span class="lineNum">    3469 </span><span class="lineCov">        152 :       fn = LLVMAddFunction(module, &quot;_set_initial&quot;,</span>
+<span class="lineNum">    3470 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3471 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3472 </span>            :    }
+<span class="lineNum">    3473 </span><span class="lineCov">       1204 :    else if (strcmp(name, &quot;_needs_last_value&quot;) == 0) {</span>
+<span class="lineNum">    3474 </span><span class="lineCov">         46 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3475 </span><span class="lineCov">         23 :          LLVMPointerType(LLVMInt32Type(), 0),</span>
+<span class="lineNum">    3476 </span><span class="lineCov">         23 :          LLVMInt32Type()</span>
+<span class="lineNum">    3477 </span>            :       };
+<span class="lineNum">    3478 </span><span class="lineCov">         23 :       fn = LLVMAddFunction(module, &quot;_needs_last_value&quot;,</span>
+<span class="lineNum">    3479 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3480 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3481 </span>            :    }
+<span class="lineNum">    3482 </span><span class="lineCov">       1181 :    else if (strcmp(name, &quot;_resolved_address&quot;) == 0) {</span>
+<span class="lineNum">    3483 </span><span class="lineCov">        152 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3484 </span><span class="lineCov">        152 :          LLVMInt32Type()</span>
+<span class="lineNum">    3485 </span>            :       };
+<span class="lineNum">    3486 </span><span class="lineCov">        152 :       fn = LLVMAddFunction(module, &quot;_resolved_address&quot;,</span>
+<span class="lineNum">    3487 </span>            :                            LLVMFunctionType(llvm_void_ptr(),
+<span class="lineNum">    3488 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3489 </span>            :    }
+<span class="lineNum">    3490 </span><span class="lineCov">       1029 :    else if (strcmp(name, &quot;_alloc_driver&quot;) == 0) {</span>
+<span class="lineNum">    3491 </span><span class="lineCov">        695 :       LLVMTypeRef args[] = {</span>
 <span class="lineNum">    3492 </span><span class="lineCov">        139 :          LLVMPointerType(LLVMInt32Type(), 0),</span>
 <span class="lineNum">    3493 </span><span class="lineCov">        139 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3494 </span><span class="lineCov">        139 :          llvm_void_ptr()</span>
-<span class="lineNum">    3495 </span>            :       };
-<span class="lineNum">    3496 </span><span class="lineCov">        139 :       fn = LLVMAddFunction(module, &quot;_alloc_driver&quot;,</span>
-<span class="lineNum">    3497 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3498 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3499 </span>            :    }
-<span class="lineNum">    3500 </span><span class="lineCov">        890 :    else if (strcmp(name, &quot;_assert_fail&quot;) == 0) {</span>
-<span class="lineNum">    3501 </span><span class="lineCov">       1580 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3502 </span><span class="lineCov">        316 :          LLVMPointerType(LLVMInt8Type(), 0),</span>
-<span class="lineNum">    3503 </span><span class="lineCov">        316 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3504 </span><span class="lineCov">        316 :          LLVMInt8Type(),</span>
-<span class="lineNum">    3505 </span><span class="lineCov">        316 :          LLVMInt8Type(),</span>
-<span class="lineNum">    3506 </span><span class="lineCov">        316 :          LLVMPointerType(llvm_rt_loc(), 0)</span>
-<span class="lineNum">    3507 </span>            :       };
-<span class="lineNum">    3508 </span><span class="lineCov">        316 :       fn = LLVMAddFunction(module, &quot;_assert_fail&quot;,</span>
-<span class="lineNum">    3509 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3510 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3511 </span>            :    }
-<span class="lineNum">    3512 </span><span class="lineCov">        574 :    else if (strcmp(name, &quot;_vec_load&quot;) == 0) {</span>
-<span class="lineNum">    3513 </span><span class="lineCov">        105 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3514 </span><span class="lineCov">         21 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3515 </span><span class="lineCov">         21 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3516 </span><span class="lineCov">         21 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3517 </span><span class="lineCov">         21 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3518 </span><span class="lineCov">         21 :          LLVMInt1Type()</span>
-<span class="lineNum">    3519 </span>            :       };
-<span class="lineNum">    3520 </span><span class="lineCov">         21 :       fn = LLVMAddFunction(module, &quot;_vec_load&quot;,</span>
-<span class="lineNum">    3521 </span>            :                            LLVMFunctionType(llvm_void_ptr(),
-<span class="lineNum">    3522 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3523 </span>            :    }
-<span class="lineNum">    3524 </span><span class="lineCov">        553 :    else if (strcmp(name, &quot;_image&quot;) == 0) {</span>
-<span class="lineNum">    3525 </span><span class="lineCov">        192 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3526 </span><span class="lineCov">         64 :          LLVMInt64Type(),</span>
-<span class="lineNum">    3527 </span><span class="lineCov">         64 :          LLVMPointerType(llvm_image_map(), 0),</span>
-<span class="lineNum">    3528 </span><span class="lineCov">         64 :          LLVMPointerType(llvm_uarray_type(LLVMInt8Type(), 1), 0)</span>
-<span class="lineNum">    3529 </span>            :       };
-<span class="lineNum">    3530 </span><span class="lineCov">         64 :       fn = LLVMAddFunction(module, &quot;_image&quot;,</span>
-<span class="lineNum">    3531 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3532 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3533 </span>            :    }
-<span class="lineNum">    3534 </span><span class="lineCov">        489 :    else if (strcmp(name, &quot;_debug_out&quot;) == 0) {</span>
-<span class="lineNum">    3535 </span><span class="lineNoCov">          0 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3536 </span><span class="lineNoCov">          0 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3537 </span><span class="lineNoCov">          0 :          LLVMInt32Type()</span>
-<span class="lineNum">    3538 </span>            :       };
-<span class="lineNum">    3539 </span><span class="lineNoCov">          0 :       fn = LLVMAddFunction(module, &quot;_debug_out&quot;,</span>
-<span class="lineNum">    3540 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3541 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3542 </span>            :    }
-<span class="lineNum">    3543 </span><span class="lineCov">        489 :    else if (strcmp(name, &quot;_debug_dump&quot;) == 0) {</span>
-<span class="lineNum">    3544 </span><span class="lineNoCov">          0 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3545 </span><span class="lineNoCov">          0 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3546 </span><span class="lineNoCov">          0 :          LLVMInt32Type()</span>
-<span class="lineNum">    3547 </span>            :       };
-<span class="lineNum">    3548 </span><span class="lineNoCov">          0 :       fn = LLVMAddFunction(module, &quot;_debug_dump&quot;,</span>
-<span class="lineNum">    3549 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3550 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3551 </span>            :    }
-<span class="lineNum">    3552 </span><span class="lineCov">        489 :    else if (strcmp(name, &quot;llvm.pow.f64&quot;) == 0) {</span>
-<span class="lineNum">    3553 </span><span class="lineCov">         10 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3554 </span><span class="lineCov">          5 :          LLVMDoubleType(),</span>
-<span class="lineNum">    3555 </span><span class="lineCov">          5 :          LLVMDoubleType()</span>
-<span class="lineNum">    3556 </span>            :       };
-<span class="lineNum">    3557 </span><span class="lineCov">          5 :       fn = LLVMAddFunction(module, &quot;llvm.pow.f64&quot;,</span>
-<span class="lineNum">    3558 </span>            :                            LLVMFunctionType(LLVMDoubleType(),
-<span class="lineNum">    3559 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3560 </span>            :    }
-<span class="lineNum">    3561 </span><span class="lineCov">        484 :    else if (strcmp(name, &quot;llvm.memset.p0i8.i32&quot;) == 0) {</span>
-<span class="lineNum">    3562 </span><span class="lineCov">        145 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3563 </span><span class="lineCov">         29 :          LLVMPointerType(LLVMInt8Type(), 0),</span>
-<span class="lineNum">    3564 </span><span class="lineCov">         29 :          LLVMInt8Type(),</span>
-<span class="lineNum">    3565 </span><span class="lineCov">         29 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3566 </span><span class="lineCov">         29 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3567 </span><span class="lineCov">         29 :          LLVMInt1Type()</span>
-<span class="lineNum">    3568 </span>            :       };
-<span class="lineNum">    3569 </span><span class="lineCov">         29 :       fn = LLVMAddFunction(module, &quot;llvm.memset.p0i8.i32&quot;,</span>
-<span class="lineNum">    3570 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3571 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3572 </span>            :    }
-<span class="lineNum">    3573 </span><span class="lineCov">        455 :    else if (strncmp(name, &quot;llvm.mem&quot;, 8) == 0) {</span>
-<span class="lineNum">    3574 </span>            :       int width;
-<span class="lineNum">    3575 </span>            :       char kind[16];
-<span class="lineNum">    3576 </span><span class="lineCov">        167 :       if (sscanf(name, &quot;llvm.%16[^.].p0i%d&quot;, kind, &amp;width) != 2)</span>
-<span class="lineNum">    3577 </span><span class="lineNoCov">          0 :          fatal(&quot;invalid memcpy intrinsic %s&quot;, name);</span>
-<span class="lineNum">    3578 </span>            : 
-<span class="lineNum">    3579 </span><span class="lineCov">        835 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3580 </span><span class="lineCov">        167 :          LLVMPointerType(LLVMIntType(width), 0),</span>
-<span class="lineNum">    3581 </span><span class="lineCov">        167 :          LLVMPointerType(LLVMIntType(width), 0),</span>
-<span class="lineNum">    3582 </span><span class="lineCov">        167 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3583 </span><span class="lineCov">        167 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3584 </span><span class="lineCov">        167 :          LLVMInt1Type()</span>
-<span class="lineNum">    3585 </span>            :       };
-<span class="lineNum">    3586 </span><span class="lineCov">        167 :       fn = LLVMAddFunction(module, cgen_memcpy_name(kind, width),</span>
-<span class="lineNum">    3587 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3588 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3589 </span>            :    }
-<span class="lineNum">    3590 </span><span class="lineCov">        288 :    else if (strcmp(name, &quot;_file_open&quot;) == 0) {</span>
-<span class="lineNum">    3591 </span><span class="lineCov">         60 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3592 </span><span class="lineCov">         12 :          LLVMPointerType(LLVMInt8Type(), 0),</span>
-<span class="lineNum">    3593 </span><span class="lineCov">         12 :          LLVMPointerType(llvm_void_ptr(), 0),</span>
+<span class="lineNum">    3494 </span><span class="lineCov">        139 :          LLVMPointerType(LLVMInt32Type(), 0),</span>
+<span class="lineNum">    3495 </span><span class="lineCov">        139 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3496 </span><span class="lineCov">        139 :          llvm_void_ptr()</span>
+<span class="lineNum">    3497 </span>            :       };
+<span class="lineNum">    3498 </span><span class="lineCov">        139 :       fn = LLVMAddFunction(module, &quot;_alloc_driver&quot;,</span>
+<span class="lineNum">    3499 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3500 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3501 </span>            :    }
+<span class="lineNum">    3502 </span><span class="lineCov">        890 :    else if (strcmp(name, &quot;_assert_fail&quot;) == 0) {</span>
+<span class="lineNum">    3503 </span><span class="lineCov">       1580 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3504 </span><span class="lineCov">        316 :          LLVMPointerType(LLVMInt8Type(), 0),</span>
+<span class="lineNum">    3505 </span><span class="lineCov">        316 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3506 </span><span class="lineCov">        316 :          LLVMInt8Type(),</span>
+<span class="lineNum">    3507 </span><span class="lineCov">        316 :          LLVMInt8Type(),</span>
+<span class="lineNum">    3508 </span><span class="lineCov">        316 :          LLVMPointerType(llvm_rt_loc(), 0)</span>
+<span class="lineNum">    3509 </span>            :       };
+<span class="lineNum">    3510 </span><span class="lineCov">        316 :       fn = LLVMAddFunction(module, &quot;_assert_fail&quot;,</span>
+<span class="lineNum">    3511 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3512 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3513 </span>            :    }
+<span class="lineNum">    3514 </span><span class="lineCov">        574 :    else if (strcmp(name, &quot;_vec_load&quot;) == 0) {</span>
+<span class="lineNum">    3515 </span><span class="lineCov">        105 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3516 </span><span class="lineCov">         21 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3517 </span><span class="lineCov">         21 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3518 </span><span class="lineCov">         21 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3519 </span><span class="lineCov">         21 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3520 </span><span class="lineCov">         21 :          LLVMInt1Type()</span>
+<span class="lineNum">    3521 </span>            :       };
+<span class="lineNum">    3522 </span><span class="lineCov">         21 :       fn = LLVMAddFunction(module, &quot;_vec_load&quot;,</span>
+<span class="lineNum">    3523 </span>            :                            LLVMFunctionType(llvm_void_ptr(),
+<span class="lineNum">    3524 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3525 </span>            :    }
+<span class="lineNum">    3526 </span><span class="lineCov">        553 :    else if (strcmp(name, &quot;_image&quot;) == 0) {</span>
+<span class="lineNum">    3527 </span><span class="lineCov">        192 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3528 </span><span class="lineCov">         64 :          LLVMInt64Type(),</span>
+<span class="lineNum">    3529 </span><span class="lineCov">         64 :          LLVMPointerType(llvm_image_map(), 0),</span>
+<span class="lineNum">    3530 </span><span class="lineCov">         64 :          LLVMPointerType(llvm_uarray_type(LLVMInt8Type(), 1), 0)</span>
+<span class="lineNum">    3531 </span>            :       };
+<span class="lineNum">    3532 </span><span class="lineCov">         64 :       fn = LLVMAddFunction(module, &quot;_image&quot;,</span>
+<span class="lineNum">    3533 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3534 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3535 </span>            :    }
+<span class="lineNum">    3536 </span><span class="lineCov">        489 :    else if (strcmp(name, &quot;_debug_out&quot;) == 0) {</span>
+<span class="lineNum">    3537 </span><span class="lineNoCov">          0 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3538 </span><span class="lineNoCov">          0 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3539 </span><span class="lineNoCov">          0 :          LLVMInt32Type()</span>
+<span class="lineNum">    3540 </span>            :       };
+<span class="lineNum">    3541 </span><span class="lineNoCov">          0 :       fn = LLVMAddFunction(module, &quot;_debug_out&quot;,</span>
+<span class="lineNum">    3542 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3543 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3544 </span>            :    }
+<span class="lineNum">    3545 </span><span class="lineCov">        489 :    else if (strcmp(name, &quot;_debug_dump&quot;) == 0) {</span>
+<span class="lineNum">    3546 </span><span class="lineNoCov">          0 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3547 </span><span class="lineNoCov">          0 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3548 </span><span class="lineNoCov">          0 :          LLVMInt32Type()</span>
+<span class="lineNum">    3549 </span>            :       };
+<span class="lineNum">    3550 </span><span class="lineNoCov">          0 :       fn = LLVMAddFunction(module, &quot;_debug_dump&quot;,</span>
+<span class="lineNum">    3551 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3552 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3553 </span>            :    }
+<span class="lineNum">    3554 </span><span class="lineCov">        489 :    else if (strcmp(name, &quot;llvm.pow.f64&quot;) == 0) {</span>
+<span class="lineNum">    3555 </span><span class="lineCov">         10 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3556 </span><span class="lineCov">          5 :          LLVMDoubleType(),</span>
+<span class="lineNum">    3557 </span><span class="lineCov">          5 :          LLVMDoubleType()</span>
+<span class="lineNum">    3558 </span>            :       };
+<span class="lineNum">    3559 </span><span class="lineCov">          5 :       fn = LLVMAddFunction(module, &quot;llvm.pow.f64&quot;,</span>
+<span class="lineNum">    3560 </span>            :                            LLVMFunctionType(LLVMDoubleType(),
+<span class="lineNum">    3561 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3562 </span>            :    }
+<span class="lineNum">    3563 </span><span class="lineCov">        484 :    else if (strcmp(name, &quot;llvm.memset.p0i8.i32&quot;) == 0) {</span>
+<span class="lineNum">    3564 </span><span class="lineCov">        145 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3565 </span><span class="lineCov">         29 :          LLVMPointerType(LLVMInt8Type(), 0),</span>
+<span class="lineNum">    3566 </span><span class="lineCov">         29 :          LLVMInt8Type(),</span>
+<span class="lineNum">    3567 </span><span class="lineCov">         29 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3568 </span><span class="lineCov">         29 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3569 </span><span class="lineCov">         29 :          LLVMInt1Type()</span>
+<span class="lineNum">    3570 </span>            :       };
+<span class="lineNum">    3571 </span><span class="lineCov">         29 :       fn = LLVMAddFunction(module, &quot;llvm.memset.p0i8.i32&quot;,</span>
+<span class="lineNum">    3572 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3573 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3574 </span>            :    }
+<span class="lineNum">    3575 </span><span class="lineCov">        455 :    else if (strncmp(name, &quot;llvm.mem&quot;, 8) == 0) {</span>
+<span class="lineNum">    3576 </span>            :       int width;
+<span class="lineNum">    3577 </span>            :       char kind[16];
+<span class="lineNum">    3578 </span><span class="lineCov">        167 :       if (sscanf(name, &quot;llvm.%16[^.].p0i%d&quot;, kind, &amp;width) != 2)</span>
+<span class="lineNum">    3579 </span><span class="lineNoCov">          0 :          fatal(&quot;invalid memcpy intrinsic %s&quot;, name);</span>
+<span class="lineNum">    3580 </span>            : 
+<span class="lineNum">    3581 </span><span class="lineCov">        835 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3582 </span><span class="lineCov">        167 :          LLVMPointerType(LLVMIntType(width), 0),</span>
+<span class="lineNum">    3583 </span><span class="lineCov">        167 :          LLVMPointerType(LLVMIntType(width), 0),</span>
+<span class="lineNum">    3584 </span><span class="lineCov">        167 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3585 </span><span class="lineCov">        167 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3586 </span><span class="lineCov">        167 :          LLVMInt1Type()</span>
+<span class="lineNum">    3587 </span>            :       };
+<span class="lineNum">    3588 </span><span class="lineCov">        167 :       fn = LLVMAddFunction(module, cgen_memcpy_name(kind, width),</span>
+<span class="lineNum">    3589 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3590 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3591 </span>            :    }
+<span class="lineNum">    3592 </span><span class="lineCov">        288 :    else if (strcmp(name, &quot;_file_open&quot;) == 0) {</span>
+<span class="lineNum">    3593 </span><span class="lineCov">         60 :       LLVMTypeRef args[] = {</span>
 <span class="lineNum">    3594 </span><span class="lineCov">         12 :          LLVMPointerType(LLVMInt8Type(), 0),</span>
-<span class="lineNum">    3595 </span><span class="lineCov">         12 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3596 </span><span class="lineCov">         12 :          LLVMInt8Type()</span>
-<span class="lineNum">    3597 </span>            :       };
-<span class="lineNum">    3598 </span><span class="lineCov">         12 :       fn = LLVMAddFunction(module, &quot;_file_open&quot;,</span>
-<span class="lineNum">    3599 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3600 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3601 </span>            :    }
-<span class="lineNum">    3602 </span><span class="lineCov">        276 :    else if (strcmp(name, &quot;_file_write&quot;) == 0) {</span>
-<span class="lineNum">    3603 </span><span class="lineCov">         27 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3604 </span><span class="lineCov">          9 :          LLVMPointerType(llvm_void_ptr(), 0),</span>
-<span class="lineNum">    3605 </span><span class="lineCov">          9 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3606 </span><span class="lineCov">          9 :          LLVMInt32Type()</span>
-<span class="lineNum">    3607 </span>            :       };
-<span class="lineNum">    3608 </span><span class="lineCov">          9 :       fn = LLVMAddFunction(module, &quot;_file_write&quot;,</span>
-<span class="lineNum">    3609 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3610 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3611 </span>            :    }
-<span class="lineNum">    3612 </span><span class="lineCov">        267 :    else if (strcmp(name, &quot;_file_read&quot;) == 0) {</span>
-<span class="lineNum">    3613 </span><span class="lineCov">         24 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3614 </span><span class="lineCov">          6 :          LLVMPointerType(llvm_void_ptr(), 0),</span>
-<span class="lineNum">    3615 </span><span class="lineCov">          6 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3616 </span><span class="lineCov">          6 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3617 </span><span class="lineCov">          6 :          LLVMPointerType(LLVMInt32Type(), 0)</span>
-<span class="lineNum">    3618 </span>            :       };
-<span class="lineNum">    3619 </span><span class="lineCov">          6 :       fn = LLVMAddFunction(module, &quot;_file_read&quot;,</span>
-<span class="lineNum">    3620 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3621 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3622 </span>            :    }
-<span class="lineNum">    3623 </span><span class="lineCov">        261 :    else if (strcmp(name, &quot;_file_close&quot;) == 0) {</span>
-<span class="lineNum">    3624 </span><span class="lineCov">          9 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3625 </span><span class="lineCov">          9 :          LLVMPointerType(llvm_void_ptr(), 0)</span>
-<span class="lineNum">    3626 </span>            :       };
-<span class="lineNum">    3627 </span><span class="lineCov">          9 :       fn = LLVMAddFunction(module, &quot;_file_close&quot;,</span>
-<span class="lineNum">    3628 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3629 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3630 </span>            :    }
-<span class="lineNum">    3631 </span><span class="lineCov">        252 :    else if (strcmp(name, &quot;_endfile&quot;) == 0) {</span>
-<span class="lineNum">    3632 </span><span class="lineCov">          4 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3633 </span><span class="lineCov">          4 :          llvm_void_ptr()</span>
-<span class="lineNum">    3634 </span>            :       };
-<span class="lineNum">    3635 </span><span class="lineCov">          4 :       fn = LLVMAddFunction(module, &quot;_endfile&quot;,</span>
-<span class="lineNum">    3636 </span>            :                            LLVMFunctionType(LLVMInt1Type(),
-<span class="lineNum">    3637 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3638 </span>            :    }
-<span class="lineNum">    3639 </span><span class="lineCov">        248 :    else if (strcmp(name, &quot;_bounds_fail&quot;) == 0) {</span>
-<span class="lineNum">    3640 </span><span class="lineCov">        984 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3641 </span><span class="lineCov">        164 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3642 </span><span class="lineCov">        164 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3595 </span><span class="lineCov">         12 :          LLVMPointerType(llvm_void_ptr(), 0),</span>
+<span class="lineNum">    3596 </span><span class="lineCov">         12 :          LLVMPointerType(LLVMInt8Type(), 0),</span>
+<span class="lineNum">    3597 </span><span class="lineCov">         12 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3598 </span><span class="lineCov">         12 :          LLVMInt8Type()</span>
+<span class="lineNum">    3599 </span>            :       };
+<span class="lineNum">    3600 </span><span class="lineCov">         12 :       fn = LLVMAddFunction(module, &quot;_file_open&quot;,</span>
+<span class="lineNum">    3601 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3602 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3603 </span>            :    }
+<span class="lineNum">    3604 </span><span class="lineCov">        276 :    else if (strcmp(name, &quot;_file_write&quot;) == 0) {</span>
+<span class="lineNum">    3605 </span><span class="lineCov">         27 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3606 </span><span class="lineCov">          9 :          LLVMPointerType(llvm_void_ptr(), 0),</span>
+<span class="lineNum">    3607 </span><span class="lineCov">          9 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3608 </span><span class="lineCov">          9 :          LLVMInt32Type()</span>
+<span class="lineNum">    3609 </span>            :       };
+<span class="lineNum">    3610 </span><span class="lineCov">          9 :       fn = LLVMAddFunction(module, &quot;_file_write&quot;,</span>
+<span class="lineNum">    3611 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3612 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3613 </span>            :    }
+<span class="lineNum">    3614 </span><span class="lineCov">        267 :    else if (strcmp(name, &quot;_file_read&quot;) == 0) {</span>
+<span class="lineNum">    3615 </span><span class="lineCov">         24 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3616 </span><span class="lineCov">          6 :          LLVMPointerType(llvm_void_ptr(), 0),</span>
+<span class="lineNum">    3617 </span><span class="lineCov">          6 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3618 </span><span class="lineCov">          6 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3619 </span><span class="lineCov">          6 :          LLVMPointerType(LLVMInt32Type(), 0)</span>
+<span class="lineNum">    3620 </span>            :       };
+<span class="lineNum">    3621 </span><span class="lineCov">          6 :       fn = LLVMAddFunction(module, &quot;_file_read&quot;,</span>
+<span class="lineNum">    3622 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3623 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3624 </span>            :    }
+<span class="lineNum">    3625 </span><span class="lineCov">        261 :    else if (strcmp(name, &quot;_file_close&quot;) == 0) {</span>
+<span class="lineNum">    3626 </span><span class="lineCov">          9 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3627 </span><span class="lineCov">          9 :          LLVMPointerType(llvm_void_ptr(), 0)</span>
+<span class="lineNum">    3628 </span>            :       };
+<span class="lineNum">    3629 </span><span class="lineCov">          9 :       fn = LLVMAddFunction(module, &quot;_file_close&quot;,</span>
+<span class="lineNum">    3630 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3631 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3632 </span>            :    }
+<span class="lineNum">    3633 </span><span class="lineCov">        252 :    else if (strcmp(name, &quot;_endfile&quot;) == 0) {</span>
+<span class="lineNum">    3634 </span><span class="lineCov">          4 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3635 </span><span class="lineCov">          4 :          llvm_void_ptr()</span>
+<span class="lineNum">    3636 </span>            :       };
+<span class="lineNum">    3637 </span><span class="lineCov">          4 :       fn = LLVMAddFunction(module, &quot;_endfile&quot;,</span>
+<span class="lineNum">    3638 </span>            :                            LLVMFunctionType(LLVMInt1Type(),
+<span class="lineNum">    3639 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3640 </span>            :    }
+<span class="lineNum">    3641 </span><span class="lineCov">        248 :    else if (strcmp(name, &quot;_bounds_fail&quot;) == 0) {</span>
+<span class="lineNum">    3642 </span><span class="lineCov">        984 :       LLVMTypeRef args[] = {</span>
 <span class="lineNum">    3643 </span><span class="lineCov">        164 :          LLVMInt32Type(),</span>
 <span class="lineNum">    3644 </span><span class="lineCov">        164 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3645 </span><span class="lineCov">        164 :          LLVMPointerType(llvm_rt_loc(), 0),</span>
-<span class="lineNum">    3646 </span><span class="lineCov">        164 :          llvm_char_ptr()</span>
-<span class="lineNum">    3647 </span>            :       };
-<span class="lineNum">    3648 </span><span class="lineCov">        164 :       fn = LLVMAddFunction(module, &quot;_bounds_fail&quot;,</span>
-<span class="lineNum">    3649 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3650 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3651 </span><span class="lineCov">        164 :       cgen_add_func_attr(fn, FUNC_ATTR_NORETURN);</span>
-<span class="lineNum">    3652 </span>            :    }
-<span class="lineNum">    3653 </span><span class="lineCov">         84 :    else if (strcmp(name, &quot;_div_zero&quot;) == 0) {</span>
-<span class="lineNum">    3654 </span><span class="lineCov">         18 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3655 </span><span class="lineCov">         18 :          LLVMPointerType(llvm_rt_loc(), 0)</span>
-<span class="lineNum">    3656 </span>            :       };
-<span class="lineNum">    3657 </span><span class="lineCov">         18 :       fn = LLVMAddFunction(module, &quot;_div_zero&quot;,</span>
-<span class="lineNum">    3658 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3659 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3660 </span><span class="lineCov">         18 :       cgen_add_func_attr(fn, FUNC_ATTR_NORETURN);</span>
-<span class="lineNum">    3661 </span>            :    }
-<span class="lineNum">    3662 </span><span class="lineCov">         66 :    else if (strcmp(name, &quot;_null_deref&quot;) == 0) {</span>
-<span class="lineNum">    3663 </span><span class="lineCov">         20 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3664 </span><span class="lineCov">         20 :          LLVMPointerType(llvm_rt_loc(), 0)</span>
-<span class="lineNum">    3665 </span>            :       };
-<span class="lineNum">    3666 </span><span class="lineCov">         20 :       fn = LLVMAddFunction(module, &quot;_null_deref&quot;,</span>
-<span class="lineNum">    3667 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3668 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3669 </span><span class="lineCov">         20 :       cgen_add_func_attr(fn, FUNC_ATTR_NORETURN);</span>
-<span class="lineNum">    3670 </span>            :    }
-<span class="lineNum">    3671 </span><span class="lineCov">         46 :    else if (strcmp(name, &quot;_bit_shift&quot;) == 0) {</span>
-<span class="lineNum">    3672 </span><span class="lineCov">         12 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3673 </span><span class="lineCov">          2 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3674 </span><span class="lineCov">          2 :          LLVMPointerType(LLVMInt1Type(), 0),</span>
+<span class="lineNum">    3645 </span><span class="lineCov">        164 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3646 </span><span class="lineCov">        164 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3647 </span><span class="lineCov">        164 :          LLVMPointerType(llvm_rt_loc(), 0),</span>
+<span class="lineNum">    3648 </span><span class="lineCov">        164 :          llvm_char_ptr()</span>
+<span class="lineNum">    3649 </span>            :       };
+<span class="lineNum">    3650 </span><span class="lineCov">        164 :       fn = LLVMAddFunction(module, &quot;_bounds_fail&quot;,</span>
+<span class="lineNum">    3651 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3652 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3653 </span><span class="lineCov">        164 :       cgen_add_func_attr(fn, FUNC_ATTR_NORETURN);</span>
+<span class="lineNum">    3654 </span>            :    }
+<span class="lineNum">    3655 </span><span class="lineCov">         84 :    else if (strcmp(name, &quot;_div_zero&quot;) == 0) {</span>
+<span class="lineNum">    3656 </span><span class="lineCov">         18 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3657 </span><span class="lineCov">         18 :          LLVMPointerType(llvm_rt_loc(), 0)</span>
+<span class="lineNum">    3658 </span>            :       };
+<span class="lineNum">    3659 </span><span class="lineCov">         18 :       fn = LLVMAddFunction(module, &quot;_div_zero&quot;,</span>
+<span class="lineNum">    3660 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3661 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3662 </span><span class="lineCov">         18 :       cgen_add_func_attr(fn, FUNC_ATTR_NORETURN);</span>
+<span class="lineNum">    3663 </span>            :    }
+<span class="lineNum">    3664 </span><span class="lineCov">         66 :    else if (strcmp(name, &quot;_null_deref&quot;) == 0) {</span>
+<span class="lineNum">    3665 </span><span class="lineCov">         20 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3666 </span><span class="lineCov">         20 :          LLVMPointerType(llvm_rt_loc(), 0)</span>
+<span class="lineNum">    3667 </span>            :       };
+<span class="lineNum">    3668 </span><span class="lineCov">         20 :       fn = LLVMAddFunction(module, &quot;_null_deref&quot;,</span>
+<span class="lineNum">    3669 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3670 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3671 </span><span class="lineCov">         20 :       cgen_add_func_attr(fn, FUNC_ATTR_NORETURN);</span>
+<span class="lineNum">    3672 </span>            :    }
+<span class="lineNum">    3673 </span><span class="lineCov">         46 :    else if (strcmp(name, &quot;_bit_shift&quot;) == 0) {</span>
+<span class="lineNum">    3674 </span><span class="lineCov">         12 :       LLVMTypeRef args[] = {</span>
 <span class="lineNum">    3675 </span><span class="lineCov">          2 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3676 </span><span class="lineCov">          2 :          LLVMInt1Type(),</span>
+<span class="lineNum">    3676 </span><span class="lineCov">          2 :          LLVMPointerType(LLVMInt1Type(), 0),</span>
 <span class="lineNum">    3677 </span><span class="lineCov">          2 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3678 </span><span class="lineCov">          2 :          LLVMPointerType(llvm_uarray_type(LLVMInt1Type(), 1), 0)</span>
-<span class="lineNum">    3679 </span>            :       };
-<span class="lineNum">    3680 </span><span class="lineCov">          2 :       fn = LLVMAddFunction(module, &quot;_bit_shift&quot;,</span>
-<span class="lineNum">    3681 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3682 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3683 </span>            :    }
-<span class="lineNum">    3684 </span><span class="lineCov">         44 :    else if (strcmp(name, &quot;_bit_vec_op&quot;) == 0) {</span>
-<span class="lineNum">    3685 </span><span class="lineCov">         64 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3686 </span><span class="lineCov">          8 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3687 </span><span class="lineCov">          8 :          LLVMPointerType(LLVMInt1Type(), 0),</span>
+<span class="lineNum">    3678 </span><span class="lineCov">          2 :          LLVMInt1Type(),</span>
+<span class="lineNum">    3679 </span><span class="lineCov">          2 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3680 </span><span class="lineCov">          2 :          LLVMPointerType(llvm_uarray_type(LLVMInt1Type(), 1), 0)</span>
+<span class="lineNum">    3681 </span>            :       };
+<span class="lineNum">    3682 </span><span class="lineCov">          2 :       fn = LLVMAddFunction(module, &quot;_bit_shift&quot;,</span>
+<span class="lineNum">    3683 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3684 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3685 </span>            :    }
+<span class="lineNum">    3686 </span><span class="lineCov">         44 :    else if (strcmp(name, &quot;_bit_vec_op&quot;) == 0) {</span>
+<span class="lineNum">    3687 </span><span class="lineCov">         64 :       LLVMTypeRef args[] = {</span>
 <span class="lineNum">    3688 </span><span class="lineCov">          8 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3689 </span><span class="lineCov">          8 :          LLVMInt1Type(),</span>
-<span class="lineNum">    3690 </span><span class="lineCov">          8 :          LLVMPointerType(LLVMInt1Type(), 0),</span>
-<span class="lineNum">    3691 </span><span class="lineCov">          8 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3692 </span><span class="lineCov">          8 :          LLVMInt1Type(),</span>
-<span class="lineNum">    3693 </span><span class="lineCov">          8 :          LLVMPointerType(llvm_uarray_type(LLVMInt1Type(), 1), 0)</span>
-<span class="lineNum">    3694 </span>            :       };
-<span class="lineNum">    3695 </span><span class="lineCov">          8 :       fn = LLVMAddFunction(module, &quot;_bit_vec_op&quot;,</span>
-<span class="lineNum">    3696 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3697 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3698 </span>            :    }
-<span class="lineNum">    3699 </span><span class="lineCov">         36 :    else if (strcmp(name, &quot;_test_net_flag&quot;) == 0) {</span>
-<span class="lineNum">    3700 </span><span class="lineCov">         39 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3701 </span><span class="lineCov">         13 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3702 </span><span class="lineCov">         13 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3703 </span><span class="lineCov">         13 :          LLVMInt32Type()</span>
-<span class="lineNum">    3704 </span>            :       };
-<span class="lineNum">    3705 </span><span class="lineCov">         13 :       fn = LLVMAddFunction(module, &quot;_test_net_flag&quot;,</span>
-<span class="lineNum">    3706 </span>            :                            LLVMFunctionType(LLVMInt1Type(),
-<span class="lineNum">    3707 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3708 </span>            :    }
-<span class="lineNum">    3709 </span><span class="lineCov">         23 :    else if (strcmp(name, &quot;_last_event&quot;) == 0) {</span>
-<span class="lineNum">    3710 </span><span class="lineCov">          4 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3711 </span><span class="lineCov">          2 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3712 </span><span class="lineCov">          2 :          LLVMInt32Type()</span>
-<span class="lineNum">    3713 </span>            :       };
-<span class="lineNum">    3714 </span><span class="lineCov">          2 :       fn = LLVMAddFunction(module, &quot;_last_event&quot;,</span>
-<span class="lineNum">    3715 </span>            :                            LLVMFunctionType(LLVMInt64Type(),
-<span class="lineNum">    3716 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3717 </span>            :    }
-<span class="lineNum">    3718 </span><span class="lineCov">         21 :    else if (strcmp(name, &quot;_value_attr&quot;) == 0) {</span>
-<span class="lineNum">    3719 </span><span class="lineCov">         20 :       LLVMTypeRef args[] = {</span>
-<span class="lineNum">    3720 </span><span class="lineCov">          5 :          llvm_void_ptr(),</span>
-<span class="lineNum">    3721 </span><span class="lineCov">          5 :          LLVMInt32Type(),</span>
-<span class="lineNum">    3722 </span><span class="lineCov">          5 :          LLVMPointerType(llvm_image_map(), 0),</span>
-<span class="lineNum">    3723 </span><span class="lineCov">          5 :          LLVMPointerType(llvm_rt_loc(), 0)</span>
-<span class="lineNum">    3724 </span>            :       };
-<span class="lineNum">    3725 </span><span class="lineCov">          5 :       fn = LLVMAddFunction(module, &quot;_value_attr&quot;,</span>
-<span class="lineNum">    3726 </span>            :                            LLVMFunctionType(LLVMInt64Type(),
-<span class="lineNum">    3727 </span>            :                                             args, ARRAY_LEN(args), false));
-<span class="lineNum">    3728 </span>            :    }
-<span class="lineNum">    3729 </span><span class="lineCov">         16 :    else if (strcmp(name, &quot;_private_stack&quot;) == 0) {</span>
-<span class="lineNum">    3730 </span><span class="lineCov">         16 :       fn = LLVMAddFunction(module, &quot;_private_stack&quot;,</span>
-<span class="lineNum">    3731 </span>            :                            LLVMFunctionType(LLVMVoidType(),
-<span class="lineNum">    3732 </span>            :                                             NULL, 0, false));
-<span class="lineNum">    3733 </span>            :    }
-<span class="lineNum">    3734 </span>            : 
-<span class="lineNum">    3735 </span><span class="lineCov">       1905 :    if (fn != NULL)</span>
-<span class="lineNum">    3736 </span><span class="lineCov">       1905 :       cgen_add_func_attr(fn, FUNC_ATTR_NOUNWIND);</span>
-<span class="lineNum">    3737 </span>            : 
-<span class="lineNum">    3738 </span><span class="lineCov">       1905 :    return fn;</span>
-<a name="3739"><span class="lineNum">    3739 </span>            : }</a>
-<span class="lineNum">    3740 </span>            : 
-<span class="lineNum">    3741 </span><span class="lineCov">        426 : static void cgen_tmp_stack(void)</span>
-<span class="lineNum">    3742 </span>            : {
-<span class="lineNum">    3743 </span><span class="lineCov">        426 :    LLVMValueRef _tmp_stack =</span>
-<span class="lineNum">    3744 </span><span class="lineCov">        426 :       LLVMAddGlobal(module, llvm_void_ptr(), &quot;_tmp_stack&quot;);</span>
-<span class="lineNum">    3745 </span><span class="lineCov">        426 :    LLVMSetLinkage(_tmp_stack, LLVMExternalLinkage);</span>
-<span class="lineNum">    3746 </span>            : 
-<span class="lineNum">    3747 </span><span class="lineCov">        426 :    LLVMValueRef _tmp_alloc =</span>
-<span class="lineNum">    3748 </span><span class="lineCov">        426 :       LLVMAddGlobal(module, LLVMInt32Type(), &quot;_tmp_alloc&quot;);</span>
-<span class="lineNum">    3749 </span><span class="lineCov">        426 :    LLVMSetLinkage(_tmp_alloc, LLVMExternalLinkage);</span>
-<span class="lineNum">    3750 </span><span class="lineCov">        426 : }</span>
-<a name="3751"><span class="lineNum">    3751 </span>            : </a>
-<span class="lineNum">    3752 </span>            : #ifdef ENABLE_NATIVE
-<span class="lineNum">    3753 </span><span class="lineCov">        426 : static void cgen_native(tree_t top)</span>
-<span class="lineNum">    3754 </span>            : {
-<span class="lineNum">    3755 </span><span class="lineCov">        426 :    LLVMInitializeNativeTarget();</span>
-<span class="lineNum">    3756 </span><span class="lineCov">        426 :    LLVMInitializeNativeAsmPrinter();</span>
-<span class="lineNum">    3757 </span>            : 
-<span class="lineNum">    3758 </span><span class="lineCov">        426 :    char *def_triple = LLVMGetDefaultTargetTriple();</span>
-<span class="lineNum">    3759 </span>            :    char *error;
-<span class="lineNum">    3760 </span>            :    LLVMTargetRef target_ref;
-<span class="lineNum">    3761 </span><span class="lineCov">        426 :    if (LLVMGetTargetFromTriple(def_triple, &amp;target_ref, &amp;error))</span>
-<span class="lineNum">    3762 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to get LLVM target for %s: %s&quot;, def_triple, error);</span>
-<span class="lineNum">    3763 </span>            : 
-<span class="lineNum">    3764 </span>            :    LLVMCodeGenOptLevel code_gen_level;
-<span class="lineNum">    3765 </span><span class="lineCov">        426 :    switch (opt_get_int(&quot;optimise&quot;)) {</span>
-<span class="lineNum">    3766 </span>            :    case 0: code_gen_level = LLVMCodeGenLevelNone; break;
-<span class="lineNum">    3767 </span>            :    case 1: code_gen_level = LLVMCodeGenLevelLess; break;
-<span class="lineNum">    3768 </span>            :    case 3: code_gen_level = LLVMCodeGenLevelAggressive; break;
-<span class="lineNum">    3769 </span>            :    default: code_gen_level = LLVMCodeGenLevelDefault;
-<span class="lineNum">    3770 </span>            :    }
-<span class="lineNum">    3771 </span>            : 
-<span class="lineNum">    3772 </span><span class="lineCov">        426 :    LLVMTargetMachineRef tm_ref =</span>
-<span class="lineNum">    3773 </span><span class="lineCov">        426 :       LLVMCreateTargetMachine(target_ref, def_triple, &quot;&quot;, &quot;&quot;,</span>
-<span class="lineNum">    3774 </span>            :                               code_gen_level,
-<span class="lineNum">    3775 </span>            :                               LLVMRelocPIC,
-<span class="lineNum">    3776 </span>            :                               LLVMCodeModelDefault);
-<span class="lineNum">    3777 </span>            : 
-<span class="lineNum">    3778 </span><span class="lineCov">        852 :    char *obj_name LOCAL = xasprintf(&quot;_%s.&quot; LLVM_OBJ_EXT, istr(tree_ident(top)));</span>
+<span class="lineNum">    3689 </span><span class="lineCov">          8 :          LLVMPointerType(LLVMInt1Type(), 0),</span>
+<span class="lineNum">    3690 </span><span class="lineCov">          8 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3691 </span><span class="lineCov">          8 :          LLVMInt1Type(),</span>
+<span class="lineNum">    3692 </span><span class="lineCov">          8 :          LLVMPointerType(LLVMInt1Type(), 0),</span>
+<span class="lineNum">    3693 </span><span class="lineCov">          8 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3694 </span><span class="lineCov">          8 :          LLVMInt1Type(),</span>
+<span class="lineNum">    3695 </span><span class="lineCov">          8 :          LLVMPointerType(llvm_uarray_type(LLVMInt1Type(), 1), 0)</span>
+<span class="lineNum">    3696 </span>            :       };
+<span class="lineNum">    3697 </span><span class="lineCov">          8 :       fn = LLVMAddFunction(module, &quot;_bit_vec_op&quot;,</span>
+<span class="lineNum">    3698 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3699 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3700 </span>            :    }
+<span class="lineNum">    3701 </span><span class="lineCov">         36 :    else if (strcmp(name, &quot;_test_net_flag&quot;) == 0) {</span>
+<span class="lineNum">    3702 </span><span class="lineCov">         39 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3703 </span><span class="lineCov">         13 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3704 </span><span class="lineCov">         13 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3705 </span><span class="lineCov">         13 :          LLVMInt32Type()</span>
+<span class="lineNum">    3706 </span>            :       };
+<span class="lineNum">    3707 </span><span class="lineCov">         13 :       fn = LLVMAddFunction(module, &quot;_test_net_flag&quot;,</span>
+<span class="lineNum">    3708 </span>            :                            LLVMFunctionType(LLVMInt1Type(),
+<span class="lineNum">    3709 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3710 </span>            :    }
+<span class="lineNum">    3711 </span><span class="lineCov">         23 :    else if (strcmp(name, &quot;_last_event&quot;) == 0) {</span>
+<span class="lineNum">    3712 </span><span class="lineCov">          4 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3713 </span><span class="lineCov">          2 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3714 </span><span class="lineCov">          2 :          LLVMInt32Type()</span>
+<span class="lineNum">    3715 </span>            :       };
+<span class="lineNum">    3716 </span><span class="lineCov">          2 :       fn = LLVMAddFunction(module, &quot;_last_event&quot;,</span>
+<span class="lineNum">    3717 </span>            :                            LLVMFunctionType(LLVMInt64Type(),
+<span class="lineNum">    3718 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3719 </span>            :    }
+<span class="lineNum">    3720 </span><span class="lineCov">         21 :    else if (strcmp(name, &quot;_value_attr&quot;) == 0) {</span>
+<span class="lineNum">    3721 </span><span class="lineCov">         20 :       LLVMTypeRef args[] = {</span>
+<span class="lineNum">    3722 </span><span class="lineCov">          5 :          llvm_void_ptr(),</span>
+<span class="lineNum">    3723 </span><span class="lineCov">          5 :          LLVMInt32Type(),</span>
+<span class="lineNum">    3724 </span><span class="lineCov">          5 :          LLVMPointerType(llvm_image_map(), 0),</span>
+<span class="lineNum">    3725 </span><span class="lineCov">          5 :          LLVMPointerType(llvm_rt_loc(), 0)</span>
+<span class="lineNum">    3726 </span>            :       };
+<span class="lineNum">    3727 </span><span class="lineCov">          5 :       fn = LLVMAddFunction(module, &quot;_value_attr&quot;,</span>
+<span class="lineNum">    3728 </span>            :                            LLVMFunctionType(LLVMInt64Type(),
+<span class="lineNum">    3729 </span>            :                                             args, ARRAY_LEN(args), false));
+<span class="lineNum">    3730 </span>            :    }
+<span class="lineNum">    3731 </span><span class="lineCov">         16 :    else if (strcmp(name, &quot;_private_stack&quot;) == 0) {</span>
+<span class="lineNum">    3732 </span><span class="lineCov">         16 :       fn = LLVMAddFunction(module, &quot;_private_stack&quot;,</span>
+<span class="lineNum">    3733 </span>            :                            LLVMFunctionType(LLVMVoidType(),
+<span class="lineNum">    3734 </span>            :                                             NULL, 0, false));
+<span class="lineNum">    3735 </span>            :    }
+<span class="lineNum">    3736 </span>            : 
+<span class="lineNum">    3737 </span><span class="lineCov">       1905 :    if (fn != NULL)</span>
+<span class="lineNum">    3738 </span><span class="lineCov">       1905 :       cgen_add_func_attr(fn, FUNC_ATTR_NOUNWIND);</span>
+<span class="lineNum">    3739 </span>            : 
+<span class="lineNum">    3740 </span><span class="lineCov">       1905 :    return fn;</span>
+<a name="3741"><span class="lineNum">    3741 </span>            : }</a>
+<span class="lineNum">    3742 </span>            : 
+<span class="lineNum">    3743 </span><span class="lineCov">        426 : static void cgen_tmp_stack(void)</span>
+<span class="lineNum">    3744 </span>            : {
+<span class="lineNum">    3745 </span><span class="lineCov">        426 :    LLVMValueRef _tmp_stack =</span>
+<span class="lineNum">    3746 </span><span class="lineCov">        426 :       LLVMAddGlobal(module, llvm_void_ptr(), &quot;_tmp_stack&quot;);</span>
+<span class="lineNum">    3747 </span><span class="lineCov">        426 :    LLVMSetLinkage(_tmp_stack, LLVMExternalLinkage);</span>
+<span class="lineNum">    3748 </span>            : 
+<span class="lineNum">    3749 </span><span class="lineCov">        426 :    LLVMValueRef _tmp_alloc =</span>
+<span class="lineNum">    3750 </span><span class="lineCov">        426 :       LLVMAddGlobal(module, LLVMInt32Type(), &quot;_tmp_alloc&quot;);</span>
+<span class="lineNum">    3751 </span><span class="lineCov">        426 :    LLVMSetLinkage(_tmp_alloc, LLVMExternalLinkage);</span>
+<span class="lineNum">    3752 </span><span class="lineCov">        426 : }</span>
+<a name="3753"><span class="lineNum">    3753 </span>            : </a>
+<span class="lineNum">    3754 </span>            : #ifdef ENABLE_NATIVE
+<span class="lineNum">    3755 </span><span class="lineCov">        426 : static void cgen_native(tree_t top)</span>
+<span class="lineNum">    3756 </span>            : {
+<span class="lineNum">    3757 </span><span class="lineCov">        426 :    LLVMInitializeNativeTarget();</span>
+<span class="lineNum">    3758 </span><span class="lineCov">        426 :    LLVMInitializeNativeAsmPrinter();</span>
+<span class="lineNum">    3759 </span>            : 
+<span class="lineNum">    3760 </span><span class="lineCov">        426 :    char *def_triple = LLVMGetDefaultTargetTriple();</span>
+<span class="lineNum">    3761 </span>            :    char *error;
+<span class="lineNum">    3762 </span>            :    LLVMTargetRef target_ref;
+<span class="lineNum">    3763 </span><span class="lineCov">        426 :    if (LLVMGetTargetFromTriple(def_triple, &amp;target_ref, &amp;error))</span>
+<span class="lineNum">    3764 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to get LLVM target for %s: %s&quot;, def_triple, error);</span>
+<span class="lineNum">    3765 </span>            : 
+<span class="lineNum">    3766 </span>            :    LLVMCodeGenOptLevel code_gen_level;
+<span class="lineNum">    3767 </span><span class="lineCov">        426 :    switch (opt_get_int(&quot;optimise&quot;)) {</span>
+<span class="lineNum">    3768 </span>            :    case 0: code_gen_level = LLVMCodeGenLevelNone; break;
+<span class="lineNum">    3769 </span>            :    case 1: code_gen_level = LLVMCodeGenLevelLess; break;
+<span class="lineNum">    3770 </span>            :    case 3: code_gen_level = LLVMCodeGenLevelAggressive; break;
+<span class="lineNum">    3771 </span>            :    default: code_gen_level = LLVMCodeGenLevelDefault;
+<span class="lineNum">    3772 </span>            :    }
+<span class="lineNum">    3773 </span>            : 
+<span class="lineNum">    3774 </span><span class="lineCov">        426 :    LLVMTargetMachineRef tm_ref =</span>
+<span class="lineNum">    3775 </span><span class="lineCov">        426 :       LLVMCreateTargetMachine(target_ref, def_triple, &quot;&quot;, &quot;&quot;,</span>
+<span class="lineNum">    3776 </span>            :                               code_gen_level,
+<span class="lineNum">    3777 </span>            :                               LLVMRelocPIC,
+<span class="lineNum">    3778 </span>            :                               LLVMCodeModelDefault);
 <span class="lineNum">    3779 </span>            : 
-<span class="lineNum">    3780 </span>            :    char obj_path[PATH_MAX];
-<span class="lineNum">    3781 </span><span class="lineCov">        426 :    lib_realpath(lib_work(), obj_name, obj_path, sizeof(obj_path));</span>
-<span class="lineNum">    3782 </span>            : 
-<span class="lineNum">    3783 </span><span class="lineCov">        426 :    if (LLVMTargetMachineEmitToFile(tm_ref, module, obj_path,</span>
-<span class="lineNum">    3784 </span>            :                                    LLVMObjectFile, &amp;error))
-<span class="lineNum">    3785 </span><span class="lineNoCov">          0 :       fatal(&quot;Failed to write object file: %s&quot;, error);</span>
-<span class="lineNum">    3786 </span>            : 
-<span class="lineNum">    3787 </span><span class="lineCov">        852 :    const char **args LOCAL = xmalloc(sizeof(char *) * MAX_ARGS);</span>
-<span class="lineNum">    3788 </span><span class="lineCov">        426 :    size_t nargs = 0, arg_max = MAX_ARGS;</span>
-<span class="lineNum">    3789 </span>            : 
-<span class="lineNum">    3790 </span>            : #define APPEND_ARG(a) ARRAY_APPEND(args, a, nargs, arg_max);
+<span class="lineNum">    3780 </span><span class="lineCov">        852 :    char *obj_name LOCAL = xasprintf(&quot;_%s.&quot; LLVM_OBJ_EXT, istr(tree_ident(top)));</span>
+<span class="lineNum">    3781 </span>            : 
+<span class="lineNum">    3782 </span>            :    char obj_path[PATH_MAX];
+<span class="lineNum">    3783 </span><span class="lineCov">        426 :    lib_realpath(lib_work(), obj_name, obj_path, sizeof(obj_path));</span>
+<span class="lineNum">    3784 </span>            : 
+<span class="lineNum">    3785 </span><span class="lineCov">        426 :    if (LLVMTargetMachineEmitToFile(tm_ref, module, obj_path,</span>
+<span class="lineNum">    3786 </span>            :                                    LLVMObjectFile, &amp;error))
+<span class="lineNum">    3787 </span><span class="lineNoCov">          0 :       fatal(&quot;Failed to write object file: %s&quot;, error);</span>
+<span class="lineNum">    3788 </span>            : 
+<span class="lineNum">    3789 </span><span class="lineCov">        852 :    const char **args LOCAL = xmalloc(sizeof(char *) * MAX_ARGS);</span>
+<span class="lineNum">    3790 </span><span class="lineCov">        426 :    size_t nargs = 0, arg_max = MAX_ARGS;</span>
 <span class="lineNum">    3791 </span>            : 
-<span class="lineNum">    3792 </span>            : #ifdef LINKER_PATH
-<span class="lineNum">    3793 </span><span class="lineCov">        426 :    APPEND_ARG(LINKER_PATH);</span>
-<span class="lineNum">    3794 </span>            : #else
-<span class="lineNum">    3795 </span>            :    APPEND_ARG(SYSTEM_CC);
-<span class="lineNum">    3796 </span>            : #endif
-<span class="lineNum">    3797 </span>            : 
-<span class="lineNum">    3798 </span>            : #if defined __APPLE__
-<span class="lineNum">    3799 </span>            :    APPEND_ARG(&quot;-bundle&quot;);
-<span class="lineNum">    3800 </span>            :    APPEND_ARG(&quot;-flat_namespace&quot;);
-<span class="lineNum">    3801 </span>            :    APPEND_ARG(&quot;-undefined&quot;);
-<span class="lineNum">    3802 </span>            :    APPEND_ARG(&quot;dynamic_lookup&quot;);
-<span class="lineNum">    3803 </span>            : #else
-<span class="lineNum">    3804 </span><span class="lineCov">        426 :    APPEND_ARG(&quot;-shared&quot;);</span>
-<span class="lineNum">    3805 </span>            : #endif
-<span class="lineNum">    3806 </span>            : 
-<span class="lineNum">    3807 </span><span class="lineCov">        852 :    char *fname LOCAL = xasprintf(&quot;_%s.&quot; DLL_EXT, istr(tree_ident(top)));</span>
-<span class="lineNum">    3808 </span>            :    char so_path[PATH_MAX];
-<span class="lineNum">    3809 </span><span class="lineCov">        426 :    lib_realpath(lib_work(), fname, so_path, PATH_MAX);</span>
-<span class="lineNum">    3810 </span>            : 
-<span class="lineNum">    3811 </span><span class="lineCov">        426 :    APPEND_ARG(&quot;-o&quot;);</span>
-<span class="lineNum">    3812 </span><span class="lineCov">        426 :    APPEND_ARG(so_path);</span>
-<span class="lineNum">    3813 </span><span class="lineCov">        426 :    APPEND_ARG(obj_path);</span>
-<span class="lineNum">    3814 </span>            : 
-<span class="lineNum">    3815 </span>            : #if IMPLIB_REQUIRED
-<span class="lineNum">    3816 </span>            :    char *impname LOCAL = xasprintf(&quot;_%s.lib&quot;, istr(tree_ident(top)));
-<span class="lineNum">    3817 </span>            :    char imp_path[PATH_MAX];
-<span class="lineNum">    3818 </span>            :    lib_realpath(lib_work(), impname, imp_path, PATH_MAX);
-<span class="lineNum">    3819 </span>            : 
-<span class="lineNum">    3820 </span>            :    char *imparg LOCAL = xasprintf(&quot;-Wl,--out-implib=%s&quot;, imp_path);
-<span class="lineNum">    3821 </span>            :    APPEND_ARG(imparg);
-<span class="lineNum">    3822 </span>            : 
-<span class="lineNum">    3823 </span>            :    APPEND_ARG(xasprintf(&quot;-L%s&quot;, lib_path(lib_work())));
+<span class="lineNum">    3792 </span>            : #define APPEND_ARG(a) ARRAY_APPEND(args, a, nargs, arg_max);
+<span class="lineNum">    3793 </span>            : 
+<span class="lineNum">    3794 </span>            : #ifdef LINKER_PATH
+<span class="lineNum">    3795 </span><span class="lineCov">        426 :    APPEND_ARG(LINKER_PATH);</span>
+<span class="lineNum">    3796 </span>            : #else
+<span class="lineNum">    3797 </span>            :    APPEND_ARG(SYSTEM_CC);
+<span class="lineNum">    3798 </span>            : #endif
+<span class="lineNum">    3799 </span>            : 
+<span class="lineNum">    3800 </span>            : #if defined __APPLE__
+<span class="lineNum">    3801 </span>            :    APPEND_ARG(&quot;-bundle&quot;);
+<span class="lineNum">    3802 </span>            :    APPEND_ARG(&quot;-flat_namespace&quot;);
+<span class="lineNum">    3803 </span>            :    APPEND_ARG(&quot;-undefined&quot;);
+<span class="lineNum">    3804 </span>            :    APPEND_ARG(&quot;dynamic_lookup&quot;);
+<span class="lineNum">    3805 </span>            : #else
+<span class="lineNum">    3806 </span><span class="lineCov">        426 :    APPEND_ARG(&quot;-shared&quot;);</span>
+<span class="lineNum">    3807 </span>            : #endif
+<span class="lineNum">    3808 </span>            : 
+<span class="lineNum">    3809 </span><span class="lineCov">        852 :    char *fname LOCAL = xasprintf(&quot;_%s.&quot; DLL_EXT, istr(tree_ident(top)));</span>
+<span class="lineNum">    3810 </span>            :    char so_path[PATH_MAX];
+<span class="lineNum">    3811 </span><span class="lineCov">        426 :    lib_realpath(lib_work(), fname, so_path, PATH_MAX);</span>
+<span class="lineNum">    3812 </span>            : 
+<span class="lineNum">    3813 </span><span class="lineCov">        426 :    APPEND_ARG(&quot;-o&quot;);</span>
+<span class="lineNum">    3814 </span><span class="lineCov">        426 :    APPEND_ARG(so_path);</span>
+<span class="lineNum">    3815 </span><span class="lineCov">        426 :    APPEND_ARG(obj_path);</span>
+<span class="lineNum">    3816 </span>            : 
+<span class="lineNum">    3817 </span>            : #if IMPLIB_REQUIRED
+<span class="lineNum">    3818 </span>            :    char *impname LOCAL = xasprintf(&quot;_%s.lib&quot;, istr(tree_ident(top)));
+<span class="lineNum">    3819 </span>            :    char imp_path[PATH_MAX];
+<span class="lineNum">    3820 </span>            :    lib_realpath(lib_work(), impname, imp_path, PATH_MAX);
+<span class="lineNum">    3821 </span>            : 
+<span class="lineNum">    3822 </span>            :    char *imparg LOCAL = xasprintf(&quot;-Wl,--out-implib=%s&quot;, imp_path);
+<span class="lineNum">    3823 </span>            :    APPEND_ARG(imparg);
 <span class="lineNum">    3824 </span>            : 
-<span class="lineNum">    3825 </span>            :    const int ncontext = tree_contexts(top);
-<span class="lineNum">    3826 </span>            :    for (int i = 0; i &lt; ncontext; i++) {
-<span class="lineNum">    3827 </span>            :       tree_t c = tree_context(top, i);
-<span class="lineNum">    3828 </span>            :       if (tree_kind(c) != T_USE)
-<span class="lineNum">    3829 </span>            :          continue;
-<span class="lineNum">    3830 </span>            : 
-<span class="lineNum">    3831 </span>            :       ident_t unit_name = tree_ident(c);
-<span class="lineNum">    3832 </span>            :       lib_t lib = lib_find(ident_until(unit_name, '.'), true);
-<span class="lineNum">    3833 </span>            : 
-<span class="lineNum">    3834 </span>            :       char *imp_name LOCAL = xasprintf(&quot;_%s.lib&quot;, istr(unit_name));
-<span class="lineNum">    3835 </span>            :       char import_imp[PATH_MAX];
-<span class="lineNum">    3836 </span>            :       lib_realpath(lib, imp_name, import_imp, PATH_MAX);
-<span class="lineNum">    3837 </span>            : 
-<span class="lineNum">    3838 </span>            :       if (access(import_imp, F_OK) == 0) {
-<span class="lineNum">    3839 </span>            :          if (lib != lib_work())
-<span class="lineNum">    3840 </span>            :             APPEND_ARG(xasprintf(&quot;-L%s&quot;, lib_path(lib)));
-<span class="lineNum">    3841 </span>            :          APPEND_ARG(xasprintf(&quot;-l_%s&quot;, istr(unit_name)));
-<span class="lineNum">    3842 </span>            :       }
-<span class="lineNum">    3843 </span>            :    }
-<span class="lineNum">    3844 </span>            : 
-<span class="lineNum">    3845 </span>            :    if (tree_kind(top) == T_PACK_BODY) {
-<span class="lineNum">    3846 </span>            :       tree_t pack = lib_get(lib_work(), ident_until(tree_ident(top), '-'));
-<span class="lineNum">    3847 </span>            :       if (pack_needs_cgen(pack))
-<span class="lineNum">    3848 </span>            :          APPEND_ARG(xasprintf(&quot;-l_%s&quot;, istr(tree_ident(pack))));
-<span class="lineNum">    3849 </span>            :    }
-<span class="lineNum">    3850 </span>            : #endif
-<span class="lineNum">    3851 </span>            : 
-<span class="lineNum">    3852 </span><span class="lineCov">        426 :    const char *obj = getenv(&quot;NVC_FOREIGN_OBJ&quot;);</span>
-<span class="lineNum">    3853 </span><span class="lineCov">        426 :    if (obj != NULL)</span>
-<span class="lineNum">    3854 </span><span class="lineNoCov">          0 :       APPEND_ARG(obj);</span>
-<span class="lineNum">    3855 </span>            : 
-<span class="lineNum">    3856 </span>            : #ifdef IMPLIB_REQUIRED
-<span class="lineNum">    3857 </span>            :    const char *cyglib = getenv(&quot;NVC_IMP_LIB&quot;);
-<span class="lineNum">    3858 </span>            :    char *cygarg LOCAL = xasprintf(&quot;-L%s&quot;, (cyglib != NULL) ? cyglib : DATADIR);
-<span class="lineNum">    3859 </span>            :    APPEND_ARG(cygarg);
-<span class="lineNum">    3860 </span>            :    APPEND_ARG(&quot;-lnvcimp&quot;);
-<span class="lineNum">    3861 </span>            : #endif
-<span class="lineNum">    3862 </span>            : 
-<span class="lineNum">    3863 </span><span class="lineCov">        426 :    APPEND_ARG(NULL);</span>
+<span class="lineNum">    3825 </span>            :    APPEND_ARG(xasprintf(&quot;-L%s&quot;, lib_path(lib_work())));
+<span class="lineNum">    3826 </span>            : 
+<span class="lineNum">    3827 </span>            :    const int ncontext = tree_contexts(top);
+<span class="lineNum">    3828 </span>            :    for (int i = 0; i &lt; ncontext; i++) {
+<span class="lineNum">    3829 </span>            :       tree_t c = tree_context(top, i);
+<span class="lineNum">    3830 </span>            :       if (tree_kind(c) != T_USE)
+<span class="lineNum">    3831 </span>            :          continue;
+<span class="lineNum">    3832 </span>            : 
+<span class="lineNum">    3833 </span>            :       ident_t unit_name = tree_ident(c);
+<span class="lineNum">    3834 </span>            :       lib_t lib = lib_find(ident_until(unit_name, '.'), true);
+<span class="lineNum">    3835 </span>            : 
+<span class="lineNum">    3836 </span>            :       char *imp_name LOCAL = xasprintf(&quot;_%s.lib&quot;, istr(unit_name));
+<span class="lineNum">    3837 </span>            :       char import_imp[PATH_MAX];
+<span class="lineNum">    3838 </span>            :       lib_realpath(lib, imp_name, import_imp, PATH_MAX);
+<span class="lineNum">    3839 </span>            : 
+<span class="lineNum">    3840 </span>            :       if (access(import_imp, F_OK) == 0) {
+<span class="lineNum">    3841 </span>            :          if (lib != lib_work())
+<span class="lineNum">    3842 </span>            :             APPEND_ARG(xasprintf(&quot;-L%s&quot;, lib_path(lib)));
+<span class="lineNum">    3843 </span>            :          APPEND_ARG(xasprintf(&quot;-l_%s&quot;, istr(unit_name)));
+<span class="lineNum">    3844 </span>            :       }
+<span class="lineNum">    3845 </span>            :    }
+<span class="lineNum">    3846 </span>            : 
+<span class="lineNum">    3847 </span>            :    if (tree_kind(top) == T_PACK_BODY) {
+<span class="lineNum">    3848 </span>            :       tree_t pack = lib_get(lib_work(), ident_until(tree_ident(top), '-'));
+<span class="lineNum">    3849 </span>            :       if (pack_needs_cgen(pack))
+<span class="lineNum">    3850 </span>            :          APPEND_ARG(xasprintf(&quot;-l_%s&quot;, istr(tree_ident(pack))));
+<span class="lineNum">    3851 </span>            :    }
+<span class="lineNum">    3852 </span>            : #endif
+<span class="lineNum">    3853 </span>            : 
+<span class="lineNum">    3854 </span><span class="lineCov">        426 :    const char *obj = getenv(&quot;NVC_FOREIGN_OBJ&quot;);</span>
+<span class="lineNum">    3855 </span><span class="lineCov">        426 :    if (obj != NULL)</span>
+<span class="lineNum">    3856 </span><span class="lineNoCov">          0 :       APPEND_ARG(obj);</span>
+<span class="lineNum">    3857 </span>            : 
+<span class="lineNum">    3858 </span>            : #ifdef IMPLIB_REQUIRED
+<span class="lineNum">    3859 </span>            :    const char *cyglib = getenv(&quot;NVC_IMP_LIB&quot;);
+<span class="lineNum">    3860 </span>            :    char *cygarg LOCAL = xasprintf(&quot;-L%s&quot;, (cyglib != NULL) ? cyglib : DATADIR);
+<span class="lineNum">    3861 </span>            :    APPEND_ARG(cygarg);
+<span class="lineNum">    3862 </span>            :    APPEND_ARG(&quot;-lnvcimp&quot;);
+<span class="lineNum">    3863 </span>            : #endif
 <span class="lineNum">    3864 </span>            : 
-<span class="lineNum">    3865 </span><span class="lineCov">        426 :    run_program(args, nargs - 1);</span>
-<span class="lineNum">    3866 </span><span class="lineCov">        426 : }</span>
-<a name="3867"><span class="lineNum">    3867 </span>            : #endif  // ENABLE_NATIVE</a>
-<span class="lineNum">    3868 </span>            : 
-<span class="lineNum">    3869 </span><span class="lineCov">        426 : void cgen(tree_t top, vcode_unit_t vcode)</span>
-<span class="lineNum">    3870 </span>            : {
-<span class="lineNum">    3871 </span><span class="lineCov">        426 :    tree_kind_t kind = tree_kind(top);</span>
-<span class="lineNum">    3872 </span><span class="lineCov">        426 :    if (kind != T_ELAB &amp;&amp; kind != T_PACK_BODY &amp;&amp; kind != T_PACKAGE)</span>
-<span class="lineNum">    3873 </span><span class="lineNoCov">          0 :       fatal(&quot;cannot generate code for %s&quot;, tree_kind_str(kind));</span>
-<span class="lineNum">    3874 </span>            : 
-<span class="lineNum">    3875 </span><span class="lineCov">        426 :    module = LLVMModuleCreateWithName(istr(tree_ident(top)));</span>
-<span class="lineNum">    3876 </span><span class="lineCov">        426 :    builder = LLVMCreateBuilder();</span>
-<span class="lineNum">    3877 </span>            : 
-<span class="lineNum">    3878 </span><span class="lineCov">        426 :    cgen_tmp_stack();</span>
+<span class="lineNum">    3865 </span><span class="lineCov">        426 :    APPEND_ARG(NULL);</span>
+<span class="lineNum">    3866 </span>            : 
+<span class="lineNum">    3867 </span><span class="lineCov">        426 :    run_program(args, nargs - 1);</span>
+<span class="lineNum">    3868 </span><span class="lineCov">        426 : }</span>
+<a name="3869"><span class="lineNum">    3869 </span>            : #endif  // ENABLE_NATIVE</a>
+<span class="lineNum">    3870 </span>            : 
+<span class="lineNum">    3871 </span><span class="lineCov">        426 : void cgen(tree_t top, vcode_unit_t vcode)</span>
+<span class="lineNum">    3872 </span>            : {
+<span class="lineNum">    3873 </span><span class="lineCov">        426 :    tree_kind_t kind = tree_kind(top);</span>
+<span class="lineNum">    3874 </span><span class="lineCov">        426 :    if (kind != T_ELAB &amp;&amp; kind != T_PACK_BODY &amp;&amp; kind != T_PACKAGE)</span>
+<span class="lineNum">    3875 </span><span class="lineNoCov">          0 :       fatal(&quot;cannot generate code for %s&quot;, tree_kind_str(kind));</span>
+<span class="lineNum">    3876 </span>            : 
+<span class="lineNum">    3877 </span><span class="lineCov">        426 :    module = LLVMModuleCreateWithName(istr(tree_ident(top)));</span>
+<span class="lineNum">    3878 </span><span class="lineCov">        426 :    builder = LLVMCreateBuilder();</span>
 <span class="lineNum">    3879 </span>            : 
-<span class="lineNum">    3880 </span><span class="lineCov">        426 :    cgen_top(top, vcode);</span>
+<span class="lineNum">    3880 </span><span class="lineCov">        426 :    cgen_tmp_stack();</span>
 <span class="lineNum">    3881 </span>            : 
-<span class="lineNum">    3882 </span><span class="lineCov">        426 :    if (opt_get_int(&quot;dump-llvm&quot;))</span>
-<span class="lineNum">    3883 </span><span class="lineNoCov">          0 :       LLVMDumpModule(module);</span>
-<span class="lineNum">    3884 </span>            : 
-<span class="lineNum">    3885 </span><span class="lineCov">        426 :    if (LLVMVerifyModule(module, LLVMPrintMessageAction, NULL))</span>
-<span class="lineNum">    3886 </span><span class="lineNoCov">          0 :       fatal(&quot;LLVM verification failed&quot;);</span>
-<span class="lineNum">    3887 </span>            : 
-<span class="lineNum">    3888 </span><span class="lineCov">        426 :    cgen_optimise();</span>
+<span class="lineNum">    3882 </span><span class="lineCov">        426 :    cgen_top(top, vcode);</span>
+<span class="lineNum">    3883 </span>            : 
+<span class="lineNum">    3884 </span><span class="lineCov">        426 :    if (opt_get_int(&quot;dump-llvm&quot;))</span>
+<span class="lineNum">    3885 </span><span class="lineNoCov">          0 :       LLVMDumpModule(module);</span>
+<span class="lineNum">    3886 </span>            : 
+<span class="lineNum">    3887 </span><span class="lineCov">        426 :    if (LLVMVerifyModule(module, LLVMPrintMessageAction, NULL))</span>
+<span class="lineNum">    3888 </span><span class="lineNoCov">          0 :       fatal(&quot;LLVM verification failed&quot;);</span>
 <span class="lineNum">    3889 </span>            : 
-<span class="lineNum">    3890 </span>            : #ifdef ENABLE_NATIVE
-<span class="lineNum">    3891 </span><span class="lineCov">        426 :    cgen_native(top);</span>
-<span class="lineNum">    3892 </span>            : 
-<span class="lineNum">    3893 </span><span class="lineCov">        426 :    LLVMDisposeModule(module);</span>
-<span class="lineNum">    3894 </span>            : #else
-<span class="lineNum">    3895 </span>            :    char *fname = xasprintf(&quot;_%s.bc&quot;, istr(tree_ident(top)));
-<span class="lineNum">    3896 </span>            : 
-<span class="lineNum">    3897 </span>            :    FILE *f = lib_fopen(lib_work(), fname, &quot;wb&quot;);
-<span class="lineNum">    3898 </span>            :    if (LLVMWriteBitcodeToFD(module, fileno(f), 0, 0) != 0)
-<span class="lineNum">    3899 </span>            :       fatal(&quot;error writing LLVM bitcode&quot;);
-<span class="lineNum">    3900 </span>            :    const long bc_bytes = ftell(f);
-<span class="lineNum">    3901 </span>            :    fclose(f);
-<span class="lineNum">    3902 </span>            :    free(fname);
-<span class="lineNum">    3903 </span>            : 
-<span class="lineNum">    3904 </span>            :    tree_add_attr_ptr(top, llvm_i, module);
-<span class="lineNum">    3905 </span>            : #endif
-<span class="lineNum">    3906 </span>            : 
-<span class="lineNum">    3907 </span><span class="lineCov">        426 :    LLVMDisposeBuilder(builder);</span>
-<span class="lineNum">    3908 </span><span class="lineCov">        426 : }</span>
+<span class="lineNum">    3890 </span><span class="lineCov">        426 :    cgen_optimise();</span>
+<span class="lineNum">    3891 </span>            : 
+<span class="lineNum">    3892 </span>            : #ifdef ENABLE_NATIVE
+<span class="lineNum">    3893 </span><span class="lineCov">        426 :    cgen_native(top);</span>
+<span class="lineNum">    3894 </span>            : 
+<span class="lineNum">    3895 </span><span class="lineCov">        426 :    LLVMDisposeModule(module);</span>
+<span class="lineNum">    3896 </span>            : #else
+<span class="lineNum">    3897 </span>            :    char *fname = xasprintf(&quot;_%s.bc&quot;, istr(tree_ident(top)));
+<span class="lineNum">    3898 </span>            : 
+<span class="lineNum">    3899 </span>            :    FILE *f = lib_fopen(lib_work(), fname, &quot;wb&quot;);
+<span class="lineNum">    3900 </span>            :    if (LLVMWriteBitcodeToFD(module, fileno(f), 0, 0) != 0)
+<span class="lineNum">    3901 </span>            :       fatal(&quot;error writing LLVM bitcode&quot;);
+<span class="lineNum">    3902 </span>            :    const long bc_bytes = ftell(f);
+<span class="lineNum">    3903 </span>            :    fclose(f);
+<span class="lineNum">    3904 </span>            :    free(fname);
+<span class="lineNum">    3905 </span>            : 
+<span class="lineNum">    3906 </span>            :    tree_add_attr_ptr(top, llvm_i, module);
+<span class="lineNum">    3907 </span>            : #endif
+<span class="lineNum">    3908 </span>            : 
+<span class="lineNum">    3909 </span><span class="lineCov">        426 :    LLVMDisposeBuilder(builder);</span>
+<span class="lineNum">    3910 </span><span class="lineCov">        426 : }</span>
 </pre>
       </td>
     </tr>

@@ -229,15 +229,15 @@
 <span class="lineNum">     167 </span><span class="lineCov">       1313 :    return l;</span>
 <a name="168"><span class="lineNum">     168 </span>            : }</a>
 <span class="lineNum">     169 </span>            : 
-<span class="lineNum">     170 </span><span class="lineCov">       2983 : static lib_index_t *lib_find_in_index(lib_t lib, ident_t name)</span>
+<span class="lineNum">     170 </span><span class="lineCov">       2986 : static lib_index_t *lib_find_in_index(lib_t lib, ident_t name)</span>
 <span class="lineNum">     171 </span>            : {
 <span class="lineNum">     172 </span>            :    lib_index_t *it;
-<span class="lineNum">     173 </span><span class="lineCov">      10959 :    for (it = lib-&gt;index;</span>
-<span class="lineNum">     174 </span><span class="lineCov">       5869 :         (it != NULL) &amp;&amp; (it-&gt;name != name);</span>
-<span class="lineNum">     175 </span><span class="lineCov">       4993 :         it = it-&gt;next)</span>
+<span class="lineNum">     173 </span><span class="lineCov">      11040 :    for (it = lib-&gt;index;</span>
+<span class="lineNum">     174 </span><span class="lineCov">       5944 :         (it != NULL) &amp;&amp; (it-&gt;name != name);</span>
+<span class="lineNum">     175 </span><span class="lineCov">       5068 :         it = it-&gt;next)</span>
 <span class="lineNum">     176 </span>            :       ;
 <span class="lineNum">     177 </span>            : 
-<span class="lineNum">     178 </span><span class="lineCov">       2983 :    return it;</span>
+<span class="lineNum">     178 </span><span class="lineCov">       2986 :    return it;</span>
 <a name="179"><span class="lineNum">     179 </span>            : }</a>
 <span class="lineNum">     180 </span>            : 
 <span class="lineNum">     181 </span><span class="lineCov">       5932 : static lib_unit_t *lib_put_aux(lib_t lib, tree_t unit,</span>
@@ -644,38 +644,38 @@
 <span class="lineNum">     582 </span>            : 
 <span class="lineNum">     583 </span><span class="lineCov">       7457 : static lib_unit_t *lib_get_aux(lib_t lib, ident_t ident)</span>
 <span class="lineNum">     584 </span>            : {
-<span class="lineNum">     585 </span><span class="lineCov">       7440 :    assert(lib != NULL);</span>
+<span class="lineNum">     585 </span><span class="lineCov">       7437 :    assert(lib != NULL);</span>
 <span class="lineNum">     586 </span>            : 
 <span class="lineNum">     587 </span>            :    // Handle aliased library names
-<span class="lineNum">     588 </span><span class="lineCov">       7440 :    ident_t lname = ident_until(ident, '.');</span>
-<span class="lineNum">     589 </span><span class="lineCov">       7440 :    if ((lname != NULL) &amp;&amp; (lname != lib-&gt;name)) {</span>
+<span class="lineNum">     588 </span><span class="lineCov">       7437 :    ident_t lname = ident_until(ident, '.');</span>
+<span class="lineNum">     589 </span><span class="lineCov">       7437 :    if ((lname != NULL) &amp;&amp; (lname != lib-&gt;name)) {</span>
 <span class="lineNum">     590 </span><span class="lineCov">         16 :       ident_t uname = ident_rfrom(ident, '.');</span>
 <span class="lineNum">     591 </span><span class="lineCov">         16 :       if (uname != NULL)</span>
 <span class="lineNum">     592 </span><span class="lineCov">         14 :          ident = ident_prefix(lib-&gt;name, uname, '.');</span>
 <span class="lineNum">     593 </span>            :    }
 <span class="lineNum">     594 </span>            : 
 <span class="lineNum">     595 </span>            :    // Search in the list of already loaded units
-<span class="lineNum">     596 </span><span class="lineCov">      13863 :    for (unsigned n = 0; n &lt; lib-&gt;n_units; n++) {</span>
-<span class="lineNum">     597 </span><span class="lineCov">      13043 :       if (tree_ident(lib-&gt;units[n].top) == ident)</span>
-<span class="lineNum">     598 </span><span class="lineCov">       6620 :          return &amp;(lib-&gt;units[n]);</span>
+<span class="lineNum">     596 </span><span class="lineCov">      13860 :    for (unsigned n = 0; n &lt; lib-&gt;n_units; n++) {</span>
+<span class="lineNum">     597 </span><span class="lineCov">      13037 :       if (tree_ident(lib-&gt;units[n].top) == ident)</span>
+<span class="lineNum">     598 </span><span class="lineCov">       6614 :          return &amp;(lib-&gt;units[n]);</span>
 <span class="lineNum">     599 </span>            :    }
 <span class="lineNum">     600 </span>            : 
-<span class="lineNum">     601 </span><span class="lineCov">        820 :    if (*(lib-&gt;path) == '\0')   // Temporary library</span>
+<span class="lineNum">     601 </span><span class="lineCov">        823 :    if (*(lib-&gt;path) == '\0')   // Temporary library</span>
 <span class="lineNum">     602 </span>            :       return NULL;
 <span class="lineNum">     603 </span>            : 
-<span class="lineNum">     604 </span><span class="lineCov">        795 :    assert(lib-&gt;lock_fd != -1);   // Should not be called in unit tests</span>
-<span class="lineNum">     605 </span><span class="lineCov">        795 :    file_read_lock(lib-&gt;lock_fd);</span>
+<span class="lineNum">     604 </span><span class="lineCov">        798 :    assert(lib-&gt;lock_fd != -1);   // Should not be called in unit tests</span>
+<span class="lineNum">     605 </span><span class="lineCov">        798 :    file_read_lock(lib-&gt;lock_fd);</span>
 <span class="lineNum">     606 </span>            : 
 <span class="lineNum">     607 </span>            :    // Otherwise search in the filesystem
-<span class="lineNum">     608 </span><span class="lineCov">        795 :    DIR *d = opendir(lib-&gt;path);</span>
-<span class="lineNum">     609 </span><span class="lineCov">        795 :    if (d == NULL)</span>
+<span class="lineNum">     608 </span><span class="lineCov">        798 :    DIR *d = opendir(lib-&gt;path);</span>
+<span class="lineNum">     609 </span><span class="lineCov">        798 :    if (d == NULL)</span>
 <span class="lineNum">     610 </span><span class="lineNoCov">          0 :       fatal(&quot;%s: %s&quot;, lib-&gt;path, strerror(errno));</span>
 <span class="lineNum">     611 </span>            : 
-<span class="lineNum">     612 </span><span class="lineCov">        795 :    lib_unit_t *unit = NULL;</span>
-<span class="lineNum">     613 </span><span class="lineCov">        795 :    const char *search = istr(ident);</span>
+<span class="lineNum">     612 </span><span class="lineCov">        798 :    lib_unit_t *unit = NULL;</span>
+<span class="lineNum">     613 </span><span class="lineCov">        798 :    const char *search = istr(ident);</span>
 <span class="lineNum">     614 </span>            :    struct dirent *e;
-<span class="lineNum">     615 </span><span class="lineCov">        795 :    while ((e = readdir(d))) {</span>
-<span class="lineNum">     616 </span><span class="lineCov">       5264 :       if (strcmp(e-&gt;d_name, search) == 0) {</span>
+<span class="lineNum">     615 </span><span class="lineCov">        798 :    while ((e = readdir(d))) {</span>
+<span class="lineNum">     616 </span><span class="lineCov">       5522 :       if (strcmp(e-&gt;d_name, search) == 0) {</span>
 <span class="lineNum">     617 </span><span class="lineCov">        778 :          fbuf_t *f = lib_fbuf_open(lib, e-&gt;d_name, FBUF_IN);</span>
 <span class="lineNum">     618 </span><span class="lineCov">        778 :          tree_rd_ctx_t ctx = tree_read_begin(f, lib_file_path(lib, e-&gt;d_name));</span>
 <span class="lineNum">     619 </span><span class="lineCov">        778 :          tree_t top = tree_read(ctx);</span>
@@ -692,10 +692,10 @@
 <span class="lineNum">     630 </span>            :       }
 <span class="lineNum">     631 </span>            :    }
 <span class="lineNum">     632 </span>            : 
-<span class="lineNum">     633 </span><span class="lineCov">        795 :    closedir(d);</span>
-<span class="lineNum">     634 </span><span class="lineCov">        795 :    file_unlock(lib-&gt;lock_fd);</span>
+<span class="lineNum">     633 </span><span class="lineCov">        798 :    closedir(d);</span>
+<span class="lineNum">     634 </span><span class="lineCov">        798 :    file_unlock(lib-&gt;lock_fd);</span>
 <span class="lineNum">     635 </span>            : 
-<span class="lineNum">     636 </span><span class="lineCov">        812 :    if (unit == NULL &amp;&amp; lib_find_in_index(lib, ident) != NULL)</span>
+<span class="lineNum">     636 </span><span class="lineCov">        818 :    if (unit == NULL &amp;&amp; lib_find_in_index(lib, ident) != NULL)</span>
 <span class="lineNum">     637 </span><span class="lineNoCov">          0 :       fatal(&quot;library %s corrupt: unit %s present in index but missing &quot;</span>
 <span class="lineNum">     638 </span>            :             &quot;on disk&quot;, istr(lib-&gt;name), istr(ident));
 <span class="lineNum">     639 </span>            : 
@@ -721,15 +721,15 @@
 <span class="lineNum">     659 </span>            :       return false;
 <a name="660"><span class="lineNum">     660 </span>            : }</a>
 <span class="lineNum">     661 </span>            : 
-<span class="lineNum">     662 </span><span class="lineCov">       3050 : tree_t lib_get(lib_t lib, ident_t ident)</span>
+<span class="lineNum">     662 </span><span class="lineCov">       3047 : tree_t lib_get(lib_t lib, ident_t ident)</span>
 <span class="lineNum">     663 </span>            : {
-<span class="lineNum">     664 </span><span class="lineCov">       3050 :    lib_unit_t *lu = lib_get_aux(lib, ident);</span>
-<span class="lineNum">     665 </span><span class="lineCov">       3050 :    if (lu != NULL) {</span>
-<span class="lineNum">     666 </span><span class="lineCov">       3011 :       if (lu-&gt;read_ctx != NULL) {</span>
+<span class="lineNum">     664 </span><span class="lineCov">       3047 :    lib_unit_t *lu = lib_get_aux(lib, ident);</span>
+<span class="lineNum">     665 </span><span class="lineCov">       3047 :    if (lu != NULL) {</span>
+<span class="lineNum">     666 </span><span class="lineCov">       3005 :       if (lu-&gt;read_ctx != NULL) {</span>
 <span class="lineNum">     667 </span><span class="lineCov">         85 :          tree_read_end(lu-&gt;read_ctx);</span>
 <span class="lineNum">     668 </span><span class="lineCov">         85 :          lu-&gt;read_ctx = NULL;</span>
 <span class="lineNum">     669 </span>            :       }
-<span class="lineNum">     670 </span><span class="lineCov">       3011 :       return lu-&gt;top;</span>
+<span class="lineNum">     670 </span><span class="lineCov">       3005 :       return lu-&gt;top;</span>
 <span class="lineNum">     671 </span>            :    }
 <span class="lineNum">     672 </span>            :    else
 <span class="lineNum">     673 </span>            :       return NULL;
