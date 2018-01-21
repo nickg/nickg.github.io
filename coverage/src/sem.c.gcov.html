@@ -285,13 +285,13 @@
 <span class="lineNum">     223 </span><span class="lineCov">        798 :    return s-&gt;down == NULL ? NULL : scope_containing(s-&gt;down, decl);</span>
 <a name="224"><span class="lineNum">     224 </span>            : }</a>
 <span class="lineNum">     225 </span>            : 
-<span class="lineNum">     226 </span><span class="lineCov">    3052305 : static tree_t scope_find_in(ident_t i, scope_t *s, bool recur, int k)</span>
+<span class="lineNum">     226 </span><span class="lineCov">    3052621 : static tree_t scope_find_in(ident_t i, scope_t *s, bool recur, int k)</span>
 <span class="lineNum">     227 </span>            : {
-<span class="lineNum">     228 </span><span class="lineCov">    3052305 :    if (s == NULL)</span>
+<span class="lineNum">     228 </span><span class="lineCov">    3052621 :    if (s == NULL)</span>
 <span class="lineNum">     229 </span>            :       return NULL;
 <span class="lineNum">     230 </span>            :    else {
-<span class="lineNum">     231 </span><span class="lineCov">    2997003 :       void *value = hash_get_nth(s-&gt;decls, i, &amp;k);</span>
-<span class="lineNum">     232 </span><span class="lineCov">    2997003 :       if (value != NULL)</span>
+<span class="lineNum">     231 </span><span class="lineCov">    2997319 :       void *value = hash_get_nth(s-&gt;decls, i, &amp;k);</span>
+<span class="lineNum">     232 </span><span class="lineCov">    2997319 :       if (value != NULL)</span>
 <span class="lineNum">     233 </span>            :          return (tree_t)value;
 <span class="lineNum">     234 </span>            :       else
 <span class="lineNum">     235 </span><span class="lineCov">    1791362 :          return (recur ? scope_find_in(i, s-&gt;down, true, k) : NULL);</span>
@@ -308,14 +308,14 @@
 <span class="lineNum">     246 </span><span class="lineCov">     200977 :    return scope_find_in(i, top_scope, true, n);</span>
 <a name="247"><span class="lineNum">     247 </span>            : }</a>
 <span class="lineNum">     248 </span>            : 
-<span class="lineNum">     249 </span><span class="lineCov">       1879 : static bool scope_walk(scope_t **where, hash_iter_t *now, tree_t *decl)</span>
+<span class="lineNum">     249 </span><span class="lineCov">       1876 : static bool scope_walk(scope_t **where, hash_iter_t *now, tree_t *decl)</span>
 <span class="lineNum">     250 </span>            : {
 <span class="lineNum">     251 </span>            :    const void *key;
 <span class="lineNum">     252 </span>            :    void *value;
-<span class="lineNum">     253 </span><span class="lineCov">       1879 :    scope_t *w = where == NULL ? top_scope : *where;</span>
-<span class="lineNum">     254 </span><span class="lineCov">       5010 :    while (hash_iter(w-&gt;decls, now, &amp;key, &amp;value)) {</span>
-<span class="lineNum">     255 </span><span class="lineCov">       3112 :       *decl = value;</span>
-<span class="lineNum">     256 </span><span class="lineCov">       3112 :       if (tree_ident(*decl) != key)</span>
+<span class="lineNum">     253 </span><span class="lineCov">       1876 :    scope_t *w = where == NULL ? top_scope : *where;</span>
+<span class="lineNum">     254 </span><span class="lineCov">       5004 :    while (hash_iter(w-&gt;decls, now, &amp;key, &amp;value)) {</span>
+<span class="lineNum">     255 </span><span class="lineCov">       3109 :       *decl = value;</span>
+<span class="lineNum">     256 </span><span class="lineCov">       3109 :       if (tree_ident(*decl) != key)</span>
 <span class="lineNum">     257 </span><span class="lineCov">       1252 :          continue;   // Skip aliases</span>
 <span class="lineNum">     258 </span>            :       else
 <span class="lineNum">     259 </span>            :          return true;
@@ -406,19 +406,19 @@
 <span class="lineNum">     344 </span>            :    tree_t existing;
 <span class="lineNum">     345 </span><span class="lineCov">    1309334 :    int n = 0;</span>
 <span class="lineNum">     346 </span>            :    do {
-<span class="lineNum">     347 </span><span class="lineCov">    2228846 :       if ((existing = scope_find_in(name, top_scope, false, n++))) {</span>
-<span class="lineNum">     348 </span><span class="lineCov">     930339 :          if (existing == t)</span>
+<span class="lineNum">     347 </span><span class="lineCov">    2229162 :       if ((existing = scope_find_in(name, top_scope, false, n++))) {</span>
+<span class="lineNum">     348 </span><span class="lineCov">     930655 :          if (existing == t)</span>
 <span class="lineNum">     349 </span>            :             return true;
 <span class="lineNum">     350 </span>            : 
-<span class="lineNum">     351 </span><span class="lineCov">     920047 :          const tree_kind_t ekind = tree_kind(existing);</span>
-<span class="lineNum">     352 </span><span class="lineCov">     920047 :          if (ekind == T_UNIT_DECL || ekind == T_LIBRARY)</span>
+<span class="lineNum">     351 </span><span class="lineCov">     920363 :          const tree_kind_t ekind = tree_kind(existing);</span>
+<span class="lineNum">     352 </span><span class="lineCov">     920363 :          if (ekind == T_UNIT_DECL || ekind == T_LIBRARY)</span>
 <span class="lineNum">     353 </span><span class="lineCov">       1657 :             continue;</span>
-<span class="lineNum">     354 </span><span class="lineCov">     918390 :          else if (ekind == T_TYPE_DECL</span>
+<span class="lineNum">     354 </span><span class="lineCov">     918706 :          else if (ekind == T_TYPE_DECL</span>
 <span class="lineNum">     355 </span><span class="lineCov">         15 :                   &amp;&amp; type_is_protected(tree_type(existing))</span>
 <span class="lineNum">     356 </span><span class="lineCov">         13 :                   &amp;&amp; tree_kind(t) == T_PROT_BODY)</span>
 <span class="lineNum">     357 </span><span class="lineCov">         13 :             continue;</span>
 <span class="lineNum">     358 </span>            : 
-<span class="lineNum">     359 </span><span class="lineCov">     918377 :          if (!alias &amp;&amp; (!overload || !scope_can_overload(existing))) {</span>
+<span class="lineNum">     359 </span><span class="lineCov">     918693 :          if (!alias &amp;&amp; (!overload || !scope_can_overload(existing))) {</span>
 <span class="lineNum">     360 </span><span class="lineCov">          4 :             error_at(tree_loc(t), &quot;%s already declared in this region&quot;,</span>
 <span class="lineNum">     361 </span>            :                      istr(name));
 <span class="lineNum">     362 </span><span class="lineCov">          4 :             note_at(tree_loc(existing), &quot;previous declaration of %s was here&quot;,</span>
@@ -427,8 +427,8 @@
 <span class="lineNum">     365 </span><span class="lineCov">          4 :             return false;</span>
 <span class="lineNum">     366 </span>            :          }
 <span class="lineNum">     367 </span>            : 
-<span class="lineNum">     368 </span><span class="lineCov">     918373 :          const bool builtin = (tree_attr_str(existing, builtin_i) != NULL);</span>
-<span class="lineNum">     369 </span><span class="lineCov">     918373 :          if (builtin &amp;&amp; type_eq(tree_type(t), tree_type(existing))) {</span>
+<span class="lineNum">     368 </span><span class="lineCov">     918689 :          const bool builtin = (tree_attr_str(existing, builtin_i) != NULL);</span>
+<span class="lineNum">     369 </span><span class="lineCov">     918689 :          if (builtin &amp;&amp; type_eq(tree_type(t), tree_type(existing))) {</span>
 <span class="lineNum">     370 </span><span class="lineCov">       2940 :             type_t arg0_type = type_param(tree_type(existing), 0);</span>
 <span class="lineNum">     371 </span>            : 
 <span class="lineNum">     372 </span><span class="lineCov">       2940 :             ident_t t_region = ident_runtil(tree_ident(t), '.');</span>
@@ -444,7 +444,7 @@
 <span class="lineNum">     382 </span>            :             }
 <span class="lineNum">     383 </span>            :          }
 <span class="lineNum">     384 </span>            :       }
-<span class="lineNum">     385 </span><span class="lineCov">    2218019 :    } while (existing != NULL);</span>
+<span class="lineNum">     385 </span><span class="lineCov">    2218335 :    } while (existing != NULL);</span>
 <span class="lineNum">     386 </span>            : 
 <span class="lineNum">     387 </span><span class="lineCov">    1298507 :    hash_put(top_scope-&gt;decls, name, t);</span>
 <span class="lineNum">     388 </span>            : 
@@ -751,8 +751,8 @@
 <span class="lineNum">     689 </span><span class="lineCov">     119674 :    assert(t != NULL);</span>
 <span class="lineNum">     690 </span><span class="lineCov">     119674 :    assert(type_kind(t) != T_UNRESOLVED);</span>
 <span class="lineNum">     691 </span>            : 
-<span class="lineNum">     692 </span><span class="lineCov">     872119 :    for (unsigned i = 0; i &lt; top_type_set-&gt;n_members; i++) {</span>
-<span class="lineNum">     693 </span><span class="lineCov">     879115 :       if (type_eq(top_type_set-&gt;members[i], t))</span>
+<span class="lineNum">     692 </span><span class="lineCov">     872135 :    for (unsigned i = 0; i &lt; top_type_set-&gt;n_members; i++) {</span>
+<span class="lineNum">     693 </span><span class="lineCov">     879131 :       if (type_eq(top_type_set-&gt;members[i], t))</span>
 <span class="lineNum">     694 </span><span class="lineCov">     119674 :          return;</span>
 <span class="lineNum">     695 </span>            :    }
 <span class="lineNum">     696 </span>            : 
@@ -821,8 +821,8 @@
 <span class="lineNum">     759 </span><span class="lineCov">     144331 :    if (top_type_set == NULL || top_type_set-&gt;n_members == 0)</span>
 <span class="lineNum">     760 </span>            :       return true;
 <span class="lineNum">     761 </span>            : 
-<span class="lineNum">     762 </span><span class="lineCov">      63574 :    for (unsigned n = 0; n &lt; top_type_set-&gt;n_members; n++) {</span>
-<span class="lineNum">     763 </span><span class="lineCov">     158062 :       if (type_eq(top_type_set-&gt;members[n], t))</span>
+<span class="lineNum">     762 </span><span class="lineCov">      63518 :    for (unsigned n = 0; n &lt; top_type_set-&gt;n_members; n++) {</span>
+<span class="lineNum">     763 </span><span class="lineCov">     158006 :       if (type_eq(top_type_set-&gt;members[n], t))</span>
 <span class="lineNum">     764 </span>            :          return true;
 <span class="lineNum">     765 </span>            :    }
 <span class="lineNum">     766 </span>            : 
@@ -3642,13 +3642,13 @@
 <span class="lineNum">    3580 </span><span class="lineCov">      63908 :    for (int i = 0; i &lt; n_overloads - 1; i++) {</span>
 <span class="lineNum">    3581 </span><span class="lineCov">      63908 :       if (overloads[i] != NULL) {</span>
 <span class="lineNum">    3582 </span><span class="lineCov">       5245 :          type_t type = tree_type(overloads[i]);</span>
-<span class="lineNum">    3583 </span><span class="lineCov">      33953 :          for (int j = i + 1; j &lt; n_overloads; j++) {</span>
-<span class="lineNum">    3584 </span><span class="lineCov">      28708 :             const bool prune =</span>
-<span class="lineNum">    3585 </span><span class="lineCov">      28708 :                overloads[j] != NULL</span>
+<span class="lineNum">    3583 </span><span class="lineCov">      33993 :          for (int j = i + 1; j &lt; n_overloads; j++) {</span>
+<span class="lineNum">    3584 </span><span class="lineCov">      28748 :             const bool prune =</span>
+<span class="lineNum">    3585 </span><span class="lineCov">      28748 :                overloads[j] != NULL</span>
 <span class="lineNum">    3586 </span><span class="lineCov">         10 :                &amp;&amp; type_eq(type, tree_type(overloads[j]))</span>
-<span class="lineNum">    3587 </span><span class="lineCov">      28711 :                &amp;&amp; tree_attr_str(overloads[j], builtin_i) == NULL;</span>
+<span class="lineNum">    3587 </span><span class="lineCov">      28751 :                &amp;&amp; tree_attr_str(overloads[j], builtin_i) == NULL;</span>
 <span class="lineNum">    3588 </span>            : 
-<span class="lineNum">    3589 </span><span class="lineCov">      28708 :             if (prune)</span>
+<span class="lineNum">    3589 </span><span class="lineCov">      28748 :             if (prune)</span>
 <span class="lineNum">    3590 </span><span class="lineCov">          2 :                overloads[j] = NULL;</span>
 <span class="lineNum">    3591 </span>            :          }
 <span class="lineNum">    3592 </span>            :       }
@@ -7281,12 +7281,12 @@
 <span class="lineNum">    7219 </span><span class="lineCov">          4 :       ident_t cname = tree_ident2(t);</span>
 <span class="lineNum">    7220 </span><span class="lineCov">          4 :       hash_iter_t it = HASH_BEGIN;</span>
 <span class="lineNum">    7221 </span>            :       tree_t obj;
-<span class="lineNum">    7222 </span><span class="lineCov">         36 :       while (scope_walk(NULL, &amp;it, &amp;obj)) {</span>
-<span class="lineNum">    7223 </span><span class="lineCov">         29 :          if (tree_kind(obj) != T_INSTANCE)</span>
-<span class="lineNum">    7224 </span><span class="lineCov">         11 :             continue;</span>
+<span class="lineNum">    7222 </span><span class="lineCov">         33 :       while (scope_walk(NULL, &amp;it, &amp;obj)) {</span>
+<span class="lineNum">    7223 </span><span class="lineCov">         26 :          if (tree_kind(obj) != T_INSTANCE)</span>
+<span class="lineNum">    7224 </span><span class="lineCov">          9 :             continue;</span>
 <span class="lineNum">    7225 </span>            : 
-<span class="lineNum">    7226 </span><span class="lineCov">         18 :          if (tree_class(obj) != C_COMPONENT)</span>
-<span class="lineNum">    7227 </span><span class="lineCov">          3 :             continue;</span>
+<span class="lineNum">    7226 </span><span class="lineCov">         17 :          if (tree_class(obj) != C_COMPONENT)</span>
+<span class="lineNum">    7227 </span><span class="lineCov">          2 :             continue;</span>
 <span class="lineNum">    7228 </span>            : 
 <span class="lineNum">    7229 </span><span class="lineCov">         15 :          if (tree_ident2(obj) == cname) {</span>
 <span class="lineNum">    7230 </span><span class="lineCov">          6 :             if ((kind == ALL) || !tree_has_spec(obj)) {</span>
@@ -7616,10 +7616,10 @@
 <span class="lineNum">    7554 </span><span class="lineCov">        813 :    return errors;</span>
 <a name="7555"><span class="lineNum">    7555 </span>            : }</a>
 <span class="lineNum">    7556 </span>            : 
-<span class="lineNum">    7557 </span><span class="lineCov">        281 : void reset_sem_errors(void)</span>
+<span class="lineNum">    7557 </span><span class="lineCov">        299 : void reset_sem_errors(void)</span>
 <span class="lineNum">    7558 </span>            : {
-<span class="lineNum">    7559 </span><span class="lineCov">        281 :    errors = 0;</span>
-<span class="lineNum">    7560 </span><span class="lineCov">        281 : }</span>
+<span class="lineNum">    7559 </span><span class="lineCov">        299 :    errors = 0;</span>
+<span class="lineNum">    7560 </span><span class="lineCov">        299 : }</span>
 </pre>
       </td>
     </tr>
