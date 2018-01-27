@@ -138,221 +138,221 @@
 <span class="lineNum">      76 </span>            :    }
 <a name="77"><span class="lineNum">      77 </span>            : };</a>
 <span class="lineNum">      78 </span>            : 
-<span class="lineNum">      79 </span><span class="lineCov">    2031949 : static trie_t *alloc_node(char ch, trie_t *prev)</span>
+<span class="lineNum">      79 </span><span class="lineCov">    2032311 : static trie_t *alloc_node(char ch, trie_t *prev)</span>
 <span class="lineNum">      80 </span>            : {
-<span class="lineNum">      81 </span><span class="lineCov">    2031949 :    const size_t mapsz = (prev-&gt;depth &lt; MAP_DEPTH) ? 256 * sizeof(trie_t *) : 0;</span>
+<span class="lineNum">      81 </span><span class="lineCov">    2032311 :    const size_t mapsz = (prev-&gt;depth &lt; MAP_DEPTH) ? 256 * sizeof(trie_t *) : 0;</span>
 <span class="lineNum">      82 </span>            : 
-<span class="lineNum">      83 </span><span class="lineCov">    2031949 :    trie_t *t = xmalloc(sizeof(trie_t) + mapsz);</span>
-<span class="lineNum">      84 </span><span class="lineCov">    2031949 :    t-&gt;value     = ch;</span>
-<span class="lineNum">      85 </span><span class="lineCov">    2031949 :    t-&gt;depth     = prev-&gt;depth + 1;</span>
-<span class="lineNum">      86 </span><span class="lineCov">    2031949 :    t-&gt;up        = prev;</span>
-<span class="lineNum">      87 </span><span class="lineCov">    2031949 :    t-&gt;write_gen = 0;</span>
-<span class="lineNum">      88 </span><span class="lineCov">    2031949 :    t-&gt;list      = NULL;</span>
+<span class="lineNum">      83 </span><span class="lineCov">    2032311 :    trie_t *t = xmalloc(sizeof(trie_t) + mapsz);</span>
+<span class="lineNum">      84 </span><span class="lineCov">    2032311 :    t-&gt;value     = ch;</span>
+<span class="lineNum">      85 </span><span class="lineCov">    2032311 :    t-&gt;depth     = prev-&gt;depth + 1;</span>
+<span class="lineNum">      86 </span><span class="lineCov">    2032311 :    t-&gt;up        = prev;</span>
+<span class="lineNum">      87 </span><span class="lineCov">    2032311 :    t-&gt;write_gen = 0;</span>
+<span class="lineNum">      88 </span><span class="lineCov">    2032311 :    t-&gt;list      = NULL;</span>
 <span class="lineNum">      89 </span>            : 
-<span class="lineNum">      90 </span><span class="lineCov">    2031949 :    if (mapsz &gt; 0)</span>
-<span class="lineNum">      91 </span><span class="lineCov">     200301 :       memset(t-&gt;map, '\0', mapsz);</span>
+<span class="lineNum">      90 </span><span class="lineCov">    2032311 :    if (mapsz &gt; 0)</span>
+<span class="lineNum">      91 </span><span class="lineCov">     200635 :       memset(t-&gt;map, '\0', mapsz);</span>
 <span class="lineNum">      92 </span>            : 
-<span class="lineNum">      93 </span><span class="lineCov">    2031949 :    if (prev-&gt;depth &lt;= MAP_DEPTH)</span>
-<span class="lineNum">      94 </span><span class="lineCov">     396984 :       prev-&gt;map[(unsigned char)ch] = t;</span>
+<span class="lineNum">      93 </span><span class="lineCov">    2032311 :    if (prev-&gt;depth &lt;= MAP_DEPTH)</span>
+<span class="lineNum">      94 </span><span class="lineCov">     397716 :       prev-&gt;map[(unsigned char)ch] = t;</span>
 <span class="lineNum">      95 </span>            :    else {
-<span class="lineNum">      96 </span><span class="lineCov">    1634965 :       clist_t *c = xmalloc(sizeof(clist_t));</span>
-<span class="lineNum">      97 </span><span class="lineCov">    1634965 :       c-&gt;value    = ch;</span>
-<span class="lineNum">      98 </span><span class="lineCov">    1634965 :       c-&gt;down     = t;</span>
-<span class="lineNum">      99 </span><span class="lineCov">    1634965 :       c-&gt;left     = NULL;</span>
-<span class="lineNum">     100 </span><span class="lineCov">    1634965 :       c-&gt;right    = NULL;</span>
+<span class="lineNum">      96 </span><span class="lineCov">    1634595 :       clist_t *c = xmalloc(sizeof(clist_t));</span>
+<span class="lineNum">      97 </span><span class="lineCov">    1634595 :       c-&gt;value    = ch;</span>
+<span class="lineNum">      98 </span><span class="lineCov">    1634595 :       c-&gt;down     = t;</span>
+<span class="lineNum">      99 </span><span class="lineCov">    1634595 :       c-&gt;left     = NULL;</span>
+<span class="lineNum">     100 </span><span class="lineCov">    1634595 :       c-&gt;right    = NULL;</span>
 <span class="lineNum">     101 </span>            : 
 <span class="lineNum">     102 </span>            :       clist_t *it, **where;
-<span class="lineNum">     103 </span><span class="lineCov">    8754074 :       for (it = prev-&gt;list, where = &amp;(prev-&gt;list);</span>
+<span class="lineNum">     103 </span><span class="lineCov">    8764256 :       for (it = prev-&gt;list, where = &amp;(prev-&gt;list);</span>
 <span class="lineNum">     104 </span>            :            it != NULL;
-<span class="lineNum">     105 </span><span class="lineCov">    5484144 :            where = (ch &lt; it-&gt;value ? &amp;(it-&gt;left) : &amp;(it-&gt;right)),</span>
-<span class="lineNum">     106 </span><span class="lineCov">    5484144 :               it = *where)</span>
+<span class="lineNum">     105 </span><span class="lineCov">    5495066 :            where = (ch &lt; it-&gt;value ? &amp;(it-&gt;left) : &amp;(it-&gt;right)),</span>
+<span class="lineNum">     106 </span><span class="lineCov">    5495066 :               it = *where)</span>
 <span class="lineNum">     107 </span>            :          ;
 <span class="lineNum">     108 </span>            : 
-<span class="lineNum">     109 </span><span class="lineCov">    1634965 :       *where = c;</span>
+<span class="lineNum">     109 </span><span class="lineCov">    1634595 :       *where = c;</span>
 <span class="lineNum">     110 </span>            :    }
 <span class="lineNum">     111 </span>            : 
-<span class="lineNum">     112 </span><span class="lineCov">    2031949 :    return t;</span>
+<span class="lineNum">     112 </span><span class="lineCov">    2032311 :    return t;</span>
 <a name="113"><span class="lineNum">     113 </span>            : }</a>
 <span class="lineNum">     114 </span>            : 
-<span class="lineNum">     115 </span><span class="lineCov">     458553 : static void build_trie(const char *str, trie_t *prev, trie_t **end)</span>
+<span class="lineNum">     115 </span><span class="lineCov">     459459 : static void build_trie(const char *str, trie_t *prev, trie_t **end)</span>
 <span class="lineNum">     116 </span>            : {
-<span class="lineNum">     117 </span><span class="lineCov">    1395270 :    assert(*str != '\0');</span>
-<span class="lineNum">     118 </span><span class="lineCov">    1395270 :    assert(prev != NULL);</span>
+<span class="lineNum">     117 </span><span class="lineCov">    1398455 :    assert(*str != '\0');</span>
+<span class="lineNum">     118 </span><span class="lineCov">    1398455 :    assert(prev != NULL);</span>
 <span class="lineNum">     119 </span>            : 
-<span class="lineNum">     120 </span><span class="lineCov">    1395270 :    trie_t *t = alloc_node(*str, prev);</span>
+<span class="lineNum">     120 </span><span class="lineCov">    1398455 :    trie_t *t = alloc_node(*str, prev);</span>
 <span class="lineNum">     121 </span>            : 
-<span class="lineNum">     122 </span><span class="lineCov">    1395270 :    if (*(++str) == '\0')</span>
-<span class="lineNum">     123 </span><span class="lineCov">     458553 :       *end = t;</span>
+<span class="lineNum">     122 </span><span class="lineCov">    1398455 :    if (*(++str) == '\0')</span>
+<span class="lineNum">     123 </span><span class="lineCov">     459459 :       *end = t;</span>
 <span class="lineNum">     124 </span>            :    else
 <span class="lineNum">     125 </span>            :       build_trie(str, t, end);
-<a name="126"><span class="lineNum">     126 </span><span class="lineCov">     458553 : }</span></a>
+<a name="126"><span class="lineNum">     126 </span><span class="lineCov">     459459 : }</span></a>
 <span class="lineNum">     127 </span>            : 
-<span class="lineNum">     128 </span><span class="lineCov">    8751571 : static clist_t *search_node(trie_t *t, char ch)</span>
+<span class="lineNum">     128 </span><span class="lineCov">    9435216 : static clist_t *search_node(trie_t *t, char ch)</span>
 <span class="lineNum">     129 </span>            : {
 <span class="lineNum">     130 </span>            :    clist_t *it;
-<span class="lineNum">     131 </span><span class="lineCov">   36147217 :    for (it = t-&gt;list;</span>
-<span class="lineNum">     132 </span><span class="lineCov">   26623982 :         (it != NULL) &amp;&amp; (it-&gt;value != ch);</span>
-<span class="lineNum">     133 </span><span class="lineCov">   18644075 :         it = (ch &lt; it-&gt;value ? it-&gt;left : it-&gt;right))</span>
+<span class="lineNum">     131 </span><span class="lineCov">   37628067 :    for (it = t-&gt;list;</span>
+<span class="lineNum">     132 </span><span class="lineCov">   27423579 :         (it != NULL) &amp;&amp; (it-&gt;value != ch);</span>
+<span class="lineNum">     133 </span><span class="lineCov">   18757635 :         it = (ch &lt; it-&gt;value ? it-&gt;left : it-&gt;right))</span>
 <span class="lineNum">     134 </span>            :       ;
 <span class="lineNum">     135 </span>            : 
-<span class="lineNum">     136 </span><span class="lineCov">    8751571 :    return it;</span>
+<span class="lineNum">     136 </span><span class="lineCov">    9435216 :    return it;</span>
 <a name="137"><span class="lineNum">     137 </span>            : }</a>
 <span class="lineNum">     138 </span>            : 
-<span class="lineNum">     139 </span><span class="lineCov">   10559281 : static bool search_trie(const char **str, trie_t *t, trie_t **end)</span>
+<span class="lineNum">     139 </span><span class="lineCov">   11294910 : static bool search_trie(const char **str, trie_t *t, trie_t **end)</span>
 <span class="lineNum">     140 </span>            : {
-<span class="lineNum">     141 </span><span class="lineCov">    9894081 :    assert(**str != '\0');</span>
-<span class="lineNum">     142 </span><span class="lineCov">    9894081 :    assert(t != NULL);</span>
+<span class="lineNum">     141 </span><span class="lineCov">   10698467 :    assert(**str != '\0');</span>
+<span class="lineNum">     142 </span><span class="lineCov">   10698467 :    assert(t != NULL);</span>
 <span class="lineNum">     143 </span>            : 
-<span class="lineNum">     144 </span><span class="lineCov">    9894081 :    trie_t *next = NULL;</span>
+<span class="lineNum">     144 </span><span class="lineCov">   10698467 :    trie_t *next = NULL;</span>
 <span class="lineNum">     145 </span>            : 
-<span class="lineNum">     146 </span><span class="lineCov">    9894081 :    if (t-&gt;depth &lt;= MAP_DEPTH)</span>
-<span class="lineNum">     147 </span><span class="lineCov">    2048383 :       next = t-&gt;map[(unsigned char)**str];</span>
+<span class="lineNum">     146 </span><span class="lineCov">   10698467 :    if (t-&gt;depth &lt;= MAP_DEPTH)</span>
+<span class="lineNum">     147 </span><span class="lineCov">    2155051 :       next = t-&gt;map[(unsigned char)**str];</span>
 <span class="lineNum">     148 </span>            :    else {
-<span class="lineNum">     149 </span><span class="lineCov">   15691396 :       clist_t *it = search_node(t, **str);</span>
-<span class="lineNum">     150 </span><span class="lineCov">    7845698 :       next = (it != NULL) ? it-&gt;down : NULL;</span>
+<span class="lineNum">     149 </span><span class="lineCov">   17086832 :       clist_t *it = search_node(t, **str);</span>
+<span class="lineNum">     150 </span><span class="lineCov">    8543416 :       next = (it != NULL) ? it-&gt;down : NULL;</span>
 <span class="lineNum">     151 </span>            :    }
 <span class="lineNum">     152 </span>            : 
-<span class="lineNum">     153 </span><span class="lineCov">    9894081 :    if (next == NULL) {</span>
-<span class="lineNum">     154 </span><span class="lineCov">     496191 :       *end = t;</span>
-<span class="lineNum">     155 </span><span class="lineCov">     496191 :       return false;</span>
+<span class="lineNum">     153 </span><span class="lineCov">   10698467 :    if (next == NULL) {</span>
+<span class="lineNum">     154 </span><span class="lineCov">     497301 :       *end = t;</span>
+<span class="lineNum">     155 </span><span class="lineCov">     497301 :       return false;</span>
 <span class="lineNum">     156 </span>            :    }
 <span class="lineNum">     157 </span>            :    else {
-<span class="lineNum">     158 </span><span class="lineCov">    9397890 :       (*str)++;</span>
+<span class="lineNum">     158 </span><span class="lineCov">   10201166 :       (*str)++;</span>
 <span class="lineNum">     159 </span>            : 
-<span class="lineNum">     160 </span><span class="lineCov">    9397890 :       if (**str == '\0') {</span>
-<span class="lineNum">     161 </span><span class="lineCov">    2217392 :          *end = next;</span>
-<span class="lineNum">     162 </span><span class="lineCov">    2217392 :          return true;</span>
+<span class="lineNum">     160 </span><span class="lineCov">   10201166 :       if (**str == '\0') {</span>
+<span class="lineNum">     161 </span><span class="lineCov">    2254193 :          *end = next;</span>
+<span class="lineNum">     162 </span><span class="lineCov">    2254193 :          return true;</span>
 <span class="lineNum">     163 </span>            :       }
 <span class="lineNum">     164 </span>            :       else
 <span class="lineNum">     165 </span>            :          return search_trie(str, next, end);
 <span class="lineNum">     166 </span>            :    }
 <a name="167"><span class="lineNum">     167 </span>            : }</a>
 <span class="lineNum">     168 </span>            : 
-<span class="lineNum">     169 </span><span class="lineCov">     434914 : ident_t ident_new(const char *str)</span>
+<span class="lineNum">     169 </span><span class="lineCov">     437243 : ident_t ident_new(const char *str)</span>
 <span class="lineNum">     170 </span>            : {
-<span class="lineNum">     171 </span><span class="lineCov">     434914 :    assert(str != NULL);</span>
-<span class="lineNum">     172 </span><span class="lineCov">     434914 :    assert(*str != '\0');</span>
+<span class="lineNum">     171 </span><span class="lineCov">     437243 :    assert(str != NULL);</span>
+<span class="lineNum">     172 </span><span class="lineCov">     437243 :    assert(*str != '\0');</span>
 <span class="lineNum">     173 </span>            : 
 <span class="lineNum">     174 </span>            :    trie_t *result;
-<span class="lineNum">     175 </span><span class="lineCov">     434914 :    if (!search_trie(&amp;str, &amp;(root.trie), &amp;result))</span>
-<span class="lineNum">     176 </span><span class="lineCov">     101621 :       build_trie(str, result, &amp;result);</span>
+<span class="lineNum">     175 </span><span class="lineCov">     437243 :    if (!search_trie(&amp;str, &amp;(root.trie), &amp;result))</span>
+<span class="lineNum">     176 </span><span class="lineCov">     101948 :       build_trie(str, result, &amp;result);</span>
 <span class="lineNum">     177 </span>            : 
-<span class="lineNum">     178 </span><span class="lineCov">     434914 :    return result;</span>
+<span class="lineNum">     178 </span><span class="lineCov">     437243 :    return result;</span>
 <a name="179"><span class="lineNum">     179 </span>            : }</a>
 <span class="lineNum">     180 </span>            : 
-<span class="lineNum">     181 </span><span class="lineCov">      13306 : bool ident_interned(const char *str)</span>
+<span class="lineNum">     181 </span><span class="lineCov">      13309 : bool ident_interned(const char *str)</span>
 <span class="lineNum">     182 </span>            : {
-<span class="lineNum">     183 </span><span class="lineCov">      13306 :    assert(str != NULL);</span>
-<span class="lineNum">     184 </span><span class="lineCov">      13306 :    assert(*str != '\0');</span>
+<span class="lineNum">     183 </span><span class="lineCov">      13309 :    assert(str != NULL);</span>
+<span class="lineNum">     184 </span><span class="lineCov">      13309 :    assert(*str != '\0');</span>
 <span class="lineNum">     185 </span>            : 
 <span class="lineNum">     186 </span>            :    trie_t *result;
-<span class="lineNum">     187 </span><span class="lineCov">      13306 :    return search_trie(&amp;str, &amp;(root.trie), &amp;result);</span>
+<span class="lineNum">     187 </span><span class="lineCov">      13309 :    return search_trie(&amp;str, &amp;(root.trie), &amp;result);</span>
 <a name="188"><span class="lineNum">     188 </span>            : }</a>
 <span class="lineNum">     189 </span>            : 
-<span class="lineNum">     190 </span><span class="lineCov">    1210163 : const char *istr(ident_t ident)</span>
+<span class="lineNum">     190 </span><span class="lineCov">    1213879 : const char *istr(ident_t ident)</span>
 <span class="lineNum">     191 </span>            : {
-<span class="lineNum">     192 </span><span class="lineCov">    1210163 :    if (ident == NULL)</span>
+<span class="lineNum">     192 </span><span class="lineCov">    1213879 :    if (ident == NULL)</span>
 <span class="lineNum">     193 </span>            :       return NULL;
 <span class="lineNum">     194 </span>            : 
-<span class="lineNum">     195 </span><span class="lineCov">    1210163 :    char *p = get_fmt_buf(ident-&gt;depth) + ident-&gt;depth - 1;</span>
-<span class="lineNum">     196 </span><span class="lineCov">    1210163 :    *p = '\0';</span>
+<span class="lineNum">     195 </span><span class="lineCov">    1213879 :    char *p = get_fmt_buf(ident-&gt;depth) + ident-&gt;depth - 1;</span>
+<span class="lineNum">     196 </span><span class="lineCov">    1213879 :    *p = '\0';</span>
 <span class="lineNum">     197 </span>            : 
 <span class="lineNum">     198 </span>            :    trie_t *it;
-<span class="lineNum">     199 </span><span class="lineCov">    7536465 :    for (it = ident; it-&gt;value != '\0'; it = it-&gt;up)</span>
-<span class="lineNum">     200 </span><span class="lineCov">    6326302 :       *(--p) = it-&gt;value;</span>
+<span class="lineNum">     199 </span><span class="lineCov">    7600533 :    for (it = ident; it-&gt;value != '\0'; it = it-&gt;up)</span>
+<span class="lineNum">     200 </span><span class="lineCov">    6386654 :       *(--p) = it-&gt;value;</span>
 <span class="lineNum">     201 </span>            : 
 <span class="lineNum">     202 </span>            :    return p;
 <a name="203"><span class="lineNum">     203 </span>            : }</a>
 <span class="lineNum">     204 </span>            : 
-<span class="lineNum">     205 </span><span class="lineCov">       2101 : ident_wr_ctx_t ident_write_begin(fbuf_t *f)</span>
+<span class="lineNum">     205 </span><span class="lineCov">       2106 : ident_wr_ctx_t ident_write_begin(fbuf_t *f)</span>
 <span class="lineNum">     206 </span>            : {
 <span class="lineNum">     207 </span>            :    static uint16_t ident_wr_gen = 1;
-<span class="lineNum">     208 </span><span class="lineCov">       2101 :    assert(ident_wr_gen &gt; 0);</span>
+<span class="lineNum">     208 </span><span class="lineCov">       2106 :    assert(ident_wr_gen &gt; 0);</span>
 <span class="lineNum">     209 </span>            : 
-<span class="lineNum">     210 </span><span class="lineCov">       2101 :    struct ident_wr_ctx *ctx = xmalloc(sizeof(struct ident_wr_ctx));</span>
-<span class="lineNum">     211 </span><span class="lineCov">       2101 :    ctx-&gt;file       = f;</span>
-<span class="lineNum">     212 </span><span class="lineCov">       2101 :    ctx-&gt;generation = ident_wr_gen++;</span>
-<span class="lineNum">     213 </span><span class="lineCov">       2101 :    ctx-&gt;next_index = 0;</span>
+<span class="lineNum">     210 </span><span class="lineCov">       2106 :    struct ident_wr_ctx *ctx = xmalloc(sizeof(struct ident_wr_ctx));</span>
+<span class="lineNum">     211 </span><span class="lineCov">       2106 :    ctx-&gt;file       = f;</span>
+<span class="lineNum">     212 </span><span class="lineCov">       2106 :    ctx-&gt;generation = ident_wr_gen++;</span>
+<span class="lineNum">     213 </span><span class="lineCov">       2106 :    ctx-&gt;next_index = 0;</span>
 <span class="lineNum">     214 </span>            : 
-<span class="lineNum">     215 </span><span class="lineCov">       2101 :    return ctx;</span>
+<span class="lineNum">     215 </span><span class="lineCov">       2106 :    return ctx;</span>
 <a name="216"><span class="lineNum">     216 </span>            : }</a>
 <span class="lineNum">     217 </span>            : 
-<span class="lineNum">     218 </span><span class="lineCov">       2101 : void ident_write_end(ident_wr_ctx_t ctx)</span>
+<span class="lineNum">     218 </span><span class="lineCov">       2106 : void ident_write_end(ident_wr_ctx_t ctx)</span>
 <span class="lineNum">     219 </span>            : {
-<span class="lineNum">     220 </span><span class="lineCov">       2101 :    free(ctx);</span>
-<a name="221"><span class="lineNum">     221 </span><span class="lineCov">       2101 : }</span></a>
+<span class="lineNum">     220 </span><span class="lineCov">       2106 :    free(ctx);</span>
+<a name="221"><span class="lineNum">     221 </span><span class="lineCov">       2106 : }</span></a>
 <span class="lineNum">     222 </span>            : 
-<span class="lineNum">     223 </span><span class="lineCov">     607433 : void ident_write(ident_t ident, ident_wr_ctx_t ctx)</span>
+<span class="lineNum">     223 </span><span class="lineCov">     606769 : void ident_write(ident_t ident, ident_wr_ctx_t ctx)</span>
 <span class="lineNum">     224 </span>            : {
-<span class="lineNum">     225 </span><span class="lineCov">     607433 :    if (ident == NULL) {</span>
-<span class="lineNum">     226 </span><span class="lineCov">      62569 :       write_u32(UINT32_MAX, ctx-&gt;file);</span>
-<span class="lineNum">     227 </span><span class="lineCov">      62569 :       write_u8(0, ctx-&gt;file);</span>
+<span class="lineNum">     225 </span><span class="lineCov">     606769 :    if (ident == NULL) {</span>
+<span class="lineNum">     226 </span><span class="lineCov">      62589 :       write_u32(UINT32_MAX, ctx-&gt;file);</span>
+<span class="lineNum">     227 </span><span class="lineCov">      62589 :       write_u8(0, ctx-&gt;file);</span>
 <span class="lineNum">     228 </span>            :    }
-<span class="lineNum">     229 </span><span class="lineCov">     544864 :    else if (ident-&gt;write_gen == ctx-&gt;generation)</span>
-<span class="lineNum">     230 </span><span class="lineCov">     395615 :       write_u32(ident-&gt;write_index, ctx-&gt;file);</span>
+<span class="lineNum">     229 </span><span class="lineCov">     544180 :    else if (ident-&gt;write_gen == ctx-&gt;generation)</span>
+<span class="lineNum">     230 </span><span class="lineCov">     395349 :       write_u32(ident-&gt;write_index, ctx-&gt;file);</span>
 <span class="lineNum">     231 </span>            :    else {
-<span class="lineNum">     232 </span><span class="lineCov">     149249 :       write_u32(UINT32_MAX, ctx-&gt;file);</span>
-<span class="lineNum">     233 </span><span class="lineCov">     149249 :       write_raw(istr(ident), ident-&gt;depth, ctx-&gt;file);</span>
+<span class="lineNum">     232 </span><span class="lineCov">     148831 :       write_u32(UINT32_MAX, ctx-&gt;file);</span>
+<span class="lineNum">     233 </span><span class="lineCov">     148831 :       write_raw(istr(ident), ident-&gt;depth, ctx-&gt;file);</span>
 <span class="lineNum">     234 </span>            : 
-<span class="lineNum">     235 </span><span class="lineCov">     149249 :       ident-&gt;write_gen   = ctx-&gt;generation;</span>
-<span class="lineNum">     236 </span><span class="lineCov">     149249 :       ident-&gt;write_index = ctx-&gt;next_index++;</span>
+<span class="lineNum">     235 </span><span class="lineCov">     148831 :       ident-&gt;write_gen   = ctx-&gt;generation;</span>
+<span class="lineNum">     236 </span><span class="lineCov">     148831 :       ident-&gt;write_index = ctx-&gt;next_index++;</span>
 <span class="lineNum">     237 </span>            : 
-<span class="lineNum">     238 </span><span class="lineCov">     149249 :       assert(ctx-&gt;next_index != UINT32_MAX);</span>
+<span class="lineNum">     238 </span><span class="lineCov">     148831 :       assert(ctx-&gt;next_index != UINT32_MAX);</span>
 <span class="lineNum">     239 </span>            :    }
-<a name="240"><span class="lineNum">     240 </span><span class="lineCov">     607433 : }</span></a>
+<a name="240"><span class="lineNum">     240 </span><span class="lineCov">     606769 : }</span></a>
 <span class="lineNum">     241 </span>            : 
-<span class="lineNum">     242 </span><span class="lineCov">       2331 : ident_rd_ctx_t ident_read_begin(fbuf_t *f)</span>
+<span class="lineNum">     242 </span><span class="lineCov">       2340 : ident_rd_ctx_t ident_read_begin(fbuf_t *f)</span>
 <span class="lineNum">     243 </span>            : {
-<span class="lineNum">     244 </span><span class="lineCov">       2331 :    struct ident_rd_ctx *ctx = xmalloc(sizeof(struct ident_rd_ctx));</span>
-<span class="lineNum">     245 </span><span class="lineCov">       2331 :    ctx-&gt;file        = f;</span>
-<span class="lineNum">     246 </span><span class="lineCov">       2331 :    ctx-&gt;cache_alloc = 256;</span>
-<span class="lineNum">     247 </span><span class="lineCov">       2331 :    ctx-&gt;cache_sz    = 0;</span>
-<span class="lineNum">     248 </span><span class="lineCov">       2331 :    ctx-&gt;cache       = xmalloc(ctx-&gt;cache_alloc * sizeof(ident_t));</span>
+<span class="lineNum">     244 </span><span class="lineCov">       2340 :    struct ident_rd_ctx *ctx = xmalloc(sizeof(struct ident_rd_ctx));</span>
+<span class="lineNum">     245 </span><span class="lineCov">       2340 :    ctx-&gt;file        = f;</span>
+<span class="lineNum">     246 </span><span class="lineCov">       2340 :    ctx-&gt;cache_alloc = 256;</span>
+<span class="lineNum">     247 </span><span class="lineCov">       2340 :    ctx-&gt;cache_sz    = 0;</span>
+<span class="lineNum">     248 </span><span class="lineCov">       2340 :    ctx-&gt;cache       = xmalloc(ctx-&gt;cache_alloc * sizeof(ident_t));</span>
 <span class="lineNum">     249 </span>            : 
-<span class="lineNum">     250 </span><span class="lineCov">       2331 :    return ctx;</span>
+<span class="lineNum">     250 </span><span class="lineCov">       2340 :    return ctx;</span>
 <a name="251"><span class="lineNum">     251 </span>            : }</a>
 <span class="lineNum">     252 </span>            : 
-<span class="lineNum">     253 </span><span class="lineCov">       2331 : void ident_read_end(ident_rd_ctx_t ctx)</span>
+<span class="lineNum">     253 </span><span class="lineCov">       2340 : void ident_read_end(ident_rd_ctx_t ctx)</span>
 <span class="lineNum">     254 </span>            : {
-<span class="lineNum">     255 </span><span class="lineCov">       2331 :    free(ctx-&gt;cache);</span>
-<span class="lineNum">     256 </span><span class="lineCov">       2331 :    free(ctx);</span>
-<a name="257"><span class="lineNum">     257 </span><span class="lineCov">       2331 : }</span></a>
+<span class="lineNum">     255 </span><span class="lineCov">       2340 :    free(ctx-&gt;cache);</span>
+<span class="lineNum">     256 </span><span class="lineCov">       2340 :    free(ctx);</span>
+<a name="257"><span class="lineNum">     257 </span><span class="lineCov">       2340 : }</span></a>
 <span class="lineNum">     258 </span>            : 
-<span class="lineNum">     259 </span><span class="lineCov">    1800751 : ident_t ident_read(ident_rd_ctx_t ctx)</span>
+<span class="lineNum">     259 </span><span class="lineCov">    1820239 : ident_t ident_read(ident_rd_ctx_t ctx)</span>
 <span class="lineNum">     260 </span>            : {
-<span class="lineNum">     261 </span><span class="lineCov">    1800751 :    const uint32_t index = read_u32(ctx-&gt;file);</span>
-<span class="lineNum">     262 </span><span class="lineCov">    1800751 :    if (index == UINT32_MAX) {</span>
-<span class="lineNum">     263 </span><span class="lineCov">     643069 :       if (ctx-&gt;cache_sz == ctx-&gt;cache_alloc) {</span>
-<span class="lineNum">     264 </span><span class="lineCov">        797 :          ctx-&gt;cache_alloc *= 2;</span>
-<span class="lineNum">     265 </span><span class="lineCov">        797 :          ctx-&gt;cache = xrealloc(ctx-&gt;cache, ctx-&gt;cache_alloc * sizeof(ident_t));</span>
+<span class="lineNum">     261 </span><span class="lineCov">    1820239 :    const uint32_t index = read_u32(ctx-&gt;file);</span>
+<span class="lineNum">     262 </span><span class="lineCov">    1820239 :    if (index == UINT32_MAX) {</span>
+<span class="lineNum">     263 </span><span class="lineCov">     647540 :       if (ctx-&gt;cache_sz == ctx-&gt;cache_alloc) {</span>
+<span class="lineNum">     264 </span><span class="lineCov">        803 :          ctx-&gt;cache_alloc *= 2;</span>
+<span class="lineNum">     265 </span><span class="lineCov">        803 :          ctx-&gt;cache = xrealloc(ctx-&gt;cache, ctx-&gt;cache_alloc * sizeof(ident_t));</span>
 <span class="lineNum">     266 </span>            :       }
 <span class="lineNum">     267 </span>            : 
-<span class="lineNum">     268 </span><span class="lineCov">     905873 :       trie_t *p = &amp;(root.trie);</span>
+<span class="lineNum">     268 </span><span class="lineCov">     891800 :       trie_t *p = &amp;(root.trie);</span>
 <span class="lineNum">     269 </span>            :       char ch;
-<span class="lineNum">     270 </span><span class="lineCov">    2457383 :       while ((ch = read_u8(ctx-&gt;file)) != '\0') {</span>
-<span class="lineNum">     271 </span><span class="lineCov">    1814314 :          trie_t *next = NULL;</span>
-<span class="lineNum">     272 </span><span class="lineCov">    1814314 :          if (p-&gt;depth &lt;= MAP_DEPTH)</span>
-<span class="lineNum">     273 </span><span class="lineCov">     908441 :             next = p-&gt;map[(unsigned char)ch];</span>
+<span class="lineNum">     270 </span><span class="lineCov">    2453512 :       while ((ch = read_u8(ctx-&gt;file)) != '\0') {</span>
+<span class="lineNum">     271 </span><span class="lineCov">    1805972 :          trie_t *next = NULL;</span>
+<span class="lineNum">     272 </span><span class="lineCov">    1805972 :          if (p-&gt;depth &lt;= MAP_DEPTH)</span>
+<span class="lineNum">     273 </span><span class="lineCov">     914172 :             next = p-&gt;map[(unsigned char)ch];</span>
 <span class="lineNum">     274 </span>            :          else {
-<span class="lineNum">     275 </span><span class="lineCov">    1811746 :             clist_t *it = search_node(p, ch);</span>
-<span class="lineNum">     276 </span><span class="lineCov">     905873 :             next = (it != NULL) ? it-&gt;down : NULL;</span>
+<span class="lineNum">     275 </span><span class="lineCov">    1783600 :             clist_t *it = search_node(p, ch);</span>
+<span class="lineNum">     276 </span><span class="lineCov">     891800 :             next = (it != NULL) ? it-&gt;down : NULL;</span>
 <span class="lineNum">     277 </span>            :          }
 <span class="lineNum">     278 </span>            : 
-<span class="lineNum">     279 </span><span class="lineCov">    1814314 :          if (next != NULL)</span>
+<span class="lineNum">     279 </span><span class="lineCov">    1805972 :          if (next != NULL)</span>
 <span class="lineNum">     280 </span>            :             p = next;
 <span class="lineNum">     281 </span>            :          else
-<span class="lineNum">     282 </span><span class="lineCov">     636679 :             p = alloc_node(ch, p);</span>
+<span class="lineNum">     282 </span><span class="lineCov">     633856 :             p = alloc_node(ch, p);</span>
 <span class="lineNum">     283 </span>            :       }
 <span class="lineNum">     284 </span>            : 
-<span class="lineNum">     285 </span><span class="lineCov">     643069 :       if (p == &amp;(root.trie))</span>
+<span class="lineNum">     285 </span><span class="lineCov">     647540 :       if (p == &amp;(root.trie))</span>
 <span class="lineNum">     286 </span>            :          return NULL;
 <span class="lineNum">     287 </span>            :       else {
-<span class="lineNum">     288 </span><span class="lineCov">     307939 :          ctx-&gt;cache[ctx-&gt;cache_sz++] = p;</span>
-<span class="lineNum">     289 </span><span class="lineCov">     307939 :          return p;</span>
+<span class="lineNum">     288 </span><span class="lineCov">     309900 :          ctx-&gt;cache[ctx-&gt;cache_sz++] = p;</span>
+<span class="lineNum">     289 </span><span class="lineCov">     309900 :          return p;</span>
 <span class="lineNum">     290 </span>            :       }
 <span class="lineNum">     291 </span>            :    }
-<span class="lineNum">     292 </span><span class="lineCov">    1157682 :    else if (likely(index &lt; ctx-&gt;cache_sz))</span>
-<span class="lineNum">     293 </span><span class="lineCov">    1157682 :       return ctx-&gt;cache[index];</span>
+<span class="lineNum">     292 </span><span class="lineCov">    1172699 :    else if (likely(index &lt; ctx-&gt;cache_sz))</span>
+<span class="lineNum">     293 </span><span class="lineCov">    1172699 :       return ctx-&gt;cache[index];</span>
 <span class="lineNum">     294 </span>            :    else
 <span class="lineNum">     295 </span><span class="lineNoCov">          0 :       fatal(&quot;ident index in %s is corrupt: index=%d cache_sz=%d&quot;,</span>
 <span class="lineNum">     296 </span>            :             fbuf_file_name(ctx-&gt;file), index, (int)ctx-&gt;cache_sz);
@@ -378,31 +378,31 @@
 <span class="lineNum">     316 </span>            :    }
 <a name="317"><span class="lineNum">     317 </span>            : }</a>
 <span class="lineNum">     318 </span>            : 
-<span class="lineNum">     319 </span><span class="lineCov">     989950 : ident_t ident_prefix(ident_t a, ident_t b, char sep)</span>
+<span class="lineNum">     319 </span><span class="lineCov">     991132 : ident_t ident_prefix(ident_t a, ident_t b, char sep)</span>
 <span class="lineNum">     320 </span>            : {
-<span class="lineNum">     321 </span><span class="lineCov">     989950 :    if (a == NULL)</span>
+<span class="lineNum">     321 </span><span class="lineCov">     991132 :    if (a == NULL)</span>
 <span class="lineNum">     322 </span>            :       return b;
-<span class="lineNum">     323 </span><span class="lineCov">     988548 :    else if (b == NULL)</span>
+<span class="lineNum">     323 </span><span class="lineCov">     989727 :    else if (b == NULL)</span>
 <span class="lineNum">     324 </span>            :       return a;
 <span class="lineNum">     325 </span>            : 
 <span class="lineNum">     326 </span>            :    trie_t *result;
 <span class="lineNum">     327 </span>            : 
-<span class="lineNum">     328 </span><span class="lineCov">     988548 :    if (sep != '\0') {</span>
+<span class="lineNum">     328 </span><span class="lineCov">     989727 :    if (sep != '\0') {</span>
 <span class="lineNum">     329 </span>            :       // Append separator
-<span class="lineNum">     330 </span><span class="lineCov">     985273 :       const char sep_str[] = { sep, '\0' };</span>
-<span class="lineNum">     331 </span><span class="lineCov">     985273 :       const char *p_sep_str = sep_str;</span>
-<span class="lineNum">     332 </span><span class="lineCov">     985273 :       if (!search_trie(&amp;p_sep_str, a, &amp;result))</span>
-<span class="lineNum">     333 </span><span class="lineCov">       4487 :          build_trie(p_sep_str, result, &amp;result);</span>
+<span class="lineNum">     330 </span><span class="lineCov">     986450 :       const char sep_str[] = { sep, '\0' };</span>
+<span class="lineNum">     331 </span><span class="lineCov">     986450 :       const char *p_sep_str = sep_str;</span>
+<span class="lineNum">     332 </span><span class="lineCov">     986450 :       if (!search_trie(&amp;p_sep_str, a, &amp;result))</span>
+<span class="lineNum">     333 </span><span class="lineCov">       4492 :          build_trie(p_sep_str, result, &amp;result);</span>
 <span class="lineNum">     334 </span>            :    }
 <span class="lineNum">     335 </span>            :    else
-<span class="lineNum">     336 </span><span class="lineCov">       3275 :       result = a;</span>
+<span class="lineNum">     336 </span><span class="lineCov">       3277 :       result = a;</span>
 <span class="lineNum">     337 </span>            : 
 <span class="lineNum">     338 </span>            :    // Append b
-<span class="lineNum">     339 </span><span class="lineCov">     988548 :    const char *bstr = istr(b);</span>
-<span class="lineNum">     340 </span><span class="lineCov">     988548 :    if (!search_trie(&amp;bstr, result, &amp;result))</span>
-<span class="lineNum">     341 </span><span class="lineCov">     352421 :       build_trie(bstr, result, &amp;result);</span>
+<span class="lineNum">     339 </span><span class="lineCov">     989727 :    const char *bstr = istr(b);</span>
+<span class="lineNum">     340 </span><span class="lineCov">     989727 :    if (!search_trie(&amp;bstr, result, &amp;result))</span>
+<span class="lineNum">     341 </span><span class="lineCov">     352995 :       build_trie(bstr, result, &amp;result);</span>
 <span class="lineNum">     342 </span>            : 
-<span class="lineNum">     343 </span><span class="lineCov">     988548 :    return result;</span>
+<span class="lineNum">     343 </span><span class="lineCov">     989727 :    return result;</span>
 <a name="344"><span class="lineNum">     344 </span>            : }</a>
 <span class="lineNum">     345 </span>            : 
 <span class="lineNum">     346 </span><span class="lineCov">       2826 : ident_t ident_strip(ident_t a, ident_t b)</span>
@@ -436,86 +436,86 @@
 <span class="lineNum">     374 </span><span class="lineCov">       8954 :       return ident_len(i-&gt;up) + 1;</span>
 <a name="375"><span class="lineNum">     375 </span>            : }</a>
 <span class="lineNum">     376 </span>            : 
-<span class="lineNum">     377 </span><span class="lineCov">      83205 : ident_t ident_suffix_until(ident_t i, char c, ident_t shared, char escape)</span>
+<span class="lineNum">     377 </span><span class="lineCov">      83269 : ident_t ident_suffix_until(ident_t i, char c, ident_t shared, char escape)</span>
 <span class="lineNum">     378 </span>            : {
-<span class="lineNum">     379 </span><span class="lineCov">      83205 :    assert(i != NULL);</span>
+<span class="lineNum">     379 </span><span class="lineCov">      83269 :    assert(i != NULL);</span>
 <span class="lineNum">     380 </span>            : 
 <span class="lineNum">     381 </span>            :    bool escaping = false;
 <span class="lineNum">     382 </span>            :    ident_t r = i;
-<span class="lineNum">     383 </span><span class="lineCov">     815649 :    while (i-&gt;value != '\0' &amp;&amp; i-&gt;up != shared) {</span>
-<span class="lineNum">     384 </span><span class="lineCov">     732444 :       if (!escaping &amp;&amp; i-&gt;value == c)</span>
+<span class="lineNum">     383 </span><span class="lineCov">     811818 :    while (i-&gt;value != '\0' &amp;&amp; i-&gt;up != shared) {</span>
+<span class="lineNum">     384 </span><span class="lineCov">     728549 :       if (!escaping &amp;&amp; i-&gt;value == c)</span>
 <span class="lineNum">     385 </span>            :          r = i-&gt;up;
-<span class="lineNum">     386 </span><span class="lineCov">     705975 :       else if (i-&gt;value == escape)</span>
+<span class="lineNum">     386 </span><span class="lineCov">     702028 :       else if (i-&gt;value == escape)</span>
 <span class="lineNum">     387 </span><span class="lineCov">       6394 :          escaping = !escaping;</span>
-<span class="lineNum">     388 </span><span class="lineCov">     732444 :       i = i-&gt;up;</span>
+<span class="lineNum">     388 </span><span class="lineCov">     728549 :       i = i-&gt;up;</span>
 <span class="lineNum">     389 </span>            :    }
 <span class="lineNum">     390 </span>            : 
-<span class="lineNum">     391 </span><span class="lineCov">      83205 :    return r;</span>
+<span class="lineNum">     391 </span><span class="lineCov">      83269 :    return r;</span>
 <a name="392"><span class="lineNum">     392 </span>            : }</a>
 <span class="lineNum">     393 </span>            : 
-<span class="lineNum">     394 </span><span class="lineCov">      23634 : ident_t ident_until(ident_t i, char c)</span>
+<span class="lineNum">     394 </span><span class="lineCov">      23688 : ident_t ident_until(ident_t i, char c)</span>
 <span class="lineNum">     395 </span>            : {
-<span class="lineNum">     396 </span><span class="lineCov">      23634 :    return ident_suffix_until(i, c, NULL, '\0');</span>
+<span class="lineNum">     396 </span><span class="lineCov">      23688 :    return ident_suffix_until(i, c, NULL, '\0');</span>
 <a name="397"><span class="lineNum">     397 </span>            : }</a>
 <span class="lineNum">     398 </span>            : 
-<span class="lineNum">     399 </span><span class="lineCov">      97769 : ident_t ident_runtil(ident_t i, char c)</span>
+<span class="lineNum">     399 </span><span class="lineCov">      98299 : ident_t ident_runtil(ident_t i, char c)</span>
 <span class="lineNum">     400 </span>            : {
-<span class="lineNum">     401 </span><span class="lineCov">      97769 :    assert(i != NULL);</span>
+<span class="lineNum">     401 </span><span class="lineCov">      98299 :    assert(i != NULL);</span>
 <span class="lineNum">     402 </span>            : 
-<span class="lineNum">     403 </span><span class="lineCov">     726163 :    for (ident_t r = i; r-&gt;value != '\0'; r = r-&gt;up) {</span>
-<span class="lineNum">     404 </span><span class="lineCov">     817872 :       if (r-&gt;value == c)</span>
-<span class="lineNum">     405 </span><span class="lineCov">      91709 :          return r-&gt;up;</span>
+<span class="lineNum">     403 </span><span class="lineCov">     727846 :    for (ident_t r = i; r-&gt;value != '\0'; r = r-&gt;up) {</span>
+<span class="lineNum">     404 </span><span class="lineCov">     820078 :       if (r-&gt;value == c)</span>
+<span class="lineNum">     405 </span><span class="lineCov">      92232 :          return r-&gt;up;</span>
 <span class="lineNum">     406 </span>            :    }
 <span class="lineNum">     407 </span>            : 
 <span class="lineNum">     408 </span>            :    return i;
 <a name="409"><span class="lineNum">     409 </span>            : }</a>
 <span class="lineNum">     410 </span>            : 
-<span class="lineNum">     411 </span><span class="lineCov">      48607 : ident_t ident_from(ident_t i, char c)</span>
+<span class="lineNum">     411 </span><span class="lineCov">      48873 : ident_t ident_from(ident_t i, char c)</span>
 <span class="lineNum">     412 </span>            : {
-<span class="lineNum">     413 </span><span class="lineCov">      48607 :    assert(i != NULL);</span>
+<span class="lineNum">     413 </span><span class="lineCov">      48873 :    assert(i != NULL);</span>
 <span class="lineNum">     414 </span>            : 
-<span class="lineNum">     415 </span><span class="lineCov">      48607 :    char buf[i-&gt;depth + 1];</span>
-<span class="lineNum">     416 </span><span class="lineCov">      48607 :    char *p = buf + i-&gt;depth;</span>
-<span class="lineNum">     417 </span><span class="lineCov">      48607 :    *p-- = '\0';</span>
+<span class="lineNum">     415 </span><span class="lineCov">      48873 :    char buf[i-&gt;depth + 1];</span>
+<span class="lineNum">     416 </span><span class="lineCov">      48873 :    char *p = buf + i-&gt;depth;</span>
+<span class="lineNum">     417 </span><span class="lineCov">      48873 :    *p-- = '\0';</span>
 <span class="lineNum">     418 </span>            : 
-<span class="lineNum">     419 </span><span class="lineCov">      48607 :    char *from = NULL;</span>
-<span class="lineNum">     420 </span><span class="lineCov">    1144658 :    while (i-&gt;value != '\0') {</span>
-<span class="lineNum">     421 </span><span class="lineCov">    1047444 :       if (i-&gt;value == c)</span>
-<span class="lineNum">     422 </span><span class="lineCov">      95089 :          from = p + 1;</span>
-<span class="lineNum">     423 </span><span class="lineCov">    1047444 :       *p-- = i-&gt;value;</span>
-<span class="lineNum">     424 </span><span class="lineCov">    1047444 :       i = i-&gt;up;</span>
+<span class="lineNum">     419 </span><span class="lineCov">      48873 :    char *from = NULL;</span>
+<span class="lineNum">     420 </span><span class="lineCov">    1151708 :    while (i-&gt;value != '\0') {</span>
+<span class="lineNum">     421 </span><span class="lineCov">    1053962 :       if (i-&gt;value == c)</span>
+<span class="lineNum">     422 </span><span class="lineCov">      95615 :          from = p + 1;</span>
+<span class="lineNum">     423 </span><span class="lineCov">    1053962 :       *p-- = i-&gt;value;</span>
+<span class="lineNum">     424 </span><span class="lineCov">    1053962 :       i = i-&gt;up;</span>
 <span class="lineNum">     425 </span>            :    }
 <span class="lineNum">     426 </span>            : 
-<span class="lineNum">     427 </span><span class="lineCov">      48607 :    return (from == NULL) ? NULL : ident_new(from);</span>
+<span class="lineNum">     427 </span><span class="lineCov">      48873 :    return (from == NULL) ? NULL : ident_new(from);</span>
 <a name="428"><span class="lineNum">     428 </span>            : }</a>
 <span class="lineNum">     429 </span>            : 
-<span class="lineNum">     430 </span><span class="lineCov">      44187 : ident_t ident_rfrom(ident_t i, char c)</span>
+<span class="lineNum">     430 </span><span class="lineCov">      44448 : ident_t ident_rfrom(ident_t i, char c)</span>
 <span class="lineNum">     431 </span>            : {
-<span class="lineNum">     432 </span><span class="lineCov">      44187 :    assert(i != NULL);</span>
+<span class="lineNum">     432 </span><span class="lineCov">      44448 :    assert(i != NULL);</span>
 <span class="lineNum">     433 </span>            : 
-<span class="lineNum">     434 </span><span class="lineCov">      44187 :    char buf[i-&gt;depth + 1];</span>
-<span class="lineNum">     435 </span><span class="lineCov">      44187 :    char *p = buf + i-&gt;depth;</span>
-<span class="lineNum">     436 </span><span class="lineCov">      44187 :    *p-- = '\0';</span>
+<span class="lineNum">     434 </span><span class="lineCov">      44448 :    char buf[i-&gt;depth + 1];</span>
+<span class="lineNum">     435 </span><span class="lineCov">      44448 :    char *p = buf + i-&gt;depth;</span>
+<span class="lineNum">     436 </span><span class="lineCov">      44448 :    *p-- = '\0';</span>
 <span class="lineNum">     437 </span>            : 
-<span class="lineNum">     438 </span><span class="lineCov">     414689 :    while (i-&gt;value != '\0') {</span>
-<span class="lineNum">     439 </span><span class="lineCov">     370473 :       if (i-&gt;value == c)</span>
-<span class="lineNum">     440 </span><span class="lineCov">      44158 :          return ident_new(p + 1);</span>
-<span class="lineNum">     441 </span><span class="lineCov">     326315 :       *p-- = i-&gt;value;</span>
-<span class="lineNum">     442 </span><span class="lineCov">     326315 :       i = i-&gt;up;</span>
+<span class="lineNum">     438 </span><span class="lineCov">     417213 :    while (i-&gt;value != '\0') {</span>
+<span class="lineNum">     439 </span><span class="lineCov">     372736 :       if (i-&gt;value == c)</span>
+<span class="lineNum">     440 </span><span class="lineCov">      44419 :          return ident_new(p + 1);</span>
+<span class="lineNum">     441 </span><span class="lineCov">     328317 :       *p-- = i-&gt;value;</span>
+<span class="lineNum">     442 </span><span class="lineCov">     328317 :       i = i-&gt;up;</span>
 <span class="lineNum">     443 </span>            :    }
 <span class="lineNum">     444 </span>            : 
 <span class="lineNum">     445 </span>            :    return NULL;
 <a name="446"><span class="lineNum">     446 </span>            : }</a>
 <span class="lineNum">     447 </span>            : 
-<span class="lineNum">     448 </span><span class="lineCov">     291371 : bool icmp(ident_t i, const char *s)</span>
+<span class="lineNum">     448 </span><span class="lineCov">     324594 : bool icmp(ident_t i, const char *s)</span>
 <span class="lineNum">     449 </span>            : {
-<span class="lineNum">     450 </span><span class="lineCov">     291371 :    assert(i != NULL);</span>
+<span class="lineNum">     450 </span><span class="lineCov">     324594 :    assert(i != NULL);</span>
 <span class="lineNum">     451 </span>            : 
 <span class="lineNum">     452 </span>            :    trie_t *result;
-<span class="lineNum">     453 </span><span class="lineCov">     291371 :    if (!search_trie(&amp;s, &amp;(root.trie), &amp;result))</span>
+<span class="lineNum">     453 </span><span class="lineCov">     324594 :    if (!search_trie(&amp;s, &amp;(root.trie), &amp;result))</span>
 <span class="lineNum">     454 </span>            :       return false;
 <span class="lineNum">     455 </span>            :    else
-<span class="lineNum">     456 </span><span class="lineCov">     266427 :       return result == i;</span>
+<span class="lineNum">     456 </span><span class="lineCov">     299449 :       return result == i;</span>
 <a name="457"><span class="lineNum">     457 </span>            : }</a>
 <span class="lineNum">     458 </span>            : 
 <span class="lineNum">     459 </span><span class="lineCov">         88 : static bool ident_glob_walk(const trie_t *i, const char *g,</span>
@@ -544,13 +544,13 @@
 <span class="lineNum">     482 </span><span class="lineCov">         24 :    return ident_glob_walk(i, glob + length - 1, glob);</span>
 <a name="483"><span class="lineNum">     483 </span>            : }</a>
 <span class="lineNum">     484 </span>            : 
-<span class="lineNum">     485 </span><span class="lineCov">       2565 : bool ident_contains(ident_t i, const char *search)</span>
+<span class="lineNum">     485 </span><span class="lineCov">       2338 : bool ident_contains(ident_t i, const char *search)</span>
 <span class="lineNum">     486 </span>            : {
-<span class="lineNum">     487 </span><span class="lineCov">       2565 :    assert(i != NULL);</span>
+<span class="lineNum">     487 </span><span class="lineCov">       2338 :    assert(i != NULL);</span>
 <span class="lineNum">     488 </span>            : 
-<span class="lineNum">     489 </span><span class="lineCov">      17255 :    for (ident_t r = i; r-&gt;value != '\0'; r = r-&gt;up) {</span>
-<span class="lineNum">     490 </span><span class="lineCov">      34634 :       for (const char *p = search; *p != '\0'; p++) {</span>
-<span class="lineNum">     491 </span><span class="lineCov">      36844 :          if (r-&gt;value == *p)</span>
+<span class="lineNum">     489 </span><span class="lineCov">      15625 :    for (ident_t r = i; r-&gt;value != '\0'; r = r-&gt;up) {</span>
+<span class="lineNum">     490 </span><span class="lineCov">      31374 :       for (const char *p = search; *p != '\0'; p++) {</span>
+<span class="lineNum">     491 </span><span class="lineCov">      33627 :          if (r-&gt;value == *p)</span>
 <span class="lineNum">     492 </span>            :             return true;
 <span class="lineNum">     493 </span>            :       }
 <span class="lineNum">     494 </span>            :    }
@@ -575,14 +575,14 @@
 <span class="lineNum">     513 </span><span class="lineCov">        844 :    return ident_new(p);</span>
 <a name="514"><span class="lineNum">     514 </span>            : }</a>
 <span class="lineNum">     515 </span>            : 
-<span class="lineNum">     516 </span><span class="lineCov">       8907 : void ident_list_add(ident_list_t **list, ident_t i)</span>
+<span class="lineNum">     516 </span><span class="lineCov">       8911 : void ident_list_add(ident_list_t **list, ident_t i)</span>
 <span class="lineNum">     517 </span>            : {
-<span class="lineNum">     518 </span><span class="lineCov">       8907 :    ident_list_t *c = xmalloc(sizeof(ident_list_t));</span>
-<span class="lineNum">     519 </span><span class="lineCov">       8907 :    c-&gt;ident = i;</span>
-<span class="lineNum">     520 </span><span class="lineCov">       8907 :    c-&gt;next  = *list;</span>
+<span class="lineNum">     518 </span><span class="lineCov">       8911 :    ident_list_t *c = xmalloc(sizeof(ident_list_t));</span>
+<span class="lineNum">     519 </span><span class="lineCov">       8911 :    c-&gt;ident = i;</span>
+<span class="lineNum">     520 </span><span class="lineCov">       8911 :    c-&gt;next  = *list;</span>
 <span class="lineNum">     521 </span>            : 
-<span class="lineNum">     522 </span><span class="lineCov">       8907 :    *list = c;</span>
-<a name="523"><span class="lineNum">     523 </span><span class="lineCov">       8907 : }</span></a>
+<span class="lineNum">     522 </span><span class="lineCov">       8911 :    *list = c;</span>
+<a name="523"><span class="lineNum">     523 </span><span class="lineCov">       8911 : }</span></a>
 <span class="lineNum">     524 </span>            : 
 <span class="lineNum">     525 </span><span class="lineCov">        945 : void ident_list_push(ident_list_t **list, ident_t i)</span>
 <span class="lineNum">     526 </span>            : {
@@ -610,10 +610,10 @@
 <span class="lineNum">     548 </span>            :    }
 <a name="549"><span class="lineNum">     549 </span><span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">     550 </span>            : 
-<span class="lineNum">     551 </span><span class="lineCov">       8910 : void _ident_list_cleanup(ident_list_t **list)</span>
+<span class="lineNum">     551 </span><span class="lineCov">       8914 : void _ident_list_cleanup(ident_list_t **list)</span>
 <span class="lineNum">     552 </span>            : {
-<span class="lineNum">     553 </span><span class="lineCov">       8910 :    free(*list);</span>
-<span class="lineNum">     554 </span><span class="lineCov">       8910 : }</span>
+<span class="lineNum">     553 </span><span class="lineCov">       8914 :    free(*list);</span>
+<span class="lineNum">     554 </span><span class="lineCov">       8914 : }</span>
 </pre>
       </td>
     </tr>
