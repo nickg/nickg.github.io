@@ -473,11 +473,11 @@
 <span class="lineNum">     411 </span>            : DLLEXPORT uint32_t  _tmp_alloc;
 <a name="412"><span class="lineNum">     412 </span>            : </a>
 <span class="lineNum">     413 </span>            : DLLEXPORT
-<span class="lineNum">     414 </span><span class="lineCov">       2333 : void _sched_process(int64_t delay)</span>
+<span class="lineNum">     414 </span><span class="lineCov">       2334 : void _sched_process(int64_t delay)</span>
 <span class="lineNum">     415 </span>            : {
-<span class="lineNum">     416 </span><span class="lineCov">       2333 :    TRACE(&quot;_sched_process delay=%s&quot;, fmt_time(delay));</span>
-<span class="lineNum">     417 </span><span class="lineCov">       2333 :    deltaq_insert_proc(delay, active_proc);</span>
-<span class="lineNum">     418 </span><span class="lineCov">       2333 : }</span>
+<span class="lineNum">     416 </span><span class="lineCov">       2334 :    TRACE(&quot;_sched_process delay=%s&quot;, fmt_time(delay));</span>
+<span class="lineNum">     417 </span><span class="lineCov">       2334 :    deltaq_insert_proc(delay, active_proc);</span>
+<span class="lineNum">     418 </span><span class="lineCov">       2334 : }</span>
 <a name="419"><span class="lineNum">     419 </span>            : </a>
 <span class="lineNum">     420 </span>            : DLLEXPORT
 <span class="lineNum">     421 </span><span class="lineCov">       5093 : void _sched_waveform(void *_nids, void *values, int32_t n,</span>
@@ -1329,29 +1329,29 @@
 <span class="lineNum">    1267 </span><span class="lineNoCov">          0 :    va_end(ap);</span>
 <a name="1268"><span class="lineNum">    1268 </span><span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">    1269 </span>            : 
-<span class="lineNum">    1270 </span><span class="lineCov">       7519 : static void deltaq_insert(event_t *e)</span>
+<span class="lineNum">    1270 </span><span class="lineCov">       7520 : static void deltaq_insert(event_t *e)</span>
 <span class="lineNum">    1271 </span>            : {
-<span class="lineNum">    1272 </span><span class="lineCov">       7519 :    if (e-&gt;when == now) {</span>
-<span class="lineNum">    1273 </span><span class="lineCov">       4593 :       event_t **chain = (e-&gt;kind == E_DRIVER) ? &amp;delta_driver : &amp;delta_proc;</span>
-<span class="lineNum">    1274 </span><span class="lineCov">       4593 :       e-&gt;delta_chain = *chain;</span>
-<span class="lineNum">    1275 </span><span class="lineCov">       4593 :       *chain = e;</span>
+<span class="lineNum">    1272 </span><span class="lineCov">       7520 :    if (e-&gt;when == now) {</span>
+<span class="lineNum">    1273 </span><span class="lineCov">       4594 :       event_t **chain = (e-&gt;kind == E_DRIVER) ? &amp;delta_driver : &amp;delta_proc;</span>
+<span class="lineNum">    1274 </span><span class="lineCov">       4594 :       e-&gt;delta_chain = *chain;</span>
+<span class="lineNum">    1275 </span><span class="lineCov">       4594 :       *chain = e;</span>
 <span class="lineNum">    1276 </span>            :    }
 <span class="lineNum">    1277 </span>            :    else {
 <span class="lineNum">    1278 </span><span class="lineCov">       2926 :       e-&gt;delta_chain = NULL;</span>
 <span class="lineNum">    1279 </span><span class="lineCov">       2926 :       heap_insert(eventq_heap, heap_key(e-&gt;when, e-&gt;kind), e);</span>
 <span class="lineNum">    1280 </span>            :    }
-<a name="1281"><span class="lineNum">    1281 </span><span class="lineCov">       7519 : }</span></a>
+<a name="1281"><span class="lineNum">    1281 </span><span class="lineCov">       7520 : }</span></a>
 <span class="lineNum">    1282 </span>            : 
-<span class="lineNum">    1283 </span><span class="lineCov">       2333 : static void deltaq_insert_proc(uint64_t delta, rt_proc_t *wake)</span>
+<span class="lineNum">    1283 </span><span class="lineCov">       2334 : static void deltaq_insert_proc(uint64_t delta, rt_proc_t *wake)</span>
 <span class="lineNum">    1284 </span>            : {
-<span class="lineNum">    1285 </span><span class="lineCov">       2333 :    event_t *e = rt_alloc(event_stack);</span>
-<span class="lineNum">    1286 </span><span class="lineCov">       2333 :    e-&gt;when       = now + delta;</span>
-<span class="lineNum">    1287 </span><span class="lineCov">       2333 :    e-&gt;kind       = E_PROCESS;</span>
-<span class="lineNum">    1288 </span><span class="lineCov">       2333 :    e-&gt;proc       = wake;</span>
-<span class="lineNum">    1289 </span><span class="lineCov">       2333 :    e-&gt;wakeup_gen = wake-&gt;wakeup_gen;</span>
+<span class="lineNum">    1285 </span><span class="lineCov">       2334 :    event_t *e = rt_alloc(event_stack);</span>
+<span class="lineNum">    1286 </span><span class="lineCov">       2334 :    e-&gt;when       = now + delta;</span>
+<span class="lineNum">    1287 </span><span class="lineCov">       2334 :    e-&gt;kind       = E_PROCESS;</span>
+<span class="lineNum">    1288 </span><span class="lineCov">       2334 :    e-&gt;proc       = wake;</span>
+<span class="lineNum">    1289 </span><span class="lineCov">       2334 :    e-&gt;wakeup_gen = wake-&gt;wakeup_gen;</span>
 <span class="lineNum">    1290 </span>            : 
-<span class="lineNum">    1291 </span><span class="lineCov">       2333 :    deltaq_insert(e);</span>
-<a name="1292"><span class="lineNum">    1292 </span><span class="lineCov">       2333 : }</span></a>
+<span class="lineNum">    1291 </span><span class="lineCov">       2334 :    deltaq_insert(e);</span>
+<a name="1292"><span class="lineNum">    1292 </span><span class="lineCov">       2334 : }</span></a>
 <span class="lineNum">    1293 </span>            : 
 <span class="lineNum">    1294 </span><span class="lineCov">       5185 : static void deltaq_insert_driver(uint64_t delta, netgroup_t *group,</span>
 <span class="lineNum">    1295 </span>            :                                  rt_proc_t *driver)
@@ -1469,10 +1469,10 @@
 <span class="lineNum">    1407 </span><span class="lineCov">         12 :    return memo;</span>
 <a name="1408"><span class="lineNum">    1408 </span>            : }</a>
 <span class="lineNum">    1409 </span>            : 
-<span class="lineNum">    1410 </span><span class="lineCov">       9739 : static void rt_global_event(rt_event_t kind)</span>
+<span class="lineNum">    1410 </span><span class="lineCov">       9743 : static void rt_global_event(rt_event_t kind)</span>
 <span class="lineNum">    1411 </span>            : {
-<span class="lineNum">    1412 </span><span class="lineCov">       9739 :    callback_t *it = global_cbs[kind];</span>
-<span class="lineNum">    1413 </span><span class="lineCov">       9739 :    if (unlikely(it != NULL)) {</span>
+<span class="lineNum">    1412 </span><span class="lineCov">       9743 :    callback_t *it = global_cbs[kind];</span>
+<span class="lineNum">    1413 </span><span class="lineCov">       9743 :    if (unlikely(it != NULL)) {</span>
 <span class="lineNum">    1414 </span><span class="lineCov">         12 :       while (it != NULL) {</span>
 <span class="lineNum">    1415 </span><span class="lineCov">          6 :          callback_t *tmp = it-&gt;next;</span>
 <span class="lineNum">    1416 </span><span class="lineCov">          6 :          (*it-&gt;fn)(it-&gt;user);</span>
@@ -1482,7 +1482,7 @@
 <span class="lineNum">    1420 </span>            : 
 <span class="lineNum">    1421 </span><span class="lineCov">          6 :       global_cbs[kind] = NULL;</span>
 <span class="lineNum">    1422 </span>            :    }
-<a name="1423"><span class="lineNum">    1423 </span><span class="lineCov">       9739 : }</span></a>
+<a name="1423"><span class="lineNum">    1423 </span><span class="lineCov">       9743 : }</span></a>
 <span class="lineNum">    1424 </span>            : 
 <span class="lineNum">    1425 </span><span class="lineCov">       6209 : static value_t *rt_alloc_value(netgroup_t *g)</span>
 <span class="lineNum">    1426 </span>            : {
@@ -1568,83 +1568,83 @@
 <span class="lineNum">    1506 </span><span class="lineCov">       1011 :    g-&gt;last_event  = INT64_MAX;</span>
 <a name="1507"><span class="lineNum">    1507 </span><span class="lineCov">       1011 : }</span></a>
 <span class="lineNum">    1508 </span>            : 
-<span class="lineNum">    1509 </span><span class="lineCov">       1318 : static void rt_free_delta_events(event_t *e)</span>
+<span class="lineNum">    1509 </span><span class="lineCov">       1322 : static void rt_free_delta_events(event_t *e)</span>
 <span class="lineNum">    1510 </span>            : {
-<span class="lineNum">    1511 </span><span class="lineCov">       2636 :    while (e != NULL) {</span>
+<span class="lineNum">    1511 </span><span class="lineCov">       2644 :    while (e != NULL) {</span>
 <span class="lineNum">    1512 </span><span class="lineNoCov">          0 :       event_t *tmp = e-&gt;delta_chain;</span>
 <span class="lineNum">    1513 </span><span class="lineNoCov">          0 :       rt_free(event_stack, e);</span>
 <span class="lineNum">    1514 </span><span class="lineNoCov">          0 :       e = tmp;</span>
 <span class="lineNum">    1515 </span>            :    }
-<a name="1516"><span class="lineNum">    1516 </span><span class="lineCov">       1318 : }</span></a>
+<a name="1516"><span class="lineNum">    1516 </span><span class="lineCov">       1322 : }</span></a>
 <span class="lineNum">    1517 </span>            : 
-<span class="lineNum">    1518 </span><span class="lineCov">        341 : static void rt_setup(tree_t top)</span>
+<span class="lineNum">    1518 </span><span class="lineCov">        342 : static void rt_setup(tree_t top)</span>
 <span class="lineNum">    1519 </span>            : {
-<span class="lineNum">    1520 </span><span class="lineCov">        341 :    now = 0;</span>
-<span class="lineNum">    1521 </span><span class="lineCov">        341 :    iteration = -1;</span>
-<span class="lineNum">    1522 </span><span class="lineCov">        341 :    active_proc = NULL;</span>
-<span class="lineNum">    1523 </span><span class="lineCov">        341 :    force_stop = false;</span>
-<span class="lineNum">    1524 </span><span class="lineCov">        341 :    can_create_delta = true;</span>
+<span class="lineNum">    1520 </span><span class="lineCov">        342 :    now = 0;</span>
+<span class="lineNum">    1521 </span><span class="lineCov">        342 :    iteration = -1;</span>
+<span class="lineNum">    1522 </span><span class="lineCov">        342 :    active_proc = NULL;</span>
+<span class="lineNum">    1523 </span><span class="lineCov">        342 :    force_stop = false;</span>
+<span class="lineNum">    1524 </span><span class="lineCov">        342 :    can_create_delta = true;</span>
 <span class="lineNum">    1525 </span>            : 
 <span class="lineNum">    1526 </span>            :    RT_ASSERT(resume == NULL);
 <span class="lineNum">    1527 </span>            : 
-<span class="lineNum">    1528 </span><span class="lineCov">        341 :    rt_free_delta_events(delta_proc);</span>
-<span class="lineNum">    1529 </span><span class="lineCov">        341 :    rt_free_delta_events(delta_driver);</span>
+<span class="lineNum">    1528 </span><span class="lineCov">        342 :    rt_free_delta_events(delta_proc);</span>
+<span class="lineNum">    1529 </span><span class="lineCov">        342 :    rt_free_delta_events(delta_driver);</span>
 <span class="lineNum">    1530 </span>            : 
-<span class="lineNum">    1531 </span><span class="lineCov">        341 :    if (eventq_heap != NULL)</span>
+<span class="lineNum">    1531 </span><span class="lineCov">        342 :    if (eventq_heap != NULL)</span>
 <span class="lineNum">    1532 </span><span class="lineNoCov">          0 :       heap_free(eventq_heap);</span>
-<span class="lineNum">    1533 </span><span class="lineCov">        341 :    eventq_heap = heap_new(512);</span>
+<span class="lineNum">    1533 </span><span class="lineCov">        342 :    eventq_heap = heap_new(512);</span>
 <span class="lineNum">    1534 </span>            : 
-<span class="lineNum">    1535 </span><span class="lineCov">        341 :    if (netdb == NULL) {</span>
-<span class="lineNum">    1536 </span><span class="lineCov">        341 :       netdb = netdb_open(top);</span>
-<span class="lineNum">    1537 </span><span class="lineCov">        341 :       groups = xmalloc(sizeof(struct netgroup) * netdb_size(netdb));</span>
+<span class="lineNum">    1535 </span><span class="lineCov">        342 :    if (netdb == NULL) {</span>
+<span class="lineNum">    1536 </span><span class="lineCov">        342 :       netdb = netdb_open(top);</span>
+<span class="lineNum">    1537 </span><span class="lineCov">        342 :       groups = xmalloc(sizeof(struct netgroup) * netdb_size(netdb));</span>
 <span class="lineNum">    1538 </span>            :    }
 <span class="lineNum">    1539 </span>            : 
-<span class="lineNum">    1540 </span><span class="lineCov">        341 :    if (procs == NULL) {</span>
-<span class="lineNum">    1541 </span><span class="lineCov">        341 :       n_procs = tree_stmts(top);</span>
-<span class="lineNum">    1542 </span><span class="lineCov">        341 :       procs   = xmalloc(sizeof(struct rt_proc) * n_procs);</span>
+<span class="lineNum">    1540 </span><span class="lineCov">        342 :    if (procs == NULL) {</span>
+<span class="lineNum">    1541 </span><span class="lineCov">        342 :       n_procs = tree_stmts(top);</span>
+<span class="lineNum">    1542 </span><span class="lineCov">        342 :       procs   = xmalloc(sizeof(struct rt_proc) * n_procs);</span>
 <span class="lineNum">    1543 </span>            :    }
 <span class="lineNum">    1544 </span>            : 
-<span class="lineNum">    1545 </span><span class="lineCov">        341 :    const int ndecls = tree_decls(top);</span>
-<span class="lineNum">    1546 </span><span class="lineCov">        341 :    decl_hash = hash_new(next_power_of_2(ndecls * 2), true);</span>
-<span class="lineNum">    1547 </span><span class="lineCov">       2186 :    for (int i = 0; i &lt; ndecls; i++) {</span>
-<span class="lineNum">    1548 </span><span class="lineCov">       1845 :       tree_t d = tree_decl(top, i);</span>
-<span class="lineNum">    1549 </span><span class="lineCov">       1845 :       hash_put(decl_hash, tree_ident(d), d);</span>
+<span class="lineNum">    1545 </span><span class="lineCov">        342 :    const int ndecls = tree_decls(top);</span>
+<span class="lineNum">    1546 </span><span class="lineCov">        342 :    decl_hash = hash_new(next_power_of_2(ndecls * 2), true);</span>
+<span class="lineNum">    1547 </span><span class="lineCov">       2188 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">    1548 </span><span class="lineCov">       1846 :       tree_t d = tree_decl(top, i);</span>
+<span class="lineNum">    1549 </span><span class="lineCov">       1846 :       hash_put(decl_hash, tree_ident(d), d);</span>
 <span class="lineNum">    1550 </span>            :    }
 <span class="lineNum">    1551 </span>            : 
-<span class="lineNum">    1552 </span><span class="lineCov">        341 :    res_memo_hash = hash_new(128, true);</span>
+<span class="lineNum">    1552 </span><span class="lineCov">        342 :    res_memo_hash = hash_new(128, true);</span>
 <span class="lineNum">    1553 </span>            : 
-<span class="lineNum">    1554 </span><span class="lineCov">        341 :    netdb_walk(netdb, rt_reset_group);</span>
+<span class="lineNum">    1554 </span><span class="lineCov">        342 :    netdb_walk(netdb, rt_reset_group);</span>
 <span class="lineNum">    1555 </span>            : 
-<span class="lineNum">    1556 </span><span class="lineCov">        341 :    const int nstmts = tree_stmts(top);</span>
-<span class="lineNum">    1557 </span><span class="lineCov">       1164 :    for (int i = 0; i &lt; nstmts; i++) {</span>
-<span class="lineNum">    1558 </span><span class="lineCov">        823 :       tree_t p = tree_stmt(top, i);</span>
+<span class="lineNum">    1556 </span><span class="lineCov">        342 :    const int nstmts = tree_stmts(top);</span>
+<span class="lineNum">    1557 </span><span class="lineCov">       1166 :    for (int i = 0; i &lt; nstmts; i++) {</span>
+<span class="lineNum">    1558 </span><span class="lineCov">        824 :       tree_t p = tree_stmt(top, i);</span>
 <span class="lineNum">    1559 </span>            :       RT_ASSERT(tree_kind(p) == T_PROCESS);
 <span class="lineNum">    1560 </span>            : 
-<span class="lineNum">    1561 </span><span class="lineCov">        823 :       procs[i].source     = p;</span>
-<span class="lineNum">    1562 </span><span class="lineCov">        823 :       procs[i].proc_fn    = jit_fun_ptr(istr(tree_ident(p)), true);</span>
-<span class="lineNum">    1563 </span><span class="lineCov">        823 :       procs[i].wakeup_gen = 0;</span>
-<span class="lineNum">    1564 </span><span class="lineCov">        823 :       procs[i].postponed  = !!(tree_flags(p) &amp; TREE_F_POSTPONED);</span>
-<span class="lineNum">    1565 </span><span class="lineCov">        823 :       procs[i].tmp_stack  = NULL;</span>
-<span class="lineNum">    1566 </span><span class="lineCov">        823 :       procs[i].tmp_alloc  = 0;</span>
-<span class="lineNum">    1567 </span><span class="lineCov">        823 :       procs[i].pending    = false;</span>
-<span class="lineNum">    1568 </span><span class="lineCov">        823 :       procs[i].usage      = 0;</span>
+<span class="lineNum">    1561 </span><span class="lineCov">        824 :       procs[i].source     = p;</span>
+<span class="lineNum">    1562 </span><span class="lineCov">        824 :       procs[i].proc_fn    = jit_fun_ptr(istr(tree_ident(p)), true);</span>
+<span class="lineNum">    1563 </span><span class="lineCov">        824 :       procs[i].wakeup_gen = 0;</span>
+<span class="lineNum">    1564 </span><span class="lineCov">        824 :       procs[i].postponed  = !!(tree_flags(p) &amp; TREE_F_POSTPONED);</span>
+<span class="lineNum">    1565 </span><span class="lineCov">        824 :       procs[i].tmp_stack  = NULL;</span>
+<span class="lineNum">    1566 </span><span class="lineCov">        824 :       procs[i].tmp_alloc  = 0;</span>
+<span class="lineNum">    1567 </span><span class="lineCov">        824 :       procs[i].pending    = false;</span>
+<span class="lineNum">    1568 </span><span class="lineCov">        824 :       procs[i].usage      = 0;</span>
 <span class="lineNum">    1569 </span>            :    }
-<a name="1570"><span class="lineNum">    1570 </span><span class="lineCov">        341 : }</span></a>
+<a name="1570"><span class="lineNum">    1570 </span><span class="lineCov">        342 : }</span></a>
 <span class="lineNum">    1571 </span>            : 
-<span class="lineNum">    1572 </span><span class="lineCov">       6988 : static void rt_run(struct rt_proc *proc, bool reset)</span>
+<span class="lineNum">    1572 </span><span class="lineCov">       6990 : static void rt_run(struct rt_proc *proc, bool reset)</span>
 <span class="lineNum">    1573 </span>            : {
-<span class="lineNum">    1574 </span><span class="lineCov">       6988 :    TRACE(&quot;%s process %s&quot;, reset ? &quot;reset&quot; : &quot;run&quot;,</span>
+<span class="lineNum">    1574 </span><span class="lineCov">       6990 :    TRACE(&quot;%s process %s&quot;, reset ? &quot;reset&quot; : &quot;run&quot;,</span>
 <span class="lineNum">    1575 </span>            :          istr(tree_ident(proc-&gt;source)));
 <span class="lineNum">    1576 </span>            : 
-<span class="lineNum">    1577 </span><span class="lineCov">       6988 :    uint64_t start_clock = 0;</span>
-<span class="lineNum">    1578 </span><span class="lineCov">       6988 :    if (profiling)</span>
+<span class="lineNum">    1577 </span><span class="lineCov">       6990 :    uint64_t start_clock = 0;</span>
+<span class="lineNum">    1578 </span><span class="lineCov">       6990 :    if (profiling)</span>
 <span class="lineNum">    1579 </span><span class="lineNoCov">          0 :       start_clock = get_timestamp_us();</span>
 <span class="lineNum">    1580 </span>            : 
-<span class="lineNum">    1581 </span><span class="lineCov">       6988 :    if (reset) {</span>
-<span class="lineNum">    1582 </span><span class="lineCov">        823 :       _tmp_stack = global_tmp_stack;</span>
-<span class="lineNum">    1583 </span><span class="lineCov">        823 :       _tmp_alloc = global_tmp_alloc;</span>
+<span class="lineNum">    1581 </span><span class="lineCov">       6990 :    if (reset) {</span>
+<span class="lineNum">    1582 </span><span class="lineCov">        824 :       _tmp_stack = global_tmp_stack;</span>
+<span class="lineNum">    1583 </span><span class="lineCov">        824 :       _tmp_alloc = global_tmp_alloc;</span>
 <span class="lineNum">    1584 </span>            :    }
-<span class="lineNum">    1585 </span><span class="lineCov">       6165 :    else if (proc-&gt;tmp_stack != NULL) {</span>
+<span class="lineNum">    1585 </span><span class="lineCov">       6166 :    else if (proc-&gt;tmp_stack != NULL) {</span>
 <span class="lineNum">    1586 </span><span class="lineCov">         12 :       TRACE(&quot;using private stack at %p %d&quot;, proc-&gt;tmp_stack, proc-&gt;tmp_alloc);</span>
 <span class="lineNum">    1587 </span><span class="lineCov">         12 :       _tmp_stack = proc-&gt;tmp_stack;</span>
 <span class="lineNum">    1588 </span><span class="lineCov">         12 :       _tmp_alloc = proc-&gt;tmp_alloc;</span>
@@ -1654,35 +1654,35 @@
 <span class="lineNum">    1592 </span><span class="lineCov">         12 :       proc-&gt;tmp_alloc = 0;</span>
 <span class="lineNum">    1593 </span>            :    }
 <span class="lineNum">    1594 </span>            :    else {
-<span class="lineNum">    1595 </span><span class="lineCov">       6153 :       _tmp_stack = proc_tmp_stack;</span>
-<span class="lineNum">    1596 </span><span class="lineCov">       6153 :       _tmp_alloc = 0;</span>
+<span class="lineNum">    1595 </span><span class="lineCov">       6154 :       _tmp_stack = proc_tmp_stack;</span>
+<span class="lineNum">    1596 </span><span class="lineCov">       6154 :       _tmp_alloc = 0;</span>
 <span class="lineNum">    1597 </span>            :    }
 <span class="lineNum">    1598 </span>            : 
-<span class="lineNum">    1599 </span><span class="lineCov">       6988 :    active_proc = proc;</span>
-<span class="lineNum">    1600 </span><span class="lineCov">       6988 :    (*proc-&gt;proc_fn)(reset ? 1 : 0);</span>
+<span class="lineNum">    1599 </span><span class="lineCov">       6990 :    active_proc = proc;</span>
+<span class="lineNum">    1600 </span><span class="lineCov">       6990 :    (*proc-&gt;proc_fn)(reset ? 1 : 0);</span>
 <span class="lineNum">    1601 </span>            : 
-<span class="lineNum">    1602 </span><span class="lineCov">       6966 :    if (reset)</span>
-<span class="lineNum">    1603 </span><span class="lineCov">        822 :       global_tmp_alloc = _tmp_alloc;</span>
+<span class="lineNum">    1602 </span><span class="lineCov">       6968 :    if (reset)</span>
+<span class="lineNum">    1603 </span><span class="lineCov">        823 :       global_tmp_alloc = _tmp_alloc;</span>
 <span class="lineNum">    1604 </span>            : 
-<span class="lineNum">    1605 </span><span class="lineCov">       6966 :    if (start_clock != 0)</span>
+<span class="lineNum">    1605 </span><span class="lineCov">       6968 :    if (start_clock != 0)</span>
 <span class="lineNum">    1606 </span><span class="lineNoCov">          0 :       proc-&gt;usage += get_timestamp_us() - start_clock;</span>
-<a name="1607"><span class="lineNum">    1607 </span><span class="lineCov">       6966 : }</span></a>
+<a name="1607"><span class="lineNum">    1607 </span><span class="lineCov">       6968 : }</span></a>
 <span class="lineNum">    1608 </span>            : 
-<span class="lineNum">    1609 </span><span class="lineCov">       2051 : static void rt_call_module_reset(ident_t name)</span>
+<span class="lineNum">    1609 </span><span class="lineCov">       2056 : static void rt_call_module_reset(ident_t name)</span>
 <span class="lineNum">    1610 </span>            : {
-<span class="lineNum">    1611 </span><span class="lineCov">       4101 :    char *buf LOCAL = xasprintf(&quot;%s_reset&quot;, istr(name));</span>
+<span class="lineNum">    1611 </span><span class="lineCov">       4111 :    char *buf LOCAL = xasprintf(&quot;%s_reset&quot;, istr(name));</span>
 <span class="lineNum">    1612 </span>            : 
-<span class="lineNum">    1613 </span><span class="lineCov">       2051 :    _tmp_stack = global_tmp_stack;</span>
-<span class="lineNum">    1614 </span><span class="lineCov">       2051 :    _tmp_alloc = global_tmp_alloc;</span>
+<span class="lineNum">    1613 </span><span class="lineCov">       2056 :    _tmp_stack = global_tmp_stack;</span>
+<span class="lineNum">    1614 </span><span class="lineCov">       2056 :    _tmp_alloc = global_tmp_alloc;</span>
 <span class="lineNum">    1615 </span>            : 
-<span class="lineNum">    1616 </span><span class="lineCov">       2051 :    void (*reset_fn)(void) = jit_fun_ptr(buf, false);</span>
-<span class="lineNum">    1617 </span><span class="lineCov">       2051 :    if (reset_fn != NULL) {</span>
-<span class="lineNum">    1618 </span><span class="lineCov">        475 :       TRACE(&quot;reset module %s&quot;, istr(name));</span>
-<span class="lineNum">    1619 </span><span class="lineCov">        475 :       (*reset_fn)();</span>
+<span class="lineNum">    1616 </span><span class="lineCov">       2056 :    void (*reset_fn)(void) = jit_fun_ptr(buf, false);</span>
+<span class="lineNum">    1617 </span><span class="lineCov">       2056 :    if (reset_fn != NULL) {</span>
+<span class="lineNum">    1618 </span><span class="lineCov">        476 :       TRACE(&quot;reset module %s&quot;, istr(name));</span>
+<span class="lineNum">    1619 </span><span class="lineCov">        476 :       (*reset_fn)();</span>
 <span class="lineNum">    1620 </span>            :    }
 <span class="lineNum">    1621 </span>            : 
-<span class="lineNum">    1622 </span><span class="lineCov">       2050 :    global_tmp_alloc = _tmp_alloc;</span>
-<a name="1623"><span class="lineNum">    1623 </span><span class="lineCov">       2050 : }</span></a>
+<span class="lineNum">    1622 </span><span class="lineCov">       2055 :    global_tmp_alloc = _tmp_alloc;</span>
+<a name="1623"><span class="lineNum">    1623 </span><span class="lineCov">       2055 : }</span></a>
 <span class="lineNum">    1624 </span>            : 
 <span class="lineNum">    1625 </span><span class="lineCov">       6117 : static int32_t rt_resolve_group(netgroup_t *group, int driver, void *values)</span>
 <span class="lineNum">    1626 </span>            : {
@@ -1778,29 +1778,29 @@
 <span class="lineNum">    1716 </span><span class="lineCov">        285 :       rt_resolve_group(g, -1, g-&gt;resolved);</span>
 <a name="1717"><span class="lineNum">    1717 </span><span class="lineCov">       1010 : }</span></a>
 <span class="lineNum">    1718 </span>            : 
-<span class="lineNum">    1719 </span><span class="lineCov">        341 : static void rt_initial(tree_t top)</span>
+<span class="lineNum">    1719 </span><span class="lineCov">        342 : static void rt_initial(tree_t top)</span>
 <span class="lineNum">    1720 </span>            : {
 <span class="lineNum">    1721 </span>            :    // Initialisation is described in LRM 93 section 12.6.4
 <span class="lineNum">    1722 </span>            : 
-<span class="lineNum">    1723 </span><span class="lineCov">        341 :    const int ncontext = tree_contexts(top);</span>
-<span class="lineNum">    1724 </span><span class="lineCov">       2051 :    for (int i = 0; i &lt; ncontext; i++) {</span>
-<span class="lineNum">    1725 </span><span class="lineCov">       1710 :       tree_t c = tree_context(top, i);</span>
-<span class="lineNum">    1726 </span><span class="lineCov">       1710 :       ident_t unit_name = tree_ident(c);</span>
-<span class="lineNum">    1727 </span><span class="lineCov">       1710 :       rt_call_module_reset(unit_name);</span>
+<span class="lineNum">    1723 </span><span class="lineCov">        342 :    const int ncontext = tree_contexts(top);</span>
+<span class="lineNum">    1724 </span><span class="lineCov">       2056 :    for (int i = 0; i &lt; ncontext; i++) {</span>
+<span class="lineNum">    1725 </span><span class="lineCov">       1714 :       tree_t c = tree_context(top, i);</span>
+<span class="lineNum">    1726 </span><span class="lineCov">       1714 :       ident_t unit_name = tree_ident(c);</span>
+<span class="lineNum">    1727 </span><span class="lineCov">       1714 :       rt_call_module_reset(unit_name);</span>
 <span class="lineNum">    1728 </span>            :    }
 <span class="lineNum">    1729 </span>            : 
-<span class="lineNum">    1730 </span><span class="lineCov">        341 :    rt_call_module_reset(tree_ident(top));</span>
+<span class="lineNum">    1730 </span><span class="lineCov">        342 :    rt_call_module_reset(tree_ident(top));</span>
 <span class="lineNum">    1731 </span>            : 
-<span class="lineNum">    1732 </span><span class="lineCov">       1163 :    for (size_t i = 0; i &lt; n_procs; i++)</span>
-<span class="lineNum">    1733 </span><span class="lineCov">        823 :       rt_run(&amp;procs[i], true /* reset */);</span>
+<span class="lineNum">    1732 </span><span class="lineCov">       1165 :    for (size_t i = 0; i &lt; n_procs; i++)</span>
+<span class="lineNum">    1733 </span><span class="lineCov">        824 :       rt_run(&amp;procs[i], true /* reset */);</span>
 <span class="lineNum">    1734 </span>            : 
-<span class="lineNum">    1735 </span><span class="lineCov">        339 :    TRACE(&quot;calculate initial driver values&quot;);</span>
+<span class="lineNum">    1735 </span><span class="lineCov">        340 :    TRACE(&quot;calculate initial driver values&quot;);</span>
 <span class="lineNum">    1736 </span>            : 
-<span class="lineNum">    1737 </span><span class="lineCov">        339 :    init_side_effect = SIDE_EFFECT_ALLOW;</span>
-<span class="lineNum">    1738 </span><span class="lineCov">        339 :    netdb_walk(netdb, rt_group_inital);</span>
+<span class="lineNum">    1737 </span><span class="lineCov">        340 :    init_side_effect = SIDE_EFFECT_ALLOW;</span>
+<span class="lineNum">    1738 </span><span class="lineCov">        340 :    netdb_walk(netdb, rt_group_inital);</span>
 <span class="lineNum">    1739 </span>            : 
-<span class="lineNum">    1740 </span><span class="lineCov">        339 :    TRACE(&quot;used %d bytes of global temporary stack&quot;, global_tmp_alloc);</span>
-<a name="1741"><span class="lineNum">    1741 </span><span class="lineCov">        339 : }</span></a>
+<span class="lineNum">    1740 </span><span class="lineCov">        340 :    TRACE(&quot;used %d bytes of global temporary stack&quot;, global_tmp_alloc);</span>
+<a name="1741"><span class="lineNum">    1741 </span><span class="lineCov">        340 : }</span></a>
 <span class="lineNum">    1742 </span>            : 
 <span class="lineNum">    1743 </span><span class="lineCov">          1 : static void rt_watch_signal(watch_t *w)</span>
 <span class="lineNum">    1744 </span>            : {
@@ -2028,17 +2028,17 @@
 <span class="lineNum">    1966 </span><span class="lineNoCov">          0 :       perf_counters[PERF_UPDATE_DRIVER] += get_timestamp_us() - start_time;</span>
 <a name="1967"><span class="lineNum">    1967 </span><span class="lineCov">       5183 : }</span></a>
 <span class="lineNum">    1968 </span>            : 
-<span class="lineNum">    1969 </span><span class="lineCov">       9549 : static bool rt_stale_event(event_t *e)</span>
+<span class="lineNum">    1969 </span><span class="lineCov">       9550 : static bool rt_stale_event(event_t *e)</span>
 <span class="lineNum">    1970 </span>            : {
-<span class="lineNum">    1971 </span><span class="lineCov">       9549 :    return (e-&gt;kind == E_PROCESS) &amp;&amp; (e-&gt;wakeup_gen != e-&gt;proc-&gt;wakeup_gen);</span>
+<span class="lineNum">    1971 </span><span class="lineCov">       9550 :    return (e-&gt;kind == E_PROCESS) &amp;&amp; (e-&gt;wakeup_gen != e-&gt;proc-&gt;wakeup_gen);</span>
 <a name="1972"><span class="lineNum">    1972 </span>            : }</a>
 <span class="lineNum">    1973 </span>            : 
-<span class="lineNum">    1974 </span><span class="lineCov">       7511 : static void rt_push_run_queue(event_t *e)</span>
+<span class="lineNum">    1974 </span><span class="lineCov">       7512 : static void rt_push_run_queue(event_t *e)</span>
 <span class="lineNum">    1975 </span>            : {
-<span class="lineNum">    1976 </span><span class="lineCov">       7511 :    if (unlikely(run_queue.wr == run_queue.alloc)) {</span>
-<span class="lineNum">    1977 </span><span class="lineCov">        326 :       if (run_queue.alloc == 0) {</span>
-<span class="lineNum">    1978 </span><span class="lineCov">        325 :          run_queue.alloc = 128;</span>
-<span class="lineNum">    1979 </span><span class="lineCov">        325 :          run_queue.queue = xmalloc(sizeof(event_t *) * run_queue.alloc);</span>
+<span class="lineNum">    1976 </span><span class="lineCov">       7512 :    if (unlikely(run_queue.wr == run_queue.alloc)) {</span>
+<span class="lineNum">    1977 </span><span class="lineCov">        327 :       if (run_queue.alloc == 0) {</span>
+<span class="lineNum">    1978 </span><span class="lineCov">        326 :          run_queue.alloc = 128;</span>
+<span class="lineNum">    1979 </span><span class="lineCov">        326 :          run_queue.queue = xmalloc(sizeof(event_t *) * run_queue.alloc);</span>
 <span class="lineNum">    1980 </span>            :       }
 <span class="lineNum">    1981 </span>            :       else {
 <span class="lineNum">    1982 </span><span class="lineCov">          1 :          run_queue.alloc *= 2;</span>
@@ -2047,24 +2047,24 @@
 <span class="lineNum">    1985 </span>            :       }
 <span class="lineNum">    1986 </span>            :    }
 <span class="lineNum">    1987 </span>            : 
-<span class="lineNum">    1988 </span><span class="lineCov">       7511 :    if (unlikely(rt_stale_event(e)))</span>
+<span class="lineNum">    1988 </span><span class="lineCov">       7512 :    if (unlikely(rt_stale_event(e)))</span>
 <span class="lineNum">    1989 </span><span class="lineNoCov">          0 :       rt_free(event_stack, e);</span>
 <span class="lineNum">    1990 </span>            :    else {
-<span class="lineNum">    1991 </span><span class="lineCov">       7511 :       run_queue.queue[(run_queue.wr)++] = e;</span>
-<span class="lineNum">    1992 </span><span class="lineCov">       7511 :       if (e-&gt;kind == E_PROCESS)</span>
-<span class="lineNum">    1993 </span><span class="lineCov">       2327 :          ++(e-&gt;proc-&gt;wakeup_gen);</span>
+<span class="lineNum">    1991 </span><span class="lineCov">       7512 :       run_queue.queue[(run_queue.wr)++] = e;</span>
+<span class="lineNum">    1992 </span><span class="lineCov">       7512 :       if (e-&gt;kind == E_PROCESS)</span>
+<span class="lineNum">    1993 </span><span class="lineCov">       2328 :          ++(e-&gt;proc-&gt;wakeup_gen);</span>
 <span class="lineNum">    1994 </span>            :    }
-<a name="1995"><span class="lineNum">    1995 </span><span class="lineCov">       7511 : }</span></a>
+<a name="1995"><span class="lineNum">    1995 </span><span class="lineCov">       7512 : }</span></a>
 <span class="lineNum">    1996 </span>            : 
-<span class="lineNum">    1997 </span><span class="lineCov">      12220 : static event_t *rt_pop_run_queue(void)</span>
+<span class="lineNum">    1997 </span><span class="lineCov">      12222 : static event_t *rt_pop_run_queue(void)</span>
 <span class="lineNum">    1998 </span>            : {
-<span class="lineNum">    1999 </span><span class="lineCov">      12220 :    if (run_queue.wr == run_queue.rd) {</span>
-<span class="lineNum">    2000 </span><span class="lineCov">       4709 :       run_queue.wr = 0;</span>
-<span class="lineNum">    2001 </span><span class="lineCov">       4709 :       run_queue.rd = 0;</span>
-<span class="lineNum">    2002 </span><span class="lineCov">       4709 :       return NULL;</span>
+<span class="lineNum">    1999 </span><span class="lineCov">      12222 :    if (run_queue.wr == run_queue.rd) {</span>
+<span class="lineNum">    2000 </span><span class="lineCov">       4710 :       run_queue.wr = 0;</span>
+<span class="lineNum">    2001 </span><span class="lineCov">       4710 :       run_queue.rd = 0;</span>
+<span class="lineNum">    2002 </span><span class="lineCov">       4710 :       return NULL;</span>
 <span class="lineNum">    2003 </span>            :    }
 <span class="lineNum">    2004 </span>            :    else
-<span class="lineNum">    2005 </span><span class="lineCov">       7511 :       return run_queue.queue[(run_queue.rd)++];</span>
+<span class="lineNum">    2005 </span><span class="lineCov">       7512 :       return run_queue.queue[(run_queue.rd)++];</span>
 <a name="2006"><span class="lineNum">    2006 </span>            : }</a>
 <span class="lineNum">    2007 </span>            : 
 <span class="lineNum">    2008 </span><span class="lineNoCov">          0 : static void rt_iteration_limit(void)</span>
@@ -2086,10 +2086,10 @@
 <span class="lineNum">    2024 </span><span class="lineNoCov">          0 :    fatal(&quot;%s&quot;, tb_get(buf));</span>
 <a name="2025"><span class="lineNum">    2025 </span>            : }</a>
 <span class="lineNum">    2026 </span>            : 
-<span class="lineNum">    2027 </span><span class="lineCov">       7048 : static void rt_resume_processes(sens_list_t **list)</span>
+<span class="lineNum">    2027 </span><span class="lineCov">       7050 : static void rt_resume_processes(sens_list_t **list)</span>
 <span class="lineNum">    2028 </span>            : {
-<span class="lineNum">    2029 </span><span class="lineCov">       7048 :    sens_list_t *it = *list;</span>
-<span class="lineNum">    2030 </span><span class="lineCov">      18213 :    while (it != NULL) {</span>
+<span class="lineNum">    2029 </span><span class="lineCov">       7050 :    sens_list_t *it = *list;</span>
+<span class="lineNum">    2030 </span><span class="lineCov">      18217 :    while (it != NULL) {</span>
 <span class="lineNum">    2031 </span><span class="lineCov">       4118 :       if (it-&gt;proc-&gt;pending) {</span>
 <span class="lineNum">    2032 </span><span class="lineCov">       3838 :          rt_run(it-&gt;proc, false /* reset */);</span>
 <span class="lineNum">    2033 </span><span class="lineCov">       3837 :          it-&gt;proc-&gt;pending = false;</span>
@@ -2107,14 +2107,14 @@
 <span class="lineNum">    2045 </span><span class="lineCov">       4117 :       it = next;</span>
 <span class="lineNum">    2046 </span>            :    }
 <span class="lineNum">    2047 </span>            : 
-<span class="lineNum">    2048 </span><span class="lineCov">       7047 :    *list = NULL;</span>
-<a name="2049"><span class="lineNum">    2049 </span><span class="lineCov">       7047 : }</span></a>
+<span class="lineNum">    2048 </span><span class="lineCov">       7049 :    *list = NULL;</span>
+<a name="2049"><span class="lineNum">    2049 </span><span class="lineCov">       7049 : }</span></a>
 <span class="lineNum">    2050 </span>            : 
-<span class="lineNum">    2051 </span><span class="lineCov">       7048 : static void rt_event_callback(bool postponed)</span>
+<span class="lineNum">    2051 </span><span class="lineCov">       7050 : static void rt_event_callback(bool postponed)</span>
 <span class="lineNum">    2052 </span>            : {
-<span class="lineNum">    2053 </span><span class="lineCov">       7048 :    watch_t **last = &amp;callbacks;</span>
-<span class="lineNum">    2054 </span><span class="lineCov">       7048 :    watch_t *next = NULL, *it;</span>
-<span class="lineNum">    2055 </span><span class="lineCov">       7051 :    for (it = callbacks; it != NULL; it = next) {</span>
+<span class="lineNum">    2053 </span><span class="lineCov">       7050 :    watch_t **last = &amp;callbacks;</span>
+<span class="lineNum">    2054 </span><span class="lineCov">       7050 :    watch_t *next = NULL, *it;</span>
+<span class="lineNum">    2055 </span><span class="lineCov">       7053 :    for (it = callbacks; it != NULL; it = next) {</span>
 <span class="lineNum">    2056 </span><span class="lineCov">          3 :       next = it-&gt;chain_pending;</span>
 <span class="lineNum">    2057 </span><span class="lineCov">          3 :       if (it-&gt;postponed == postponed) {</span>
 <span class="lineNum">    2058 </span><span class="lineCov">          3 :          (*it-&gt;fn)(now, it-&gt;signal, it, it-&gt;user_data);</span>
@@ -2126,28 +2126,28 @@
 <span class="lineNum">    2064 </span>            :       else
 <span class="lineNum">    2065 </span><span class="lineNoCov">          0 :          last = &amp;(it-&gt;chain_pending);</span>
 <span class="lineNum">    2066 </span>            :    }
-<a name="2067"><span class="lineNum">    2067 </span><span class="lineCov">       7048 : }</span></a>
+<a name="2067"><span class="lineNum">    2067 </span><span class="lineCov">       7050 : }</span></a>
 <span class="lineNum">    2068 </span>            : 
-<span class="lineNum">    2069 </span><span class="lineCov">       4708 : static inline bool rt_next_cycle_is_delta(void)</span>
+<span class="lineNum">    2069 </span><span class="lineCov">       4709 : static inline bool rt_next_cycle_is_delta(void)</span>
 <span class="lineNum">    2070 </span>            : {
-<span class="lineNum">    2071 </span><span class="lineCov">       4708 :    return (delta_driver != NULL) || (delta_proc != NULL);</span>
+<span class="lineNum">    2071 </span><span class="lineCov">       4709 :    return (delta_driver != NULL) || (delta_proc != NULL);</span>
 <a name="2072"><span class="lineNum">    2072 </span>            : }</a>
 <span class="lineNum">    2073 </span>            : 
-<span class="lineNum">    2074 </span><span class="lineCov">       4730 : static void rt_cycle(int stop_delta)</span>
+<span class="lineNum">    2074 </span><span class="lineCov">       4731 : static void rt_cycle(int stop_delta)</span>
 <span class="lineNum">    2075 </span>            : {
 <span class="lineNum">    2076 </span>            :    // Simulation cycle is described in LRM 93 section 12.6.4
 <span class="lineNum">    2077 </span>            : 
-<span class="lineNum">    2078 </span><span class="lineCov">       4730 :    const bool is_delta_cycle = (delta_driver != NULL) || (delta_proc != NULL);</span>
+<span class="lineNum">    2078 </span><span class="lineCov">       4731 :    const bool is_delta_cycle = (delta_driver != NULL) || (delta_proc != NULL);</span>
 <span class="lineNum">    2079 </span>            : 
-<span class="lineNum">    2080 </span><span class="lineCov">       4730 :    if (is_delta_cycle)</span>
-<span class="lineNum">    2081 </span><span class="lineCov">       2694 :       iteration = iteration + 1;</span>
+<span class="lineNum">    2080 </span><span class="lineCov">       4731 :    if (is_delta_cycle)</span>
+<span class="lineNum">    2081 </span><span class="lineCov">       2695 :       iteration = iteration + 1;</span>
 <span class="lineNum">    2082 </span>            :    else {
 <span class="lineNum">    2083 </span><span class="lineCov">       2036 :       event_t *peek = heap_min(eventq_heap);</span>
 <span class="lineNum">    2084 </span><span class="lineCov">       4074 :       while (unlikely(rt_stale_event(peek))) {</span>
 <span class="lineNum">    2085 </span>            :          // Discard stale events
 <span class="lineNum">    2086 </span><span class="lineCov">          3 :          rt_free(event_stack, heap_extract_min(eventq_heap));</span>
 <span class="lineNum">    2087 </span><span class="lineCov">          3 :          if (heap_size(eventq_heap) == 0)</span>
-<span class="lineNum">    2088 </span><span class="lineCov">       4709 :             return;</span>
+<span class="lineNum">    2088 </span><span class="lineCov">       4710 :             return;</span>
 <span class="lineNum">    2089 </span>            :          else
 <span class="lineNum">    2090 </span><span class="lineCov">          2 :             peek = heap_min(eventq_heap);</span>
 <span class="lineNum">    2091 </span>            :       }
@@ -2155,10 +2155,10 @@
 <span class="lineNum">    2093 </span><span class="lineCov">       2035 :       iteration = 0;</span>
 <span class="lineNum">    2094 </span>            :    }
 <span class="lineNum">    2095 </span>            : 
-<span class="lineNum">    2096 </span><span class="lineCov">       4729 :    TRACE(&quot;begin cycle&quot;);</span>
+<span class="lineNum">    2096 </span><span class="lineCov">       4730 :    TRACE(&quot;begin cycle&quot;);</span>
 <span class="lineNum">    2097 </span>            : 
 <span class="lineNum">    2098 </span>            : #if TRACE_DELTAQ &gt; 0
-<span class="lineNum">    2099 </span><span class="lineCov">       4729 :    if (trace_on)</span>
+<span class="lineNum">    2099 </span><span class="lineCov">       4730 :    if (trace_on)</span>
 <span class="lineNum">    2100 </span><span class="lineNoCov">          0 :       deltaq_dump();</span>
 <span class="lineNum">    2101 </span>            : #endif
 <span class="lineNum">    2102 </span>            : #if TRACE_PENDING &gt; 0
@@ -2166,15 +2166,15 @@
 <span class="lineNum">    2104 </span>            :       rt_dump_pending();
 <span class="lineNum">    2105 </span>            : #endif
 <span class="lineNum">    2106 </span>            : 
-<span class="lineNum">    2107 </span><span class="lineCov">       4729 :    if (is_delta_cycle) {</span>
-<span class="lineNum">    2108 </span><span class="lineCov">       6203 :       for (event_t *e = delta_driver; e != NULL; e = e-&gt;delta_chain)</span>
+<span class="lineNum">    2107 </span><span class="lineCov">       4730 :    if (is_delta_cycle) {</span>
+<span class="lineNum">    2108 </span><span class="lineCov">       6204 :       for (event_t *e = delta_driver; e != NULL; e = e-&gt;delta_chain)</span>
 <span class="lineNum">    2109 </span><span class="lineCov">       3509 :          rt_push_run_queue(e);</span>
 <span class="lineNum">    2110 </span>            : 
-<span class="lineNum">    2111 </span><span class="lineCov">       3777 :       for (event_t *e = delta_proc; e != NULL; e = e-&gt;delta_chain)</span>
-<span class="lineNum">    2112 </span><span class="lineCov">       1083 :          rt_push_run_queue(e);</span>
+<span class="lineNum">    2111 </span><span class="lineCov">       3779 :       for (event_t *e = delta_proc; e != NULL; e = e-&gt;delta_chain)</span>
+<span class="lineNum">    2112 </span><span class="lineCov">       1084 :          rt_push_run_queue(e);</span>
 <span class="lineNum">    2113 </span>            : 
-<span class="lineNum">    2114 </span><span class="lineCov">       2694 :       delta_driver = NULL;</span>
-<span class="lineNum">    2115 </span><span class="lineCov">       2694 :       delta_proc = NULL;</span>
+<span class="lineNum">    2114 </span><span class="lineCov">       2695 :       delta_driver = NULL;</span>
+<span class="lineNum">    2115 </span><span class="lineCov">       2695 :       delta_proc = NULL;</span>
 <span class="lineNum">    2116 </span>            :    }
 <span class="lineNum">    2117 </span>            :    else {
 <span class="lineNum">    2118 </span><span class="lineCov">       2035 :       rt_global_event(RT_NEXT_TIME_STEP);</span>
@@ -2192,11 +2192,11 @@
 <span class="lineNum">    2130 </span>            :    }
 <span class="lineNum">    2131 </span>            : 
 <span class="lineNum">    2132 </span>            :    event_t *event;
-<span class="lineNum">    2133 </span><span class="lineCov">      12220 :    while ((event = rt_pop_run_queue())) {</span>
-<span class="lineNum">    2134 </span><span class="lineCov">       7511 :       switch (event-&gt;kind) {</span>
+<span class="lineNum">    2133 </span><span class="lineCov">      12222 :    while ((event = rt_pop_run_queue())) {</span>
+<span class="lineNum">    2134 </span><span class="lineCov">       7512 :       switch (event-&gt;kind) {</span>
 <span class="lineNum">    2135 </span>            :       case E_PROCESS:
-<span class="lineNum">    2136 </span><span class="lineCov">       2327 :          rt_run(event-&gt;proc, false /* reset */);</span>
-<span class="lineNum">    2137 </span><span class="lineCov">       2307 :          break;</span>
+<span class="lineNum">    2136 </span><span class="lineCov">       2328 :          rt_run(event-&gt;proc, false /* reset */);</span>
+<span class="lineNum">    2137 </span><span class="lineCov">       2308 :          break;</span>
 <span class="lineNum">    2138 </span>            :       case E_DRIVER:
 <span class="lineNum">    2139 </span><span class="lineCov">       5183 :          rt_update_driver(event-&gt;group, event-&gt;proc);</span>
 <span class="lineNum">    2140 </span><span class="lineCov">       5183 :          break;</span>
@@ -2205,41 +2205,41 @@
 <span class="lineNum">    2143 </span><span class="lineCov">          1 :          break;</span>
 <span class="lineNum">    2144 </span>            :       }
 <span class="lineNum">    2145 </span>            : 
-<span class="lineNum">    2146 </span><span class="lineCov">       7491 :       rt_free(event_stack, event);</span>
+<span class="lineNum">    2146 </span><span class="lineCov">       7492 :       rt_free(event_stack, event);</span>
 <span class="lineNum">    2147 </span>            :    }
 <span class="lineNum">    2148 </span>            : 
-<span class="lineNum">    2149 </span><span class="lineCov">       4709 :    if (unlikely(now == 0 &amp;&amp; iteration == 0)) {</span>
-<span class="lineNum">    2150 </span><span class="lineCov">        310 :       vcd_restart();</span>
-<span class="lineNum">    2151 </span><span class="lineCov">        310 :       lxt_restart();</span>
-<span class="lineNum">    2152 </span><span class="lineCov">        310 :       fst_restart();</span>
+<span class="lineNum">    2149 </span><span class="lineCov">       4710 :    if (unlikely(now == 0 &amp;&amp; iteration == 0)) {</span>
+<span class="lineNum">    2150 </span><span class="lineCov">        311 :       vcd_restart();</span>
+<span class="lineNum">    2151 </span><span class="lineCov">        311 :       lxt_restart();</span>
+<span class="lineNum">    2152 </span><span class="lineCov">        311 :       fst_restart();</span>
 <span class="lineNum">    2153 </span>            :    }
 <span class="lineNum">    2154 </span><span class="lineCov">       4399 :    else if (unlikely((stop_delta &gt; 0) &amp;&amp; (iteration == stop_delta)))</span>
 <span class="lineNum">    2155 </span><span class="lineNoCov">          0 :       rt_iteration_limit();</span>
 <span class="lineNum">    2156 </span>            : 
 <span class="lineNum">    2157 </span>            :    // Run all non-postponed event callbacks
-<span class="lineNum">    2158 </span><span class="lineCov">       4709 :    rt_event_callback(false);</span>
+<span class="lineNum">    2158 </span><span class="lineCov">       4710 :    rt_event_callback(false);</span>
 <span class="lineNum">    2159 </span>            : 
 <span class="lineNum">    2160 </span>            :    // Run all processes that resumed because of signal events
-<span class="lineNum">    2161 </span><span class="lineCov">       4709 :    rt_resume_processes(&amp;resume);</span>
-<span class="lineNum">    2162 </span><span class="lineCov">       4708 :    rt_global_event(RT_END_OF_PROCESSES);</span>
+<span class="lineNum">    2161 </span><span class="lineCov">       4710 :    rt_resume_processes(&amp;resume);</span>
+<span class="lineNum">    2162 </span><span class="lineCov">       4709 :    rt_global_event(RT_END_OF_PROCESSES);</span>
 <span class="lineNum">    2163 </span>            : 
-<span class="lineNum">    2164 </span><span class="lineCov">       9884 :    for (unsigned i = 0; i &lt; n_active_groups; i++) {</span>
+<span class="lineNum">    2164 </span><span class="lineCov">       9885 :    for (unsigned i = 0; i &lt; n_active_groups; i++) {</span>
 <span class="lineNum">    2165 </span><span class="lineCov">       5176 :       netgroup_t *g = active_groups[i];</span>
 <span class="lineNum">    2166 </span><span class="lineCov">       5176 :       g-&gt;flags &amp;= ~(NET_F_ACTIVE | NET_F_EVENT);</span>
 <span class="lineNum">    2167 </span>            :    }
-<span class="lineNum">    2168 </span><span class="lineCov">       4708 :    n_active_groups = 0;</span>
+<span class="lineNum">    2168 </span><span class="lineCov">       4709 :    n_active_groups = 0;</span>
 <span class="lineNum">    2169 </span>            : 
-<span class="lineNum">    2170 </span><span class="lineCov">       4708 :    if (!rt_next_cycle_is_delta()) {</span>
-<span class="lineNum">    2171 </span><span class="lineCov">       2339 :       can_create_delta = false;</span>
-<span class="lineNum">    2172 </span><span class="lineCov">       2339 :       rt_global_event(RT_LAST_KNOWN_DELTA_CYCLE);</span>
+<span class="lineNum">    2170 </span><span class="lineCov">       4709 :    if (!rt_next_cycle_is_delta()) {</span>
+<span class="lineNum">    2171 </span><span class="lineCov">       2340 :       can_create_delta = false;</span>
+<span class="lineNum">    2172 </span><span class="lineCov">       2340 :       rt_global_event(RT_LAST_KNOWN_DELTA_CYCLE);</span>
 <span class="lineNum">    2173 </span>            : 
 <span class="lineNum">    2174 </span>            :       // Run any postponed processes
-<span class="lineNum">    2175 </span><span class="lineCov">       2339 :       rt_resume_processes(&amp;postponed);</span>
+<span class="lineNum">    2175 </span><span class="lineCov">       2340 :       rt_resume_processes(&amp;postponed);</span>
 <span class="lineNum">    2176 </span>            : 
 <span class="lineNum">    2177 </span>            :       // Execute all postponed event callbacks
-<span class="lineNum">    2178 </span><span class="lineCov">       2339 :       rt_event_callback(true);</span>
+<span class="lineNum">    2178 </span><span class="lineCov">       2340 :       rt_event_callback(true);</span>
 <span class="lineNum">    2179 </span>            : 
-<span class="lineNum">    2180 </span><span class="lineCov">       2339 :       can_create_delta = true;</span>
+<span class="lineNum">    2180 </span><span class="lineCov">       2340 :       can_create_delta = true;</span>
 <span class="lineNum">    2181 </span>            :    }
 <a name="2182"><span class="lineNum">    2182 </span>            : }</a>
 <span class="lineNum">    2183 </span>            : 
@@ -2293,60 +2293,60 @@
 <span class="lineNum">    2231 </span>            :    }
 <a name="2232"><span class="lineNum">    2232 </span><span class="lineCov">        994 : }</span></a>
 <span class="lineNum">    2233 </span>            : 
-<span class="lineNum">    2234 </span><span class="lineCov">        318 : static void rt_cleanup(tree_t top)</span>
+<span class="lineNum">    2234 </span><span class="lineCov">        319 : static void rt_cleanup(tree_t top)</span>
 <span class="lineNum">    2235 </span>            : {
 <span class="lineNum">    2236 </span>            :    RT_ASSERT(resume == NULL);
 <span class="lineNum">    2237 </span>            : 
-<span class="lineNum">    2238 </span><span class="lineCov">        322 :    while (heap_size(eventq_heap) &gt; 0)</span>
+<span class="lineNum">    2238 </span><span class="lineCov">        323 :    while (heap_size(eventq_heap) &gt; 0)</span>
 <span class="lineNum">    2239 </span><span class="lineCov">          4 :       rt_free(event_stack, heap_extract_min(eventq_heap));</span>
 <span class="lineNum">    2240 </span>            : 
-<span class="lineNum">    2241 </span><span class="lineCov">        318 :    rt_free_delta_events(delta_proc);</span>
-<span class="lineNum">    2242 </span><span class="lineCov">        318 :    rt_free_delta_events(delta_driver);</span>
+<span class="lineNum">    2241 </span><span class="lineCov">        319 :    rt_free_delta_events(delta_proc);</span>
+<span class="lineNum">    2242 </span><span class="lineCov">        319 :    rt_free_delta_events(delta_driver);</span>
 <span class="lineNum">    2243 </span>            : 
-<span class="lineNum">    2244 </span><span class="lineCov">        318 :    heap_free(eventq_heap);</span>
-<span class="lineNum">    2245 </span><span class="lineCov">        318 :    eventq_heap = NULL;</span>
+<span class="lineNum">    2244 </span><span class="lineCov">        319 :    heap_free(eventq_heap);</span>
+<span class="lineNum">    2245 </span><span class="lineCov">        319 :    eventq_heap = NULL;</span>
 <span class="lineNum">    2246 </span>            : 
-<span class="lineNum">    2247 </span><span class="lineCov">        318 :    netdb_walk(netdb, rt_cleanup_group);</span>
-<span class="lineNum">    2248 </span><span class="lineCov">        318 :    netdb_close(netdb);</span>
+<span class="lineNum">    2247 </span><span class="lineCov">        319 :    netdb_walk(netdb, rt_cleanup_group);</span>
+<span class="lineNum">    2248 </span><span class="lineCov">        319 :    netdb_close(netdb);</span>
 <span class="lineNum">    2249 </span>            : 
-<span class="lineNum">    2250 </span><span class="lineCov">        318 :    hash_free(decl_hash);</span>
-<span class="lineNum">    2251 </span><span class="lineCov">        318 :    decl_hash = NULL;</span>
+<span class="lineNum">    2250 </span><span class="lineCov">        319 :    hash_free(decl_hash);</span>
+<span class="lineNum">    2251 </span><span class="lineCov">        319 :    decl_hash = NULL;</span>
 <span class="lineNum">    2252 </span>            : 
-<span class="lineNum">    2253 </span><span class="lineCov">        319 :    while (watches != NULL) {</span>
+<span class="lineNum">    2253 </span><span class="lineCov">        320 :    while (watches != NULL) {</span>
 <span class="lineNum">    2254 </span><span class="lineCov">          1 :       watch_t *next = watches-&gt;chain_all;</span>
 <span class="lineNum">    2255 </span><span class="lineCov">          1 :       rt_free(watch_stack, watches);</span>
 <span class="lineNum">    2256 </span><span class="lineCov">          1 :       free(watches-&gt;groups);</span>
 <span class="lineNum">    2257 </span><span class="lineCov">          1 :       watches = next;</span>
 <span class="lineNum">    2258 </span>            :    }
 <span class="lineNum">    2259 </span>            : 
-<span class="lineNum">    2260 </span><span class="lineCov">        344 :    while (pending != NULL) {</span>
+<span class="lineNum">    2260 </span><span class="lineCov">        345 :    while (pending != NULL) {</span>
 <span class="lineNum">    2261 </span><span class="lineCov">         26 :       sens_list_t *next = pending-&gt;next;</span>
 <span class="lineNum">    2262 </span><span class="lineCov">         26 :       rt_free(sens_list_stack, pending);</span>
 <span class="lineNum">    2263 </span><span class="lineCov">         26 :       pending = next;</span>
 <span class="lineNum">    2264 </span>            :    }
 <span class="lineNum">    2265 </span>            : 
-<span class="lineNum">    2266 </span><span class="lineCov">       1590 :    for (int i = 0; i &lt; RT_LAST_EVENT; i++) {</span>
-<span class="lineNum">    2267 </span><span class="lineCov">       1590 :       while (global_cbs[i] != NULL) {</span>
+<span class="lineNum">    2266 </span><span class="lineCov">       1595 :    for (int i = 0; i &lt; RT_LAST_EVENT; i++) {</span>
+<span class="lineNum">    2267 </span><span class="lineCov">       1595 :       while (global_cbs[i] != NULL) {</span>
 <span class="lineNum">    2268 </span><span class="lineNoCov">          0 :          callback_t *tmp = global_cbs[i]-&gt;next;</span>
 <span class="lineNum">    2269 </span><span class="lineNoCov">          0 :          rt_free(callback_stack, global_cbs[i]);</span>
 <span class="lineNum">    2270 </span><span class="lineNoCov">          0 :          global_cbs[i] = tmp;</span>
 <span class="lineNum">    2271 </span>            :       }
 <span class="lineNum">    2272 </span>            :    }
 <span class="lineNum">    2273 </span>            : 
-<span class="lineNum">    2274 </span><span class="lineCov">        318 :    rt_alloc_stack_destroy(event_stack);</span>
-<span class="lineNum">    2275 </span><span class="lineCov">        318 :    rt_alloc_stack_destroy(waveform_stack);</span>
-<span class="lineNum">    2276 </span><span class="lineCov">        318 :    rt_alloc_stack_destroy(sens_list_stack);</span>
-<span class="lineNum">    2277 </span><span class="lineCov">        318 :    rt_alloc_stack_destroy(watch_stack);</span>
-<span class="lineNum">    2278 </span><span class="lineCov">        318 :    rt_alloc_stack_destroy(callback_stack);</span>
+<span class="lineNum">    2274 </span><span class="lineCov">        319 :    rt_alloc_stack_destroy(event_stack);</span>
+<span class="lineNum">    2275 </span><span class="lineCov">        319 :    rt_alloc_stack_destroy(waveform_stack);</span>
+<span class="lineNum">    2276 </span><span class="lineCov">        319 :    rt_alloc_stack_destroy(sens_list_stack);</span>
+<span class="lineNum">    2277 </span><span class="lineCov">        319 :    rt_alloc_stack_destroy(watch_stack);</span>
+<span class="lineNum">    2278 </span><span class="lineCov">        319 :    rt_alloc_stack_destroy(callback_stack);</span>
 <span class="lineNum">    2279 </span>            : 
-<span class="lineNum">    2280 </span><span class="lineCov">        318 :    hash_free(res_memo_hash);</span>
-<a name="2281"><span class="lineNum">    2281 </span><span class="lineCov">        318 : }</span></a>
+<span class="lineNum">    2280 </span><span class="lineCov">        319 :    hash_free(res_memo_hash);</span>
+<a name="2281"><span class="lineNum">    2281 </span><span class="lineCov">        319 : }</span></a>
 <span class="lineNum">    2282 </span>            : 
-<span class="lineNum">    2283 </span><span class="lineCov">       5048 : static bool rt_stop_now(uint64_t stop_time)</span>
+<span class="lineNum">    2283 </span><span class="lineCov">       5050 : static bool rt_stop_now(uint64_t stop_time)</span>
 <span class="lineNum">    2284 </span>            : {
-<span class="lineNum">    2285 </span><span class="lineCov">       5048 :    if ((delta_driver != NULL) || (delta_proc != NULL))</span>
+<span class="lineNum">    2285 </span><span class="lineCov">       5050 :    if ((delta_driver != NULL) || (delta_proc != NULL))</span>
 <span class="lineNum">    2286 </span>            :       return false;
-<span class="lineNum">    2287 </span><span class="lineCov">       2354 :    else if (heap_size(eventq_heap) == 0)</span>
+<span class="lineNum">    2287 </span><span class="lineCov">       2355 :    else if (heap_size(eventq_heap) == 0)</span>
 <span class="lineNum">    2288 </span>            :       return true;
 <span class="lineNum">    2289 </span><span class="lineCov">       2040 :    else if (force_stop)</span>
 <span class="lineNum">    2290 </span>            :       return true;
@@ -2395,28 +2395,28 @@
 <span class="lineNum">    2333 </span><span class="lineNoCov">          0 :    notef(&quot;setup:%ums run:%ums maxrss:%ukB&quot;, ready_rusage.ms, ru.ms, ru.rss);</span>
 <a name="2334"><span class="lineNum">    2334 </span><span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">    2335 </span>            : 
-<span class="lineNum">    2336 </span><span class="lineCov">        341 : static void rt_reset_coverage(tree_t top)</span>
+<span class="lineNum">    2336 </span><span class="lineCov">        342 : static void rt_reset_coverage(tree_t top)</span>
 <span class="lineNum">    2337 </span>            : {
-<span class="lineNum">    2338 </span><span class="lineCov">        341 :    int32_t *cover_stmts = jit_var_ptr(&quot;cover_stmts&quot;, false);</span>
-<span class="lineNum">    2339 </span><span class="lineCov">        341 :    if (cover_stmts != NULL) {</span>
+<span class="lineNum">    2338 </span><span class="lineCov">        342 :    int32_t *cover_stmts = jit_var_ptr(&quot;cover_stmts&quot;, false);</span>
+<span class="lineNum">    2339 </span><span class="lineCov">        342 :    if (cover_stmts != NULL) {</span>
 <span class="lineNum">    2340 </span><span class="lineCov">          1 :       const int ntags = tree_attr_int(top, ident_new(&quot;stmt_tags&quot;), 0);</span>
 <span class="lineNum">    2341 </span><span class="lineCov">          1 :       memset(cover_stmts, '\0', sizeof(int32_t) * ntags);</span>
 <span class="lineNum">    2342 </span>            :    }
 <span class="lineNum">    2343 </span>            : 
-<span class="lineNum">    2344 </span><span class="lineCov">        341 :    int32_t *cover_conds = jit_var_ptr(&quot;cover_conds&quot;, false);</span>
-<span class="lineNum">    2345 </span><span class="lineCov">        341 :    if (cover_conds != NULL) {</span>
+<span class="lineNum">    2344 </span><span class="lineCov">        342 :    int32_t *cover_conds = jit_var_ptr(&quot;cover_conds&quot;, false);</span>
+<span class="lineNum">    2345 </span><span class="lineCov">        342 :    if (cover_conds != NULL) {</span>
 <span class="lineNum">    2346 </span><span class="lineCov">          1 :       const int ntags = tree_attr_int(top, ident_new(&quot;cond_tags&quot;), 0);</span>
 <span class="lineNum">    2347 </span><span class="lineCov">          1 :       memset(cover_conds, '\0', sizeof(int32_t) * ntags);</span>
 <span class="lineNum">    2348 </span>            :    }
-<a name="2349"><span class="lineNum">    2349 </span><span class="lineCov">        341 : }</span></a>
+<a name="2349"><span class="lineNum">    2349 </span><span class="lineCov">        342 : }</span></a>
 <span class="lineNum">    2350 </span>            : 
-<span class="lineNum">    2351 </span><span class="lineCov">        318 : static void rt_emit_coverage(tree_t top)</span>
+<span class="lineNum">    2351 </span><span class="lineCov">        319 : static void rt_emit_coverage(tree_t top)</span>
 <span class="lineNum">    2352 </span>            : {
-<span class="lineNum">    2353 </span><span class="lineCov">        318 :    const int32_t *cover_stmts = jit_var_ptr(&quot;cover_stmts&quot;, false);</span>
-<span class="lineNum">    2354 </span><span class="lineCov">        318 :    const int32_t *cover_conds = jit_var_ptr(&quot;cover_conds&quot;, false);</span>
-<span class="lineNum">    2355 </span><span class="lineCov">        318 :    if (cover_stmts != NULL)</span>
+<span class="lineNum">    2353 </span><span class="lineCov">        319 :    const int32_t *cover_stmts = jit_var_ptr(&quot;cover_stmts&quot;, false);</span>
+<span class="lineNum">    2354 </span><span class="lineCov">        319 :    const int32_t *cover_conds = jit_var_ptr(&quot;cover_conds&quot;, false);</span>
+<span class="lineNum">    2355 </span><span class="lineCov">        319 :    if (cover_stmts != NULL)</span>
 <span class="lineNum">    2356 </span><span class="lineCov">          1 :       cover_report(top, cover_stmts, cover_conds);</span>
-<a name="2357"><span class="lineNum">    2357 </span><span class="lineCov">        318 : }</span></a>
+<a name="2357"><span class="lineNum">    2357 </span><span class="lineCov">        319 : }</span></a>
 <span class="lineNum">    2358 </span>            : 
 <span class="lineNum">    2359 </span><span class="lineNoCov">          0 : static void rt_interrupt(void)</span>
 <span class="lineNum">    2360 </span>            : {
@@ -2442,9 +2442,9 @@
 <span class="lineNum">    2380 </span>            : }
 <a name="2381"><span class="lineNum">    2381 </span>            : #endif</a>
 <span class="lineNum">    2382 </span>            : 
-<span class="lineNum">    2383 </span><span class="lineCov">        341 : void rt_start_of_tool(tree_t top)</span>
+<span class="lineNum">    2383 </span><span class="lineCov">        342 : void rt_start_of_tool(tree_t top)</span>
 <span class="lineNum">    2384 </span>            : {
-<span class="lineNum">    2385 </span><span class="lineCov">        341 :    jit_init(top);</span>
+<span class="lineNum">    2385 </span><span class="lineCov">        342 :    jit_init(top);</span>
 <span class="lineNum">    2386 </span>            : 
 <span class="lineNum">    2387 </span>            : #if RT_DEBUG
 <span class="lineNum">    2388 </span>            :    warnf(&quot;runtime debug assertions enabled&quot;);
@@ -2452,83 +2452,83 @@
 <span class="lineNum">    2390 </span>            : 
 <span class="lineNum">    2391 </span>            : #ifndef __MINGW32__
 <span class="lineNum">    2392 </span>            :    struct sigaction sa;
-<span class="lineNum">    2393 </span><span class="lineCov">        341 :    sa.sa_sigaction = (void*)rt_interrupt;</span>
-<span class="lineNum">    2394 </span><span class="lineCov">        341 :    sigemptyset(&amp;sa.sa_mask);</span>
-<span class="lineNum">    2395 </span><span class="lineCov">        341 :    sa.sa_flags = SA_RESTART | SA_SIGINFO;</span>
+<span class="lineNum">    2393 </span><span class="lineCov">        342 :    sa.sa_sigaction = (void*)rt_interrupt;</span>
+<span class="lineNum">    2394 </span><span class="lineCov">        342 :    sigemptyset(&amp;sa.sa_mask);</span>
+<span class="lineNum">    2395 </span><span class="lineCov">        342 :    sa.sa_flags = SA_RESTART | SA_SIGINFO;</span>
 <span class="lineNum">    2396 </span>            : 
-<span class="lineNum">    2397 </span><span class="lineCov">        341 :    sigaction(SIGINT, &amp;sa, NULL);</span>
+<span class="lineNum">    2397 </span><span class="lineCov">        342 :    sigaction(SIGINT, &amp;sa, NULL);</span>
 <span class="lineNum">    2398 </span>            : #else
 <span class="lineNum">    2399 </span>            :    if (!SetConsoleCtrlHandler(rt_win_ctrl_handler, TRUE))
 <span class="lineNum">    2400 </span>            :       fatal_trace(&quot;SetConsoleCtrlHandler&quot;);
 <span class="lineNum">    2401 </span>            : #endif
 <span class="lineNum">    2402 </span>            : 
-<span class="lineNum">    2403 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_std_standard_now&quot;, _std_standard_now);</span>
-<span class="lineNum">    2404 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_sched_process&quot;, _sched_process);</span>
-<span class="lineNum">    2405 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_sched_waveform&quot;, _sched_waveform);</span>
-<span class="lineNum">    2406 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_sched_event&quot;, _sched_event);</span>
-<span class="lineNum">    2407 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_assert_fail&quot;, _assert_fail);</span>
-<span class="lineNum">    2408 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_vec_load&quot;, _vec_load);</span>
-<span class="lineNum">    2409 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_image&quot;, _image);</span>
-<span class="lineNum">    2410 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_debug_out&quot;, _debug_out);</span>
-<span class="lineNum">    2411 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_set_initial&quot;, _set_initial);</span>
-<span class="lineNum">    2412 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_file_open&quot;, _file_open);</span>
-<span class="lineNum">    2413 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_file_close&quot;, _file_close);</span>
-<span class="lineNum">    2414 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_file_write&quot;, _file_write);</span>
-<span class="lineNum">    2415 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_file_read&quot;, _file_read);</span>
-<span class="lineNum">    2416 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_endfile&quot;, _endfile);</span>
-<span class="lineNum">    2417 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_bounds_fail&quot;, _bounds_fail);</span>
-<span class="lineNum">    2418 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_bit_shift&quot;, _bit_shift);</span>
-<span class="lineNum">    2419 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_bit_vec_op&quot;, _bit_vec_op);</span>
-<span class="lineNum">    2420 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_test_net_flag&quot;, _test_net_flag);</span>
-<span class="lineNum">    2421 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_last_event&quot;, _last_event);</span>
-<span class="lineNum">    2422 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_div_zero&quot;, _div_zero);</span>
-<span class="lineNum">    2423 </span><span class="lineCov">        341 :    jit_bind_fn(&quot;_null_deref&quot;, _null_deref);</span>
+<span class="lineNum">    2403 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_std_standard_now&quot;, _std_standard_now);</span>
+<span class="lineNum">    2404 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_sched_process&quot;, _sched_process);</span>
+<span class="lineNum">    2405 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_sched_waveform&quot;, _sched_waveform);</span>
+<span class="lineNum">    2406 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_sched_event&quot;, _sched_event);</span>
+<span class="lineNum">    2407 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_assert_fail&quot;, _assert_fail);</span>
+<span class="lineNum">    2408 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_vec_load&quot;, _vec_load);</span>
+<span class="lineNum">    2409 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_image&quot;, _image);</span>
+<span class="lineNum">    2410 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_debug_out&quot;, _debug_out);</span>
+<span class="lineNum">    2411 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_set_initial&quot;, _set_initial);</span>
+<span class="lineNum">    2412 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_file_open&quot;, _file_open);</span>
+<span class="lineNum">    2413 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_file_close&quot;, _file_close);</span>
+<span class="lineNum">    2414 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_file_write&quot;, _file_write);</span>
+<span class="lineNum">    2415 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_file_read&quot;, _file_read);</span>
+<span class="lineNum">    2416 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_endfile&quot;, _endfile);</span>
+<span class="lineNum">    2417 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_bounds_fail&quot;, _bounds_fail);</span>
+<span class="lineNum">    2418 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_bit_shift&quot;, _bit_shift);</span>
+<span class="lineNum">    2419 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_bit_vec_op&quot;, _bit_vec_op);</span>
+<span class="lineNum">    2420 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_test_net_flag&quot;, _test_net_flag);</span>
+<span class="lineNum">    2421 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_last_event&quot;, _last_event);</span>
+<span class="lineNum">    2422 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_div_zero&quot;, _div_zero);</span>
+<span class="lineNum">    2423 </span><span class="lineCov">        342 :    jit_bind_fn(&quot;_null_deref&quot;, _null_deref);</span>
 <span class="lineNum">    2424 </span>            : 
-<span class="lineNum">    2425 </span><span class="lineCov">        341 :    trace_on = opt_get_int(&quot;rt_trace_en&quot;);</span>
-<span class="lineNum">    2426 </span><span class="lineCov">        341 :    profiling = opt_get_int(&quot;rt_profile&quot;);</span>
+<span class="lineNum">    2425 </span><span class="lineCov">        342 :    trace_on = opt_get_int(&quot;rt_trace_en&quot;);</span>
+<span class="lineNum">    2426 </span><span class="lineCov">        342 :    profiling = opt_get_int(&quot;rt_profile&quot;);</span>
 <span class="lineNum">    2427 </span>            : 
-<span class="lineNum">    2428 </span><span class="lineCov">        341 :    event_stack     = rt_alloc_stack_new(sizeof(event_t), &quot;event&quot;);</span>
-<span class="lineNum">    2429 </span><span class="lineCov">        341 :    waveform_stack  = rt_alloc_stack_new(sizeof(waveform_t), &quot;waveform&quot;);</span>
-<span class="lineNum">    2430 </span><span class="lineCov">        341 :    sens_list_stack = rt_alloc_stack_new(sizeof(sens_list_t), &quot;sens_list&quot;);</span>
-<span class="lineNum">    2431 </span><span class="lineCov">        341 :    watch_stack     = rt_alloc_stack_new(sizeof(watch_t), &quot;watch&quot;);</span>
-<span class="lineNum">    2432 </span><span class="lineCov">        341 :    callback_stack  = rt_alloc_stack_new(sizeof(callback_t), &quot;callback&quot;);</span>
+<span class="lineNum">    2428 </span><span class="lineCov">        342 :    event_stack     = rt_alloc_stack_new(sizeof(event_t), &quot;event&quot;);</span>
+<span class="lineNum">    2429 </span><span class="lineCov">        342 :    waveform_stack  = rt_alloc_stack_new(sizeof(waveform_t), &quot;waveform&quot;);</span>
+<span class="lineNum">    2430 </span><span class="lineCov">        342 :    sens_list_stack = rt_alloc_stack_new(sizeof(sens_list_t), &quot;sens_list&quot;);</span>
+<span class="lineNum">    2431 </span><span class="lineCov">        342 :    watch_stack     = rt_alloc_stack_new(sizeof(watch_t), &quot;watch&quot;);</span>
+<span class="lineNum">    2432 </span><span class="lineCov">        342 :    callback_stack  = rt_alloc_stack_new(sizeof(callback_t), &quot;callback&quot;);</span>
 <span class="lineNum">    2433 </span>            : 
-<span class="lineNum">    2434 </span><span class="lineCov">        341 :    n_active_alloc = 128;</span>
-<span class="lineNum">    2435 </span><span class="lineCov">        341 :    active_groups = xmalloc(n_active_alloc * sizeof(struct netgroup *));</span>
+<span class="lineNum">    2434 </span><span class="lineCov">        342 :    n_active_alloc = 128;</span>
+<span class="lineNum">    2435 </span><span class="lineCov">        342 :    active_groups = xmalloc(n_active_alloc * sizeof(struct netgroup *));</span>
 <span class="lineNum">    2436 </span>            : 
-<span class="lineNum">    2437 </span><span class="lineCov">        341 :    global_tmp_stack = mmap_guarded(GLOBAL_TMP_STACK_SZ, &quot;global temp stack&quot;);</span>
-<span class="lineNum">    2438 </span><span class="lineCov">        341 :    proc_tmp_stack   = mmap_guarded(PROC_TMP_STACK_SZ, &quot;process temp stack&quot;);</span>
+<span class="lineNum">    2437 </span><span class="lineCov">        342 :    global_tmp_stack = mmap_guarded(GLOBAL_TMP_STACK_SZ, &quot;global temp stack&quot;);</span>
+<span class="lineNum">    2438 </span><span class="lineCov">        342 :    proc_tmp_stack   = mmap_guarded(PROC_TMP_STACK_SZ, &quot;process temp stack&quot;);</span>
 <span class="lineNum">    2439 </span>            : 
-<span class="lineNum">    2440 </span><span class="lineCov">        341 :    global_tmp_alloc = 0;</span>
+<span class="lineNum">    2440 </span><span class="lineCov">        342 :    global_tmp_alloc = 0;</span>
 <span class="lineNum">    2441 </span>            : 
-<span class="lineNum">    2442 </span><span class="lineCov">       1023 :    for (int i = 0; i &lt; PERF_COUNTER_LAST; i++)</span>
-<span class="lineNum">    2443 </span><span class="lineCov">        682 :       perf_counters[i] = 0;</span>
+<span class="lineNum">    2442 </span><span class="lineCov">       1026 :    for (int i = 0; i &lt; PERF_COUNTER_LAST; i++)</span>
+<span class="lineNum">    2443 </span><span class="lineCov">        684 :       perf_counters[i] = 0;</span>
 <span class="lineNum">    2444 </span>            : 
-<span class="lineNum">    2445 </span><span class="lineCov">        341 :    rt_reset_coverage(top);</span>
+<span class="lineNum">    2445 </span><span class="lineCov">        342 :    rt_reset_coverage(top);</span>
 <span class="lineNum">    2446 </span>            : 
-<span class="lineNum">    2447 </span><span class="lineCov">        341 :    nvc_rusage(&amp;ready_rusage);</span>
-<a name="2448"><span class="lineNum">    2448 </span><span class="lineCov">        341 : }</span></a>
+<span class="lineNum">    2447 </span><span class="lineCov">        342 :    nvc_rusage(&amp;ready_rusage);</span>
+<a name="2448"><span class="lineNum">    2448 </span><span class="lineCov">        342 : }</span></a>
 <span class="lineNum">    2449 </span>            : 
-<span class="lineNum">    2450 </span><span class="lineCov">        318 : void rt_end_of_tool(tree_t top)</span>
+<span class="lineNum">    2450 </span><span class="lineCov">        319 : void rt_end_of_tool(tree_t top)</span>
 <span class="lineNum">    2451 </span>            : {
-<span class="lineNum">    2452 </span><span class="lineCov">        318 :    rt_cleanup(top);</span>
-<span class="lineNum">    2453 </span><span class="lineCov">        318 :    rt_emit_coverage(top);</span>
+<span class="lineNum">    2452 </span><span class="lineCov">        319 :    rt_cleanup(top);</span>
+<span class="lineNum">    2453 </span><span class="lineCov">        319 :    rt_emit_coverage(top);</span>
 <span class="lineNum">    2454 </span>            : 
-<span class="lineNum">    2455 </span><span class="lineCov">        318 :    jit_shutdown();</span>
+<span class="lineNum">    2455 </span><span class="lineCov">        319 :    jit_shutdown();</span>
 <span class="lineNum">    2456 </span>            : 
-<span class="lineNum">    2457 </span><span class="lineCov">        318 :    if (opt_get_int(&quot;rt-stats&quot;) || profiling)</span>
+<span class="lineNum">    2457 </span><span class="lineCov">        319 :    if (opt_get_int(&quot;rt-stats&quot;) || profiling)</span>
 <span class="lineNum">    2458 </span><span class="lineNoCov">          0 :       rt_stats_print();</span>
-<a name="2459"><span class="lineNum">    2459 </span><span class="lineCov">        318 : }</span></a>
+<a name="2459"><span class="lineNum">    2459 </span><span class="lineCov">        319 : }</span></a>
 <span class="lineNum">    2460 </span>            : 
-<span class="lineNum">    2461 </span><span class="lineCov">        339 : void rt_run_sim(uint64_t stop_time)</span>
+<span class="lineNum">    2461 </span><span class="lineCov">        340 : void rt_run_sim(uint64_t stop_time)</span>
 <span class="lineNum">    2462 </span>            : {
-<span class="lineNum">    2463 </span><span class="lineCov">        339 :    const int stop_delta = opt_get_int(&quot;stop-delta&quot;);</span>
+<span class="lineNum">    2463 </span><span class="lineCov">        340 :    const int stop_delta = opt_get_int(&quot;stop-delta&quot;);</span>
 <span class="lineNum">    2464 </span>            : 
-<span class="lineNum">    2465 </span><span class="lineCov">        339 :    rt_global_event(RT_START_OF_SIMULATION);</span>
-<span class="lineNum">    2466 </span><span class="lineCov">       5387 :    while (!rt_stop_now(stop_time))</span>
-<span class="lineNum">    2467 </span><span class="lineCov">       4730 :       rt_cycle(stop_delta);</span>
-<span class="lineNum">    2468 </span><span class="lineCov">        318 :    rt_global_event(RT_END_OF_SIMULATION);</span>
-<a name="2469"><span class="lineNum">    2469 </span><span class="lineCov">        318 : }</span></a>
+<span class="lineNum">    2465 </span><span class="lineCov">        340 :    rt_global_event(RT_START_OF_SIMULATION);</span>
+<span class="lineNum">    2466 </span><span class="lineCov">       5390 :    while (!rt_stop_now(stop_time))</span>
+<span class="lineNum">    2467 </span><span class="lineCov">       4731 :       rt_cycle(stop_delta);</span>
+<span class="lineNum">    2468 </span><span class="lineCov">        319 :    rt_global_event(RT_END_OF_SIMULATION);</span>
+<a name="2469"><span class="lineNum">    2469 </span><span class="lineCov">        319 : }</span></a>
 <span class="lineNum">    2470 </span>            : 
 <span class="lineNum">    2471 </span><span class="lineNoCov">          0 : static void rt_interactive_fatal(void)</span>
 <span class="lineNum">    2472 </span>            : {
@@ -2552,12 +2552,12 @@
 <span class="lineNum">    2490 </span>            :    }
 <a name="2491"><span class="lineNum">    2491 </span><span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">    2492 </span>            : 
-<span class="lineNum">    2493 </span><span class="lineCov">        341 : void rt_restart(tree_t top)</span>
+<span class="lineNum">    2493 </span><span class="lineCov">        342 : void rt_restart(tree_t top)</span>
 <span class="lineNum">    2494 </span>            : {
-<span class="lineNum">    2495 </span><span class="lineCov">        341 :    rt_setup(top);</span>
-<span class="lineNum">    2496 </span><span class="lineCov">        341 :    rt_initial(top);</span>
-<span class="lineNum">    2497 </span><span class="lineCov">        339 :    aborted = false;</span>
-<a name="2498"><span class="lineNum">    2498 </span><span class="lineCov">        339 : }</span></a>
+<span class="lineNum">    2495 </span><span class="lineCov">        342 :    rt_setup(top);</span>
+<span class="lineNum">    2496 </span><span class="lineCov">        342 :    rt_initial(top);</span>
+<span class="lineNum">    2497 </span><span class="lineCov">        340 :    aborted = false;</span>
+<a name="2498"><span class="lineNum">    2498 </span><span class="lineCov">        340 : }</span></a>
 <span class="lineNum">    2499 </span>            : 
 <span class="lineNum">    2500 </span><span class="lineCov">          1 : void rt_set_timeout_cb(uint64_t when, timeout_fn_t fn, void *user)</span>
 <span class="lineNum">    2501 </span>            : {
