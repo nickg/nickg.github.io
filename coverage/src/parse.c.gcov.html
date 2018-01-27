@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2018-01-23</td>
+            <td class="headerValue">2018-01-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">219</td>
@@ -200,7 +200,7 @@
 <span class="lineNum">     138 </span>            : static bool consume(token_t tok);
 <a name="139"><span class="lineNum">     139 </span>            : static bool optional(token_t tok);</a>
 <span class="lineNum">     140 </span>            : 
-<span class="lineNum">     141 </span><span class="lineCov">     505605 : static void _pop_state(const state_t *s)</span>
+<span class="lineNum">     141 </span><span class="lineCov">     505747 : static void _pop_state(const state_t *s)</span>
 <span class="lineNum">     142 </span>            : {
 <span class="lineNum">     143 </span>            : #if TRACE_PARSE
 <span class="lineNum">     144 </span>            :    depth--;
@@ -208,10 +208,10 @@
 <span class="lineNum">     146 </span>            :       printf(&quot; &quot;);
 <span class="lineNum">     147 </span>            :    printf(&quot;&lt;-- %s\n&quot;, hint_str);
 <span class="lineNum">     148 </span>            : #endif
-<span class="lineNum">     149 </span><span class="lineCov">     505605 :    hint_str  = s-&gt;old_hint;</span>
-<span class="lineNum">     150 </span><span class="lineCov">     505605 :    if (s-&gt;old_start_loc.first_line != LINE_INVALID)</span>
-<span class="lineNum">     151 </span><span class="lineCov">     120221 :       start_loc = s-&gt;old_start_loc;</span>
-<span class="lineNum">     152 </span><span class="lineCov">     505605 : }</span>
+<span class="lineNum">     149 </span><span class="lineCov">     505747 :    hint_str  = s-&gt;old_hint;</span>
+<span class="lineNum">     150 </span><span class="lineCov">     505747 :    if (s-&gt;old_start_loc.first_line != LINE_INVALID)</span>
+<span class="lineNum">     151 </span><span class="lineCov">     120285 :       start_loc = s-&gt;old_start_loc;</span>
+<span class="lineNum">     152 </span><span class="lineCov">     505747 : }</span>
 <span class="lineNum">     153 </span>            : 
 <span class="lineNum">     154 </span>            : static void _push_state(const state_t *s)
 <span class="lineNum">     155 </span>            : {
@@ -251,16 +251,16 @@
 <span class="lineNum">     189 </span><span class="lineCov">         65 :       return token_strs[tok];</span>
 <a name="190"><span class="lineNum">     190 </span>            : }</a>
 <span class="lineNum">     191 </span>            : 
-<span class="lineNum">     192 </span><span class="lineCov">     227395 : static token_t conditional_yylex(void)</span>
+<span class="lineNum">     192 </span><span class="lineCov">     227524 : static token_t conditional_yylex(void)</span>
 <span class="lineNum">     193 </span>            : {
-<span class="lineNum">     194 </span><span class="lineCov">     227395 :    const token_t token = yylex();</span>
+<span class="lineNum">     194 </span><span class="lineCov">     227524 :    const token_t token = yylex();</span>
 <span class="lineNum">     195 </span>            : 
 <span class="lineNum">     196 </span>            : #if 0
 <span class="lineNum">     197 </span>            :    printf(&quot;%s %s\n&quot;, (cond_state ? (cond_state-&gt;result ? &quot;1&quot; : &quot;0&quot;) : &quot;-&quot;),
 <span class="lineNum">     198 </span>            :           token_str(token));
 <span class="lineNum">     199 </span>            : #endif
 <span class="lineNum">     200 </span>            : 
-<span class="lineNum">     201 </span><span class="lineCov">     227395 :    switch (token) {</span>
+<span class="lineNum">     201 </span><span class="lineCov">     227524 :    switch (token) {</span>
 <span class="lineNum">     202 </span>            :    case tCONDIF:
 <span class="lineNum">     203 </span>            :       {
 <span class="lineNum">     204 </span><span class="lineCov">         14 :          BEGIN(&quot;conditional analysis directive&quot;);</span>
@@ -334,7 +334,7 @@
 <span class="lineNum">     272 </span>            :       }
 <span class="lineNum">     273 </span>            : 
 <span class="lineNum">     274 </span>            :    case tEOF:
-<span class="lineNum">     275 </span><span class="lineCov">        643 :       if (cond_state != NULL) {</span>
+<span class="lineNum">     275 </span><span class="lineCov">        644 :       if (cond_state != NULL) {</span>
 <span class="lineNum">     276 </span><span class="lineCov">          1 :          parse_error(&amp;(cond_state-&gt;loc), &quot;unterminated conditional &quot;</span>
 <span class="lineNum">     277 </span>            :                      &quot;analysis block&quot;);
 <span class="lineNum">     278 </span><span class="lineCov">          1 :          n_correct = 0;</span>
@@ -342,21 +342,21 @@
 <span class="lineNum">     280 </span>            :       return tEOF;
 <span class="lineNum">     281 </span>            : 
 <span class="lineNum">     282 </span>            :    default:
-<span class="lineNum">     283 </span><span class="lineCov">     226732 :       if (cond_state == NULL || cond_state-&gt;result)</span>
+<span class="lineNum">     283 </span><span class="lineCov">     226860 :       if (cond_state == NULL || cond_state-&gt;result)</span>
 <span class="lineNum">     284 </span>            :          return token;
 <span class="lineNum">     285 </span>            :       else
 <span class="lineNum">     286 </span><span class="lineCov">          9 :          return conditional_yylex();</span>
 <span class="lineNum">     287 </span>            :    }
 <a name="288"><span class="lineNum">     288 </span>            : }</a>
 <span class="lineNum">     289 </span>            : 
-<span class="lineNum">     290 </span><span class="lineCov">    1175215 : static token_t peek_nth(int n)</span>
+<span class="lineNum">     290 </span><span class="lineCov">    1175623 : static token_t peek_nth(int n)</span>
 <span class="lineNum">     291 </span>            : {
-<span class="lineNum">     292 </span><span class="lineCov">    2577796 :    while (((tokenq_head - tokenq_tail) &amp; (tokenq_sz - 1)) &lt; n) {</span>
+<span class="lineNum">     292 </span><span class="lineCov">    2578741 :    while (((tokenq_head - tokenq_tail) &amp; (tokenq_sz - 1)) &lt; n) {</span>
 <span class="lineNum">     293 </span>            :       // Calling conditional_yylex may recursively call this function
-<span class="lineNum">     294 </span><span class="lineCov">     227366 :       const token_t token = conditional_yylex();</span>
+<span class="lineNum">     294 </span><span class="lineCov">     227495 :       const token_t token = conditional_yylex();</span>
 <span class="lineNum">     295 </span>            : 
-<span class="lineNum">     296 </span><span class="lineCov">     227366 :       int next = (tokenq_head + 1) &amp; (tokenq_sz - 1);</span>
-<span class="lineNum">     297 </span><span class="lineCov">     227366 :       if (unlikely(next == tokenq_tail)) {</span>
+<span class="lineNum">     296 </span><span class="lineCov">     227495 :       int next = (tokenq_head + 1) &amp; (tokenq_sz - 1);</span>
+<span class="lineNum">     297 </span><span class="lineCov">     227495 :       if (unlikely(next == tokenq_tail)) {</span>
 <span class="lineNum">     298 </span><span class="lineCov">          1 :          const int newsz = tokenq_sz * 2;</span>
 <span class="lineNum">     299 </span><span class="lineCov">          1 :          tokenq_t *new = xmalloc(newsz * sizeof(tokenq_t));</span>
 <span class="lineNum">     300 </span>            : 
@@ -377,15 +377,15 @@
 <span class="lineNum">     315 </span>            : 
 <span class="lineNum">     316 </span>            :       extern yylval_t yylval;
 <span class="lineNum">     317 </span>            : 
-<span class="lineNum">     318 </span><span class="lineCov">     227366 :       tokenq[tokenq_head].token = token;</span>
-<span class="lineNum">     319 </span><span class="lineCov">     227366 :       tokenq[tokenq_head].lval  = yylval;</span>
-<span class="lineNum">     320 </span><span class="lineCov">     227366 :       tokenq[tokenq_head].loc   = yylloc;</span>
+<span class="lineNum">     318 </span><span class="lineCov">     227495 :       tokenq[tokenq_head].token = token;</span>
+<span class="lineNum">     319 </span><span class="lineCov">     227495 :       tokenq[tokenq_head].lval  = yylval;</span>
+<span class="lineNum">     320 </span><span class="lineCov">     227495 :       tokenq[tokenq_head].loc   = yylloc;</span>
 <span class="lineNum">     321 </span>            : 
-<span class="lineNum">     322 </span><span class="lineCov">     227366 :       tokenq_head = next;</span>
+<span class="lineNum">     322 </span><span class="lineCov">     227495 :       tokenq_head = next;</span>
 <span class="lineNum">     323 </span>            :    }
 <span class="lineNum">     324 </span>            : 
-<span class="lineNum">     325 </span><span class="lineCov">    1175215 :    const int pos = (tokenq_tail + n - 1) &amp; (tokenq_sz - 1);</span>
-<span class="lineNum">     326 </span><span class="lineCov">    1175215 :    return tokenq[pos].token;</span>
+<span class="lineNum">     325 </span><span class="lineCov">    1175623 :    const int pos = (tokenq_tail + n - 1) &amp; (tokenq_sz - 1);</span>
+<span class="lineNum">     326 </span><span class="lineCov">    1175623 :    return tokenq[pos].token;</span>
 <a name="327"><span class="lineNum">     327 </span>            : }</a>
 <span class="lineNum">     328 </span>            : 
 <span class="lineNum">     329 </span><span class="lineCov">      24486 : static bool look_for(const look_params_t *params)</span>
@@ -427,20 +427,20 @@
 <span class="lineNum">     365 </span><span class="lineCov">      24486 :    return found;</span>
 <a name="366"><span class="lineNum">     366 </span>            : }</a>
 <span class="lineNum">     367 </span>            : 
-<span class="lineNum">     368 </span><span class="lineCov">     226727 : static void drop_token(void)</span>
+<span class="lineNum">     368 </span><span class="lineCov">     226855 : static void drop_token(void)</span>
 <span class="lineNum">     369 </span>            : {
-<span class="lineNum">     370 </span><span class="lineCov">     226727 :    assert(tokenq_head != tokenq_tail);</span>
+<span class="lineNum">     370 </span><span class="lineCov">     226855 :    assert(tokenq_head != tokenq_tail);</span>
 <span class="lineNum">     371 </span>            : 
-<span class="lineNum">     372 </span><span class="lineCov">     226727 :    if (start_loc.last_line == LINE_INVALID)</span>
-<span class="lineNum">     373 </span><span class="lineCov">      91464 :       start_loc = tokenq[tokenq_tail].loc;</span>
+<span class="lineNum">     372 </span><span class="lineCov">     226855 :    if (start_loc.last_line == LINE_INVALID)</span>
+<span class="lineNum">     373 </span><span class="lineCov">      91511 :       start_loc = tokenq[tokenq_tail].loc;</span>
 <span class="lineNum">     374 </span>            : 
-<span class="lineNum">     375 </span><span class="lineCov">     226727 :    last_lval = tokenq[tokenq_tail].lval;</span>
-<span class="lineNum">     376 </span><span class="lineCov">     226727 :    last_loc  = tokenq[tokenq_tail].loc;</span>
+<span class="lineNum">     375 </span><span class="lineCov">     226855 :    last_lval = tokenq[tokenq_tail].lval;</span>
+<span class="lineNum">     376 </span><span class="lineCov">     226855 :    last_loc  = tokenq[tokenq_tail].loc;</span>
 <span class="lineNum">     377 </span>            : 
-<span class="lineNum">     378 </span><span class="lineCov">     226727 :    tokenq_tail = (tokenq_tail + 1) &amp; (tokenq_sz - 1);</span>
+<span class="lineNum">     378 </span><span class="lineCov">     226855 :    tokenq_tail = (tokenq_tail + 1) &amp; (tokenq_sz - 1);</span>
 <span class="lineNum">     379 </span>            : 
-<span class="lineNum">     380 </span><span class="lineCov">     226727 :    nopt_hist = 0;</span>
-<a name="381"><span class="lineNum">     381 </span><span class="lineCov">     226727 : }</span></a>
+<span class="lineNum">     380 </span><span class="lineCov">     226855 :    nopt_hist = 0;</span>
+<a name="381"><span class="lineNum">     381 </span><span class="lineCov">     226855 : }</span></a>
 <span class="lineNum">     382 </span>            : 
 <span class="lineNum">     383 </span><span class="lineCov">          4 : static void drop_tokens_until(token_t tok)</span>
 <span class="lineNum">     384 </span>            : {
@@ -509,74 +509,74 @@
 <span class="lineNum">     447 </span><span class="lineCov">         14 :    va_end(ap);</span>
 <a name="448"><span class="lineNum">     448 </span><span class="lineCov">         14 : }</span></a>
 <span class="lineNum">     449 </span>            : 
-<span class="lineNum">     450 </span><span class="lineCov">     226713 : static bool consume(token_t tok)</span>
+<span class="lineNum">     450 </span><span class="lineCov">     226841 : static bool consume(token_t tok)</span>
 <span class="lineNum">     451 </span>            : {
-<span class="lineNum">     452 </span><span class="lineCov">     226713 :    const token_t got = peek();</span>
-<span class="lineNum">     453 </span><span class="lineCov">     226713 :    if (tok != got) {</span>
+<span class="lineNum">     452 </span><span class="lineCov">     226841 :    const token_t got = peek();</span>
+<span class="lineNum">     453 </span><span class="lineCov">     226841 :    if (tok != got) {</span>
 <span class="lineNum">     454 </span><span class="lineCov">         10 :       expect(tok);</span>
 <span class="lineNum">     455 </span><span class="lineCov">         10 :       return false;</span>
 <span class="lineNum">     456 </span>            :    }
 <span class="lineNum">     457 </span>            :    else {
-<span class="lineNum">     458 </span><span class="lineCov">     226703 :       n_correct++;</span>
-<span class="lineNum">     459 </span><span class="lineCov">     226703 :       drop_token();</span>
-<span class="lineNum">     460 </span><span class="lineCov">     226703 :       return true;</span>
+<span class="lineNum">     458 </span><span class="lineCov">     226831 :       n_correct++;</span>
+<span class="lineNum">     459 </span><span class="lineCov">     226831 :       drop_token();</span>
+<span class="lineNum">     460 </span><span class="lineCov">     226831 :       return true;</span>
 <span class="lineNum">     461 </span>            :    }
 <a name="462"><span class="lineNum">     462 </span>            : }</a>
 <span class="lineNum">     463 </span>            : 
-<span class="lineNum">     464 </span><span class="lineCov">     147119 : static bool optional(token_t tok)</span>
+<span class="lineNum">     464 </span><span class="lineCov">     147207 : static bool optional(token_t tok)</span>
 <span class="lineNum">     465 </span>            : {
-<span class="lineNum">     466 </span><span class="lineCov">     147119 :    if (peek() == tok) {</span>
-<span class="lineNum">     467 </span><span class="lineCov">      24642 :       consume(tok);</span>
-<span class="lineNum">     468 </span><span class="lineCov">      24642 :       return true;</span>
+<span class="lineNum">     466 </span><span class="lineCov">     147207 :    if (peek() == tok) {</span>
+<span class="lineNum">     467 </span><span class="lineCov">      24658 :       consume(tok);</span>
+<span class="lineNum">     468 </span><span class="lineCov">      24658 :       return true;</span>
 <span class="lineNum">     469 </span>            :    }
 <span class="lineNum">     470 </span>            :    else {
-<span class="lineNum">     471 </span><span class="lineCov">     122477 :       if (nopt_hist &lt; ARRAY_LEN(opt_hist))</span>
-<span class="lineNum">     472 </span><span class="lineCov">     122477 :          opt_hist[nopt_hist++] = tok;</span>
+<span class="lineNum">     471 </span><span class="lineCov">     122549 :       if (nopt_hist &lt; ARRAY_LEN(opt_hist))</span>
+<span class="lineNum">     472 </span><span class="lineCov">     122549 :          opt_hist[nopt_hist++] = tok;</span>
 <span class="lineNum">     473 </span>            :       return false;
 <span class="lineNum">     474 </span>            :    }
 <a name="475"><span class="lineNum">     475 </span>            : }</a>
 <span class="lineNum">     476 </span>            : 
-<span class="lineNum">     477 </span><span class="lineCov">     324913 : static bool _scan(int dummy, ...)</span>
+<span class="lineNum">     477 </span><span class="lineCov">     324970 : static bool _scan(int dummy, ...)</span>
 <span class="lineNum">     478 </span>            : {
 <span class="lineNum">     479 </span>            :    va_list ap;
-<span class="lineNum">     480 </span><span class="lineCov">     324913 :    va_start(ap, dummy);</span>
+<span class="lineNum">     480 </span><span class="lineCov">     324970 :    va_start(ap, dummy);</span>
 <span class="lineNum">     481 </span>            : 
-<span class="lineNum">     482 </span><span class="lineCov">     324913 :    token_t p = peek();</span>
-<span class="lineNum">     483 </span><span class="lineCov">     324913 :    bool found = false;</span>
+<span class="lineNum">     482 </span><span class="lineCov">     324970 :    token_t p = peek();</span>
+<span class="lineNum">     483 </span><span class="lineCov">     324970 :    bool found = false;</span>
 <span class="lineNum">     484 </span>            : 
-<span class="lineNum">     485 </span><span class="lineCov">    1856022 :    while (!found) {</span>
-<span class="lineNum">     486 </span><span class="lineCov">    1499630 :       const int tok = va_arg(ap, token_t);</span>
-<span class="lineNum">     487 </span><span class="lineCov">    1499630 :       if (tok == -1)</span>
+<span class="lineNum">     485 </span><span class="lineCov">    1856267 :    while (!found) {</span>
+<span class="lineNum">     486 </span><span class="lineCov">    1499799 :       const int tok = va_arg(ap, token_t);</span>
+<span class="lineNum">     487 </span><span class="lineCov">    1499799 :       if (tok == -1)</span>
 <span class="lineNum">     488 </span>            :          break;
-<span class="lineNum">     489 </span><span class="lineCov">    1206196 :       else if (p == tok)</span>
-<span class="lineNum">     490 </span><span class="lineCov">      31479 :          found = true;</span>
+<span class="lineNum">     489 </span><span class="lineCov">    1206327 :       else if (p == tok)</span>
+<span class="lineNum">     490 </span><span class="lineCov">      31498 :          found = true;</span>
 <span class="lineNum">     491 </span>            :    }
 <span class="lineNum">     492 </span>            : 
-<span class="lineNum">     493 </span><span class="lineCov">     324913 :    va_end(ap);</span>
-<span class="lineNum">     494 </span><span class="lineCov">     324913 :    return found;</span>
+<span class="lineNum">     493 </span><span class="lineCov">     324970 :    va_end(ap);</span>
+<span class="lineNum">     494 </span><span class="lineCov">     324970 :    return found;</span>
 <a name="495"><span class="lineNum">     495 </span>            : }</a>
 <span class="lineNum">     496 </span>            : 
-<span class="lineNum">     497 </span><span class="lineCov">      24157 : static int _one_of(int dummy, ...)</span>
+<span class="lineNum">     497 </span><span class="lineCov">      24174 : static int _one_of(int dummy, ...)</span>
 <span class="lineNum">     498 </span>            : {
 <span class="lineNum">     499 </span>            :    va_list ap;
-<span class="lineNum">     500 </span><span class="lineCov">      24157 :    va_start(ap, dummy);</span>
+<span class="lineNum">     500 </span><span class="lineCov">      24174 :    va_start(ap, dummy);</span>
 <span class="lineNum">     501 </span>            : 
-<span class="lineNum">     502 </span><span class="lineCov">      24157 :    token_t p = peek();</span>
-<span class="lineNum">     503 </span><span class="lineCov">      24157 :    bool found = false;</span>
+<span class="lineNum">     502 </span><span class="lineCov">      24174 :    token_t p = peek();</span>
+<span class="lineNum">     503 </span><span class="lineCov">      24174 :    bool found = false;</span>
 <span class="lineNum">     504 </span>            : 
-<span class="lineNum">     505 </span><span class="lineCov">      82200 :    while (!found) {</span>
-<span class="lineNum">     506 </span><span class="lineCov">      33886 :       const int tok = va_arg(ap, token_t);</span>
-<span class="lineNum">     507 </span><span class="lineCov">      33886 :       if (tok == -1)</span>
+<span class="lineNum">     505 </span><span class="lineCov">      82259 :    while (!found) {</span>
+<span class="lineNum">     506 </span><span class="lineCov">      33911 :       const int tok = va_arg(ap, token_t);</span>
+<span class="lineNum">     507 </span><span class="lineCov">      33911 :       if (tok == -1)</span>
 <span class="lineNum">     508 </span>            :          break;
-<span class="lineNum">     509 </span><span class="lineCov">      33886 :       else if (p == tok)</span>
-<span class="lineNum">     510 </span><span class="lineCov">      24157 :          found = true;</span>
+<span class="lineNum">     509 </span><span class="lineCov">      33911 :       else if (p == tok)</span>
+<span class="lineNum">     510 </span><span class="lineCov">      24174 :          found = true;</span>
 <span class="lineNum">     511 </span>            :    }
 <span class="lineNum">     512 </span>            : 
-<span class="lineNum">     513 </span><span class="lineCov">      24157 :    va_end(ap);</span>
+<span class="lineNum">     513 </span><span class="lineCov">      24174 :    va_end(ap);</span>
 <span class="lineNum">     514 </span>            : 
-<span class="lineNum">     515 </span><span class="lineCov">      24157 :    if (found) {</span>
-<span class="lineNum">     516 </span><span class="lineCov">      24157 :       consume(p);</span>
-<span class="lineNum">     517 </span><span class="lineCov">      24157 :       return p;</span>
+<span class="lineNum">     515 </span><span class="lineCov">      24174 :    if (found) {</span>
+<span class="lineNum">     516 </span><span class="lineCov">      24174 :       consume(p);</span>
+<span class="lineNum">     517 </span><span class="lineCov">      24174 :       return p;</span>
 <span class="lineNum">     518 </span>            :    }
 <span class="lineNum">     519 </span>            :    else {
 <span class="lineNum">     520 </span><span class="lineNoCov">          0 :       va_start(ap, dummy);</span>
@@ -587,28 +587,28 @@
 <span class="lineNum">     525 </span>            :    }
 <a name="526"><span class="lineNum">     526 </span>            : }</a>
 <span class="lineNum">     527 </span>            : 
-<span class="lineNum">     528 </span><span class="lineCov">     114770 : static const loc_t *_diff_loc(const loc_t *start, const loc_t *end)</span>
+<span class="lineNum">     528 </span><span class="lineCov">     114800 : static const loc_t *_diff_loc(const loc_t *start, const loc_t *end)</span>
 <span class="lineNum">     529 </span>            : {
 <span class="lineNum">     530 </span>            :    static loc_t result;
 <span class="lineNum">     531 </span>            : 
-<span class="lineNum">     532 </span><span class="lineCov">     114770 :    result.first_line   = start-&gt;first_line;</span>
-<span class="lineNum">     533 </span><span class="lineCov">     114770 :    result.first_column = start-&gt;first_column;</span>
-<span class="lineNum">     534 </span><span class="lineCov">     114770 :    result.last_line    = end-&gt;last_line;</span>
-<span class="lineNum">     535 </span><span class="lineCov">     114770 :    result.last_column  = end-&gt;last_column;</span>
-<span class="lineNum">     536 </span><span class="lineCov">     114770 :    result.file         = start-&gt;file;</span>
-<span class="lineNum">     537 </span><span class="lineCov">     114770 :    result.linebuf      = start-&gt;linebuf;</span>
+<span class="lineNum">     532 </span><span class="lineCov">     114800 :    result.first_line   = start-&gt;first_line;</span>
+<span class="lineNum">     533 </span><span class="lineCov">     114800 :    result.first_column = start-&gt;first_column;</span>
+<span class="lineNum">     534 </span><span class="lineCov">     114800 :    result.last_line    = end-&gt;last_line;</span>
+<span class="lineNum">     535 </span><span class="lineCov">     114800 :    result.last_column  = end-&gt;last_column;</span>
+<span class="lineNum">     536 </span><span class="lineCov">     114800 :    result.file         = start-&gt;file;</span>
+<span class="lineNum">     537 </span><span class="lineCov">     114800 :    result.linebuf      = start-&gt;linebuf;</span>
 <span class="lineNum">     538 </span>            : 
-<span class="lineNum">     539 </span><span class="lineCov">     114770 :    return &amp;result;</span>
+<span class="lineNum">     539 </span><span class="lineCov">     114800 :    return &amp;result;</span>
 <a name="540"><span class="lineNum">     540 </span>            : }</a>
 <span class="lineNum">     541 </span>            : 
-<span class="lineNum">     542 </span><span class="lineCov">      12665 : static ident_t loc_to_ident(const loc_t *loc)</span>
+<span class="lineNum">     542 </span><span class="lineCov">      12667 : static ident_t loc_to_ident(const loc_t *loc)</span>
 <span class="lineNum">     543 </span>            : {
-<span class="lineNum">     544 </span><span class="lineCov">      12665 :    int bufsz = 128;</span>
-<span class="lineNum">     545 </span><span class="lineCov">      12665 :    char *buf = xmalloc(bufsz);</span>
-<span class="lineNum">     546 </span><span class="lineCov">      12665 :    checked_sprintf(buf, bufsz, &quot;line_%d&quot;, loc-&gt;first_line);</span>
-<span class="lineNum">     547 </span><span class="lineCov">      12665 :    const int nprint = strlen(buf);</span>
+<span class="lineNum">     544 </span><span class="lineCov">      12667 :    int bufsz = 128;</span>
+<span class="lineNum">     545 </span><span class="lineCov">      12667 :    char *buf = xmalloc(bufsz);</span>
+<span class="lineNum">     546 </span><span class="lineCov">      12667 :    checked_sprintf(buf, bufsz, &quot;line_%d&quot;, loc-&gt;first_line);</span>
+<span class="lineNum">     547 </span><span class="lineCov">      12667 :    const int nprint = strlen(buf);</span>
 <span class="lineNum">     548 </span>            : 
-<span class="lineNum">     549 </span><span class="lineCov">      13276 :    for (int i = 0; ident_interned(buf); i++) {</span>
+<span class="lineNum">     549 </span><span class="lineCov">      13278 :    for (int i = 0; ident_interned(buf); i++) {</span>
 <span class="lineNum">     550 </span><span class="lineCov">        611 :       if (nprint + 1 &gt; bufsz) {</span>
 <span class="lineNum">     551 </span><span class="lineNoCov">          0 :          bufsz *= 2;</span>
 <span class="lineNum">     552 </span><span class="lineNoCov">          0 :          buf = xrealloc(buf, bufsz);</span>
@@ -617,19 +617,19 @@
 <span class="lineNum">     555 </span><span class="lineCov">        611 :       buf[nprint + 1] = '\0';</span>
 <span class="lineNum">     556 </span>            :    }
 <span class="lineNum">     557 </span>            : 
-<span class="lineNum">     558 </span><span class="lineCov">      12665 :    ident_t ident = ident_new(buf);</span>
-<span class="lineNum">     559 </span><span class="lineCov">      12665 :    free(buf);</span>
-<span class="lineNum">     560 </span><span class="lineCov">      12665 :    return ident;</span>
+<span class="lineNum">     558 </span><span class="lineCov">      12667 :    ident_t ident = ident_new(buf);</span>
+<span class="lineNum">     559 </span><span class="lineCov">      12667 :    free(buf);</span>
+<span class="lineNum">     560 </span><span class="lineCov">      12667 :    return ident;</span>
 <a name="561"><span class="lineNum">     561 </span>            : }</a>
 <span class="lineNum">     562 </span>            : 
-<span class="lineNum">     563 </span><span class="lineCov">       8366 : static void set_label_and_loc(tree_t t, ident_t label, const loc_t *loc)</span>
+<span class="lineNum">     563 </span><span class="lineCov">       8368 : static void set_label_and_loc(tree_t t, ident_t label, const loc_t *loc)</span>
 <span class="lineNum">     564 </span>            : {
-<span class="lineNum">     565 </span><span class="lineCov">       8366 :    tree_set_loc(t, loc);</span>
+<span class="lineNum">     565 </span><span class="lineCov">       8368 :    tree_set_loc(t, loc);</span>
 <span class="lineNum">     566 </span>            : 
-<span class="lineNum">     567 </span><span class="lineCov">       8366 :    if (label == NULL)</span>
-<span class="lineNum">     568 </span><span class="lineCov">       8344 :       label = loc_to_ident(loc);</span>
-<span class="lineNum">     569 </span><span class="lineCov">       8366 :    tree_set_ident(t, label);</span>
-<a name="570"><span class="lineNum">     570 </span><span class="lineCov">       8366 : }</span></a>
+<span class="lineNum">     567 </span><span class="lineCov">       8368 :    if (label == NULL)</span>
+<span class="lineNum">     568 </span><span class="lineCov">       8346 :       label = loc_to_ident(loc);</span>
+<span class="lineNum">     569 </span><span class="lineCov">       8368 :    tree_set_ident(t, label);</span>
+<a name="570"><span class="lineNum">     570 </span><span class="lineCov">       8368 : }</span></a>
 <span class="lineNum">     571 </span>            : 
 <span class="lineNum">     572 </span><span class="lineCov">        306 : static tree_t bit_str_to_literal(const char *str, const loc_t *loc)</span>
 <span class="lineNum">     573 </span>            : {
@@ -724,21 +724,21 @@
 <span class="lineNum">     662 </span><span class="lineCov">          8 :    return fcall;</span>
 <a name="663"><span class="lineNum">     663 </span>            : }</a>
 <span class="lineNum">     664 </span>            : 
-<span class="lineNum">     665 </span><span class="lineCov">        813 : static void set_delay_mechanism(tree_t t, tree_t reject)</span>
+<span class="lineNum">     665 </span><span class="lineCov">        814 : static void set_delay_mechanism(tree_t t, tree_t reject)</span>
 <span class="lineNum">     666 </span>            : {
-<span class="lineNum">     667 </span><span class="lineCov">        813 :    if (reject == NULL) {</span>
+<span class="lineNum">     667 </span><span class="lineCov">        814 :    if (reject == NULL) {</span>
 <span class="lineNum">     668 </span>            :       // Inertial delay with same value as waveform
 <span class="lineNum">     669 </span>            :       // LRM 93 section 8.4 the rejection limit in this case is
 <span class="lineNum">     670 </span>            :       // specified by the time expression of the first waveform
-<span class="lineNum">     671 </span><span class="lineCov">       1576 :       tree_t w = (tree_kind(t) == T_CASSIGN</span>
+<span class="lineNum">     671 </span><span class="lineCov">       1578 :       tree_t w = (tree_kind(t) == T_CASSIGN</span>
 <span class="lineNum">     672 </span><span class="lineNoCov">          0 :                   ? tree_waveform(tree_cond(t, 0), 0)</span>
-<span class="lineNum">     673 </span><span class="lineCov">        788 :                   : tree_waveform(t, 0));</span>
-<span class="lineNum">     674 </span><span class="lineCov">        788 :       if (tree_has_delay(w))</span>
+<span class="lineNum">     673 </span><span class="lineCov">        789 :                   : tree_waveform(t, 0));</span>
+<span class="lineNum">     674 </span><span class="lineCov">        789 :       if (tree_has_delay(w))</span>
 <span class="lineNum">     675 </span><span class="lineCov">         69 :          tree_set_reject(t, tree_delay(w));</span>
 <span class="lineNum">     676 </span>            :    }
 <span class="lineNum">     677 </span>            :    else
 <span class="lineNum">     678 </span><span class="lineCov">         25 :       tree_set_reject(t, reject);</span>
-<a name="679"><span class="lineNum">     679 </span><span class="lineCov">        813 : }</span></a>
+<a name="679"><span class="lineNum">     679 </span><span class="lineCov">        814 : }</span></a>
 <span class="lineNum">     680 </span>            : 
 <span class="lineNum">     681 </span><span class="lineCov">          8 : static const char *get_cond_analysis_identifier(const char *name)</span>
 <span class="lineNum">     682 </span>            : {
@@ -861,15 +861,15 @@
 <span class="lineNum">     799 </span>            :    }
 <a name="800"><span class="lineNum">     800 </span>            : }</a>
 <span class="lineNum">     801 </span>            : 
-<span class="lineNum">     802 </span><span class="lineCov">      67169 : static ident_t p_identifier(void)</span>
+<span class="lineNum">     802 </span><span class="lineCov">      67206 : static ident_t p_identifier(void)</span>
 <span class="lineNum">     803 </span>            : {
 <span class="lineNum">     804 </span>            :    // basic_identifier | extended_identifier
 <span class="lineNum">     805 </span>            : 
-<span class="lineNum">     806 </span><span class="lineCov">      67169 :    if (consume(tID)) {</span>
-<span class="lineNum">     807 </span><span class="lineCov">      67169 :       char *s = last_lval.s;</span>
-<span class="lineNum">     808 </span><span class="lineCov">      67169 :       ident_t i = ident_new(s);</span>
-<span class="lineNum">     809 </span><span class="lineCov">      67169 :       free(s);</span>
-<span class="lineNum">     810 </span><span class="lineCov">      67169 :       return i;</span>
+<span class="lineNum">     806 </span><span class="lineCov">      67206 :    if (consume(tID)) {</span>
+<span class="lineNum">     807 </span><span class="lineCov">      67206 :       char *s = last_lval.s;</span>
+<span class="lineNum">     808 </span><span class="lineCov">      67206 :       ident_t i = ident_new(s);</span>
+<span class="lineNum">     809 </span><span class="lineCov">      67206 :       free(s);</span>
+<span class="lineNum">     810 </span><span class="lineCov">      67206 :       return i;</span>
 <span class="lineNum">     811 </span>            :    }
 <span class="lineNum">     812 </span>            :    else
 <span class="lineNum">     813 </span><span class="lineNoCov">          0 :       return ident_new(&quot;error&quot;);</span>
@@ -886,18 +886,18 @@
 <span class="lineNum">     824 </span><span class="lineCov">        245 :    return id;</span>
 <a name="825"><span class="lineNum">     825 </span>            : }</a>
 <span class="lineNum">     826 </span>            : 
-<span class="lineNum">     827 </span><span class="lineCov">       8880 : static ident_list_t *p_identifier_list(void)</span>
+<span class="lineNum">     827 </span><span class="lineCov">       8890 : static ident_list_t *p_identifier_list(void)</span>
 <span class="lineNum">     828 </span>            : {
 <span class="lineNum">     829 </span>            :    // identifier { , identifier }
 <span class="lineNum">     830 </span>            : 
-<span class="lineNum">     831 </span><span class="lineCov">       8880 :    ident_list_t *result = NULL;</span>
+<span class="lineNum">     831 </span><span class="lineCov">       8890 :    ident_list_t *result = NULL;</span>
 <span class="lineNum">     832 </span>            : 
-<span class="lineNum">     833 </span><span class="lineCov">       8880 :    ident_list_add(&amp;result, p_identifier());</span>
+<span class="lineNum">     833 </span><span class="lineCov">       8890 :    ident_list_add(&amp;result, p_identifier());</span>
 <span class="lineNum">     834 </span>            : 
-<span class="lineNum">     835 </span><span class="lineCov">      18705 :    while (optional(tCOMMA))</span>
+<span class="lineNum">     835 </span><span class="lineCov">      18725 :    while (optional(tCOMMA))</span>
 <span class="lineNum">     836 </span><span class="lineCov">        945 :       ident_list_push(&amp;result, p_identifier());</span>
 <span class="lineNum">     837 </span>            : 
-<span class="lineNum">     838 </span><span class="lineCov">       8880 :    return result;</span>
+<span class="lineNum">     838 </span><span class="lineCov">       8890 :    return result;</span>
 <a name="839"><span class="lineNum">     839 </span>            : }</a>
 <span class="lineNum">     840 </span>            : 
 <span class="lineNum">     841 </span><span class="lineCov">       1123 : static ident_t p_operator_symbol(void)</span>
@@ -1037,25 +1037,25 @@
 <span class="lineNum">     975 </span>            :    }
 <a name="976"><span class="lineNum">     976 </span><span class="lineCov">        300 : }</span></a>
 <span class="lineNum">     977 </span>            : 
-<span class="lineNum">     978 </span><span class="lineCov">       1737 : static void p_context_clause(tree_t unit)</span>
+<span class="lineNum">     978 </span><span class="lineCov">       1739 : static void p_context_clause(tree_t unit)</span>
 <span class="lineNum">     979 </span>            : {
 <span class="lineNum">     980 </span>            :    // { context_item }
 <span class="lineNum">     981 </span>            : 
-<span class="lineNum">     982 </span><span class="lineCov">       3474 :    BEGIN(&quot;context clause&quot;);</span>
+<span class="lineNum">     982 </span><span class="lineCov">       3478 :    BEGIN(&quot;context clause&quot;);</span>
 <span class="lineNum">     983 </span>            : 
-<span class="lineNum">     984 </span><span class="lineCov">       3774 :    while (scan(tLIBRARY, tUSE, tCONTEXT)) {</span>
+<span class="lineNum">     984 </span><span class="lineCov">       3778 :    while (scan(tLIBRARY, tUSE, tCONTEXT)) {</span>
 <span class="lineNum">     985 </span><span class="lineCov">        306 :       if (peek() == tCONTEXT &amp;&amp; peek_nth(3) == tIS)</span>
 <span class="lineNum">     986 </span>            :          break;
 <span class="lineNum">     987 </span>            :       else
 <span class="lineNum">     988 </span><span class="lineCov">        300 :          p_context_item(unit);</span>
 <span class="lineNum">     989 </span>            :    }
-<a name="990"><span class="lineNum">     990 </span><span class="lineCov">       1737 : }</span></a>
+<a name="990"><span class="lineNum">     990 </span><span class="lineCov">       1739 : }</span></a>
 <span class="lineNum">     991 </span>            : 
-<span class="lineNum">     992 </span><span class="lineCov">       3129 : static port_mode_t p_mode(void)</span>
+<span class="lineNum">     992 </span><span class="lineCov">       3137 : static port_mode_t p_mode(void)</span>
 <span class="lineNum">     993 </span>            : {
 <span class="lineNum">     994 </span>            :    // in | out | inout | buffer | linkage
 <span class="lineNum">     995 </span>            : 
-<span class="lineNum">     996 </span><span class="lineCov">       3129 :    switch (one_of(tIN, tOUT, tINOUT, tBUFFER, tLINKAGE)) {</span>
+<span class="lineNum">     996 </span><span class="lineCov">       3137 :    switch (one_of(tIN, tOUT, tINOUT, tBUFFER, tLINKAGE)) {</span>
 <span class="lineNum">     997 </span>            :    case tIN:
 <span class="lineNum">     998 </span>            :       return PORT_IN;
 <span class="lineNum">     999 </span>            :    case tOUT:
@@ -1397,35 +1397,35 @@
 <span class="lineNum">    1335 </span><span class="lineCov">         80 :    return t;</span>
 <a name="1336"><span class="lineNum">    1336 </span>            : }</a>
 <span class="lineNum">    1337 </span>            : 
-<span class="lineNum">    1338 </span><span class="lineCov">      32355 : static tree_t p_name(void)</span>
+<span class="lineNum">    1338 </span><span class="lineCov">      32357 : static tree_t p_name(void)</span>
 <span class="lineNum">    1339 </span>            : {
 <span class="lineNum">    1340 </span>            :    // simple_name | operator_symbol | selected_name | indexed_name
 <span class="lineNum">    1341 </span>            :    //   | slice_name | attribute_name
 <span class="lineNum">    1342 </span>            : 
-<span class="lineNum">    1343 </span><span class="lineCov">      64710 :    BEGIN(&quot;name&quot;);</span>
+<span class="lineNum">    1343 </span><span class="lineCov">      64714 :    BEGIN(&quot;name&quot;);</span>
 <span class="lineNum">    1344 </span>            : 
-<span class="lineNum">    1345 </span><span class="lineCov">      32355 :    ident_t id = NULL;</span>
+<span class="lineNum">    1345 </span><span class="lineCov">      32357 :    ident_t id = NULL;</span>
 <span class="lineNum">    1346 </span>            : 
-<span class="lineNum">    1347 </span><span class="lineCov">      32355 :    switch (peek()) {</span>
+<span class="lineNum">    1347 </span><span class="lineCov">      32357 :    switch (peek()) {</span>
 <span class="lineNum">    1348 </span>            :    case tSTRING:
 <span class="lineNum">    1349 </span><span class="lineCov">          3 :       id = p_operator_symbol();</span>
 <span class="lineNum">    1350 </span><span class="lineCov">          3 :       break;</span>
 <span class="lineNum">    1351 </span>            : 
 <span class="lineNum">    1352 </span>            :    case tID:
-<span class="lineNum">    1353 </span><span class="lineCov">      32352 :       id = p_identifier();</span>
-<span class="lineNum">    1354 </span><span class="lineCov">      32352 :       break;</span>
+<span class="lineNum">    1353 </span><span class="lineCov">      32354 :       id = p_identifier();</span>
+<span class="lineNum">    1354 </span><span class="lineCov">      32354 :       break;</span>
 <span class="lineNum">    1355 </span>            : 
 <span class="lineNum">    1356 </span>            :    default:
 <span class="lineNum">    1357 </span><span class="lineNoCov">          0 :       expect(tSTRING, tID);</span>
 <span class="lineNum">    1358 </span><span class="lineNoCov">          0 :       return tree_new(T_OPEN);</span>
 <span class="lineNum">    1359 </span>            :    }
 <span class="lineNum">    1360 </span>            : 
-<span class="lineNum">    1361 </span><span class="lineCov">      32355 :    tree_t name = tree_new(T_REF);</span>
-<span class="lineNum">    1362 </span><span class="lineCov">      32355 :    tree_set_ident(name, id);</span>
-<span class="lineNum">    1363 </span><span class="lineCov">      32355 :    tree_set_loc(name, CURRENT_LOC);</span>
+<span class="lineNum">    1361 </span><span class="lineCov">      32357 :    tree_t name = tree_new(T_REF);</span>
+<span class="lineNum">    1362 </span><span class="lineCov">      32357 :    tree_set_ident(name, id);</span>
+<span class="lineNum">    1363 </span><span class="lineCov">      32357 :    tree_set_loc(name, CURRENT_LOC);</span>
 <span class="lineNum">    1364 </span>            : 
 <span class="lineNum">    1365 </span>            :    for (;;) {
-<span class="lineNum">    1366 </span><span class="lineCov">      42652 :       switch (peek()) {</span>
+<span class="lineNum">    1366 </span><span class="lineCov">      42654 :       switch (peek()) {</span>
 <span class="lineNum">    1367 </span>            :       case tLPAREN:
 <span class="lineNum">    1368 </span>            :          break;
 <span class="lineNum">    1369 </span>            : 
@@ -1436,7 +1436,7 @@
 <span class="lineNum">    1374 </span>            : 
 <span class="lineNum">    1375 </span>            :       case tTICK:
 <span class="lineNum">    1376 </span><span class="lineCov">       2999 :          if (peek_nth(2) == tLPAREN)</span>
-<span class="lineNum">    1377 </span><span class="lineCov">      32355 :             return name;   // Qualified expression</span>
+<span class="lineNum">    1377 </span><span class="lineCov">      32357 :             return name;   // Qualified expression</span>
 <span class="lineNum">    1378 </span><span class="lineCov">       2621 :          name = p_attribute_name(name);</span>
 <span class="lineNum">    1379 </span><span class="lineCov">       2621 :          continue;</span>
 <span class="lineNum">    1380 </span>            : 
@@ -1464,19 +1464,19 @@
 <span class="lineNum">    1402 </span>            :    }
 <a name="1403"><span class="lineNum">    1403 </span>            : }</a>
 <span class="lineNum">    1404 </span>            : 
-<span class="lineNum">    1405 </span><span class="lineCov">      11746 : static type_t p_type_mark(void)</span>
+<span class="lineNum">    1405 </span><span class="lineCov">      11758 : static type_t p_type_mark(void)</span>
 <span class="lineNum">    1406 </span>            : {
 <span class="lineNum">    1407 </span>            :    // name
 <span class="lineNum">    1408 </span>            : 
-<span class="lineNum">    1409 </span><span class="lineCov">      23492 :    BEGIN(&quot;type mark&quot;);</span>
+<span class="lineNum">    1409 </span><span class="lineCov">      23516 :    BEGIN(&quot;type mark&quot;);</span>
 <span class="lineNum">    1410 </span>            : 
-<span class="lineNum">    1411 </span><span class="lineCov">      11746 :    ident_t name = p_identifier();</span>
-<span class="lineNum">    1412 </span><span class="lineCov">      23507 :    while (optional(tDOT))</span>
+<span class="lineNum">    1411 </span><span class="lineCov">      11758 :    ident_t name = p_identifier();</span>
+<span class="lineNum">    1412 </span><span class="lineCov">      23531 :    while (optional(tDOT))</span>
 <span class="lineNum">    1413 </span><span class="lineCov">         15 :       name = ident_prefix(name, p_identifier(), '.');</span>
 <span class="lineNum">    1414 </span>            : 
-<span class="lineNum">    1415 </span><span class="lineCov">      11746 :    type_t t = type_new(T_UNRESOLVED);</span>
-<span class="lineNum">    1416 </span><span class="lineCov">      11746 :    type_set_ident(t, name);</span>
-<span class="lineNum">    1417 </span><span class="lineCov">      11746 :    return t;</span>
+<span class="lineNum">    1415 </span><span class="lineCov">      11758 :    type_t t = type_new(T_UNRESOLVED);</span>
+<span class="lineNum">    1416 </span><span class="lineCov">      11758 :    type_set_ident(t, name);</span>
+<span class="lineNum">    1417 </span><span class="lineCov">      11758 :    return t;</span>
 <a name="1418"><span class="lineNum">    1418 </span>            : }</a>
 <span class="lineNum">    1419 </span>            : 
 <span class="lineNum">    1420 </span><span class="lineCov">       1485 : static tree_t p_index_constraint(type_t type)</span>
@@ -1517,15 +1517,15 @@
 <span class="lineNum">    1455 </span>            :    }
 <a name="1456"><span class="lineNum">    1456 </span><span class="lineCov">       1461 : }</span></a>
 <span class="lineNum">    1457 </span>            : 
-<span class="lineNum">    1458 </span><span class="lineCov">       9496 : static type_t p_subtype_indication(void)</span>
+<span class="lineNum">    1458 </span><span class="lineCov">       9506 : static type_t p_subtype_indication(void)</span>
 <span class="lineNum">    1459 </span>            : {
 <span class="lineNum">    1460 </span>            :    // [ name ] type_mark [ constraint ]
 <span class="lineNum">    1461 </span>            : 
-<span class="lineNum">    1462 </span><span class="lineCov">      18992 :    BEGIN(&quot;subtype indication&quot;);</span>
+<span class="lineNum">    1462 </span><span class="lineCov">      19012 :    BEGIN(&quot;subtype indication&quot;);</span>
 <span class="lineNum">    1463 </span>            : 
-<span class="lineNum">    1464 </span><span class="lineCov">       9496 :    bool made_subtype = false;</span>
-<span class="lineNum">    1465 </span><span class="lineCov">       9496 :    type_t type = NULL;</span>
-<span class="lineNum">    1466 </span><span class="lineCov">       9513 :    if ((peek() == tID) &amp;&amp; (peek_nth(2) == tID)) {</span>
+<span class="lineNum">    1464 </span><span class="lineCov">       9506 :    bool made_subtype = false;</span>
+<span class="lineNum">    1465 </span><span class="lineCov">       9506 :    type_t type = NULL;</span>
+<span class="lineNum">    1466 </span><span class="lineCov">       9523 :    if ((peek() == tID) &amp;&amp; (peek_nth(2) == tID)) {</span>
 <span class="lineNum">    1467 </span><span class="lineCov">         17 :       type = type_new(T_SUBTYPE);</span>
 <span class="lineNum">    1468 </span><span class="lineCov">         17 :       made_subtype = true;</span>
 <span class="lineNum">    1469 </span>            : 
@@ -1537,9 +1537,9 @@
 <span class="lineNum">    1475 </span><span class="lineCov">         17 :       type_set_base(type, base);</span>
 <span class="lineNum">    1476 </span>            :    }
 <span class="lineNum">    1477 </span>            :    else
-<span class="lineNum">    1478 </span><span class="lineCov">       9479 :       type = p_type_mark();</span>
+<span class="lineNum">    1478 </span><span class="lineCov">       9489 :       type = p_type_mark();</span>
 <span class="lineNum">    1479 </span>            : 
-<span class="lineNum">    1480 </span><span class="lineCov">       9496 :    if (scan(tRANGE, tLPAREN)) {</span>
+<span class="lineNum">    1480 </span><span class="lineCov">       9506 :    if (scan(tRANGE, tLPAREN)) {</span>
 <span class="lineNum">    1481 </span><span class="lineCov">       1461 :       if (!made_subtype) {</span>
 <span class="lineNum">    1482 </span><span class="lineCov">       1456 :          type_t sub = type_new(T_SUBTYPE);</span>
 <span class="lineNum">    1483 </span><span class="lineCov">       1456 :          type_set_base(sub, type);</span>
@@ -1550,22 +1550,22 @@
 <span class="lineNum">    1488 </span><span class="lineCov">       1461 :       p_constraint(type);</span>
 <span class="lineNum">    1489 </span>            :    }
 <span class="lineNum">    1490 </span>            : 
-<span class="lineNum">    1491 </span><span class="lineCov">       9496 :    return type;</span>
+<span class="lineNum">    1491 </span><span class="lineCov">       9506 :    return type;</span>
 <a name="1492"><span class="lineNum">    1492 </span>            : }</a>
 <span class="lineNum">    1493 </span>            : 
-<span class="lineNum">    1494 </span><span class="lineCov">       9683 : static tree_t p_abstract_literal(void)</span>
+<span class="lineNum">    1494 </span><span class="lineCov">       9684 : static tree_t p_abstract_literal(void)</span>
 <span class="lineNum">    1495 </span>            : {
 <span class="lineNum">    1496 </span>            :    // decimal_literal | based_literal
 <span class="lineNum">    1497 </span>            : 
-<span class="lineNum">    1498 </span><span class="lineCov">      19366 :    BEGIN(&quot;abstract literal&quot;);</span>
+<span class="lineNum">    1498 </span><span class="lineCov">      19368 :    BEGIN(&quot;abstract literal&quot;);</span>
 <span class="lineNum">    1499 </span>            : 
-<span class="lineNum">    1500 </span><span class="lineCov">       9683 :    tree_t t = tree_new(T_LITERAL);</span>
+<span class="lineNum">    1500 </span><span class="lineCov">       9684 :    tree_t t = tree_new(T_LITERAL);</span>
 <span class="lineNum">    1501 </span>            : 
-<span class="lineNum">    1502 </span><span class="lineCov">       9683 :    switch (one_of(tINT, tREAL)) {</span>
+<span class="lineNum">    1502 </span><span class="lineCov">       9684 :    switch (one_of(tINT, tREAL)) {</span>
 <span class="lineNum">    1503 </span>            :    case tINT:
-<span class="lineNum">    1504 </span><span class="lineCov">       8711 :       tree_set_subkind(t, L_INT);</span>
-<span class="lineNum">    1505 </span><span class="lineCov">       8711 :       tree_set_ival(t, last_lval.n);</span>
-<span class="lineNum">    1506 </span><span class="lineCov">       8711 :       break;</span>
+<span class="lineNum">    1504 </span><span class="lineCov">       8712 :       tree_set_subkind(t, L_INT);</span>
+<span class="lineNum">    1505 </span><span class="lineCov">       8712 :       tree_set_ival(t, last_lval.n);</span>
+<span class="lineNum">    1506 </span><span class="lineCov">       8712 :       break;</span>
 <span class="lineNum">    1507 </span>            : 
 <span class="lineNum">    1508 </span>            :    case tREAL:
 <span class="lineNum">    1509 </span><span class="lineCov">        972 :       tree_set_subkind(t, L_REAL);</span>
@@ -1573,8 +1573,8 @@
 <span class="lineNum">    1511 </span><span class="lineCov">        972 :       break;</span>
 <span class="lineNum">    1512 </span>            :    }
 <span class="lineNum">    1513 </span>            : 
-<span class="lineNum">    1514 </span><span class="lineCov">       9683 :    tree_set_loc(t, CURRENT_LOC);</span>
-<span class="lineNum">    1515 </span><span class="lineCov">       9683 :    return t;</span>
+<span class="lineNum">    1514 </span><span class="lineCov">       9684 :    tree_set_loc(t, CURRENT_LOC);</span>
+<span class="lineNum">    1515 </span><span class="lineCov">       9684 :    return t;</span>
 <a name="1516"><span class="lineNum">    1516 </span>            : }</a>
 <span class="lineNum">    1517 </span>            : 
 <span class="lineNum">    1518 </span><span class="lineCov">        772 : static tree_t p_physical_literal(tree_t mult)</span>
@@ -1601,30 +1601,30 @@
 <span class="lineNum">    1539 </span>            :       return unit;
 <a name="1540"><span class="lineNum">    1540 </span>            : }</a>
 <span class="lineNum">    1541 </span>            : 
-<span class="lineNum">    1542 </span><span class="lineCov">       9666 : static tree_t p_numeric_literal(void)</span>
+<span class="lineNum">    1542 </span><span class="lineCov">       9667 : static tree_t p_numeric_literal(void)</span>
 <span class="lineNum">    1543 </span>            : {
 <span class="lineNum">    1544 </span>            :    // abstract_literal | physical_literal
 <span class="lineNum">    1545 </span>            : 
-<span class="lineNum">    1546 </span><span class="lineCov">      19332 :    BEGIN(&quot;numeric literal&quot;);</span>
+<span class="lineNum">    1546 </span><span class="lineCov">      19334 :    BEGIN(&quot;numeric literal&quot;);</span>
 <span class="lineNum">    1547 </span>            : 
-<span class="lineNum">    1548 </span><span class="lineCov">       9666 :    tree_t abs = NULL;</span>
-<span class="lineNum">    1549 </span><span class="lineCov">       9666 :    if (scan(tINT, tREAL))</span>
-<span class="lineNum">    1550 </span><span class="lineCov">       9666 :       abs = p_abstract_literal();</span>
+<span class="lineNum">    1548 </span><span class="lineCov">       9667 :    tree_t abs = NULL;</span>
+<span class="lineNum">    1549 </span><span class="lineCov">       9667 :    if (scan(tINT, tREAL))</span>
+<span class="lineNum">    1550 </span><span class="lineCov">       9667 :       abs = p_abstract_literal();</span>
 <span class="lineNum">    1551 </span>            : 
-<span class="lineNum">    1552 </span><span class="lineCov">       9666 :    if (peek() == tID)</span>
+<span class="lineNum">    1552 </span><span class="lineCov">       9667 :    if (peek() == tID)</span>
 <span class="lineNum">    1553 </span><span class="lineCov">        755 :       return p_physical_literal(abs);</span>
 <span class="lineNum">    1554 </span>            :    else
 <span class="lineNum">    1555 </span>            :       return abs;
 <a name="1556"><span class="lineNum">    1556 </span>            : }</a>
 <span class="lineNum">    1557 </span>            : 
-<span class="lineNum">    1558 </span><span class="lineCov">      11585 : static tree_t p_literal(void)</span>
+<span class="lineNum">    1558 </span><span class="lineCov">      11586 : static tree_t p_literal(void)</span>
 <span class="lineNum">    1559 </span>            : {
 <span class="lineNum">    1560 </span>            :    // numeric_literal | enumeration_literal | string_literal
 <span class="lineNum">    1561 </span>            :    // | bit_string_literal | null
 <span class="lineNum">    1562 </span>            : 
-<span class="lineNum">    1563 </span><span class="lineCov">      23170 :    BEGIN(&quot;literal&quot;);</span>
+<span class="lineNum">    1563 </span><span class="lineCov">      23172 :    BEGIN(&quot;literal&quot;);</span>
 <span class="lineNum">    1564 </span>            : 
-<span class="lineNum">    1565 </span><span class="lineCov">      11585 :    switch (peek()) {</span>
+<span class="lineNum">    1565 </span><span class="lineCov">      11586 :    switch (peek()) {</span>
 <span class="lineNum">    1566 </span>            :    case tNULL:
 <span class="lineNum">    1567 </span>            :       {
 <span class="lineNum">    1568 </span><span class="lineCov">         40 :          consume(tNULL);</span>
@@ -1637,7 +1637,7 @@
 <span class="lineNum">    1575 </span>            : 
 <span class="lineNum">    1576 </span>            :    case tINT:
 <span class="lineNum">    1577 </span>            :    case tREAL:
-<span class="lineNum">    1578 </span><span class="lineCov">       9666 :       return p_numeric_literal();</span>
+<span class="lineNum">    1578 </span><span class="lineCov">       9667 :       return p_numeric_literal();</span>
 <span class="lineNum">    1579 </span>            : 
 <span class="lineNum">    1580 </span>            :    case tSTRING:
 <span class="lineNum">    1581 </span>            :       {
@@ -1820,14 +1820,14 @@
 <span class="lineNum">    1758 </span><span class="lineCov">         74 :    return new;</span>
 <a name="1759"><span class="lineNum">    1759 </span>            : }</a>
 <span class="lineNum">    1760 </span>            : 
-<span class="lineNum">    1761 </span><span class="lineCov">      41060 : static tree_t p_primary(void)</span>
+<span class="lineNum">    1761 </span><span class="lineCov">      41062 : static tree_t p_primary(void)</span>
 <span class="lineNum">    1762 </span>            : {
 <span class="lineNum">    1763 </span>            :    // name | literal | aggregate | function_call | qualified_expression
 <span class="lineNum">    1764 </span>            :    //   | type_conversion | allocator | ( expression )
 <span class="lineNum">    1765 </span>            : 
-<span class="lineNum">    1766 </span><span class="lineCov">      82120 :    BEGIN(&quot;primary&quot;);</span>
+<span class="lineNum">    1766 </span><span class="lineCov">      82124 :    BEGIN(&quot;primary&quot;);</span>
 <span class="lineNum">    1767 </span>            : 
-<span class="lineNum">    1768 </span><span class="lineCov">      41060 :    switch (peek()) {</span>
+<span class="lineNum">    1768 </span><span class="lineCov">      41062 :    switch (peek()) {</span>
 <span class="lineNum">    1769 </span>            :    case tLPAREN:
 <span class="lineNum">    1770 </span>            :       {
 <span class="lineNum">    1771 </span><span class="lineCov">       2804 :          const look_params_t lookp = {</span>
@@ -1853,15 +1853,15 @@
 <span class="lineNum">    1791 </span>            :    case tREAL:
 <span class="lineNum">    1792 </span>            :    case tNULL:
 <span class="lineNum">    1793 </span>            :    case tBITSTRING:
-<span class="lineNum">    1794 </span><span class="lineCov">      10012 :       return p_literal();</span>
+<span class="lineNum">    1794 </span><span class="lineCov">      10013 :       return p_literal();</span>
 <span class="lineNum">    1795 </span>            : 
 <span class="lineNum">    1796 </span>            :    case tSTRING:
 <span class="lineNum">    1797 </span><span class="lineCov">       1576 :       return (peek_nth(2) == tLPAREN) ? p_name() : p_literal();</span>
 <span class="lineNum">    1798 </span>            : 
 <span class="lineNum">    1799 </span>            :    case tID:
 <span class="lineNum">    1800 </span>            :       {
-<span class="lineNum">    1801 </span><span class="lineCov">      26594 :          tree_t name = p_name();</span>
-<span class="lineNum">    1802 </span><span class="lineCov">      26594 :          switch (peek()) {</span>
+<span class="lineNum">    1801 </span><span class="lineCov">      26595 :          tree_t name = p_name();</span>
+<span class="lineNum">    1802 </span><span class="lineCov">      26595 :          switch (peek()) {</span>
 <span class="lineNum">    1803 </span>            :          case tTICK:
 <span class="lineNum">    1804 </span><span class="lineCov">        378 :             return p_qualified_expression(name);</span>
 <span class="lineNum">    1805 </span>            :          default:
@@ -1878,14 +1878,14 @@
 <span class="lineNum">    1816 </span>            :    }
 <a name="1817"><span class="lineNum">    1817 </span>            : }</a>
 <span class="lineNum">    1818 </span>            : 
-<span class="lineNum">    1819 </span><span class="lineCov">      41025 : static tree_t p_factor(void)</span>
+<span class="lineNum">    1819 </span><span class="lineCov">      41027 : static tree_t p_factor(void)</span>
 <span class="lineNum">    1820 </span>            : {
 <span class="lineNum">    1821 </span>            :    // primary [ ** primary ] | abs primary | not primary
 <span class="lineNum">    1822 </span>            : 
-<span class="lineNum">    1823 </span><span class="lineCov">      82050 :    BEGIN(&quot;factor&quot;);</span>
+<span class="lineNum">    1823 </span><span class="lineCov">      82054 :    BEGIN(&quot;factor&quot;);</span>
 <span class="lineNum">    1824 </span>            : 
-<span class="lineNum">    1825 </span><span class="lineCov">      41025 :    ident_t op = NULL;</span>
-<span class="lineNum">    1826 </span><span class="lineCov">      41025 :    switch (peek()) {</span>
+<span class="lineNum">    1825 </span><span class="lineCov">      41027 :    ident_t op = NULL;</span>
+<span class="lineNum">    1826 </span><span class="lineCov">      41027 :    switch (peek()) {</span>
 <span class="lineNum">    1827 </span>            :    case tNOT:
 <span class="lineNum">    1828 </span><span class="lineCov">        260 :       consume(tNOT);</span>
 <span class="lineNum">    1829 </span><span class="lineCov">        260 :       op = ident_new(&quot;\&quot;not\&quot;&quot;);</span>
@@ -1900,9 +1900,9 @@
 <span class="lineNum">    1838 </span>            :       break;
 <span class="lineNum">    1839 </span>            :    }
 <span class="lineNum">    1840 </span>            : 
-<span class="lineNum">    1841 </span><span class="lineCov">      41025 :    tree_t operand = p_primary();</span>
+<span class="lineNum">    1841 </span><span class="lineCov">      41027 :    tree_t operand = p_primary();</span>
 <span class="lineNum">    1842 </span>            : 
-<span class="lineNum">    1843 </span><span class="lineCov">      41025 :    if (op != NULL) {</span>
+<span class="lineNum">    1843 </span><span class="lineCov">      41027 :    if (op != NULL) {</span>
 <span class="lineNum">    1844 </span><span class="lineCov">        321 :       tree_t t = tree_new(T_FCALL);</span>
 <span class="lineNum">    1845 </span><span class="lineCov">        321 :       tree_set_loc(t, CURRENT_LOC);</span>
 <span class="lineNum">    1846 </span><span class="lineCov">        321 :       tree_set_ident(t, op);</span>
@@ -1910,7 +1910,7 @@
 <span class="lineNum">    1848 </span>            : 
 <span class="lineNum">    1849 </span><span class="lineCov">        321 :       return t;</span>
 <span class="lineNum">    1850 </span>            :    }
-<span class="lineNum">    1851 </span><span class="lineCov">      40704 :    else if (optional(tPOWER)) {</span>
+<span class="lineNum">    1851 </span><span class="lineCov">      40706 :    else if (optional(tPOWER)) {</span>
 <span class="lineNum">    1852 </span><span class="lineCov">         35 :       tree_t second = p_primary();</span>
 <span class="lineNum">    1853 </span>            : 
 <span class="lineNum">    1854 </span><span class="lineCov">         35 :       tree_t t = tree_new(T_FCALL);</span>
@@ -1941,15 +1941,15 @@
 <span class="lineNum">    1879 </span>            :    }
 <a name="1880"><span class="lineNum">    1880 </span>            : }</a>
 <span class="lineNum">    1881 </span>            : 
-<span class="lineNum">    1882 </span><span class="lineCov">      40557 : static tree_t p_term(void)</span>
+<span class="lineNum">    1882 </span><span class="lineCov">      40559 : static tree_t p_term(void)</span>
 <span class="lineNum">    1883 </span>            : {
 <span class="lineNum">    1884 </span>            :    // factor { multiplying_operator factor }
 <span class="lineNum">    1885 </span>            : 
-<span class="lineNum">    1886 </span><span class="lineCov">      81114 :    BEGIN(&quot;term&quot;);</span>
+<span class="lineNum">    1886 </span><span class="lineCov">      81118 :    BEGIN(&quot;term&quot;);</span>
 <span class="lineNum">    1887 </span>            : 
-<span class="lineNum">    1888 </span><span class="lineCov">      40557 :    tree_t term = p_factor();</span>
+<span class="lineNum">    1888 </span><span class="lineCov">      40559 :    tree_t term = p_factor();</span>
 <span class="lineNum">    1889 </span>            : 
-<span class="lineNum">    1890 </span><span class="lineCov">      81582 :    while (scan(tTIMES, tOVER, tMOD, tREM)) {</span>
+<span class="lineNum">    1890 </span><span class="lineCov">      81586 :    while (scan(tTIMES, tOVER, tMOD, tREM)) {</span>
 <span class="lineNum">    1891 </span><span class="lineCov">        468 :       ident_t op   = p_multiplying_operator();</span>
 <span class="lineNum">    1892 </span><span class="lineCov">        468 :       tree_t left  = term;</span>
 <span class="lineNum">    1893 </span><span class="lineCov">        468 :       tree_t right = p_factor();</span>
@@ -1962,7 +1962,7 @@
 <span class="lineNum">    1900 </span><span class="lineCov">        468 :       add_param(term, right, P_POS, NULL);</span>
 <span class="lineNum">    1901 </span>            :    }
 <span class="lineNum">    1902 </span>            : 
-<span class="lineNum">    1903 </span><span class="lineCov">      40557 :    return term;</span>
+<span class="lineNum">    1903 </span><span class="lineCov">      40559 :    return term;</span>
 <a name="1904"><span class="lineNum">    1904 </span>            : }</a>
 <span class="lineNum">    1905 </span>            : 
 <span class="lineNum">    1906 </span><span class="lineCov">       1658 : static ident_t p_adding_operator(void)</span>
@@ -1991,19 +1991,19 @@
 <span class="lineNum">    1929 </span>            :    }
 <a name="1930"><span class="lineNum">    1930 </span>            : }</a>
 <span class="lineNum">    1931 </span>            : 
-<span class="lineNum">    1932 </span><span class="lineCov">      38624 : static tree_t p_simple_expression(void)</span>
+<span class="lineNum">    1932 </span><span class="lineCov">      38626 : static tree_t p_simple_expression(void)</span>
 <span class="lineNum">    1933 </span>            : {
 <span class="lineNum">    1934 </span>            :    // [ sign ] term { adding_operator term }
 <span class="lineNum">    1935 </span>            : 
-<span class="lineNum">    1936 </span><span class="lineCov">      77248 :    BEGIN(&quot;simple expression&quot;);</span>
+<span class="lineNum">    1936 </span><span class="lineCov">      77252 :    BEGIN(&quot;simple expression&quot;);</span>
 <span class="lineNum">    1937 </span>            : 
-<span class="lineNum">    1938 </span><span class="lineCov">      38624 :    ident_t sign = NULL;</span>
-<span class="lineNum">    1939 </span><span class="lineCov">      38624 :    if (scan(tPLUS, tMINUS))</span>
+<span class="lineNum">    1938 </span><span class="lineCov">      38626 :    ident_t sign = NULL;</span>
+<span class="lineNum">    1939 </span><span class="lineCov">      38626 :    if (scan(tPLUS, tMINUS))</span>
 <span class="lineNum">    1940 </span><span class="lineCov">        374 :       sign = p_sign();</span>
 <span class="lineNum">    1941 </span>            : 
-<span class="lineNum">    1942 </span><span class="lineCov">      38624 :    tree_t expr = p_term();</span>
+<span class="lineNum">    1942 </span><span class="lineCov">      38626 :    tree_t expr = p_term();</span>
 <span class="lineNum">    1943 </span>            : 
-<span class="lineNum">    1944 </span><span class="lineCov">      38624 :    if (sign != NULL) {</span>
+<span class="lineNum">    1944 </span><span class="lineCov">      38626 :    if (sign != NULL) {</span>
 <span class="lineNum">    1945 </span><span class="lineCov">        374 :       tree_t tmp = tree_new(T_FCALL);</span>
 <span class="lineNum">    1946 </span><span class="lineCov">        374 :       tree_set_ident(tmp, sign);</span>
 <span class="lineNum">    1947 </span><span class="lineCov">        374 :       tree_set_loc(tmp, CURRENT_LOC);</span>
@@ -2013,7 +2013,7 @@
 <span class="lineNum">    1951 </span><span class="lineCov">        374 :       expr = tmp;</span>
 <span class="lineNum">    1952 </span>            :    }
 <span class="lineNum">    1953 </span>            : 
-<span class="lineNum">    1954 </span><span class="lineCov">      40557 :    while (scan(tPLUS, tMINUS, tAMP)) {</span>
+<span class="lineNum">    1954 </span><span class="lineCov">      40559 :    while (scan(tPLUS, tMINUS, tAMP)) {</span>
 <span class="lineNum">    1955 </span><span class="lineCov">       1933 :       tree_t left = expr;</span>
 <span class="lineNum">    1956 </span>            : 
 <span class="lineNum">    1957 </span><span class="lineCov">       1933 :       if (optional(tAMP))</span>
@@ -2030,7 +2030,7 @@
 <span class="lineNum">    1968 </span><span class="lineCov">       1933 :       add_param(expr, right, P_POS, NULL);</span>
 <span class="lineNum">    1969 </span>            :    }
 <span class="lineNum">    1970 </span>            : 
-<span class="lineNum">    1971 </span><span class="lineCov">      38624 :    return expr;</span>
+<span class="lineNum">    1971 </span><span class="lineCov">      38626 :    return expr;</span>
 <a name="1972"><span class="lineNum">    1972 </span>            : }</a>
 <span class="lineNum">    1973 </span>            : 
 <span class="lineNum">    1974 </span><span class="lineCov">        112 : static ident_t p_shift_operator(void)</span>
@@ -2053,15 +2053,15 @@
 <span class="lineNum">    1991 </span>            :    }
 <a name="1992"><span class="lineNum">    1992 </span>            : }</a>
 <span class="lineNum">    1993 </span>            : 
-<span class="lineNum">    1994 </span><span class="lineCov">      38512 : static tree_t p_shift_expression(void)</span>
+<span class="lineNum">    1994 </span><span class="lineCov">      38514 : static tree_t p_shift_expression(void)</span>
 <span class="lineNum">    1995 </span>            : {
 <span class="lineNum">    1996 </span>            :    // simple_expression [ shift_operator simple_expression ]
 <span class="lineNum">    1997 </span>            : 
-<span class="lineNum">    1998 </span><span class="lineCov">      77024 :    BEGIN(&quot;shift expression&quot;);</span>
+<span class="lineNum">    1998 </span><span class="lineCov">      77028 :    BEGIN(&quot;shift expression&quot;);</span>
 <span class="lineNum">    1999 </span>            : 
-<span class="lineNum">    2000 </span><span class="lineCov">      38512 :    tree_t shift = p_simple_expression();</span>
+<span class="lineNum">    2000 </span><span class="lineCov">      38514 :    tree_t shift = p_simple_expression();</span>
 <span class="lineNum">    2001 </span>            : 
-<span class="lineNum">    2002 </span><span class="lineCov">      77136 :    while (scan(tSLL, tSRL, tSLA, tSRA, tROL, tROR)) {</span>
+<span class="lineNum">    2002 </span><span class="lineCov">      77140 :    while (scan(tSLL, tSRL, tSLA, tSRA, tROL, tROR)) {</span>
 <span class="lineNum">    2003 </span><span class="lineCov">        112 :       ident_t op   = p_shift_operator();</span>
 <span class="lineNum">    2004 </span><span class="lineCov">        112 :       tree_t left  = shift;</span>
 <span class="lineNum">    2005 </span><span class="lineCov">        112 :       tree_t right = p_simple_expression();</span>
@@ -2074,7 +2074,7 @@
 <span class="lineNum">    2012 </span><span class="lineCov">        112 :       add_param(shift, right, P_POS, NULL);</span>
 <span class="lineNum">    2013 </span>            :    }
 <span class="lineNum">    2014 </span>            : 
-<span class="lineNum">    2015 </span><span class="lineCov">      38512 :    return shift;</span>
+<span class="lineNum">    2015 </span><span class="lineCov">      38514 :    return shift;</span>
 <a name="2016"><span class="lineNum">    2016 </span>            : }</a>
 <span class="lineNum">    2017 </span>            : 
 <span class="lineNum">    2018 </span><span class="lineCov">       3072 : static ident_t p_relational_operator(void)</span>
@@ -2097,15 +2097,15 @@
 <span class="lineNum">    2035 </span>            :    }
 <a name="2036"><span class="lineNum">    2036 </span>            : }</a>
 <span class="lineNum">    2037 </span>            : 
-<span class="lineNum">    2038 </span><span class="lineCov">      35440 : static tree_t p_relation(void)</span>
+<span class="lineNum">    2038 </span><span class="lineCov">      35442 : static tree_t p_relation(void)</span>
 <span class="lineNum">    2039 </span>            : {
 <span class="lineNum">    2040 </span>            :    // shift_expression [ relational_operator shift_expression ]
 <span class="lineNum">    2041 </span>            : 
-<span class="lineNum">    2042 </span><span class="lineCov">      70880 :    BEGIN(&quot;relation&quot;);</span>
+<span class="lineNum">    2042 </span><span class="lineCov">      70884 :    BEGIN(&quot;relation&quot;);</span>
 <span class="lineNum">    2043 </span>            : 
-<span class="lineNum">    2044 </span><span class="lineCov">      35440 :    tree_t rel = p_shift_expression();</span>
+<span class="lineNum">    2044 </span><span class="lineCov">      35442 :    tree_t rel = p_shift_expression();</span>
 <span class="lineNum">    2045 </span>            : 
-<span class="lineNum">    2046 </span><span class="lineCov">      73952 :    while (scan(tEQ, tNEQ, tLT, tLE, tGT, tGE)) {</span>
+<span class="lineNum">    2046 </span><span class="lineCov">      73956 :    while (scan(tEQ, tNEQ, tLT, tLE, tGT, tGE)) {</span>
 <span class="lineNum">    2047 </span><span class="lineCov">       3072 :       ident_t op   = p_relational_operator();</span>
 <span class="lineNum">    2048 </span><span class="lineCov">       3072 :       tree_t left  = rel;</span>
 <span class="lineNum">    2049 </span><span class="lineCov">       3072 :       tree_t right = p_shift_expression();</span>
@@ -2118,22 +2118,22 @@
 <span class="lineNum">    2056 </span><span class="lineCov">       3072 :       add_param(rel, right, P_POS, NULL);</span>
 <span class="lineNum">    2057 </span>            :    }
 <span class="lineNum">    2058 </span>            : 
-<span class="lineNum">    2059 </span><span class="lineCov">      35440 :    return rel;</span>
+<span class="lineNum">    2059 </span><span class="lineCov">      35442 :    return rel;</span>
 <a name="2060"><span class="lineNum">    2060 </span>            : }</a>
 <span class="lineNum">    2061 </span>            : 
-<span class="lineNum">    2062 </span><span class="lineCov">      34589 : static tree_t p_expression(void)</span>
+<span class="lineNum">    2062 </span><span class="lineCov">      34591 : static tree_t p_expression(void)</span>
 <span class="lineNum">    2063 </span>            : {
 <span class="lineNum">    2064 </span>            :    // relation { and relation } | relation { or relation }
 <span class="lineNum">    2065 </span>            :    //   | relation { xor relation } | relation [ nand relation ]
 <span class="lineNum">    2066 </span>            :    //   | relation [ nor relation ] | relation { xnor relation }
 <span class="lineNum">    2067 </span>            : 
-<span class="lineNum">    2068 </span><span class="lineCov">      69178 :    BEGIN(&quot;expression&quot;);</span>
+<span class="lineNum">    2068 </span><span class="lineCov">      69182 :    BEGIN(&quot;expression&quot;);</span>
 <span class="lineNum">    2069 </span>            : 
-<span class="lineNum">    2070 </span><span class="lineCov">      34589 :    tree_t expr = p_relation();</span>
+<span class="lineNum">    2070 </span><span class="lineCov">      34591 :    tree_t expr = p_relation();</span>
 <span class="lineNum">    2071 </span>            : 
-<span class="lineNum">    2072 </span><span class="lineCov">      34589 :    int loop_limit = (scan(tNOR, tNAND) ? 1 : INT_MAX);</span>
+<span class="lineNum">    2072 </span><span class="lineCov">      34591 :    int loop_limit = (scan(tNOR, tNAND) ? 1 : INT_MAX);</span>
 <span class="lineNum">    2073 </span>            : 
-<span class="lineNum">    2074 </span><span class="lineCov">      70029 :    while (loop_limit-- &amp;&amp; scan(tAND, tOR, tXOR, tNAND, tNOR, tXNOR)) {</span>
+<span class="lineNum">    2074 </span><span class="lineCov">      70033 :    while (loop_limit-- &amp;&amp; scan(tAND, tOR, tXOR, tNAND, tNOR, tXNOR)) {</span>
 <span class="lineNum">    2075 </span>            :       ident_t op;
 <span class="lineNum">    2076 </span><span class="lineCov">        851 :       switch (one_of(tAND, tOR, tXOR, tNAND, tNOR, tXNOR)) {</span>
 <span class="lineNum">    2077 </span><span class="lineCov">        460 :       case tAND:  op = ident_new(&quot;\&quot;and\&quot;&quot;); break;</span>
@@ -2157,7 +2157,7 @@
 <span class="lineNum">    2095 </span><span class="lineCov">        851 :       add_param(expr, right, P_POS, NULL);</span>
 <span class="lineNum">    2096 </span>            :    }
 <span class="lineNum">    2097 </span>            : 
-<span class="lineNum">    2098 </span><span class="lineCov">      34589 :    return expr;</span>
+<span class="lineNum">    2098 </span><span class="lineCov">      34591 :    return expr;</span>
 <a name="2099"><span class="lineNum">    2099 </span>            : }</a>
 <span class="lineNum">    2100 </span>            : 
 <span class="lineNum">    2101 </span><span class="lineCov">       1406 : static void p_interface_constant_declaration(tree_t parent, add_func_t addf)</span>
@@ -2201,84 +2201,84 @@
 <span class="lineNum">    2139 </span>            :    }
 <a name="2140"><span class="lineNum">    2140 </span><span class="lineCov">       1406 : }</span></a>
 <span class="lineNum">    2141 </span>            : 
-<span class="lineNum">    2142 </span><span class="lineCov">        693 : static void p_interface_signal_declaration(tree_t parent, add_func_t addf)</span>
+<span class="lineNum">    2142 </span><span class="lineCov">        698 : static void p_interface_signal_declaration(tree_t parent, add_func_t addf)</span>
 <span class="lineNum">    2143 </span>            : {
 <span class="lineNum">    2144 </span>            :    // [signal] identifier_list : [ mode ] subtype_indication [ bus ]
 <span class="lineNum">    2145 </span>            :    //    [ := expression ]
 <span class="lineNum">    2146 </span>            : 
-<span class="lineNum">    2147 </span><span class="lineCov">       1386 :    BEGIN(&quot;interface signal declaration&quot;);</span>
+<span class="lineNum">    2147 </span><span class="lineCov">       1396 :    BEGIN(&quot;interface signal declaration&quot;);</span>
 <span class="lineNum">    2148 </span>            : 
-<span class="lineNum">    2149 </span><span class="lineCov">        693 :    optional(tSIGNAL);</span>
-<span class="lineNum">    2150 </span><span class="lineCov">       1386 :    LOCAL_IDENT_LIST ids = p_identifier_list();</span>
-<span class="lineNum">    2151 </span><span class="lineCov">        693 :    consume(tCOLON);</span>
+<span class="lineNum">    2149 </span><span class="lineCov">        698 :    optional(tSIGNAL);</span>
+<span class="lineNum">    2150 </span><span class="lineCov">       1396 :    LOCAL_IDENT_LIST ids = p_identifier_list();</span>
+<span class="lineNum">    2151 </span><span class="lineCov">        698 :    consume(tCOLON);</span>
 <span class="lineNum">    2152 </span>            : 
-<span class="lineNum">    2153 </span><span class="lineCov">        693 :    port_mode_t mode = PORT_IN;</span>
-<span class="lineNum">    2154 </span><span class="lineCov">        693 :    if (scan(tIN, tOUT, tINOUT, tBUFFER, tLINKAGE))</span>
-<span class="lineNum">    2155 </span><span class="lineCov">        663 :       mode = p_mode();</span>
+<span class="lineNum">    2153 </span><span class="lineCov">        698 :    port_mode_t mode = PORT_IN;</span>
+<span class="lineNum">    2154 </span><span class="lineCov">        698 :    if (scan(tIN, tOUT, tINOUT, tBUFFER, tLINKAGE))</span>
+<span class="lineNum">    2155 </span><span class="lineCov">        668 :       mode = p_mode();</span>
 <span class="lineNum">    2156 </span>            : 
-<span class="lineNum">    2157 </span><span class="lineCov">        693 :    type_t type = p_subtype_indication();</span>
+<span class="lineNum">    2157 </span><span class="lineCov">        698 :    type_t type = p_subtype_indication();</span>
 <span class="lineNum">    2158 </span>            : 
-<span class="lineNum">    2159 </span><span class="lineCov">        693 :    optional(tBUS);</span>
+<span class="lineNum">    2159 </span><span class="lineCov">        698 :    optional(tBUS);</span>
 <span class="lineNum">    2160 </span>            : 
-<span class="lineNum">    2161 </span><span class="lineCov">        693 :    tree_t init = NULL;</span>
-<span class="lineNum">    2162 </span><span class="lineCov">        693 :    if (optional(tASSIGN))</span>
+<span class="lineNum">    2161 </span><span class="lineCov">        698 :    tree_t init = NULL;</span>
+<span class="lineNum">    2162 </span><span class="lineCov">        698 :    if (optional(tASSIGN))</span>
 <span class="lineNum">    2163 </span><span class="lineCov">         13 :       init = p_expression();</span>
 <span class="lineNum">    2164 </span>            : 
-<span class="lineNum">    2165 </span><span class="lineCov">        693 :    const loc_t *loc = CURRENT_LOC;</span>
+<span class="lineNum">    2165 </span><span class="lineCov">        698 :    const loc_t *loc = CURRENT_LOC;</span>
 <span class="lineNum">    2166 </span>            : 
-<span class="lineNum">    2167 </span><span class="lineCov">       1479 :    for (ident_list_t *it = ids; it != NULL; it = it-&gt;next) {</span>
-<span class="lineNum">    2168 </span><span class="lineCov">        786 :       tree_t d = tree_new(T_PORT_DECL);</span>
-<span class="lineNum">    2169 </span><span class="lineCov">        786 :       tree_set_ident(d, it-&gt;ident);</span>
-<span class="lineNum">    2170 </span><span class="lineCov">        786 :       tree_set_loc(d, loc);</span>
-<span class="lineNum">    2171 </span><span class="lineCov">        786 :       tree_set_subkind(d, mode);</span>
-<span class="lineNum">    2172 </span><span class="lineCov">        786 :       tree_set_type(d, type);</span>
-<span class="lineNum">    2173 </span><span class="lineCov">        786 :       tree_set_class(d, C_SIGNAL);</span>
+<span class="lineNum">    2167 </span><span class="lineCov">       1489 :    for (ident_list_t *it = ids; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">    2168 </span><span class="lineCov">        791 :       tree_t d = tree_new(T_PORT_DECL);</span>
+<span class="lineNum">    2169 </span><span class="lineCov">        791 :       tree_set_ident(d, it-&gt;ident);</span>
+<span class="lineNum">    2170 </span><span class="lineCov">        791 :       tree_set_loc(d, loc);</span>
+<span class="lineNum">    2171 </span><span class="lineCov">        791 :       tree_set_subkind(d, mode);</span>
+<span class="lineNum">    2172 </span><span class="lineCov">        791 :       tree_set_type(d, type);</span>
+<span class="lineNum">    2173 </span><span class="lineCov">        791 :       tree_set_class(d, C_SIGNAL);</span>
 <span class="lineNum">    2174 </span>            : 
-<span class="lineNum">    2175 </span><span class="lineCov">        786 :       if (init != NULL)</span>
+<span class="lineNum">    2175 </span><span class="lineCov">        791 :       if (init != NULL)</span>
 <span class="lineNum">    2176 </span><span class="lineCov">         13 :          tree_set_value(d, init);</span>
 <span class="lineNum">    2177 </span>            : 
-<span class="lineNum">    2178 </span><span class="lineCov">        786 :       (*addf)(parent, d);</span>
+<span class="lineNum">    2178 </span><span class="lineCov">        791 :       (*addf)(parent, d);</span>
 <span class="lineNum">    2179 </span>            :    }
-<a name="2180"><span class="lineNum">    2180 </span><span class="lineCov">        693 : }</span></a>
+<a name="2180"><span class="lineNum">    2180 </span><span class="lineCov">        698 : }</span></a>
 <span class="lineNum">    2181 </span>            : 
-<span class="lineNum">    2182 </span><span class="lineCov">       3359 : static void p_interface_variable_declaration(tree_t parent, class_t def_class, add_func_t addf)</span>
+<span class="lineNum">    2182 </span><span class="lineCov">       3364 : static void p_interface_variable_declaration(tree_t parent, class_t def_class, add_func_t addf)</span>
 <span class="lineNum">    2183 </span>            : {
 <span class="lineNum">    2184 </span>            :    // [variable] identifier_list : [ mode ] subtype_indication [ := expression ]
 <span class="lineNum">    2185 </span>            : 
-<span class="lineNum">    2186 </span><span class="lineCov">       6718 :    BEGIN(&quot;interface variable declaration&quot;);</span>
+<span class="lineNum">    2186 </span><span class="lineCov">       6728 :    BEGIN(&quot;interface variable declaration&quot;);</span>
 <span class="lineNum">    2187 </span>            : 
-<span class="lineNum">    2188 </span><span class="lineCov">       3359 :    if (optional(tVARIABLE))</span>
+<span class="lineNum">    2188 </span><span class="lineCov">       3364 :    if (optional(tVARIABLE))</span>
 <span class="lineNum">    2189 </span><span class="lineCov">        206 :       def_class = C_VARIABLE;</span>
 <span class="lineNum">    2190 </span>            : 
-<span class="lineNum">    2191 </span><span class="lineCov">       6718 :    LOCAL_IDENT_LIST ids = p_identifier_list();</span>
-<span class="lineNum">    2192 </span><span class="lineCov">       3359 :    consume(tCOLON);</span>
+<span class="lineNum">    2191 </span><span class="lineCov">       6728 :    LOCAL_IDENT_LIST ids = p_identifier_list();</span>
+<span class="lineNum">    2192 </span><span class="lineCov">       3364 :    consume(tCOLON);</span>
 <span class="lineNum">    2193 </span>            : 
-<span class="lineNum">    2194 </span><span class="lineCov">       3359 :    port_mode_t mode = PORT_IN;</span>
-<span class="lineNum">    2195 </span><span class="lineCov">       3359 :    if (scan(tIN, tOUT, tINOUT, tBUFFER, tLINKAGE))</span>
-<span class="lineNum">    2196 </span><span class="lineCov">       1194 :       mode = p_mode();</span>
+<span class="lineNum">    2194 </span><span class="lineCov">       3364 :    port_mode_t mode = PORT_IN;</span>
+<span class="lineNum">    2195 </span><span class="lineCov">       3364 :    if (scan(tIN, tOUT, tINOUT, tBUFFER, tLINKAGE))</span>
+<span class="lineNum">    2196 </span><span class="lineCov">       1197 :       mode = p_mode();</span>
 <span class="lineNum">    2197 </span>            : 
-<span class="lineNum">    2198 </span><span class="lineCov">       3359 :    type_t type = p_subtype_indication();</span>
+<span class="lineNum">    2198 </span><span class="lineCov">       3364 :    type_t type = p_subtype_indication();</span>
 <span class="lineNum">    2199 </span>            : 
-<span class="lineNum">    2200 </span><span class="lineCov">       3359 :    tree_t init = NULL;</span>
-<span class="lineNum">    2201 </span><span class="lineCov">       3359 :    if (optional(tASSIGN))</span>
+<span class="lineNum">    2200 </span><span class="lineCov">       3364 :    tree_t init = NULL;</span>
+<span class="lineNum">    2201 </span><span class="lineCov">       3364 :    if (optional(tASSIGN))</span>
 <span class="lineNum">    2202 </span><span class="lineCov">        183 :       init = p_expression();</span>
 <span class="lineNum">    2203 </span>            : 
-<span class="lineNum">    2204 </span><span class="lineCov">       3359 :    const loc_t *loc = CURRENT_LOC;</span>
+<span class="lineNum">    2204 </span><span class="lineCov">       3364 :    const loc_t *loc = CURRENT_LOC;</span>
 <span class="lineNum">    2205 </span>            : 
-<span class="lineNum">    2206 </span><span class="lineCov">       7099 :    for (ident_list_t *it = ids; it != NULL; it = it-&gt;next) {</span>
-<span class="lineNum">    2207 </span><span class="lineCov">       3740 :       tree_t d = tree_new(T_PORT_DECL);</span>
-<span class="lineNum">    2208 </span><span class="lineCov">       3740 :       tree_set_ident(d, it-&gt;ident);</span>
-<span class="lineNum">    2209 </span><span class="lineCov">       3740 :       tree_set_loc(d, loc);</span>
-<span class="lineNum">    2210 </span><span class="lineCov">       3740 :       tree_set_subkind(d, mode);</span>
-<span class="lineNum">    2211 </span><span class="lineCov">       3740 :       tree_set_type(d, type);</span>
-<span class="lineNum">    2212 </span><span class="lineCov">       3740 :       tree_set_class(d, def_class);</span>
+<span class="lineNum">    2206 </span><span class="lineCov">       7109 :    for (ident_list_t *it = ids; it != NULL; it = it-&gt;next) {</span>
+<span class="lineNum">    2207 </span><span class="lineCov">       3745 :       tree_t d = tree_new(T_PORT_DECL);</span>
+<span class="lineNum">    2208 </span><span class="lineCov">       3745 :       tree_set_ident(d, it-&gt;ident);</span>
+<span class="lineNum">    2209 </span><span class="lineCov">       3745 :       tree_set_loc(d, loc);</span>
+<span class="lineNum">    2210 </span><span class="lineCov">       3745 :       tree_set_subkind(d, mode);</span>
+<span class="lineNum">    2211 </span><span class="lineCov">       3745 :       tree_set_type(d, type);</span>
+<span class="lineNum">    2212 </span><span class="lineCov">       3745 :       tree_set_class(d, def_class);</span>
 <span class="lineNum">    2213 </span>            : 
-<span class="lineNum">    2214 </span><span class="lineCov">       3740 :       if (init != NULL)</span>
+<span class="lineNum">    2214 </span><span class="lineCov">       3745 :       if (init != NULL)</span>
 <span class="lineNum">    2215 </span><span class="lineCov">        223 :          tree_set_value(d, init);</span>
 <span class="lineNum">    2216 </span>            : 
-<span class="lineNum">    2217 </span><span class="lineCov">       3740 :       (*addf)(parent, d);</span>
+<span class="lineNum">    2217 </span><span class="lineCov">       3745 :       (*addf)(parent, d);</span>
 <span class="lineNum">    2218 </span>            :    }
-<a name="2219"><span class="lineNum">    2219 </span><span class="lineCov">       3359 : }</span></a>
+<a name="2219"><span class="lineNum">    2219 </span><span class="lineCov">       3364 : }</span></a>
 <span class="lineNum">    2220 </span>            : 
 <span class="lineNum">    2221 </span><span class="lineCov">         18 : static void p_interface_file_declaration(tree_t parent, add_func_t addf)</span>
 <span class="lineNum">    2222 </span>            : {
@@ -2307,23 +2307,23 @@
 <span class="lineNum">    2245 </span>            :    }
 <a name="2246"><span class="lineNum">    2246 </span><span class="lineCov">         18 : }</span></a>
 <span class="lineNum">    2247 </span>            : 
-<span class="lineNum">    2248 </span><span class="lineCov">       5476 : static void p_interface_declaration(class_t def_class, tree_t parent,</span>
+<span class="lineNum">    2248 </span><span class="lineCov">       5486 : static void p_interface_declaration(class_t def_class, tree_t parent,</span>
 <span class="lineNum">    2249 </span>            :                                     add_func_t addf)
 <span class="lineNum">    2250 </span>            : {
 <span class="lineNum">    2251 </span>            :    // interface_constant_declaration | interface_signal_declaration
 <span class="lineNum">    2252 </span>            :    //   | interface_variable_declaration | interface_file_declaration
 <span class="lineNum">    2253 </span>            : 
-<span class="lineNum">    2254 </span><span class="lineCov">      10952 :    BEGIN(&quot;interface declaration&quot;);</span>
+<span class="lineNum">    2254 </span><span class="lineCov">      10972 :    BEGIN(&quot;interface declaration&quot;);</span>
 <span class="lineNum">    2255 </span>            : 
-<span class="lineNum">    2256 </span><span class="lineCov">       5476 :    const token_t p = peek();</span>
-<span class="lineNum">    2257 </span><span class="lineCov">       5476 :    switch (p) {</span>
+<span class="lineNum">    2256 </span><span class="lineCov">       5486 :    const token_t p = peek();</span>
+<span class="lineNum">    2257 </span><span class="lineCov">       5486 :    switch (p) {</span>
 <span class="lineNum">    2258 </span>            :    case tCONSTANT:
 <span class="lineNum">    2259 </span><span class="lineCov">       1302 :       p_interface_constant_declaration(parent, addf);</span>
 <span class="lineNum">    2260 </span><span class="lineCov">       1302 :       break;</span>
 <span class="lineNum">    2261 </span>            : 
 <span class="lineNum">    2262 </span>            :    case tSIGNAL:
-<span class="lineNum">    2263 </span><span class="lineCov">        367 :       p_interface_signal_declaration(parent, addf);</span>
-<span class="lineNum">    2264 </span><span class="lineCov">        367 :       break;</span>
+<span class="lineNum">    2263 </span><span class="lineCov">        372 :       p_interface_signal_declaration(parent, addf);</span>
+<span class="lineNum">    2264 </span><span class="lineCov">        372 :       break;</span>
 <span class="lineNum">    2265 </span>            : 
 <span class="lineNum">    2266 </span>            :    case tVARIABLE:
 <span class="lineNum">    2267 </span><span class="lineCov">        206 :       p_interface_variable_declaration(parent, C_VARIABLE, addf);</span>
@@ -2335,7 +2335,7 @@
 <span class="lineNum">    2273 </span>            : 
 <span class="lineNum">    2274 </span>            :    case tID:
 <span class="lineNum">    2275 </span>            :       {
-<span class="lineNum">    2276 </span><span class="lineCov">       3583 :          switch (def_class) {</span>
+<span class="lineNum">    2276 </span><span class="lineCov">       3588 :          switch (def_class) {</span>
 <span class="lineNum">    2277 </span>            :          case C_CONSTANT:
 <span class="lineNum">    2278 </span><span class="lineCov">        104 :             p_interface_constant_declaration(parent, addf);</span>
 <span class="lineNum">    2279 </span><span class="lineCov">        104 :             break;</span>
@@ -2346,8 +2346,8 @@
 <span class="lineNum">    2284 </span>            : 
 <span class="lineNum">    2285 </span>            :          case C_VARIABLE:
 <span class="lineNum">    2286 </span>            :          case C_DEFAULT:
-<span class="lineNum">    2287 </span><span class="lineCov">       3153 :             p_interface_variable_declaration(parent, def_class, addf);</span>
-<span class="lineNum">    2288 </span><span class="lineCov">       3153 :             break;</span>
+<span class="lineNum">    2287 </span><span class="lineCov">       3158 :             p_interface_variable_declaration(parent, def_class, addf);</span>
+<span class="lineNum">    2288 </span><span class="lineCov">       3158 :             break;</span>
 <span class="lineNum">    2289 </span>            : 
 <span class="lineNum">    2290 </span>            :          default:
 <span class="lineNum">    2291 </span><span class="lineNoCov">          0 :             assert(false);</span>
@@ -2358,29 +2358,29 @@
 <span class="lineNum">    2296 </span>            :    default:
 <span class="lineNum">    2297 </span><span class="lineNoCov">          0 :       expect(tCONSTANT, tSIGNAL, tVARIABLE, tFILE, tID);</span>
 <span class="lineNum">    2298 </span>            :    }
-<a name="2299"><span class="lineNum">    2299 </span><span class="lineCov">       5476 : }</span></a>
+<a name="2299"><span class="lineNum">    2299 </span><span class="lineCov">       5486 : }</span></a>
 <span class="lineNum">    2300 </span>            : 
-<span class="lineNum">    2301 </span><span class="lineCov">       5476 : static void p_interface_element(class_t def_class, tree_t parent,</span>
+<span class="lineNum">    2301 </span><span class="lineCov">       5486 : static void p_interface_element(class_t def_class, tree_t parent,</span>
 <span class="lineNum">    2302 </span>            :                                 add_func_t addf)
 <span class="lineNum">    2303 </span>            : {
 <span class="lineNum">    2304 </span>            :    // interface_declaration
 <span class="lineNum">    2305 </span>            : 
-<span class="lineNum">    2306 </span><span class="lineCov">      10952 :    BEGIN(&quot;interface element&quot;);</span>
+<span class="lineNum">    2306 </span><span class="lineCov">      10972 :    BEGIN(&quot;interface element&quot;);</span>
 <span class="lineNum">    2307 </span>            : 
-<span class="lineNum">    2308 </span><span class="lineCov">       5476 :    p_interface_declaration(def_class, parent, addf);</span>
-<a name="2309"><span class="lineNum">    2309 </span><span class="lineCov">       5476 : }</span></a>
+<span class="lineNum">    2308 </span><span class="lineCov">       5486 :    p_interface_declaration(def_class, parent, addf);</span>
+<a name="2309"><span class="lineNum">    2309 </span><span class="lineCov">       5486 : }</span></a>
 <span class="lineNum">    2310 </span>            : 
-<span class="lineNum">    2311 </span><span class="lineCov">       2644 : static void p_interface_list(class_t def_class, tree_t parent, add_func_t addf)</span>
+<span class="lineNum">    2311 </span><span class="lineCov">       2652 : static void p_interface_list(class_t def_class, tree_t parent, add_func_t addf)</span>
 <span class="lineNum">    2312 </span>            : {
 <span class="lineNum">    2313 </span>            :    // interface_element { ; interface_element }
 <span class="lineNum">    2314 </span>            : 
-<span class="lineNum">    2315 </span><span class="lineCov">       5288 :    BEGIN(&quot;interface list&quot;);</span>
+<span class="lineNum">    2315 </span><span class="lineCov">       5304 :    BEGIN(&quot;interface list&quot;);</span>
 <span class="lineNum">    2316 </span>            : 
-<span class="lineNum">    2317 </span><span class="lineCov">       2644 :    p_interface_element(def_class, parent, addf);</span>
+<span class="lineNum">    2317 </span><span class="lineCov">       2652 :    p_interface_element(def_class, parent, addf);</span>
 <span class="lineNum">    2318 </span>            : 
-<span class="lineNum">    2319 </span><span class="lineCov">       8120 :    while (optional(tSEMI))</span>
-<span class="lineNum">    2320 </span><span class="lineCov">       2832 :       p_interface_element(def_class, parent, addf);</span>
-<a name="2321"><span class="lineNum">    2321 </span><span class="lineCov">       2644 : }</span></a>
+<span class="lineNum">    2319 </span><span class="lineCov">       8138 :    while (optional(tSEMI))</span>
+<span class="lineNum">    2320 </span><span class="lineCov">       2834 :       p_interface_element(def_class, parent, addf);</span>
+<a name="2321"><span class="lineNum">    2321 </span><span class="lineCov">       2652 : }</span></a>
 <span class="lineNum">    2322 </span>            : 
 <span class="lineNum">    2323 </span><span class="lineCov">        163 : static void p_port_list(tree_t parent)</span>
 <span class="lineNum">    2324 </span>            : {
@@ -3194,15 +3194,15 @@
 <span class="lineNum">    3132 </span><span class="lineCov">        101 :    return s;</span>
 <a name="3133"><span class="lineNum">    3133 </span>            : }</a>
 <span class="lineNum">    3134 </span>            : 
-<span class="lineNum">    3135 </span><span class="lineCov">       3376 : static ident_t p_designator(void)</span>
+<span class="lineNum">    3135 </span><span class="lineCov">       3387 : static ident_t p_designator(void)</span>
 <span class="lineNum">    3136 </span>            : {
 <span class="lineNum">    3137 </span>            :    // identifier | operator_symbol
 <span class="lineNum">    3138 </span>            : 
-<span class="lineNum">    3139 </span><span class="lineCov">       6752 :    BEGIN(&quot;designator&quot;);</span>
+<span class="lineNum">    3139 </span><span class="lineCov">       6774 :    BEGIN(&quot;designator&quot;);</span>
 <span class="lineNum">    3140 </span>            : 
-<span class="lineNum">    3141 </span><span class="lineCov">       3376 :    switch (peek()) {</span>
+<span class="lineNum">    3141 </span><span class="lineCov">       3387 :    switch (peek()) {</span>
 <span class="lineNum">    3142 </span>            :    case tID:
-<span class="lineNum">    3143 </span><span class="lineCov">       2261 :       return p_identifier();</span>
+<span class="lineNum">    3143 </span><span class="lineCov">       2272 :       return p_identifier();</span>
 <span class="lineNum">    3144 </span>            :    case tSTRING:
 <span class="lineNum">    3145 </span><span class="lineCov">       1115 :       return p_operator_symbol();</span>
 <span class="lineNum">    3146 </span>            :    default:
@@ -3211,60 +3211,60 @@
 <span class="lineNum">    3149 </span>            :    }
 <a name="3150"><span class="lineNum">    3150 </span>            : }</a>
 <span class="lineNum">    3151 </span>            : 
-<span class="lineNum">    3152 </span><span class="lineCov">       2599 : static tree_t p_subprogram_specification(void)</span>
+<span class="lineNum">    3152 </span><span class="lineCov">       2607 : static tree_t p_subprogram_specification(void)</span>
 <span class="lineNum">    3153 </span>            : {
 <span class="lineNum">    3154 </span>            :    // procedure designator [ ( formal_parameter_list ) ]
 <span class="lineNum">    3155 </span>            :    //   | [ pure | impure ] function designator [ ( formal_parameter_list ) ]
 <span class="lineNum">    3156 </span>            :    //     return type_mark
 <span class="lineNum">    3157 </span>            : 
-<span class="lineNum">    3158 </span><span class="lineCov">       5198 :    BEGIN(&quot;subprogram specification&quot;);</span>
+<span class="lineNum">    3158 </span><span class="lineCov">       5214 :    BEGIN(&quot;subprogram specification&quot;);</span>
 <span class="lineNum">    3159 </span>            : 
-<span class="lineNum">    3160 </span><span class="lineCov">       2599 :    tree_t t = NULL;</span>
-<span class="lineNum">    3161 </span><span class="lineCov">       2599 :    type_t type = NULL;</span>
+<span class="lineNum">    3160 </span><span class="lineCov">       2607 :    tree_t t = NULL;</span>
+<span class="lineNum">    3161 </span><span class="lineCov">       2607 :    type_t type = NULL;</span>
 <span class="lineNum">    3162 </span>            : 
-<span class="lineNum">    3163 </span><span class="lineCov">       2599 :    bool impure = false;</span>
-<span class="lineNum">    3164 </span><span class="lineCov">       2599 :    if (optional(tIMPURE))</span>
+<span class="lineNum">    3163 </span><span class="lineCov">       2607 :    bool impure = false;</span>
+<span class="lineNum">    3164 </span><span class="lineCov">       2607 :    if (optional(tIMPURE))</span>
 <span class="lineNum">    3165 </span>            :       impure = true;
-<span class="lineNum">    3166 </span><span class="lineCov">       2535 :    else if (optional(tPURE))</span>
+<span class="lineNum">    3166 </span><span class="lineCov">       2543 :    else if (optional(tPURE))</span>
 <span class="lineNum">    3167 </span>            :       ;
 <span class="lineNum">    3168 </span>            : 
-<span class="lineNum">    3169 </span><span class="lineCov">       2599 :    switch (one_of(tFUNCTION, tPROCEDURE)) {</span>
+<span class="lineNum">    3169 </span><span class="lineCov">       2607 :    switch (one_of(tFUNCTION, tPROCEDURE)) {</span>
 <span class="lineNum">    3170 </span>            :    case tFUNCTION:
-<span class="lineNum">    3171 </span><span class="lineCov">       1870 :       t = tree_new(T_FUNC_DECL);</span>
-<span class="lineNum">    3172 </span><span class="lineCov">       1870 :       type = type_new(T_FUNC);</span>
-<span class="lineNum">    3173 </span><span class="lineCov">       1870 :       break;</span>
+<span class="lineNum">    3171 </span><span class="lineCov">       1872 :       t = tree_new(T_FUNC_DECL);</span>
+<span class="lineNum">    3172 </span><span class="lineCov">       1872 :       type = type_new(T_FUNC);</span>
+<span class="lineNum">    3173 </span><span class="lineCov">       1872 :       break;</span>
 <span class="lineNum">    3174 </span>            : 
 <span class="lineNum">    3175 </span>            :    case tPROCEDURE:
-<span class="lineNum">    3176 </span><span class="lineCov">        729 :       t = tree_new(T_PROC_DECL);</span>
-<span class="lineNum">    3177 </span><span class="lineCov">        729 :       type = type_new(T_PROC);</span>
-<span class="lineNum">    3178 </span><span class="lineCov">        729 :       break;</span>
+<span class="lineNum">    3176 </span><span class="lineCov">        735 :       t = tree_new(T_PROC_DECL);</span>
+<span class="lineNum">    3177 </span><span class="lineCov">        735 :       type = type_new(T_PROC);</span>
+<span class="lineNum">    3178 </span><span class="lineCov">        735 :       break;</span>
 <span class="lineNum">    3179 </span>            : 
 <span class="lineNum">    3180 </span>            :    default:
 <span class="lineNum">    3181 </span><span class="lineNoCov">          0 :       return tree_new(T_FUNC_DECL);</span>
 <span class="lineNum">    3182 </span>            :    }
 <span class="lineNum">    3183 </span>            : 
-<span class="lineNum">    3184 </span><span class="lineCov">       2599 :    tree_set_type(t, type);</span>
-<span class="lineNum">    3185 </span><span class="lineCov">       2599 :    tree_set_ident(t, p_designator());</span>
+<span class="lineNum">    3184 </span><span class="lineCov">       2607 :    tree_set_type(t, type);</span>
+<span class="lineNum">    3185 </span><span class="lineCov">       2607 :    tree_set_ident(t, p_designator());</span>
 <span class="lineNum">    3186 </span>            : 
-<span class="lineNum">    3187 </span><span class="lineCov">       2599 :    type_set_ident(type, tree_ident(t));</span>
+<span class="lineNum">    3187 </span><span class="lineCov">       2607 :    type_set_ident(type, tree_ident(t));</span>
 <span class="lineNum">    3188 </span>            : 
-<span class="lineNum">    3189 </span><span class="lineCov">       2599 :    if (impure)</span>
+<span class="lineNum">    3189 </span><span class="lineCov">       2607 :    if (impure)</span>
 <span class="lineNum">    3190 </span><span class="lineCov">         64 :       tree_set_flag(t, TREE_F_IMPURE);</span>
 <span class="lineNum">    3191 </span>            : 
-<span class="lineNum">    3192 </span><span class="lineCov">       2599 :    if (optional(tLPAREN)) {</span>
+<span class="lineNum">    3192 </span><span class="lineCov">       2607 :    if (optional(tLPAREN)) {</span>
 <span class="lineNum">    3193 </span>            :       //const class_t class =
 <span class="lineNum">    3194 </span>            :       //   (tree_kind(t) == T_FUNC_DECL) ? C_CONSTANT : C_VARIABLE;
-<span class="lineNum">    3195 </span><span class="lineCov">       2390 :       p_interface_list(C_DEFAULT, t, tree_add_port);</span>
-<span class="lineNum">    3196 </span><span class="lineCov">       2390 :       consume(tRPAREN);</span>
+<span class="lineNum">    3195 </span><span class="lineCov">       2398 :       p_interface_list(C_DEFAULT, t, tree_add_port);</span>
+<span class="lineNum">    3196 </span><span class="lineCov">       2398 :       consume(tRPAREN);</span>
 <span class="lineNum">    3197 </span>            :    }
 <span class="lineNum">    3198 </span>            : 
-<span class="lineNum">    3199 </span><span class="lineCov">       2599 :    if (tree_kind(t) == T_FUNC_DECL) {</span>
-<span class="lineNum">    3200 </span><span class="lineCov">       1870 :       consume(tRETURN);</span>
-<span class="lineNum">    3201 </span><span class="lineCov">       1870 :       type_set_result(type, p_type_mark());</span>
+<span class="lineNum">    3199 </span><span class="lineCov">       2607 :    if (tree_kind(t) == T_FUNC_DECL) {</span>
+<span class="lineNum">    3200 </span><span class="lineCov">       1872 :       consume(tRETURN);</span>
+<span class="lineNum">    3201 </span><span class="lineCov">       1872 :       type_set_result(type, p_type_mark());</span>
 <span class="lineNum">    3202 </span>            :    }
 <span class="lineNum">    3203 </span>            : 
-<span class="lineNum">    3204 </span><span class="lineCov">       2599 :    tree_set_loc(t, CURRENT_LOC);</span>
-<span class="lineNum">    3205 </span><span class="lineCov">       2599 :    return t;</span>
+<span class="lineNum">    3204 </span><span class="lineCov">       2607 :    tree_set_loc(t, CURRENT_LOC);</span>
+<span class="lineNum">    3205 </span><span class="lineCov">       2607 :    return t;</span>
 <a name="3206"><span class="lineNum">    3206 </span>            : }</a>
 <span class="lineNum">    3207 </span>            : 
 <span class="lineNum">    3208 </span><span class="lineCov">       1754 : static void p_variable_declaration(tree_t parent)</span>
@@ -3710,92 +3710,92 @@
 <span class="lineNum">    3648 </span>            :    }
 <a name="3649"><span class="lineNum">    3649 </span><span class="lineCov">       1877 : }</span></a>
 <span class="lineNum">    3650 </span>            : 
-<span class="lineNum">    3651 </span><span class="lineCov">       1531 : static void p_subprogram_declarative_part(tree_t sub)</span>
+<span class="lineNum">    3651 </span><span class="lineCov">       1535 : static void p_subprogram_declarative_part(tree_t sub)</span>
 <span class="lineNum">    3652 </span>            : {
 <span class="lineNum">    3653 </span>            :    // { subprogram_declarative_item }
 <span class="lineNum">    3654 </span>            : 
-<span class="lineNum">    3655 </span><span class="lineCov">       3062 :    BEGIN(&quot;subprogram declarative part&quot;);</span>
+<span class="lineNum">    3655 </span><span class="lineCov">       3070 :    BEGIN(&quot;subprogram declarative part&quot;);</span>
 <span class="lineNum">    3656 </span>            : 
-<span class="lineNum">    3657 </span><span class="lineCov">       4939 :    while (not_at_token(tBEGIN))</span>
+<span class="lineNum">    3657 </span><span class="lineCov">       4947 :    while (not_at_token(tBEGIN))</span>
 <span class="lineNum">    3658 </span><span class="lineCov">       1877 :       p_subprogram_declarative_item(sub);</span>
-<a name="3659"><span class="lineNum">    3659 </span><span class="lineCov">       1531 : }</span></a>
+<a name="3659"><span class="lineNum">    3659 </span><span class="lineCov">       1535 : }</span></a>
 <span class="lineNum">    3660 </span>            : 
-<span class="lineNum">    3661 </span><span class="lineCov">       4936 : static void p_sequence_of_statements(tree_t parent, add_func_t addf)</span>
+<span class="lineNum">    3661 </span><span class="lineCov">       4940 : static void p_sequence_of_statements(tree_t parent, add_func_t addf)</span>
 <span class="lineNum">    3662 </span>            : {
 <span class="lineNum">    3663 </span>            :    // { sequential_statement }
 <span class="lineNum">    3664 </span>            : 
-<span class="lineNum">    3665 </span><span class="lineCov">       9872 :    BEGIN(&quot;sequence of statements&quot;);</span>
+<span class="lineNum">    3665 </span><span class="lineCov">       9880 :    BEGIN(&quot;sequence of statements&quot;);</span>
 <span class="lineNum">    3666 </span>            : 
-<span class="lineNum">    3667 </span><span class="lineCov">      21151 :    while (not_at_token(tEND, tELSE, tELSIF, tWHEN))</span>
-<span class="lineNum">    3668 </span><span class="lineCov">      11279 :       (*addf)(parent, p_sequential_statement());</span>
-<a name="3669"><span class="lineNum">    3669 </span><span class="lineCov">       4936 : }</span></a>
+<span class="lineNum">    3667 </span><span class="lineCov">      21161 :    while (not_at_token(tEND, tELSE, tELSIF, tWHEN))</span>
+<span class="lineNum">    3668 </span><span class="lineCov">      11281 :       (*addf)(parent, p_sequential_statement());</span>
+<a name="3669"><span class="lineNum">    3669 </span><span class="lineCov">       4940 : }</span></a>
 <span class="lineNum">    3670 </span>            : 
-<span class="lineNum">    3671 </span><span class="lineCov">       5956 : static void p_trailing_label(ident_t label)</span>
+<span class="lineNum">    3671 </span><span class="lineCov">       5962 : static void p_trailing_label(ident_t label)</span>
 <span class="lineNum">    3672 </span>            : {
 <span class="lineNum">    3673 </span>            :    // [ label ]
 <span class="lineNum">    3674 </span>            : 
-<span class="lineNum">    3675 </span><span class="lineCov">       5956 :    if ((peek() == tID) || (peek() == tSTRING)) {</span>
-<span class="lineNum">    3676 </span><span class="lineCov">        777 :       ident_t trailing = p_designator();</span>
-<span class="lineNum">    3677 </span><span class="lineCov">        777 :       if (label == NULL)</span>
+<span class="lineNum">    3675 </span><span class="lineCov">       5962 :    if ((peek() == tID) || (peek() == tSTRING)) {</span>
+<span class="lineNum">    3676 </span><span class="lineCov">        780 :       ident_t trailing = p_designator();</span>
+<span class="lineNum">    3677 </span><span class="lineCov">        780 :       if (label == NULL)</span>
 <span class="lineNum">    3678 </span><span class="lineCov">          2 :          parse_error(&amp;last_loc, &quot;unexpected trailing label for %s without &quot;</span>
 <span class="lineNum">    3679 </span>            :                      &quot;label&quot;, hint_str);
-<span class="lineNum">    3680 </span><span class="lineCov">        775 :       else if (trailing != label)</span>
+<span class="lineNum">    3680 </span><span class="lineCov">        778 :       else if (trailing != label)</span>
 <span class="lineNum">    3681 </span><span class="lineCov">          3 :          parse_error(&amp;last_loc, &quot;expected trailing %s label to match %s&quot;,</span>
 <span class="lineNum">    3682 </span>            :                      hint_str, istr(label));
 <span class="lineNum">    3683 </span>            :    }
-<a name="3684"><span class="lineNum">    3684 </span><span class="lineCov">       5956 : }</span></a>
+<a name="3684"><span class="lineNum">    3684 </span><span class="lineCov">       5962 : }</span></a>
 <span class="lineNum">    3685 </span>            : 
-<span class="lineNum">    3686 </span><span class="lineCov">       1531 : static tree_t p_subprogram_body(tree_t spec)</span>
+<span class="lineNum">    3686 </span><span class="lineCov">       1535 : static tree_t p_subprogram_body(tree_t spec)</span>
 <span class="lineNum">    3687 </span>            : {
 <span class="lineNum">    3688 </span>            :    // subprogram_specification is subprogram_declarative_part begin
 <span class="lineNum">    3689 </span>            :    //   subprogram_statement_part end [ subprogram_kind ] [ designator ] ;
 <span class="lineNum">    3690 </span>            : 
-<span class="lineNum">    3691 </span><span class="lineCov">       3062 :    EXTEND(&quot;subprogram body&quot;);</span>
+<span class="lineNum">    3691 </span><span class="lineCov">       3070 :    EXTEND(&quot;subprogram body&quot;);</span>
 <span class="lineNum">    3692 </span>            : 
-<span class="lineNum">    3693 </span><span class="lineCov">       1531 :    consume(tIS);</span>
+<span class="lineNum">    3693 </span><span class="lineCov">       1535 :    consume(tIS);</span>
 <span class="lineNum">    3694 </span>            : 
-<span class="lineNum">    3695 </span><span class="lineCov">       1531 :    const tree_kind_t kind =</span>
-<span class="lineNum">    3696 </span><span class="lineCov">       1531 :       (tree_kind(spec) == T_FUNC_DECL) ? T_FUNC_BODY : T_PROC_BODY;</span>
-<span class="lineNum">    3697 </span><span class="lineCov">       1531 :    tree_change_kind(spec, kind);</span>
+<span class="lineNum">    3695 </span><span class="lineCov">       1535 :    const tree_kind_t kind =</span>
+<span class="lineNum">    3696 </span><span class="lineCov">       1535 :       (tree_kind(spec) == T_FUNC_DECL) ? T_FUNC_BODY : T_PROC_BODY;</span>
+<span class="lineNum">    3697 </span><span class="lineCov">       1535 :    tree_change_kind(spec, kind);</span>
 <span class="lineNum">    3698 </span>            : 
-<span class="lineNum">    3699 </span><span class="lineCov">       1531 :    p_subprogram_declarative_part(spec);</span>
+<span class="lineNum">    3699 </span><span class="lineCov">       1535 :    p_subprogram_declarative_part(spec);</span>
 <span class="lineNum">    3700 </span>            : 
-<span class="lineNum">    3701 </span><span class="lineCov">       1531 :    consume(tBEGIN);</span>
+<span class="lineNum">    3701 </span><span class="lineCov">       1535 :    consume(tBEGIN);</span>
 <span class="lineNum">    3702 </span>            : 
-<span class="lineNum">    3703 </span><span class="lineCov">       1531 :    p_sequence_of_statements(spec, tree_add_stmt);</span>
+<span class="lineNum">    3703 </span><span class="lineCov">       1535 :    p_sequence_of_statements(spec, tree_add_stmt);</span>
 <span class="lineNum">    3704 </span>            : 
-<span class="lineNum">    3705 </span><span class="lineCov">       1531 :    consume(tEND);</span>
+<span class="lineNum">    3705 </span><span class="lineCov">       1535 :    consume(tEND);</span>
 <span class="lineNum">    3706 </span>            : 
-<span class="lineNum">    3707 </span><span class="lineCov">       1531 :    switch (peek()) {</span>
+<span class="lineNum">    3707 </span><span class="lineCov">       1535 :    switch (peek()) {</span>
 <span class="lineNum">    3708 </span>            :    case tFUNCTION:
-<span class="lineNum">    3709 </span><span class="lineCov">        280 :       consume(tFUNCTION);</span>
+<span class="lineNum">    3709 </span><span class="lineCov">        281 :       consume(tFUNCTION);</span>
 <span class="lineNum">    3710 </span>            :       // XXX: check is function;
-<span class="lineNum">    3711 </span><span class="lineCov">        280 :       break;</span>
+<span class="lineNum">    3711 </span><span class="lineCov">        281 :       break;</span>
 <span class="lineNum">    3712 </span>            : 
 <span class="lineNum">    3713 </span>            :    case tPROCEDURE:
-<span class="lineNum">    3714 </span><span class="lineCov">        317 :       consume(tPROCEDURE);</span>
+<span class="lineNum">    3714 </span><span class="lineCov">        320 :       consume(tPROCEDURE);</span>
 <span class="lineNum">    3715 </span>            :       // XXX: check is procedure
-<span class="lineNum">    3716 </span><span class="lineCov">        317 :       break;</span>
+<span class="lineNum">    3716 </span><span class="lineCov">        320 :       break;</span>
 <span class="lineNum">    3717 </span>            : 
 <span class="lineNum">    3718 </span>            :    default:
 <span class="lineNum">    3719 </span>            :       break;
 <span class="lineNum">    3720 </span>            :    }
 <span class="lineNum">    3721 </span>            : 
-<span class="lineNum">    3722 </span><span class="lineCov">       1531 :    p_trailing_label(tree_ident(spec));</span>
-<span class="lineNum">    3723 </span><span class="lineCov">       1531 :    consume(tSEMI);</span>
+<span class="lineNum">    3722 </span><span class="lineCov">       1535 :    p_trailing_label(tree_ident(spec));</span>
+<span class="lineNum">    3723 </span><span class="lineCov">       1535 :    consume(tSEMI);</span>
 <span class="lineNum">    3724 </span>            : 
-<span class="lineNum">    3725 </span><span class="lineCov">       1531 :    tree_set_loc(spec, CURRENT_LOC);</span>
-<span class="lineNum">    3726 </span><span class="lineCov">       1531 :    return spec;</span>
+<span class="lineNum">    3725 </span><span class="lineCov">       1535 :    tree_set_loc(spec, CURRENT_LOC);</span>
+<span class="lineNum">    3726 </span><span class="lineCov">       1535 :    return spec;</span>
 <a name="3727"><span class="lineNum">    3727 </span>            : }</a>
 <span class="lineNum">    3728 </span>            : 
-<span class="lineNum">    3729 </span><span class="lineCov">       1068 : static tree_t p_subprogram_declaration(tree_t spec)</span>
+<span class="lineNum">    3729 </span><span class="lineCov">       1072 : static tree_t p_subprogram_declaration(tree_t spec)</span>
 <span class="lineNum">    3730 </span>            : {
 <span class="lineNum">    3731 </span>            :    // subprogram_specification ;
 <span class="lineNum">    3732 </span>            : 
-<span class="lineNum">    3733 </span><span class="lineCov">       2136 :    EXTEND(&quot;subprogram declaration&quot;);</span>
+<span class="lineNum">    3733 </span><span class="lineCov">       2144 :    EXTEND(&quot;subprogram declaration&quot;);</span>
 <span class="lineNum">    3734 </span>            : 
-<span class="lineNum">    3735 </span><span class="lineCov">       1068 :    consume(tSEMI);</span>
-<span class="lineNum">    3736 </span><span class="lineCov">       1068 :    return spec;</span>
+<span class="lineNum">    3735 </span><span class="lineCov">       1072 :    consume(tSEMI);</span>
+<span class="lineNum">    3736 </span><span class="lineCov">       1072 :    return spec;</span>
 <a name="3737"><span class="lineNum">    3737 </span>            : }</a>
 <span class="lineNum">    3738 </span>            : 
 <span class="lineNum">    3739 </span><span class="lineCov">        156 : static void p_sensitivity_list(tree_t proc)</span>
@@ -4041,7 +4041,7 @@
 <span class="lineNum">    3979 </span><span class="lineCov">         57 :    return c;</span>
 <a name="3980"><span class="lineNum">    3980 </span>            : }</a>
 <span class="lineNum">    3981 </span>            : 
-<span class="lineNum">    3982 </span><span class="lineCov">       1531 : static void p_package_declarative_item(tree_t pack)</span>
+<span class="lineNum">    3982 </span><span class="lineCov">       1535 : static void p_package_declarative_item(tree_t pack)</span>
 <span class="lineNum">    3983 </span>            : {
 <span class="lineNum">    3984 </span>            :    // subprogram_declaration | type_declaration | subtype_declaration
 <span class="lineNum">    3985 </span>            :    //   | constant_declaration | signal_declaration
@@ -4051,9 +4051,9 @@
 <span class="lineNum">    3989 </span>            :    //   | group_template_declaration | group_declaration
 <span class="lineNum">    3990 </span>            :    //
 <span class="lineNum">    3991 </span>            : 
-<span class="lineNum">    3992 </span><span class="lineCov">       3062 :    BEGIN(&quot;package declarative item&quot;);</span>
+<span class="lineNum">    3992 </span><span class="lineCov">       3070 :    BEGIN(&quot;package declarative item&quot;);</span>
 <span class="lineNum">    3993 </span>            : 
-<span class="lineNum">    3994 </span><span class="lineCov">       1531 :    switch (peek()) {</span>
+<span class="lineNum">    3994 </span><span class="lineCov">       1535 :    switch (peek()) {</span>
 <span class="lineNum">    3995 </span>            :    case tTYPE:
 <span class="lineNum">    3996 </span><span class="lineCov">        251 :       tree_add_decl(pack, p_type_declaration());</span>
 <span class="lineNum">    3997 </span><span class="lineCov">        251 :       break;</span>
@@ -4063,9 +4063,9 @@
 <span class="lineNum">    4001 </span>            :    case tIMPURE:
 <span class="lineNum">    4002 </span>            :    case tPURE:
 <span class="lineNum">    4003 </span>            :       {
-<span class="lineNum">    4004 </span><span class="lineCov">        977 :          tree_t spec = p_subprogram_specification();</span>
-<span class="lineNum">    4005 </span><span class="lineCov">        977 :          if (peek() == tSEMI)</span>
-<span class="lineNum">    4006 </span><span class="lineCov">        975 :             tree_add_decl(pack, p_subprogram_declaration(spec));</span>
+<span class="lineNum">    4004 </span><span class="lineCov">        981 :          tree_t spec = p_subprogram_specification();</span>
+<span class="lineNum">    4005 </span><span class="lineCov">        981 :          if (peek() == tSEMI)</span>
+<span class="lineNum">    4006 </span><span class="lineCov">        979 :             tree_add_decl(pack, p_subprogram_declaration(spec));</span>
 <span class="lineNum">    4007 </span>            :          else
 <span class="lineNum">    4008 </span><span class="lineCov">          2 :             tree_add_decl(pack, p_subprogram_body(spec));</span>
 <span class="lineNum">    4009 </span>            :       }
@@ -4114,41 +4114,41 @@
 <span class="lineNum">    4052 </span><span class="lineNoCov">          0 :       expect(tTYPE, tFUNCTION, tPROCEDURE, tIMPURE, tPURE, tSUBTYPE, tSIGNAL,</span>
 <span class="lineNum">    4053 </span>            :              tATTRIBUTE, tCONSTANT, tCOMPONENT, tFILE, tSHARED, tALIAS, tUSE);
 <span class="lineNum">    4054 </span>            :    }
-<a name="4055"><span class="lineNum">    4055 </span><span class="lineCov">       1531 : }</span></a>
+<a name="4055"><span class="lineNum">    4055 </span><span class="lineCov">       1535 : }</span></a>
 <span class="lineNum">    4056 </span>            : 
-<span class="lineNum">    4057 </span><span class="lineCov">        194 : static void p_package_declarative_part(tree_t pack)</span>
+<span class="lineNum">    4057 </span><span class="lineCov">        195 : static void p_package_declarative_part(tree_t pack)</span>
 <span class="lineNum">    4058 </span>            : {
 <span class="lineNum">    4059 </span>            :    // { package_declarative_item }
 <span class="lineNum">    4060 </span>            : 
-<span class="lineNum">    4061 </span><span class="lineCov">        388 :    BEGIN(&quot;package declarative part&quot;);</span>
+<span class="lineNum">    4061 </span><span class="lineCov">        390 :    BEGIN(&quot;package declarative part&quot;);</span>
 <span class="lineNum">    4062 </span>            : 
-<span class="lineNum">    4063 </span><span class="lineCov">       1919 :    while (not_at_token(tEND))</span>
-<span class="lineNum">    4064 </span><span class="lineCov">       1531 :       p_package_declarative_item(pack);</span>
-<a name="4065"><span class="lineNum">    4065 </span><span class="lineCov">        194 : }</span></a>
+<span class="lineNum">    4063 </span><span class="lineCov">       1925 :    while (not_at_token(tEND))</span>
+<span class="lineNum">    4064 </span><span class="lineCov">       1535 :       p_package_declarative_item(pack);</span>
+<a name="4065"><span class="lineNum">    4065 </span><span class="lineCov">        195 : }</span></a>
 <span class="lineNum">    4066 </span>            : 
-<span class="lineNum">    4067 </span><span class="lineCov">        194 : static void p_package_declaration(tree_t unit)</span>
+<span class="lineNum">    4067 </span><span class="lineCov">        195 : static void p_package_declaration(tree_t unit)</span>
 <span class="lineNum">    4068 </span>            : {
 <span class="lineNum">    4069 </span>            :    // package identifier is package_declarative_part end [ package ]
 <span class="lineNum">    4070 </span>            :    //   [ simple_name ] ;
 <span class="lineNum">    4071 </span>            : 
-<span class="lineNum">    4072 </span><span class="lineCov">        388 :    BEGIN(&quot;package declaration&quot;);</span>
+<span class="lineNum">    4072 </span><span class="lineCov">        390 :    BEGIN(&quot;package declaration&quot;);</span>
 <span class="lineNum">    4073 </span>            : 
-<span class="lineNum">    4074 </span><span class="lineCov">        194 :    consume(tPACKAGE);</span>
+<span class="lineNum">    4074 </span><span class="lineCov">        195 :    consume(tPACKAGE);</span>
 <span class="lineNum">    4075 </span>            : 
-<span class="lineNum">    4076 </span><span class="lineCov">        194 :    tree_change_kind(unit, T_PACKAGE);</span>
-<span class="lineNum">    4077 </span><span class="lineCov">        194 :    tree_set_ident(unit, p_identifier());</span>
+<span class="lineNum">    4076 </span><span class="lineCov">        195 :    tree_change_kind(unit, T_PACKAGE);</span>
+<span class="lineNum">    4077 </span><span class="lineCov">        195 :    tree_set_ident(unit, p_identifier());</span>
 <span class="lineNum">    4078 </span>            : 
-<span class="lineNum">    4079 </span><span class="lineCov">        194 :    consume(tIS);</span>
+<span class="lineNum">    4079 </span><span class="lineCov">        195 :    consume(tIS);</span>
 <span class="lineNum">    4080 </span>            : 
-<span class="lineNum">    4081 </span><span class="lineCov">        194 :    p_package_declarative_part(unit);</span>
+<span class="lineNum">    4081 </span><span class="lineCov">        195 :    p_package_declarative_part(unit);</span>
 <span class="lineNum">    4082 </span>            : 
-<span class="lineNum">    4083 </span><span class="lineCov">        194 :    consume(tEND);</span>
-<span class="lineNum">    4084 </span><span class="lineCov">        194 :    optional(tPACKAGE);</span>
-<span class="lineNum">    4085 </span><span class="lineCov">        194 :    p_trailing_label(tree_ident(unit));</span>
-<span class="lineNum">    4086 </span><span class="lineCov">        194 :    consume(tSEMI);</span>
+<span class="lineNum">    4083 </span><span class="lineCov">        195 :    consume(tEND);</span>
+<span class="lineNum">    4084 </span><span class="lineCov">        195 :    optional(tPACKAGE);</span>
+<span class="lineNum">    4085 </span><span class="lineCov">        195 :    p_trailing_label(tree_ident(unit));</span>
+<span class="lineNum">    4086 </span><span class="lineCov">        195 :    consume(tSEMI);</span>
 <span class="lineNum">    4087 </span>            : 
-<span class="lineNum">    4088 </span><span class="lineCov">        194 :    tree_set_loc(unit, CURRENT_LOC);</span>
-<a name="4089"><span class="lineNum">    4089 </span><span class="lineCov">        194 : }</span></a>
+<span class="lineNum">    4088 </span><span class="lineCov">        195 :    tree_set_loc(unit, CURRENT_LOC);</span>
+<a name="4089"><span class="lineNum">    4089 </span><span class="lineCov">        195 : }</span></a>
 <span class="lineNum">    4090 </span>            : 
 <span class="lineNum">    4091 </span><span class="lineCov">         22 : static ident_list_t *p_instantiation_list(void)</span>
 <span class="lineNum">    4092 </span>            : {
@@ -4490,20 +4490,20 @@
 <span class="lineNum">    4428 </span><span class="lineCov">          6 :    tree_set_loc(unit, CURRENT_LOC);</span>
 <a name="4429"><span class="lineNum">    4429 </span><span class="lineCov">          6 : }</span></a>
 <span class="lineNum">    4430 </span>            : 
-<span class="lineNum">    4431 </span><span class="lineCov">        890 : static void p_primary_unit(tree_t unit)</span>
+<span class="lineNum">    4431 </span><span class="lineCov">        891 : static void p_primary_unit(tree_t unit)</span>
 <span class="lineNum">    4432 </span>            : {
 <span class="lineNum">    4433 </span>            :    // entity_declaration | configuration_declaration | package_declaration
 <span class="lineNum">    4434 </span>            : 
-<span class="lineNum">    4435 </span><span class="lineCov">       1780 :    BEGIN(&quot;primary unit&quot;);</span>
+<span class="lineNum">    4435 </span><span class="lineCov">       1782 :    BEGIN(&quot;primary unit&quot;);</span>
 <span class="lineNum">    4436 </span>            : 
-<span class="lineNum">    4437 </span><span class="lineCov">        890 :    switch (peek()) {</span>
+<span class="lineNum">    4437 </span><span class="lineCov">        891 :    switch (peek()) {</span>
 <span class="lineNum">    4438 </span>            :    case tENTITY:
 <span class="lineNum">    4439 </span><span class="lineCov">        688 :       p_entity_declaration(unit);</span>
 <span class="lineNum">    4440 </span><span class="lineCov">        688 :       break;</span>
 <span class="lineNum">    4441 </span>            : 
 <span class="lineNum">    4442 </span>            :    case tPACKAGE:
-<span class="lineNum">    4443 </span><span class="lineCov">        194 :       p_package_declaration(unit);</span>
-<span class="lineNum">    4444 </span><span class="lineCov">        194 :       break;</span>
+<span class="lineNum">    4443 </span><span class="lineCov">        195 :       p_package_declaration(unit);</span>
+<span class="lineNum">    4444 </span><span class="lineCov">        195 :       break;</span>
 <span class="lineNum">    4445 </span>            : 
 <span class="lineNum">    4446 </span>            :    case tCONFIGURATION:
 <span class="lineNum">    4447 </span><span class="lineCov">          2 :       p_configuration_declaration(unit);</span>
@@ -4516,7 +4516,7 @@
 <span class="lineNum">    4454 </span>            :    default:
 <span class="lineNum">    4455 </span><span class="lineNoCov">          0 :       expect(tENTITY, tPACKAGE, tCONFIGURATION);</span>
 <span class="lineNum">    4456 </span>            :    }
-<a name="4457"><span class="lineNum">    4457 </span><span class="lineCov">        890 : }</span></a>
+<a name="4457"><span class="lineNum">    4457 </span><span class="lineCov">        891 : }</span></a>
 <span class="lineNum">    4458 </span>            : 
 <span class="lineNum">    4459 </span><span class="lineCov">       1369 : static void p_block_declarative_item(tree_t parent)</span>
 <span class="lineNum">    4460 </span>            : {
@@ -4598,13 +4598,13 @@
 <span class="lineNum">    4536 </span>            :    }
 <a name="4537"><span class="lineNum">    4537 </span><span class="lineCov">       1369 : }</span></a>
 <span class="lineNum">    4538 </span>            : 
-<span class="lineNum">    4539 </span><span class="lineCov">       3671 : static tree_t p_target(tree_t name)</span>
+<span class="lineNum">    4539 </span><span class="lineCov">       3672 : static tree_t p_target(tree_t name)</span>
 <span class="lineNum">    4540 </span>            : {
 <span class="lineNum">    4541 </span>            :    // name | aggregate
 <span class="lineNum">    4542 </span>            : 
-<span class="lineNum">    4543 </span><span class="lineCov">       7342 :    BEGIN(&quot;target&quot;);</span>
+<span class="lineNum">    4543 </span><span class="lineCov">       7344 :    BEGIN(&quot;target&quot;);</span>
 <span class="lineNum">    4544 </span>            : 
-<span class="lineNum">    4545 </span><span class="lineCov">       3671 :    if (name == NULL) {</span>
+<span class="lineNum">    4545 </span><span class="lineCov">       3672 :    if (name == NULL) {</span>
 <span class="lineNum">    4546 </span><span class="lineCov">        244 :       if (peek() == tLPAREN)</span>
 <span class="lineNum">    4547 </span><span class="lineCov">          8 :          return p_aggregate();</span>
 <span class="lineNum">    4548 </span>            :       else
@@ -4640,45 +4640,45 @@
 <span class="lineNum">    4578 </span><span class="lineCov">       2913 :    return t;</span>
 <a name="4579"><span class="lineNum">    4579 </span>            : }</a>
 <span class="lineNum">    4580 </span>            : 
-<span class="lineNum">    4581 </span><span class="lineCov">        837 : static tree_t p_waveform_element(void)</span>
+<span class="lineNum">    4581 </span><span class="lineCov">        838 : static tree_t p_waveform_element(void)</span>
 <span class="lineNum">    4582 </span>            : {
 <span class="lineNum">    4583 </span>            :    // expression [ after expression ] | null [ after expression ]
 <span class="lineNum">    4584 </span>            : 
-<span class="lineNum">    4585 </span><span class="lineCov">       1674 :    BEGIN(&quot;waveform element&quot;);</span>
+<span class="lineNum">    4585 </span><span class="lineCov">       1676 :    BEGIN(&quot;waveform element&quot;);</span>
 <span class="lineNum">    4586 </span>            : 
-<span class="lineNum">    4587 </span><span class="lineCov">        837 :    tree_t w = tree_new(T_WAVEFORM);</span>
-<span class="lineNum">    4588 </span><span class="lineCov">        837 :    tree_set_value(w, p_expression());</span>
+<span class="lineNum">    4587 </span><span class="lineCov">        838 :    tree_t w = tree_new(T_WAVEFORM);</span>
+<span class="lineNum">    4588 </span><span class="lineCov">        838 :    tree_set_value(w, p_expression());</span>
 <span class="lineNum">    4589 </span>            : 
-<span class="lineNum">    4590 </span><span class="lineCov">        837 :    if (optional(tAFTER))</span>
+<span class="lineNum">    4590 </span><span class="lineCov">        838 :    if (optional(tAFTER))</span>
 <span class="lineNum">    4591 </span><span class="lineCov">        112 :       tree_set_delay(w, p_expression());</span>
 <span class="lineNum">    4592 </span>            : 
-<span class="lineNum">    4593 </span><span class="lineCov">        837 :    tree_set_loc(w, CURRENT_LOC);</span>
+<span class="lineNum">    4593 </span><span class="lineCov">        838 :    tree_set_loc(w, CURRENT_LOC);</span>
 <span class="lineNum">    4594 </span>            : 
-<span class="lineNum">    4595 </span><span class="lineCov">        837 :    return w;</span>
+<span class="lineNum">    4595 </span><span class="lineCov">        838 :    return w;</span>
 <a name="4596"><span class="lineNum">    4596 </span>            : }</a>
 <span class="lineNum">    4597 </span>            : 
-<span class="lineNum">    4598 </span><span class="lineCov">        813 : static void p_waveform(tree_t stmt)</span>
+<span class="lineNum">    4598 </span><span class="lineCov">        814 : static void p_waveform(tree_t stmt)</span>
 <span class="lineNum">    4599 </span>            : {
 <span class="lineNum">    4600 </span>            :    // waveform_element { , waveform_element } | unaffected
 <span class="lineNum">    4601 </span>            : 
-<span class="lineNum">    4602 </span><span class="lineCov">       1626 :    BEGIN(&quot;waveform&quot;);</span>
+<span class="lineNum">    4602 </span><span class="lineCov">       1628 :    BEGIN(&quot;waveform&quot;);</span>
 <span class="lineNum">    4603 </span>            : 
-<span class="lineNum">    4604 </span><span class="lineCov">        813 :    if (optional(tUNAFFECTED))</span>
-<span class="lineNum">    4605 </span><span class="lineCov">        813 :       return;</span>
+<span class="lineNum">    4604 </span><span class="lineCov">        814 :    if (optional(tUNAFFECTED))</span>
+<span class="lineNum">    4605 </span><span class="lineCov">        814 :       return;</span>
 <span class="lineNum">    4606 </span>            : 
-<span class="lineNum">    4607 </span><span class="lineCov">        813 :    tree_add_waveform(stmt, p_waveform_element());</span>
+<span class="lineNum">    4607 </span><span class="lineCov">        814 :    tree_add_waveform(stmt, p_waveform_element());</span>
 <span class="lineNum">    4608 </span>            : 
-<span class="lineNum">    4609 </span><span class="lineCov">       1650 :    while (optional(tCOMMA))</span>
+<span class="lineNum">    4609 </span><span class="lineCov">       1652 :    while (optional(tCOMMA))</span>
 <span class="lineNum">    4610 </span><span class="lineCov">         24 :       tree_add_waveform(stmt, p_waveform_element());</span>
 <a name="4611"><span class="lineNum">    4611 </span>            : }</a>
 <span class="lineNum">    4612 </span>            : 
-<span class="lineNum">    4613 </span><span class="lineCov">        758 : static tree_t p_delay_mechanism(void)</span>
+<span class="lineNum">    4613 </span><span class="lineCov">        759 : static tree_t p_delay_mechanism(void)</span>
 <span class="lineNum">    4614 </span>            : {
 <span class="lineNum">    4615 </span>            :    // transport | [ reject expression ] inertial
 <span class="lineNum">    4616 </span>            : 
-<span class="lineNum">    4617 </span><span class="lineCov">       1516 :    BEGIN(&quot;delay mechanism&quot;);</span>
+<span class="lineNum">    4617 </span><span class="lineCov">       1518 :    BEGIN(&quot;delay mechanism&quot;);</span>
 <span class="lineNum">    4618 </span>            : 
-<span class="lineNum">    4619 </span><span class="lineCov">        758 :    switch (peek()) {</span>
+<span class="lineNum">    4619 </span><span class="lineCov">        759 :    switch (peek()) {</span>
 <span class="lineNum">    4620 </span>            :    case tTRANSPORT:
 <span class="lineNum">    4621 </span><span class="lineCov">         19 :       consume(tTRANSPORT);</span>
 <span class="lineNum">    4622 </span><span class="lineCov">         19 :       return get_time(0);</span>
@@ -4700,27 +4700,27 @@
 <span class="lineNum">    4638 </span>            :    }
 <a name="4639"><span class="lineNum">    4639 </span>            : }</a>
 <span class="lineNum">    4640 </span>            : 
-<span class="lineNum">    4641 </span><span class="lineCov">        514 : static tree_t p_signal_assignment_statement(ident_t label, tree_t name)</span>
+<span class="lineNum">    4641 </span><span class="lineCov">        515 : static tree_t p_signal_assignment_statement(ident_t label, tree_t name)</span>
 <span class="lineNum">    4642 </span>            : {
 <span class="lineNum">    4643 </span>            :    // [ label : ] target &lt;= [ delay_mechanism ] waveform ;
 <span class="lineNum">    4644 </span>            : 
-<span class="lineNum">    4645 </span><span class="lineCov">       1028 :    EXTEND(&quot;signal assignment statement&quot;);</span>
+<span class="lineNum">    4645 </span><span class="lineCov">       1030 :    EXTEND(&quot;signal assignment statement&quot;);</span>
 <span class="lineNum">    4646 </span>            : 
-<span class="lineNum">    4647 </span><span class="lineCov">        514 :    tree_t t = tree_new(T_SIGNAL_ASSIGN);</span>
+<span class="lineNum">    4647 </span><span class="lineCov">        515 :    tree_t t = tree_new(T_SIGNAL_ASSIGN);</span>
 <span class="lineNum">    4648 </span>            : 
-<span class="lineNum">    4649 </span><span class="lineCov">        514 :    tree_set_target(t, p_target(name));</span>
+<span class="lineNum">    4649 </span><span class="lineCov">        515 :    tree_set_target(t, p_target(name));</span>
 <span class="lineNum">    4650 </span>            : 
-<span class="lineNum">    4651 </span><span class="lineCov">        514 :    consume(tLE);</span>
+<span class="lineNum">    4651 </span><span class="lineCov">        515 :    consume(tLE);</span>
 <span class="lineNum">    4652 </span>            : 
-<span class="lineNum">    4653 </span><span class="lineCov">        514 :    tree_t reject = p_delay_mechanism();</span>
+<span class="lineNum">    4653 </span><span class="lineCov">        515 :    tree_t reject = p_delay_mechanism();</span>
 <span class="lineNum">    4654 </span>            : 
-<span class="lineNum">    4655 </span><span class="lineCov">        514 :    p_waveform(t);</span>
+<span class="lineNum">    4655 </span><span class="lineCov">        515 :    p_waveform(t);</span>
 <span class="lineNum">    4656 </span>            : 
-<span class="lineNum">    4657 </span><span class="lineCov">        514 :    consume(tSEMI);</span>
+<span class="lineNum">    4657 </span><span class="lineCov">        515 :    consume(tSEMI);</span>
 <span class="lineNum">    4658 </span>            : 
-<span class="lineNum">    4659 </span><span class="lineCov">        514 :    set_delay_mechanism(t, reject);</span>
-<span class="lineNum">    4660 </span><span class="lineCov">        514 :    set_label_and_loc(t, label, CURRENT_LOC);</span>
-<span class="lineNum">    4661 </span><span class="lineCov">        514 :    return t;</span>
+<span class="lineNum">    4659 </span><span class="lineCov">        515 :    set_delay_mechanism(t, reject);</span>
+<span class="lineNum">    4660 </span><span class="lineCov">        515 :    set_label_and_loc(t, label, CURRENT_LOC);</span>
+<span class="lineNum">    4661 </span><span class="lineCov">        515 :    return t;</span>
 <a name="4662"><span class="lineNum">    4662 </span>            : }</a>
 <span class="lineNum">    4663 </span>            : 
 <span class="lineNum">    4664 </span><span class="lineCov">        105 : static void p_sensitivity_clause(tree_t wait)</span>
@@ -4943,23 +4943,23 @@
 <span class="lineNum">    4881 </span><span class="lineCov">        470 :    return t;</span>
 <a name="4882"><span class="lineNum">    4882 </span>            : }</a>
 <span class="lineNum">    4883 </span>            : 
-<span class="lineNum">    4884 </span><span class="lineCov">       1843 : static tree_t p_return_statement(ident_t label)</span>
+<span class="lineNum">    4884 </span><span class="lineCov">       1844 : static tree_t p_return_statement(ident_t label)</span>
 <span class="lineNum">    4885 </span>            : {
 <span class="lineNum">    4886 </span>            :    // [ label : ] return [ expression ] ;
 <span class="lineNum">    4887 </span>            : 
-<span class="lineNum">    4888 </span><span class="lineCov">       3686 :    EXTEND(&quot;return statement&quot;);</span>
+<span class="lineNum">    4888 </span><span class="lineCov">       3688 :    EXTEND(&quot;return statement&quot;);</span>
 <span class="lineNum">    4889 </span>            : 
-<span class="lineNum">    4890 </span><span class="lineCov">       1843 :    consume(tRETURN);</span>
+<span class="lineNum">    4890 </span><span class="lineCov">       1844 :    consume(tRETURN);</span>
 <span class="lineNum">    4891 </span>            : 
-<span class="lineNum">    4892 </span><span class="lineCov">       1843 :    tree_t t = tree_new(T_RETURN);</span>
+<span class="lineNum">    4892 </span><span class="lineCov">       1844 :    tree_t t = tree_new(T_RETURN);</span>
 <span class="lineNum">    4893 </span>            : 
-<span class="lineNum">    4894 </span><span class="lineCov">       1843 :    if (peek() != tSEMI)</span>
-<span class="lineNum">    4895 </span><span class="lineCov">       1791 :       tree_set_value(t, p_expression());</span>
+<span class="lineNum">    4894 </span><span class="lineCov">       1844 :    if (peek() != tSEMI)</span>
+<span class="lineNum">    4895 </span><span class="lineCov">       1792 :       tree_set_value(t, p_expression());</span>
 <span class="lineNum">    4896 </span>            : 
-<span class="lineNum">    4897 </span><span class="lineCov">       1843 :    consume(tSEMI);</span>
+<span class="lineNum">    4897 </span><span class="lineCov">       1844 :    consume(tSEMI);</span>
 <span class="lineNum">    4898 </span>            : 
-<span class="lineNum">    4899 </span><span class="lineCov">       1843 :    set_label_and_loc(t, label, CURRENT_LOC);</span>
-<span class="lineNum">    4900 </span><span class="lineCov">       1843 :    return t;</span>
+<span class="lineNum">    4899 </span><span class="lineCov">       1844 :    set_label_and_loc(t, label, CURRENT_LOC);</span>
+<span class="lineNum">    4900 </span><span class="lineCov">       1844 :    return t;</span>
 <a name="4901"><span class="lineNum">    4901 </span>            : }</a>
 <span class="lineNum">    4902 </span>            : 
 <span class="lineNum">    4903 </span><span class="lineCov">         86 : static tree_t p_exit_statement(ident_t label)</span>
@@ -5069,7 +5069,7 @@
 <span class="lineNum">    5007 </span><span class="lineCov">        124 :    return t;</span>
 <a name="5008"><span class="lineNum">    5008 </span>            : }</a>
 <span class="lineNum">    5009 </span>            : 
-<span class="lineNum">    5010 </span><span class="lineCov">      11279 : static tree_t p_sequential_statement(void)</span>
+<span class="lineNum">    5010 </span><span class="lineCov">      11281 : static tree_t p_sequential_statement(void)</span>
 <span class="lineNum">    5011 </span>            : {
 <span class="lineNum">    5012 </span>            :    // wait_statement | assertion_statement | report_statement
 <span class="lineNum">    5013 </span>            :    //   | signal_assignment_statement | variable_assignment_statement
@@ -5077,15 +5077,15 @@
 <span class="lineNum">    5015 </span>            :    //   | loop_statement | next_statement | exit_statement | return_statement
 <span class="lineNum">    5016 </span>            :    //   | null_statement
 <span class="lineNum">    5017 </span>            : 
-<span class="lineNum">    5018 </span><span class="lineCov">      22558 :    BEGIN(&quot;sequential statement&quot;);</span>
+<span class="lineNum">    5018 </span><span class="lineCov">      22562 :    BEGIN(&quot;sequential statement&quot;);</span>
 <span class="lineNum">    5019 </span>            : 
-<span class="lineNum">    5020 </span><span class="lineCov">      11279 :    ident_t label = NULL;</span>
-<span class="lineNum">    5021 </span><span class="lineCov">      11279 :    if ((peek() == tID) &amp;&amp; (peek_nth(2) == tCOLON)) {</span>
+<span class="lineNum">    5020 </span><span class="lineCov">      11281 :    ident_t label = NULL;</span>
+<span class="lineNum">    5021 </span><span class="lineCov">      11281 :    if ((peek() == tID) &amp;&amp; (peek_nth(2) == tCOLON)) {</span>
 <span class="lineNum">    5022 </span><span class="lineCov">         23 :       label = p_identifier();</span>
 <span class="lineNum">    5023 </span><span class="lineCov">         23 :       consume(tCOLON);</span>
 <span class="lineNum">    5024 </span>            :    }
 <span class="lineNum">    5025 </span>            : 
-<span class="lineNum">    5026 </span><span class="lineCov">      11279 :    switch (peek()) {</span>
+<span class="lineNum">    5026 </span><span class="lineCov">      11281 :    switch (peek()) {</span>
 <span class="lineNum">    5027 </span>            :    case tWAIT:
 <span class="lineNum">    5028 </span><span class="lineCov">       1002 :       return p_wait_statement(label);</span>
 <span class="lineNum">    5029 </span>            : 
@@ -5102,7 +5102,7 @@
 <span class="lineNum">    5040 </span><span class="lineCov">        118 :       return p_null_statement(label);</span>
 <span class="lineNum">    5041 </span>            : 
 <span class="lineNum">    5042 </span>            :    case tRETURN:
-<span class="lineNum">    5043 </span><span class="lineCov">       1843 :       return p_return_statement(label);</span>
+<span class="lineNum">    5043 </span><span class="lineCov">       1844 :       return p_return_statement(label);</span>
 <span class="lineNum">    5044 </span>            : 
 <span class="lineNum">    5045 </span>            :    case tCASE:
 <span class="lineNum">    5046 </span><span class="lineCov">        124 :       return p_case_statement(label);</span>
@@ -5144,14 +5144,14 @@
 <span class="lineNum">    5082 </span><span class="lineNoCov">          0 :       return tree_new(T_NULL);</span>
 <span class="lineNum">    5083 </span>            :    }
 <span class="lineNum">    5084 </span>            : 
-<span class="lineNum">    5085 </span><span class="lineCov">       4470 :    tree_t name = p_name();</span>
+<span class="lineNum">    5085 </span><span class="lineCov">       4471 :    tree_t name = p_name();</span>
 <span class="lineNum">    5086 </span>            : 
-<span class="lineNum">    5087 </span><span class="lineCov">       4470 :    switch (peek()) {</span>
+<span class="lineNum">    5087 </span><span class="lineCov">       4471 :    switch (peek()) {</span>
 <span class="lineNum">    5088 </span>            :    case tASSIGN:
 <span class="lineNum">    5089 </span><span class="lineCov">       2913 :       return p_variable_assignment_statement(label, name);</span>
 <span class="lineNum">    5090 </span>            : 
 <span class="lineNum">    5091 </span>            :    case tLE:
-<span class="lineNum">    5092 </span><span class="lineCov">        503 :       return p_signal_assignment_statement(label, name);</span>
+<span class="lineNum">    5092 </span><span class="lineCov">        504 :       return p_signal_assignment_statement(label, name);</span>
 <span class="lineNum">    5093 </span>            : 
 <span class="lineNum">    5094 </span>            :    case tSEMI:
 <span class="lineNum">    5095 </span><span class="lineCov">       1054 :       return p_procedure_call_statement(label, name);</span>
@@ -5632,7 +5632,7 @@
 <span class="lineNum">    5570 </span><span class="lineCov">        727 :    tree_set_loc(unit, CURRENT_LOC);</span>
 <a name="5571"><span class="lineNum">    5571 </span><span class="lineCov">        727 : }</span></a>
 <span class="lineNum">    5572 </span>            : 
-<span class="lineNum">    5573 </span><span class="lineCov">       1376 : static void p_package_body_declarative_item(tree_t parent)</span>
+<span class="lineNum">    5573 </span><span class="lineCov">       1380 : static void p_package_body_declarative_item(tree_t parent)</span>
 <span class="lineNum">    5574 </span>            : {
 <span class="lineNum">    5575 </span>            :    // subprogram_declaration | subprogram_body | type_declaration
 <span class="lineNum">    5576 </span>            :    //   | subtype_declaration | constant_declaration
@@ -5642,19 +5642,19 @@
 <span class="lineNum">    5580 </span>            :    // 2008: subprogram_instantiation_declaration | attribute_declaration
 <span class="lineNum">    5581 </span>            :    //         | attribute_specification | package_instantiation_declaration
 <span class="lineNum">    5582 </span>            : 
-<span class="lineNum">    5583 </span><span class="lineCov">       2752 :    BEGIN(&quot;package body declarative item&quot;);</span>
+<span class="lineNum">    5583 </span><span class="lineCov">       2760 :    BEGIN(&quot;package body declarative item&quot;);</span>
 <span class="lineNum">    5584 </span>            : 
-<span class="lineNum">    5585 </span><span class="lineCov">       1376 :    switch (peek()) {</span>
+<span class="lineNum">    5585 </span><span class="lineCov">       1380 :    switch (peek()) {</span>
 <span class="lineNum">    5586 </span>            :    case tFUNCTION:
 <span class="lineNum">    5587 </span>            :    case tPROCEDURE:
 <span class="lineNum">    5588 </span>            :    case tIMPURE:
 <span class="lineNum">    5589 </span>            :    case tPURE:
 <span class="lineNum">    5590 </span>            :       {
-<span class="lineNum">    5591 </span><span class="lineCov">       1178 :          tree_t spec = p_subprogram_specification();</span>
-<span class="lineNum">    5592 </span><span class="lineCov">       1178 :          if (peek() == tSEMI)</span>
+<span class="lineNum">    5591 </span><span class="lineCov">       1182 :          tree_t spec = p_subprogram_specification();</span>
+<span class="lineNum">    5592 </span><span class="lineCov">       1182 :          if (peek() == tSEMI)</span>
 <span class="lineNum">    5593 </span><span class="lineCov">         18 :             tree_add_decl(parent, p_subprogram_declaration(spec));</span>
 <span class="lineNum">    5594 </span>            :          else
-<span class="lineNum">    5595 </span><span class="lineCov">       1160 :             tree_add_decl(parent, p_subprogram_body(spec));</span>
+<span class="lineNum">    5595 </span><span class="lineCov">       1164 :             tree_add_decl(parent, p_subprogram_body(spec));</span>
 <span class="lineNum">    5596 </span>            :       }
 <span class="lineNum">    5597 </span>            :       break;
 <span class="lineNum">    5598 </span>            : 
@@ -5703,73 +5703,73 @@
 <span class="lineNum">    5641 </span><span class="lineNoCov">          0 :       expect(tFUNCTION, tPROCEDURE, tSHARED, tIMPURE, tPURE, tATTRIBUTE, tTYPE,</span>
 <span class="lineNum">    5642 </span>            :              tCONSTANT, tSUBTYPE, tFILE, tALIAS, tUSE);
 <span class="lineNum">    5643 </span>            :    }
-<a name="5644"><span class="lineNum">    5644 </span><span class="lineCov">       1376 : }</span></a>
+<a name="5644"><span class="lineNum">    5644 </span><span class="lineCov">       1380 : }</span></a>
 <span class="lineNum">    5645 </span>            : 
-<span class="lineNum">    5646 </span><span class="lineCov">        114 : static void p_package_body_declarative_part(tree_t unit)</span>
+<span class="lineNum">    5646 </span><span class="lineCov">        115 : static void p_package_body_declarative_part(tree_t unit)</span>
 <span class="lineNum">    5647 </span>            : {
 <span class="lineNum">    5648 </span>            :    // { package_body_declarative_item }
 <span class="lineNum">    5649 </span>            : 
-<span class="lineNum">    5650 </span><span class="lineCov">        228 :    BEGIN(&quot;package body declarative part&quot;);</span>
+<span class="lineNum">    5650 </span><span class="lineCov">        230 :    BEGIN(&quot;package body declarative part&quot;);</span>
 <span class="lineNum">    5651 </span>            : 
-<span class="lineNum">    5652 </span><span class="lineCov">       1604 :    while (not_at_token(tEND))</span>
-<span class="lineNum">    5653 </span><span class="lineCov">       1376 :       p_package_body_declarative_item(unit);</span>
-<a name="5654"><span class="lineNum">    5654 </span><span class="lineCov">        114 : }</span></a>
+<span class="lineNum">    5652 </span><span class="lineCov">       1610 :    while (not_at_token(tEND))</span>
+<span class="lineNum">    5653 </span><span class="lineCov">       1380 :       p_package_body_declarative_item(unit);</span>
+<a name="5654"><span class="lineNum">    5654 </span><span class="lineCov">        115 : }</span></a>
 <span class="lineNum">    5655 </span>            : 
-<span class="lineNum">    5656 </span><span class="lineCov">        114 : static void p_package_body(tree_t unit)</span>
+<span class="lineNum">    5656 </span><span class="lineCov">        115 : static void p_package_body(tree_t unit)</span>
 <span class="lineNum">    5657 </span>            : {
 <span class="lineNum">    5658 </span>            :    // package body simple_name is package_body_declarative_part
 <span class="lineNum">    5659 </span>            :    //   end [ package body ] [ simple_name ] ;
 <span class="lineNum">    5660 </span>            : 
-<span class="lineNum">    5661 </span><span class="lineCov">        228 :    BEGIN(&quot;package body&quot;);</span>
+<span class="lineNum">    5661 </span><span class="lineCov">        230 :    BEGIN(&quot;package body&quot;);</span>
 <span class="lineNum">    5662 </span>            : 
-<span class="lineNum">    5663 </span><span class="lineCov">        114 :    consume(tPACKAGE);</span>
-<span class="lineNum">    5664 </span><span class="lineCov">        114 :    consume(tBODY);</span>
+<span class="lineNum">    5663 </span><span class="lineCov">        115 :    consume(tPACKAGE);</span>
+<span class="lineNum">    5664 </span><span class="lineCov">        115 :    consume(tBODY);</span>
 <span class="lineNum">    5665 </span>            : 
-<span class="lineNum">    5666 </span><span class="lineCov">        114 :    tree_change_kind(unit, T_PACK_BODY);</span>
-<span class="lineNum">    5667 </span><span class="lineCov">        114 :    tree_set_ident(unit, p_identifier());</span>
+<span class="lineNum">    5666 </span><span class="lineCov">        115 :    tree_change_kind(unit, T_PACK_BODY);</span>
+<span class="lineNum">    5667 </span><span class="lineCov">        115 :    tree_set_ident(unit, p_identifier());</span>
 <span class="lineNum">    5668 </span>            : 
-<span class="lineNum">    5669 </span><span class="lineCov">        114 :    consume(tIS);</span>
+<span class="lineNum">    5669 </span><span class="lineCov">        115 :    consume(tIS);</span>
 <span class="lineNum">    5670 </span>            : 
-<span class="lineNum">    5671 </span><span class="lineCov">        114 :    p_package_body_declarative_part(unit);</span>
+<span class="lineNum">    5671 </span><span class="lineCov">        115 :    p_package_body_declarative_part(unit);</span>
 <span class="lineNum">    5672 </span>            : 
-<span class="lineNum">    5673 </span><span class="lineCov">        114 :    consume(tEND);</span>
+<span class="lineNum">    5673 </span><span class="lineCov">        115 :    consume(tEND);</span>
 <span class="lineNum">    5674 </span>            : 
-<span class="lineNum">    5675 </span><span class="lineCov">        114 :    if (optional(tPACKAGE))</span>
-<span class="lineNum">    5676 </span><span class="lineCov">         94 :       consume(tBODY);</span>
+<span class="lineNum">    5675 </span><span class="lineCov">        115 :    if (optional(tPACKAGE))</span>
+<span class="lineNum">    5676 </span><span class="lineCov">         95 :       consume(tBODY);</span>
 <span class="lineNum">    5677 </span>            : 
-<span class="lineNum">    5678 </span><span class="lineCov">        114 :    p_trailing_label(tree_ident(unit));</span>
-<span class="lineNum">    5679 </span><span class="lineCov">        114 :    consume(tSEMI);</span>
+<span class="lineNum">    5678 </span><span class="lineCov">        115 :    p_trailing_label(tree_ident(unit));</span>
+<span class="lineNum">    5679 </span><span class="lineCov">        115 :    consume(tSEMI);</span>
 <span class="lineNum">    5680 </span>            : 
-<span class="lineNum">    5681 </span><span class="lineCov">        114 :    tree_set_loc(unit, CURRENT_LOC);</span>
-<a name="5682"><span class="lineNum">    5682 </span><span class="lineCov">        114 : }</span></a>
+<span class="lineNum">    5681 </span><span class="lineCov">        115 :    tree_set_loc(unit, CURRENT_LOC);</span>
+<a name="5682"><span class="lineNum">    5682 </span><span class="lineCov">        115 : }</span></a>
 <span class="lineNum">    5683 </span>            : 
-<span class="lineNum">    5684 </span><span class="lineCov">        841 : static void p_secondary_unit(tree_t unit)</span>
+<span class="lineNum">    5684 </span><span class="lineCov">        842 : static void p_secondary_unit(tree_t unit)</span>
 <span class="lineNum">    5685 </span>            : {
 <span class="lineNum">    5686 </span>            :    // architecture_body | package_body
 <span class="lineNum">    5687 </span>            : 
-<span class="lineNum">    5688 </span><span class="lineCov">       1682 :    BEGIN(&quot;secondary unit&quot;);</span>
+<span class="lineNum">    5688 </span><span class="lineCov">       1684 :    BEGIN(&quot;secondary unit&quot;);</span>
 <span class="lineNum">    5689 </span>            : 
-<span class="lineNum">    5690 </span><span class="lineCov">        841 :    switch (peek()) {</span>
+<span class="lineNum">    5690 </span><span class="lineCov">        842 :    switch (peek()) {</span>
 <span class="lineNum">    5691 </span>            :    case tARCHITECTURE:
 <span class="lineNum">    5692 </span><span class="lineCov">        727 :       p_architecture_body(unit);</span>
 <span class="lineNum">    5693 </span><span class="lineCov">        727 :       break;</span>
 <span class="lineNum">    5694 </span>            : 
 <span class="lineNum">    5695 </span>            :    case tPACKAGE:
-<span class="lineNum">    5696 </span><span class="lineCov">        114 :       p_package_body(unit);</span>
-<span class="lineNum">    5697 </span><span class="lineCov">        114 :       break;</span>
+<span class="lineNum">    5696 </span><span class="lineCov">        115 :       p_package_body(unit);</span>
+<span class="lineNum">    5697 </span><span class="lineCov">        115 :       break;</span>
 <span class="lineNum">    5698 </span>            : 
 <span class="lineNum">    5699 </span>            :    default:
 <span class="lineNum">    5700 </span><span class="lineNoCov">          0 :       expect(tARCHITECTURE, tPACKAGE);</span>
 <span class="lineNum">    5701 </span>            :    }
-<a name="5702"><span class="lineNum">    5702 </span><span class="lineCov">        841 : }</span></a>
+<a name="5702"><span class="lineNum">    5702 </span><span class="lineCov">        842 : }</span></a>
 <span class="lineNum">    5703 </span>            : 
-<span class="lineNum">    5704 </span><span class="lineCov">       1731 : static void p_library_unit(tree_t unit)</span>
+<span class="lineNum">    5704 </span><span class="lineCov">       1733 : static void p_library_unit(tree_t unit)</span>
 <span class="lineNum">    5705 </span>            : {
 <span class="lineNum">    5706 </span>            :    // primary_unit | secondary_unit
 <span class="lineNum">    5707 </span>            : 
-<span class="lineNum">    5708 </span><span class="lineCov">       3462 :    BEGIN(&quot;library unit&quot;);</span>
+<span class="lineNum">    5708 </span><span class="lineCov">       3466 :    BEGIN(&quot;library unit&quot;);</span>
 <span class="lineNum">    5709 </span>            : 
-<span class="lineNum">    5710 </span><span class="lineCov">       1731 :    switch (peek()) {</span>
+<span class="lineNum">    5710 </span><span class="lineCov">       1733 :    switch (peek()) {</span>
 <span class="lineNum">    5711 </span>            :    case tENTITY:
 <span class="lineNum">    5712 </span>            :    case tCONFIGURATION:
 <span class="lineNum">    5713 </span>            :    case tCONTEXT:
@@ -5781,143 +5781,143 @@
 <span class="lineNum">    5719 </span><span class="lineCov">        727 :       break;</span>
 <span class="lineNum">    5720 </span>            : 
 <span class="lineNum">    5721 </span>            :    case tPACKAGE:
-<span class="lineNum">    5722 </span><span class="lineCov">        308 :       if (peek_nth(2) == tBODY)</span>
-<span class="lineNum">    5723 </span><span class="lineCov">        114 :          p_secondary_unit(unit);</span>
+<span class="lineNum">    5722 </span><span class="lineCov">        310 :       if (peek_nth(2) == tBODY)</span>
+<span class="lineNum">    5723 </span><span class="lineCov">        115 :          p_secondary_unit(unit);</span>
 <span class="lineNum">    5724 </span>            :       else
-<span class="lineNum">    5725 </span><span class="lineCov">        194 :          p_primary_unit(unit);</span>
+<span class="lineNum">    5725 </span><span class="lineCov">        195 :          p_primary_unit(unit);</span>
 <span class="lineNum">    5726 </span>            :       break;
 <span class="lineNum">    5727 </span>            : 
 <span class="lineNum">    5728 </span>            :    default:
 <span class="lineNum">    5729 </span><span class="lineNoCov">          0 :       expect(tENTITY, tCONFIGURATION, tARCHITECTURE, tPACKAGE, tCONTEXT);</span>
 <span class="lineNum">    5730 </span>            :    }
-<a name="5731"><span class="lineNum">    5731 </span><span class="lineCov">       1731 : }</span></a>
+<a name="5731"><span class="lineNum">    5731 </span><span class="lineCov">       1733 : }</span></a>
 <span class="lineNum">    5732 </span>            : 
-<span class="lineNum">    5733 </span><span class="lineCov">       1731 : static tree_t p_design_unit(void)</span>
+<span class="lineNum">    5733 </span><span class="lineCov">       1733 : static tree_t p_design_unit(void)</span>
 <span class="lineNum">    5734 </span>            : {
-<span class="lineNum">    5735 </span><span class="lineCov">       3462 :    BEGIN(&quot;design unit&quot;);</span>
+<span class="lineNum">    5735 </span><span class="lineCov">       3466 :    BEGIN(&quot;design unit&quot;);</span>
 <span class="lineNum">    5736 </span>            : 
-<span class="lineNum">    5737 </span><span class="lineCov">       1731 :    tree_t unit = tree_new(T_DESIGN_UNIT);</span>
+<span class="lineNum">    5737 </span><span class="lineCov">       1733 :    tree_t unit = tree_new(T_DESIGN_UNIT);</span>
 <span class="lineNum">    5738 </span>            : 
-<span class="lineNum">    5739 </span><span class="lineCov">       1731 :    tree_t std = tree_new(T_LIBRARY);</span>
-<span class="lineNum">    5740 </span><span class="lineCov">       1731 :    tree_set_ident(std, std_i);</span>
-<span class="lineNum">    5741 </span><span class="lineCov">       1731 :    tree_add_context(unit, std);</span>
+<span class="lineNum">    5739 </span><span class="lineCov">       1733 :    tree_t std = tree_new(T_LIBRARY);</span>
+<span class="lineNum">    5740 </span><span class="lineCov">       1733 :    tree_set_ident(std, std_i);</span>
+<span class="lineNum">    5741 </span><span class="lineCov">       1733 :    tree_add_context(unit, std);</span>
 <span class="lineNum">    5742 </span>            : 
-<span class="lineNum">    5743 </span><span class="lineCov">       1731 :    tree_t work = tree_new(T_LIBRARY);</span>
-<span class="lineNum">    5744 </span><span class="lineCov">       1731 :    tree_set_ident(work, lib_name(lib_work()));</span>
-<span class="lineNum">    5745 </span><span class="lineCov">       1731 :    tree_add_context(unit, work);</span>
+<span class="lineNum">    5743 </span><span class="lineCov">       1733 :    tree_t work = tree_new(T_LIBRARY);</span>
+<span class="lineNum">    5744 </span><span class="lineCov">       1733 :    tree_set_ident(work, lib_name(lib_work()));</span>
+<span class="lineNum">    5745 </span><span class="lineCov">       1733 :    tree_add_context(unit, work);</span>
 <span class="lineNum">    5746 </span>            : 
-<span class="lineNum">    5747 </span><span class="lineCov">       1731 :    p_context_clause(unit);</span>
-<span class="lineNum">    5748 </span><span class="lineCov">       1731 :    p_library_unit(unit);</span>
+<span class="lineNum">    5747 </span><span class="lineCov">       1733 :    p_context_clause(unit);</span>
+<span class="lineNum">    5748 </span><span class="lineCov">       1733 :    p_library_unit(unit);</span>
 <span class="lineNum">    5749 </span>            : 
-<span class="lineNum">    5750 </span><span class="lineCov">       1731 :    return unit;</span>
+<span class="lineNum">    5750 </span><span class="lineCov">       1733 :    return unit;</span>
 <a name="5751"><span class="lineNum">    5751 </span>            : }</a>
 <span class="lineNum">    5752 </span>            : 
-<span class="lineNum">    5753 </span><span class="lineCov">     392288 : void begin_token(char *tok)</span>
+<span class="lineNum">    5753 </span><span class="lineCov">     392525 : void begin_token(char *tok)</span>
 <span class="lineNum">    5754 </span>            : {
-<span class="lineNum">    5755 </span><span class="lineCov">     392288 :    const char *newline = strrchr(tok, '\n');</span>
+<span class="lineNum">    5755 </span><span class="lineCov">     392525 :    const char *newline = strrchr(tok, '\n');</span>
 <span class="lineNum">    5756 </span>            :    int n_token_start, n_token_length;
-<span class="lineNum">    5757 </span><span class="lineCov">     392288 :    if (newline != NULL) {</span>
-<span class="lineNum">    5758 </span><span class="lineCov">      47199 :       n_token_start = 0;</span>
-<span class="lineNum">    5759 </span><span class="lineCov">      47199 :       n_token_length = strlen(tok) - (newline - tok);</span>
-<span class="lineNum">    5760 </span><span class="lineCov">      47199 :       n_token_next_start = n_token_length - 1;</span>
+<span class="lineNum">    5757 </span><span class="lineCov">     392525 :    if (newline != NULL) {</span>
+<span class="lineNum">    5758 </span><span class="lineCov">      47228 :       n_token_start = 0;</span>
+<span class="lineNum">    5759 </span><span class="lineCov">      47228 :       n_token_length = strlen(tok) - (newline - tok);</span>
+<span class="lineNum">    5760 </span><span class="lineCov">      47228 :       n_token_next_start = n_token_length - 1;</span>
 <span class="lineNum">    5761 </span>            :    }
 <span class="lineNum">    5762 </span>            :    else {
-<span class="lineNum">    5763 </span><span class="lineCov">     345089 :       n_token_start = n_token_next_start;</span>
-<span class="lineNum">    5764 </span><span class="lineCov">     345089 :       n_token_length = strlen(tok);</span>
-<span class="lineNum">    5765 </span><span class="lineCov">     345089 :       n_token_next_start += n_token_length;</span>
+<span class="lineNum">    5763 </span><span class="lineCov">     345297 :       n_token_start = n_token_next_start;</span>
+<span class="lineNum">    5764 </span><span class="lineCov">     345297 :       n_token_length = strlen(tok);</span>
+<span class="lineNum">    5765 </span><span class="lineCov">     345297 :       n_token_next_start += n_token_length;</span>
 <span class="lineNum">    5766 </span>            :    }
 <span class="lineNum">    5767 </span>            : 
-<span class="lineNum">    5768 </span><span class="lineCov">     392288 :    const int last_col = n_token_start + n_token_length - 1;</span>
+<span class="lineNum">    5768 </span><span class="lineCov">     392525 :    const int last_col = n_token_start + n_token_length - 1;</span>
 <span class="lineNum">    5769 </span>            : 
-<span class="lineNum">    5770 </span><span class="lineCov">     392288 :    yylloc.first_line   = MIN(n_row, LINE_INVALID);</span>
-<span class="lineNum">    5771 </span><span class="lineCov">     392288 :    yylloc.first_column = MIN(n_token_start, COLUMN_INVALID);</span>
-<span class="lineNum">    5772 </span><span class="lineCov">     392288 :    yylloc.last_line    = MIN(n_row, LINE_INVALID);</span>
-<span class="lineNum">    5773 </span><span class="lineCov">     392288 :    yylloc.last_column  = MIN(last_col, COLUMN_INVALID);</span>
-<span class="lineNum">    5774 </span><span class="lineCov">     392288 :    yylloc.file         = perm_file_name;</span>
-<span class="lineNum">    5775 </span><span class="lineCov">     392288 :    yylloc.linebuf      = perm_linebuf;</span>
-<a name="5776"><span class="lineNum">    5776 </span><span class="lineCov">     392288 : }</span></a>
+<span class="lineNum">    5770 </span><span class="lineCov">     392525 :    yylloc.first_line   = MIN(n_row, LINE_INVALID);</span>
+<span class="lineNum">    5771 </span><span class="lineCov">     392525 :    yylloc.first_column = MIN(n_token_start, COLUMN_INVALID);</span>
+<span class="lineNum">    5772 </span><span class="lineCov">     392525 :    yylloc.last_line    = MIN(n_row, LINE_INVALID);</span>
+<span class="lineNum">    5773 </span><span class="lineCov">     392525 :    yylloc.last_column  = MIN(last_col, COLUMN_INVALID);</span>
+<span class="lineNum">    5774 </span><span class="lineCov">     392525 :    yylloc.file         = perm_file_name;</span>
+<span class="lineNum">    5775 </span><span class="lineCov">     392525 :    yylloc.linebuf      = perm_linebuf;</span>
+<a name="5776"><span class="lineNum">    5776 </span><span class="lineCov">     392525 : }</span></a>
 <span class="lineNum">    5777 </span>            : 
-<span class="lineNum">    5778 </span><span class="lineCov">    1703255 : int get_next_char(char *b, int max_buffer)</span>
+<span class="lineNum">    5778 </span><span class="lineCov">    1704308 : int get_next_char(char *b, int max_buffer)</span>
 <span class="lineNum">    5779 </span>            : {
-<span class="lineNum">    5780 </span><span class="lineCov">    1703255 :    if (last_was_newline) {</span>
-<span class="lineNum">    5781 </span><span class="lineCov">      55346 :       n_row += 1;</span>
-<span class="lineNum">    5782 </span><span class="lineCov">      55346 :       perm_linebuf = read_ptr;</span>
-<span class="lineNum">    5783 </span><span class="lineCov">      55346 :       last_was_newline = false;</span>
+<span class="lineNum">    5780 </span><span class="lineCov">    1704308 :    if (last_was_newline) {</span>
+<span class="lineNum">    5781 </span><span class="lineCov">      55382 :       n_row += 1;</span>
+<span class="lineNum">    5782 </span><span class="lineCov">      55382 :       perm_linebuf = read_ptr;</span>
+<span class="lineNum">    5783 </span><span class="lineCov">      55382 :       last_was_newline = false;</span>
 <span class="lineNum">    5784 </span>            :    }
 <span class="lineNum">    5785 </span>            : 
-<span class="lineNum">    5786 </span><span class="lineCov">    1703255 :    const bool eof = read_ptr &gt;= file_start + file_sz;</span>
-<span class="lineNum">    5787 </span><span class="lineCov">    1703255 :    if (eof)</span>
+<span class="lineNum">    5786 </span><span class="lineCov">    1704308 :    const bool eof = read_ptr &gt;= file_start + file_sz;</span>
+<span class="lineNum">    5787 </span><span class="lineCov">    1704308 :    if (eof)</span>
 <span class="lineNum">    5788 </span>            :       return 0;
 <span class="lineNum">    5789 </span>            :    else
-<span class="lineNum">    5790 </span><span class="lineCov">    1702612 :       *b = *read_ptr++;</span>
+<span class="lineNum">    5790 </span><span class="lineCov">    1703664 :       *b = *read_ptr++;</span>
 <span class="lineNum">    5791 </span>            : 
-<span class="lineNum">    5792 </span><span class="lineCov">    1702612 :    if (perm_linebuf == NULL)</span>
+<span class="lineNum">    5792 </span><span class="lineCov">    1703664 :    if (perm_linebuf == NULL)</span>
 <span class="lineNum">    5793 </span><span class="lineNoCov">          0 :       perm_linebuf = read_ptr;</span>
 <span class="lineNum">    5794 </span>            : 
-<span class="lineNum">    5795 </span><span class="lineCov">    1702612 :    if (*b == '\n')</span>
-<span class="lineNum">    5796 </span><span class="lineCov">      54701 :       last_was_newline = true;</span>
+<span class="lineNum">    5795 </span><span class="lineCov">    1703664 :    if (*b == '\n')</span>
+<span class="lineNum">    5796 </span><span class="lineCov">      54736 :       last_was_newline = true;</span>
 <span class="lineNum">    5797 </span>            : 
-<span class="lineNum">    5798 </span><span class="lineCov">    1702612 :    return *b == 0 ? 0 : 1;</span>
+<span class="lineNum">    5798 </span><span class="lineCov">    1703664 :    return *b == 0 ? 0 : 1;</span>
 <a name="5799"><span class="lineNum">    5799 </span>            : }</a>
 <span class="lineNum">    5800 </span>            : 
-<span class="lineNum">    5801 </span><span class="lineCov">        645 : void input_from_file(const char *file)</span>
+<span class="lineNum">    5801 </span><span class="lineCov">        646 : void input_from_file(const char *file)</span>
 <span class="lineNum">    5802 </span>            : {
-<span class="lineNum">    5803 </span><span class="lineCov">        645 :    int fd = open(file, O_RDONLY);</span>
-<span class="lineNum">    5804 </span><span class="lineCov">        645 :    if (fd &lt; 0)</span>
+<span class="lineNum">    5803 </span><span class="lineCov">        646 :    int fd = open(file, O_RDONLY);</span>
+<span class="lineNum">    5804 </span><span class="lineCov">        646 :    if (fd &lt; 0)</span>
 <span class="lineNum">    5805 </span><span class="lineNoCov">          0 :       fatal_errno(&quot;opening %s&quot;, file);</span>
 <span class="lineNum">    5806 </span>            : 
 <span class="lineNum">    5807 </span>            :    struct stat buf;
-<span class="lineNum">    5808 </span><span class="lineCov">        645 :    if (fstat(fd, &amp;buf) != 0)</span>
+<span class="lineNum">    5808 </span><span class="lineCov">        646 :    if (fstat(fd, &amp;buf) != 0)</span>
 <span class="lineNum">    5809 </span><span class="lineNoCov">          0 :       fatal_errno(&quot;fstat&quot;);</span>
 <span class="lineNum">    5810 </span>            : 
-<span class="lineNum">    5811 </span><span class="lineCov">        645 :    if (!S_ISREG(buf.st_mode))</span>
+<span class="lineNum">    5811 </span><span class="lineCov">        646 :    if (!S_ISREG(buf.st_mode))</span>
 <span class="lineNum">    5812 </span><span class="lineNoCov">          0 :       fatal(&quot;opening %s: not a regular file&quot;, file);</span>
 <span class="lineNum">    5813 </span>            : 
-<span class="lineNum">    5814 </span><span class="lineCov">        645 :    file_sz = buf.st_size;</span>
+<span class="lineNum">    5814 </span><span class="lineCov">        646 :    file_sz = buf.st_size;</span>
 <span class="lineNum">    5815 </span>            : 
-<span class="lineNum">    5816 </span><span class="lineCov">        645 :    if (file_sz &gt; 0)</span>
-<span class="lineNum">    5817 </span><span class="lineCov">        644 :       file_start = map_file(fd, file_sz);</span>
+<span class="lineNum">    5816 </span><span class="lineCov">        646 :    if (file_sz &gt; 0)</span>
+<span class="lineNum">    5817 </span><span class="lineCov">        645 :       file_start = map_file(fd, file_sz);</span>
 <span class="lineNum">    5818 </span>            :    else
 <span class="lineNum">    5819 </span><span class="lineCov">          1 :       file_start = NULL;</span>
 <span class="lineNum">    5820 </span>            : 
-<span class="lineNum">    5821 </span><span class="lineCov">        645 :    read_ptr           = file_start;</span>
-<span class="lineNum">    5822 </span><span class="lineCov">        645 :    last_was_newline   = true;</span>
-<span class="lineNum">    5823 </span><span class="lineCov">        645 :    perm_file_name     = ident_new(file);</span>
-<span class="lineNum">    5824 </span><span class="lineCov">        645 :    n_row              = 0;</span>
-<span class="lineNum">    5825 </span><span class="lineCov">        645 :    n_token_next_start = 0;</span>
+<span class="lineNum">    5821 </span><span class="lineCov">        646 :    read_ptr           = file_start;</span>
+<span class="lineNum">    5822 </span><span class="lineCov">        646 :    last_was_newline   = true;</span>
+<span class="lineNum">    5823 </span><span class="lineCov">        646 :    perm_file_name     = ident_new(file);</span>
+<span class="lineNum">    5824 </span><span class="lineCov">        646 :    n_row              = 0;</span>
+<span class="lineNum">    5825 </span><span class="lineCov">        646 :    n_token_next_start = 0;</span>
 <span class="lineNum">    5826 </span>            : 
-<span class="lineNum">    5827 </span><span class="lineCov">        645 :    if (tokenq == NULL) {</span>
-<span class="lineNum">    5828 </span><span class="lineCov">        645 :       tokenq_sz = 128;</span>
-<span class="lineNum">    5829 </span><span class="lineCov">        645 :       tokenq = xmalloc(tokenq_sz * sizeof(tokenq_t));</span>
+<span class="lineNum">    5827 </span><span class="lineCov">        646 :    if (tokenq == NULL) {</span>
+<span class="lineNum">    5828 </span><span class="lineCov">        646 :       tokenq_sz = 128;</span>
+<span class="lineNum">    5829 </span><span class="lineCov">        646 :       tokenq = xmalloc(tokenq_sz * sizeof(tokenq_t));</span>
 <span class="lineNum">    5830 </span>            :    }
 <span class="lineNum">    5831 </span>            : 
-<span class="lineNum">    5832 </span><span class="lineCov">        645 :    tokenq_head = tokenq_tail = 0;</span>
-<a name="5833"><span class="lineNum">    5833 </span><span class="lineCov">        645 : }</span></a>
+<span class="lineNum">    5832 </span><span class="lineCov">        646 :    tokenq_head = tokenq_tail = 0;</span>
+<a name="5833"><span class="lineNum">    5833 </span><span class="lineCov">        646 : }</span></a>
 <span class="lineNum">    5834 </span>            : 
-<span class="lineNum">    5835 </span><span class="lineCov">       2371 : tree_t parse(void)</span>
+<span class="lineNum">    5835 </span><span class="lineCov">       2374 : tree_t parse(void)</span>
 <span class="lineNum">    5836 </span>            : {
-<span class="lineNum">    5837 </span><span class="lineCov">       2371 :    int old_errors = n_errors;</span>
-<span class="lineNum">    5838 </span><span class="lineCov">       2371 :    n_correct = RECOVER_THRESH;</span>
+<span class="lineNum">    5837 </span><span class="lineCov">       2374 :    int old_errors = n_errors;</span>
+<span class="lineNum">    5838 </span><span class="lineCov">       2374 :    n_correct = RECOVER_THRESH;</span>
 <span class="lineNum">    5839 </span>            : 
-<span class="lineNum">    5840 </span><span class="lineCov">       2371 :    if (peek() == tEOF)</span>
+<span class="lineNum">    5840 </span><span class="lineCov">       2374 :    if (peek() == tEOF)</span>
 <span class="lineNum">    5841 </span>            :       return NULL;
 <span class="lineNum">    5842 </span>            : 
-<span class="lineNum">    5843 </span><span class="lineCov">       1731 :    tree_t unit = p_design_unit();</span>
-<span class="lineNum">    5844 </span><span class="lineCov">       1731 :    if (n_errors &gt; old_errors)</span>
+<span class="lineNum">    5843 </span><span class="lineCov">       1733 :    tree_t unit = p_design_unit();</span>
+<span class="lineNum">    5844 </span><span class="lineCov">       1733 :    if (n_errors &gt; old_errors)</span>
 <span class="lineNum">    5845 </span>            :       return NULL;
 <span class="lineNum">    5846 </span>            :    else
-<span class="lineNum">    5847 </span><span class="lineCov">       1721 :       return unit;</span>
+<span class="lineNum">    5847 </span><span class="lineCov">       1723 :       return unit;</span>
 <a name="5848"><span class="lineNum">    5848 </span>            : }</a>
 <span class="lineNum">    5849 </span>            : 
-<span class="lineNum">    5850 </span><span class="lineCov">        523 : int parse_errors(void)</span>
+<span class="lineNum">    5850 </span><span class="lineCov">        524 : int parse_errors(void)</span>
 <span class="lineNum">    5851 </span>            : {
-<span class="lineNum">    5852 </span><span class="lineCov">        523 :    return n_errors;</span>
+<span class="lineNum">    5852 </span><span class="lineCov">        524 :    return n_errors;</span>
 <a name="5853"><span class="lineNum">    5853 </span>            : }</a>
 <span class="lineNum">    5854 </span>            : 
-<span class="lineNum">    5855 </span><span class="lineCov">        301 : void reset_parse_errors(void)</span>
+<span class="lineNum">    5855 </span><span class="lineCov">        302 : void reset_parse_errors(void)</span>
 <span class="lineNum">    5856 </span>            : {
-<span class="lineNum">    5857 </span><span class="lineCov">        301 :    n_errors = 0;</span>
-<span class="lineNum">    5858 </span><span class="lineCov">        301 : }</span>
+<span class="lineNum">    5857 </span><span class="lineCov">        302 :    n_errors = 0;</span>
+<span class="lineNum">    5858 </span><span class="lineCov">        302 : }</span>
 </pre>
       </td>
     </tr>
