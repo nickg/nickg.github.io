@@ -339,12 +339,12 @@
 <span class="lineNum">     277 </span><span class="lineNoCov">          0 :       fprintf(stderr, &quot;\033[%dm&quot;, attr);</span>
 <a name="278"><span class="lineNum">     278 </span><span class="lineCov">       2037 : }</span></a>
 <span class="lineNum">     279 </span>            : 
-<span class="lineNum">     280 </span><span class="lineCov">    4344691 : void *xmalloc(size_t size)</span>
+<span class="lineNum">     280 </span><span class="lineCov">    4343353 : void *xmalloc(size_t size)</span>
 <span class="lineNum">     281 </span>            : {
-<span class="lineNum">     282 </span><span class="lineCov">    4344691 :    void *p = malloc(size);</span>
-<span class="lineNum">     283 </span><span class="lineCov">    4344691 :    if (p == NULL)</span>
+<span class="lineNum">     282 </span><span class="lineCov">    4343353 :    void *p = malloc(size);</span>
+<span class="lineNum">     283 </span><span class="lineCov">    4343353 :    if (p == NULL)</span>
 <span class="lineNum">     284 </span><span class="lineNoCov">          0 :       fatal(&quot;memory exhausted (malloc %lu)&quot;, (long unsigned)size);</span>
-<span class="lineNum">     285 </span><span class="lineCov">    4344691 :    return p;</span>
+<span class="lineNum">     285 </span><span class="lineCov">    4343353 :    return p;</span>
 <a name="286"><span class="lineNum">     286 </span>            : }</a>
 <span class="lineNum">     287 </span>            : 
 <span class="lineNum">     288 </span><span class="lineCov">    1214142 : void *xcalloc(size_t size)</span>
@@ -355,12 +355,12 @@
 <span class="lineNum">     293 </span><span class="lineCov">    1214142 :    return p;</span>
 <a name="294"><span class="lineNum">     294 </span>            : }</a>
 <span class="lineNum">     295 </span>            : 
-<span class="lineNum">     296 </span><span class="lineCov">     510311 : void *xrealloc(void *ptr, size_t size)</span>
+<span class="lineNum">     296 </span><span class="lineCov">     510308 : void *xrealloc(void *ptr, size_t size)</span>
 <span class="lineNum">     297 </span>            : {
-<span class="lineNum">     298 </span><span class="lineCov">     510311 :    ptr = realloc(ptr, size);</span>
-<span class="lineNum">     299 </span><span class="lineCov">     510311 :    if (ptr == NULL)</span>
+<span class="lineNum">     298 </span><span class="lineCov">     510308 :    ptr = realloc(ptr, size);</span>
+<span class="lineNum">     299 </span><span class="lineCov">     510308 :    if (ptr == NULL)</span>
 <span class="lineNum">     300 </span><span class="lineNoCov">          0 :       fatal(&quot;memory exhausted (realloc %lu)&quot;, (long unsigned)size);</span>
-<span class="lineNum">     301 </span><span class="lineCov">     510311 :    return ptr;</span>
+<span class="lineNum">     301 </span><span class="lineCov">     510308 :    return ptr;</span>
 <a name="302"><span class="lineNum">     302 </span>            : }</a>
 <span class="lineNum">     303 </span>            : 
 <span class="lineNum">     304 </span><span class="lineCov">      22800 : char *xstrdup(const char *str)</span>
@@ -1356,9 +1356,9 @@
 <span class="lineNum">    1294 </span><span class="lineCov">      20020 :       *blenp = len;</span>
 <span class="lineNum">    1295 </span>            :    }
 <span class="lineNum">    1296 </span>            : 
-<span class="lineNum">    1297 </span><span class="lineCov">    1269034 :    while (len &gt; *blenp) {</span>
-<span class="lineNum">    1298 </span><span class="lineCov">      53669 :       *blenp *= 2;</span>
-<span class="lineNum">    1299 </span><span class="lineCov">      53669 :       *bufp = xrealloc(*bufp, *blenp);</span>
+<span class="lineNum">    1297 </span><span class="lineCov">    1269031 :    while (len &gt; *blenp) {</span>
+<span class="lineNum">    1298 </span><span class="lineCov">      53666 :       *blenp *= 2;</span>
+<span class="lineNum">    1299 </span><span class="lineCov">      53666 :       *bufp = xrealloc(*bufp, *blenp);</span>
 <span class="lineNum">    1300 </span>            :    }
 <span class="lineNum">    1301 </span>            : 
 <span class="lineNum">    1302 </span><span class="lineCov">    1215365 :    return *bufp;</span>
@@ -1617,7 +1617,7 @@
 <span class="lineNum">    1555 </span>            :    }
 <span class="lineNum">    1556 </span>            : 
 <span class="lineNum">    1557 </span>            : #if defined __CYGWIN__ || defined __MINGW32__
-<span class="lineNum">    1558 </span>            :    int status = spawnv(_P_WAIT, args[0], (char *const *)args);
+<span class="lineNum">    1558 </span>            :    int status = spawnv(_P_WAIT, args[0], (const char *const *)args);
 <span class="lineNum">    1559 </span>            :    if (status != 0)
 <span class="lineNum">    1560 </span>            :       fatal(&quot;%s failed with status %d&quot;, args[0], status);
 <span class="lineNum">    1561 </span>            : #else  // __CYGWIN__
@@ -1757,7 +1757,7 @@
 <span class="lineNum">    1695 </span><span class="lineCov">      14323 : const char *safe_symbol(const char *text)</span>
 <span class="lineNum">    1696 </span>            : {
 <span class="lineNum">    1697 </span>            :    // Return a string that is safe to use as a symbol name on this platform
-<span class="lineNum">    1698 </span>            : #if defined _WIN32
+<span class="lineNum">    1698 </span>            : #if defined _WIN32 || defined __CYGWIN__
 <span class="lineNum">    1699 </span>            :    text_buf_t *tb = tb_new();
 <span class="lineNum">    1700 </span>            : 
 <span class="lineNum">    1701 </span>            :    for (const char *p = text; *p != '\0'; p++) {
