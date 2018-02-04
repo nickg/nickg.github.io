@@ -31,8 +31,8 @@
             <td class="headerValue">nvc.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">490</td>
-            <td class="headerCovTableEntry">514</td>
+            <td class="headerCovTableEntry">489</td>
+            <td class="headerCovTableEntry">513</td>
             <td class="headerCovTableEntryHi">95.3 %</td>
           </tr>
           <tr>
@@ -995,131 +995,130 @@
 <span class="lineNum">     933 </span><span class="lineCov">       1790 :    sub_cond_i       = ident_new(&quot;sub_cond&quot;);</span>
 <span class="lineNum">     934 </span><span class="lineCov">       1790 :    range_var_i      = ident_new(&quot;range_var&quot;);</span>
 <span class="lineNum">     935 </span><span class="lineCov">       1790 :    work_i           = ident_new(&quot;WORK&quot;);</span>
-<span class="lineNum">     936 </span><span class="lineCov">       1790 :    llvm_i           = ident_new(&quot;llvm&quot;);</span>
-<span class="lineNum">     937 </span><span class="lineCov">       1790 :    wait_level_i     = ident_new(&quot;wait_level&quot;);</span>
-<span class="lineNum">     938 </span><span class="lineCov">       1790 :    impure_io_i      = ident_new(&quot;impure_io&quot;);</span>
-<span class="lineNum">     939 </span><span class="lineCov">       1790 :    simple_name_i    = ident_new(&quot;simple_name&quot;);</span>
-<span class="lineNum">     940 </span><span class="lineCov">       1790 :    std_i            = ident_new(&quot;STD&quot;);</span>
-<span class="lineNum">     941 </span><span class="lineCov">       1790 :    nnets_i          = ident_new(&quot;nnets&quot;);</span>
-<span class="lineNum">     942 </span><span class="lineCov">       1790 :    thunk_i          = ident_new(&quot;thunk&quot;);</span>
-<a name="943"><span class="lineNum">     943 </span><span class="lineCov">       1790 : }</span></a>
-<span class="lineNum">     944 </span>            : 
-<span class="lineNum">     945 </span><span class="lineCov">         79 : bool pack_needs_cgen(tree_t t)</span>
-<span class="lineNum">     946 </span>            : {
-<span class="lineNum">     947 </span>            :    // True if the package contains shared variables or signals which
-<span class="lineNum">     948 </span>            :    // must be run through code generation
-<span class="lineNum">     949 </span>            : 
-<span class="lineNum">     950 </span><span class="lineCov">         79 :    const int ndecls = tree_decls(t);</span>
-<span class="lineNum">     951 </span><span class="lineCov">        658 :    for (int i = 0; i &lt; ndecls; i++) {</span>
-<span class="lineNum">     952 </span><span class="lineCov">        605 :       tree_t decl = tree_decl(t, i);</span>
-<span class="lineNum">     953 </span><span class="lineCov">        605 :       switch (tree_kind(decl)) {</span>
-<span class="lineNum">     954 </span>            :       case T_VAR_DECL:
-<span class="lineNum">     955 </span>            :       case T_SIGNAL_DECL:
-<span class="lineNum">     956 </span>            :       case T_FILE_DECL:
-<span class="lineNum">     957 </span>            :          return true;
-<span class="lineNum">     958 </span>            :       case T_CONST_DECL:
-<span class="lineNum">     959 </span><span class="lineCov">         26 :          if (type_is_array(tree_type(decl)))</span>
-<span class="lineNum">     960 </span>            :             return true;
-<span class="lineNum">     961 </span><span class="lineCov">         11 :          else if (tree_has_value(decl)) {</span>
-<span class="lineNum">     962 </span><span class="lineCov">         11 :             if (tree_kind(tree_value(decl)) != T_LITERAL)</span>
-<span class="lineNum">     963 </span>            :                return true;
-<span class="lineNum">     964 </span>            :          }
-<span class="lineNum">     965 </span>            :          break;
-<span class="lineNum">     966 </span>            :       default:
-<span class="lineNum">     967 </span>            :          break;
-<span class="lineNum">     968 </span>            :       }
-<span class="lineNum">     969 </span>            :    }
-<span class="lineNum">     970 </span>            : 
-<span class="lineNum">     971 </span>            :    return false;
-<a name="972"><span class="lineNum">     972 </span>            : }</a>
-<span class="lineNum">     973 </span>            : 
-<span class="lineNum">     974 </span><span class="lineCov">      12080 : static void mangle_one_type(text_buf_t *buf, type_t type)</span>
-<span class="lineNum">     975 </span>            : {
-<span class="lineNum">     976 </span><span class="lineCov">      12080 :    ident_t ident = type_ident(type);</span>
-<span class="lineNum">     977 </span>            : 
-<span class="lineNum">     978 </span><span class="lineCov">      12080 :    if (icmp(ident, &quot;STD.STANDARD.INTEGER&quot;))</span>
-<span class="lineNum">     979 </span><span class="lineCov">       1760 :       tb_printf(buf, &quot;I&quot;);</span>
-<span class="lineNum">     980 </span><span class="lineCov">      10320 :    else if (icmp(ident, &quot;STD.STANDARD.STRING&quot;))</span>
-<span class="lineNum">     981 </span><span class="lineCov">        239 :       tb_printf(buf, &quot;S&quot;);</span>
-<span class="lineNum">     982 </span><span class="lineCov">      10081 :    else if (icmp(ident, &quot;STD.STANDARD.REAL&quot;))</span>
-<span class="lineNum">     983 </span><span class="lineCov">        774 :       tb_printf(buf, &quot;R&quot;);</span>
-<span class="lineNum">     984 </span><span class="lineCov">       9307 :    else if (icmp(ident, &quot;STD.STANDARD.BOOLEAN&quot;))</span>
-<span class="lineNum">     985 </span><span class="lineCov">       1013 :       tb_printf(buf, &quot;B&quot;);</span>
-<span class="lineNum">     986 </span><span class="lineCov">       8294 :    else if (icmp(ident, &quot;STD.STANDARD.CHARACTER&quot;))</span>
-<span class="lineNum">     987 </span><span class="lineCov">         45 :       tb_printf(buf, &quot;C&quot;);</span>
-<span class="lineNum">     988 </span><span class="lineCov">       8249 :    else if (icmp(ident, &quot;STD.STANDARD.TIME&quot;))</span>
-<span class="lineNum">     989 </span><span class="lineCov">        534 :       tb_printf(buf, &quot;T&quot;);</span>
-<span class="lineNum">     990 </span><span class="lineCov">       7715 :    else if (icmp(ident, &quot;STD.STANDARD.NATURAL&quot;))</span>
-<span class="lineNum">     991 </span><span class="lineCov">        413 :       tb_printf(buf, &quot;N&quot;);</span>
-<span class="lineNum">     992 </span><span class="lineCov">       7302 :    else if (icmp(ident, &quot;STD.STANDARD.POSITIVE&quot;))</span>
-<span class="lineNum">     993 </span><span class="lineCov">         26 :       tb_printf(buf, &quot;P&quot;);</span>
-<span class="lineNum">     994 </span><span class="lineCov">       7276 :    else if (icmp(ident, &quot;STD.STANDARD.BIT&quot;))</span>
-<span class="lineNum">     995 </span><span class="lineCov">        112 :       tb_printf(buf, &quot;J&quot;);</span>
-<span class="lineNum">     996 </span><span class="lineCov">       7164 :    else if (icmp(ident, &quot;STD.STANDARD.BIT_VECTOR&quot;))</span>
-<span class="lineNum">     997 </span><span class="lineCov">        202 :       tb_printf(buf, &quot;Q&quot;);</span>
-<span class="lineNum">     998 </span><span class="lineCov">       6962 :    else if (icmp(ident, &quot;IEEE.STD_LOGIC_1164.STD_LOGIC&quot;))</span>
-<span class="lineNum">     999 </span><span class="lineCov">        156 :       tb_printf(buf, &quot;L&quot;);</span>
-<span class="lineNum">    1000 </span><span class="lineCov">       6806 :    else if (icmp(ident, &quot;IEEE.STD_LOGIC_1164.STD_ULOGIC&quot;))</span>
-<span class="lineNum">    1001 </span><span class="lineCov">       1457 :       tb_printf(buf, &quot;U&quot;);</span>
-<span class="lineNum">    1002 </span><span class="lineCov">       5349 :    else if (icmp(ident, &quot;IEEE.STD_LOGIC_1164.STD_LOGIC_VECTOR&quot;))</span>
-<span class="lineNum">    1003 </span><span class="lineCov">        491 :       tb_printf(buf, &quot;V&quot;);</span>
-<span class="lineNum">    1004 </span>            :    else {
-<span class="lineNum">    1005 </span><span class="lineCov">       4858 :       const char *ident_str = istr(ident);</span>
-<span class="lineNum">    1006 </span><span class="lineCov">       4858 :       tb_printf(buf, &quot;%d%s&quot;, (int)strlen(ident_str), ident_str);</span>
-<span class="lineNum">    1007 </span>            :    }
-<a name="1008"><span class="lineNum">    1008 </span><span class="lineCov">      12080 : }</span></a>
-<span class="lineNum">    1009 </span>            : 
-<span class="lineNum">    1010 </span><span class="lineCov">       4367 : ident_t mangle_func(tree_t decl, const char *prefix)</span>
-<span class="lineNum">    1011 </span>            : {
-<span class="lineNum">    1012 </span><span class="lineCov">       4367 :    ident_t prev = tree_attr_str(decl, mangled_i);</span>
-<span class="lineNum">    1013 </span><span class="lineCov">       4367 :    if (prev != NULL)</span>
-<span class="lineNum">    1014 </span>            :       return prev;
-<span class="lineNum">    1015 </span>            : 
-<span class="lineNum">    1016 </span><span class="lineCov">       4206 :    tree_t foreign = tree_attr_tree(decl, foreign_i);</span>
-<span class="lineNum">    1017 </span><span class="lineCov">       4206 :    if (foreign != NULL) {</span>
-<span class="lineNum">    1018 </span><span class="lineCov">         21 :       if (tree_kind(foreign) != T_LITERAL)</span>
-<span class="lineNum">    1019 </span><span class="lineNoCov">          0 :          fatal_at(tree_loc(decl), &quot;foreign attribute must have string &quot;</span>
-<span class="lineNum">    1020 </span>            :                   &quot;literal value&quot;);
-<span class="lineNum">    1021 </span>            : 
-<span class="lineNum">    1022 </span><span class="lineCov">         21 :       const int nchars = tree_chars(foreign);</span>
-<span class="lineNum">    1023 </span><span class="lineCov">         21 :       char buf[nchars + 1];</span>
-<span class="lineNum">    1024 </span><span class="lineCov">        370 :       for (int i = 0; i &lt; nchars; i++)</span>
-<span class="lineNum">    1025 </span><span class="lineCov">        349 :          buf[i] = tree_pos(tree_ref(tree_char(foreign, i)));</span>
-<span class="lineNum">    1026 </span><span class="lineCov">         21 :       buf[nchars] = '\0';</span>
-<span class="lineNum">    1027 </span>            : 
-<span class="lineNum">    1028 </span><span class="lineCov">         21 :       ident_t name = ident_new(buf);</span>
-<span class="lineNum">    1029 </span><span class="lineCov">         21 :       tree_add_attr_str(decl, mangled_i, name);</span>
-<span class="lineNum">    1030 </span>            :       return name;
-<span class="lineNum">    1031 </span>            :    }
-<span class="lineNum">    1032 </span>            : 
-<span class="lineNum">    1033 </span><span class="lineCov">       8370 :    LOCAL_TEXT_BUF buf = tb_new();</span>
-<span class="lineNum">    1034 </span>            : 
-<span class="lineNum">    1035 </span><span class="lineCov">       4185 :    if (prefix != NULL)</span>
-<span class="lineNum">    1036 </span><span class="lineCov">        110 :       tb_printf(buf, &quot;%s&quot;, prefix);</span>
-<span class="lineNum">    1037 </span>            : 
-<span class="lineNum">    1038 </span><span class="lineCov">       4185 :    tb_printf(buf, &quot;%s&quot;, istr(tree_ident(decl)));</span>
-<span class="lineNum">    1039 </span>            : 
-<span class="lineNum">    1040 </span><span class="lineCov">       4185 :    const tree_kind_t kind = tree_kind(decl);</span>
-<span class="lineNum">    1041 </span><span class="lineCov">       4185 :    const bool is_func = kind == T_FUNC_BODY || kind == T_FUNC_DECL;</span>
-<span class="lineNum">    1042 </span><span class="lineCov">       4185 :    const int nports = tree_ports(decl);</span>
-<span class="lineNum">    1043 </span><span class="lineCov">       4185 :    if (nports &gt; 0 || is_func)</span>
-<span class="lineNum">    1044 </span><span class="lineCov">       4159 :       tb_printf(buf, &quot;(&quot;);</span>
-<span class="lineNum">    1045 </span>            : 
-<span class="lineNum">    1046 </span><span class="lineCov">       8504 :    for (int i = 0; i &lt; nports; i++) {</span>
-<span class="lineNum">    1047 </span><span class="lineCov">       8504 :       tree_t p = tree_port(decl, i);</span>
-<span class="lineNum">    1048 </span><span class="lineCov">       8504 :       if (tree_class(p) == C_SIGNAL)</span>
-<span class="lineNum">    1049 </span><span class="lineCov">        563 :          tb_printf(buf, &quot;s&quot;);</span>
-<span class="lineNum">    1050 </span><span class="lineCov">       8504 :       mangle_one_type(buf, tree_type(p));</span>
-<span class="lineNum">    1051 </span>            :    }
-<span class="lineNum">    1052 </span>            : 
-<span class="lineNum">    1053 </span><span class="lineCov">       4185 :    if (nports &gt; 0 || is_func)</span>
-<span class="lineNum">    1054 </span><span class="lineCov">       4159 :       tb_printf(buf, &quot;)&quot;);</span>
-<span class="lineNum">    1055 </span>            : 
-<span class="lineNum">    1056 </span><span class="lineCov">       4185 :    if (is_func)</span>
-<span class="lineNum">    1057 </span><span class="lineCov">       3576 :       mangle_one_type(buf, type_result(tree_type(decl)));</span>
-<span class="lineNum">    1058 </span>            : 
-<span class="lineNum">    1059 </span><span class="lineCov">       4185 :    return ident_new(tb_get(buf));</span>
-<span class="lineNum">    1060 </span>            : }
+<span class="lineNum">     936 </span><span class="lineCov">       1790 :    wait_level_i     = ident_new(&quot;wait_level&quot;);</span>
+<span class="lineNum">     937 </span><span class="lineCov">       1790 :    impure_io_i      = ident_new(&quot;impure_io&quot;);</span>
+<span class="lineNum">     938 </span><span class="lineCov">       1790 :    simple_name_i    = ident_new(&quot;simple_name&quot;);</span>
+<span class="lineNum">     939 </span><span class="lineCov">       1790 :    std_i            = ident_new(&quot;STD&quot;);</span>
+<span class="lineNum">     940 </span><span class="lineCov">       1790 :    nnets_i          = ident_new(&quot;nnets&quot;);</span>
+<span class="lineNum">     941 </span><span class="lineCov">       1790 :    thunk_i          = ident_new(&quot;thunk&quot;);</span>
+<a name="942"><span class="lineNum">     942 </span><span class="lineCov">       1790 : }</span></a>
+<span class="lineNum">     943 </span>            : 
+<span class="lineNum">     944 </span><span class="lineCov">         79 : bool pack_needs_cgen(tree_t t)</span>
+<span class="lineNum">     945 </span>            : {
+<span class="lineNum">     946 </span>            :    // True if the package contains shared variables or signals which
+<span class="lineNum">     947 </span>            :    // must be run through code generation
+<span class="lineNum">     948 </span>            : 
+<span class="lineNum">     949 </span><span class="lineCov">         79 :    const int ndecls = tree_decls(t);</span>
+<span class="lineNum">     950 </span><span class="lineCov">        658 :    for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">     951 </span><span class="lineCov">        605 :       tree_t decl = tree_decl(t, i);</span>
+<span class="lineNum">     952 </span><span class="lineCov">        605 :       switch (tree_kind(decl)) {</span>
+<span class="lineNum">     953 </span>            :       case T_VAR_DECL:
+<span class="lineNum">     954 </span>            :       case T_SIGNAL_DECL:
+<span class="lineNum">     955 </span>            :       case T_FILE_DECL:
+<span class="lineNum">     956 </span>            :          return true;
+<span class="lineNum">     957 </span>            :       case T_CONST_DECL:
+<span class="lineNum">     958 </span><span class="lineCov">         26 :          if (type_is_array(tree_type(decl)))</span>
+<span class="lineNum">     959 </span>            :             return true;
+<span class="lineNum">     960 </span><span class="lineCov">         11 :          else if (tree_has_value(decl)) {</span>
+<span class="lineNum">     961 </span><span class="lineCov">         11 :             if (tree_kind(tree_value(decl)) != T_LITERAL)</span>
+<span class="lineNum">     962 </span>            :                return true;
+<span class="lineNum">     963 </span>            :          }
+<span class="lineNum">     964 </span>            :          break;
+<span class="lineNum">     965 </span>            :       default:
+<span class="lineNum">     966 </span>            :          break;
+<span class="lineNum">     967 </span>            :       }
+<span class="lineNum">     968 </span>            :    }
+<span class="lineNum">     969 </span>            : 
+<span class="lineNum">     970 </span>            :    return false;
+<a name="971"><span class="lineNum">     971 </span>            : }</a>
+<span class="lineNum">     972 </span>            : 
+<span class="lineNum">     973 </span><span class="lineCov">      12080 : static void mangle_one_type(text_buf_t *buf, type_t type)</span>
+<span class="lineNum">     974 </span>            : {
+<span class="lineNum">     975 </span><span class="lineCov">      12080 :    ident_t ident = type_ident(type);</span>
+<span class="lineNum">     976 </span>            : 
+<span class="lineNum">     977 </span><span class="lineCov">      12080 :    if (icmp(ident, &quot;STD.STANDARD.INTEGER&quot;))</span>
+<span class="lineNum">     978 </span><span class="lineCov">       1760 :       tb_printf(buf, &quot;I&quot;);</span>
+<span class="lineNum">     979 </span><span class="lineCov">      10320 :    else if (icmp(ident, &quot;STD.STANDARD.STRING&quot;))</span>
+<span class="lineNum">     980 </span><span class="lineCov">        239 :       tb_printf(buf, &quot;S&quot;);</span>
+<span class="lineNum">     981 </span><span class="lineCov">      10081 :    else if (icmp(ident, &quot;STD.STANDARD.REAL&quot;))</span>
+<span class="lineNum">     982 </span><span class="lineCov">        774 :       tb_printf(buf, &quot;R&quot;);</span>
+<span class="lineNum">     983 </span><span class="lineCov">       9307 :    else if (icmp(ident, &quot;STD.STANDARD.BOOLEAN&quot;))</span>
+<span class="lineNum">     984 </span><span class="lineCov">       1013 :       tb_printf(buf, &quot;B&quot;);</span>
+<span class="lineNum">     985 </span><span class="lineCov">       8294 :    else if (icmp(ident, &quot;STD.STANDARD.CHARACTER&quot;))</span>
+<span class="lineNum">     986 </span><span class="lineCov">         45 :       tb_printf(buf, &quot;C&quot;);</span>
+<span class="lineNum">     987 </span><span class="lineCov">       8249 :    else if (icmp(ident, &quot;STD.STANDARD.TIME&quot;))</span>
+<span class="lineNum">     988 </span><span class="lineCov">        534 :       tb_printf(buf, &quot;T&quot;);</span>
+<span class="lineNum">     989 </span><span class="lineCov">       7715 :    else if (icmp(ident, &quot;STD.STANDARD.NATURAL&quot;))</span>
+<span class="lineNum">     990 </span><span class="lineCov">        413 :       tb_printf(buf, &quot;N&quot;);</span>
+<span class="lineNum">     991 </span><span class="lineCov">       7302 :    else if (icmp(ident, &quot;STD.STANDARD.POSITIVE&quot;))</span>
+<span class="lineNum">     992 </span><span class="lineCov">         26 :       tb_printf(buf, &quot;P&quot;);</span>
+<span class="lineNum">     993 </span><span class="lineCov">       7276 :    else if (icmp(ident, &quot;STD.STANDARD.BIT&quot;))</span>
+<span class="lineNum">     994 </span><span class="lineCov">        112 :       tb_printf(buf, &quot;J&quot;);</span>
+<span class="lineNum">     995 </span><span class="lineCov">       7164 :    else if (icmp(ident, &quot;STD.STANDARD.BIT_VECTOR&quot;))</span>
+<span class="lineNum">     996 </span><span class="lineCov">        202 :       tb_printf(buf, &quot;Q&quot;);</span>
+<span class="lineNum">     997 </span><span class="lineCov">       6962 :    else if (icmp(ident, &quot;IEEE.STD_LOGIC_1164.STD_LOGIC&quot;))</span>
+<span class="lineNum">     998 </span><span class="lineCov">        156 :       tb_printf(buf, &quot;L&quot;);</span>
+<span class="lineNum">     999 </span><span class="lineCov">       6806 :    else if (icmp(ident, &quot;IEEE.STD_LOGIC_1164.STD_ULOGIC&quot;))</span>
+<span class="lineNum">    1000 </span><span class="lineCov">       1457 :       tb_printf(buf, &quot;U&quot;);</span>
+<span class="lineNum">    1001 </span><span class="lineCov">       5349 :    else if (icmp(ident, &quot;IEEE.STD_LOGIC_1164.STD_LOGIC_VECTOR&quot;))</span>
+<span class="lineNum">    1002 </span><span class="lineCov">        491 :       tb_printf(buf, &quot;V&quot;);</span>
+<span class="lineNum">    1003 </span>            :    else {
+<span class="lineNum">    1004 </span><span class="lineCov">       4858 :       const char *ident_str = istr(ident);</span>
+<span class="lineNum">    1005 </span><span class="lineCov">       4858 :       tb_printf(buf, &quot;%d%s&quot;, (int)strlen(ident_str), ident_str);</span>
+<span class="lineNum">    1006 </span>            :    }
+<a name="1007"><span class="lineNum">    1007 </span><span class="lineCov">      12080 : }</span></a>
+<span class="lineNum">    1008 </span>            : 
+<span class="lineNum">    1009 </span><span class="lineCov">       4367 : ident_t mangle_func(tree_t decl, const char *prefix)</span>
+<span class="lineNum">    1010 </span>            : {
+<span class="lineNum">    1011 </span><span class="lineCov">       4367 :    ident_t prev = tree_attr_str(decl, mangled_i);</span>
+<span class="lineNum">    1012 </span><span class="lineCov">       4367 :    if (prev != NULL)</span>
+<span class="lineNum">    1013 </span>            :       return prev;
+<span class="lineNum">    1014 </span>            : 
+<span class="lineNum">    1015 </span><span class="lineCov">       4206 :    tree_t foreign = tree_attr_tree(decl, foreign_i);</span>
+<span class="lineNum">    1016 </span><span class="lineCov">       4206 :    if (foreign != NULL) {</span>
+<span class="lineNum">    1017 </span><span class="lineCov">         21 :       if (tree_kind(foreign) != T_LITERAL)</span>
+<span class="lineNum">    1018 </span><span class="lineNoCov">          0 :          fatal_at(tree_loc(decl), &quot;foreign attribute must have string &quot;</span>
+<span class="lineNum">    1019 </span>            :                   &quot;literal value&quot;);
+<span class="lineNum">    1020 </span>            : 
+<span class="lineNum">    1021 </span><span class="lineCov">         21 :       const int nchars = tree_chars(foreign);</span>
+<span class="lineNum">    1022 </span><span class="lineCov">         21 :       char buf[nchars + 1];</span>
+<span class="lineNum">    1023 </span><span class="lineCov">        370 :       for (int i = 0; i &lt; nchars; i++)</span>
+<span class="lineNum">    1024 </span><span class="lineCov">        349 :          buf[i] = tree_pos(tree_ref(tree_char(foreign, i)));</span>
+<span class="lineNum">    1025 </span><span class="lineCov">         21 :       buf[nchars] = '\0';</span>
+<span class="lineNum">    1026 </span>            : 
+<span class="lineNum">    1027 </span><span class="lineCov">         21 :       ident_t name = ident_new(buf);</span>
+<span class="lineNum">    1028 </span><span class="lineCov">         21 :       tree_add_attr_str(decl, mangled_i, name);</span>
+<span class="lineNum">    1029 </span>            :       return name;
+<span class="lineNum">    1030 </span>            :    }
+<span class="lineNum">    1031 </span>            : 
+<span class="lineNum">    1032 </span><span class="lineCov">       8370 :    LOCAL_TEXT_BUF buf = tb_new();</span>
+<span class="lineNum">    1033 </span>            : 
+<span class="lineNum">    1034 </span><span class="lineCov">       4185 :    if (prefix != NULL)</span>
+<span class="lineNum">    1035 </span><span class="lineCov">        110 :       tb_printf(buf, &quot;%s&quot;, prefix);</span>
+<span class="lineNum">    1036 </span>            : 
+<span class="lineNum">    1037 </span><span class="lineCov">       4185 :    tb_printf(buf, &quot;%s&quot;, istr(tree_ident(decl)));</span>
+<span class="lineNum">    1038 </span>            : 
+<span class="lineNum">    1039 </span><span class="lineCov">       4185 :    const tree_kind_t kind = tree_kind(decl);</span>
+<span class="lineNum">    1040 </span><span class="lineCov">       4185 :    const bool is_func = kind == T_FUNC_BODY || kind == T_FUNC_DECL;</span>
+<span class="lineNum">    1041 </span><span class="lineCov">       4185 :    const int nports = tree_ports(decl);</span>
+<span class="lineNum">    1042 </span><span class="lineCov">       4185 :    if (nports &gt; 0 || is_func)</span>
+<span class="lineNum">    1043 </span><span class="lineCov">       4159 :       tb_printf(buf, &quot;(&quot;);</span>
+<span class="lineNum">    1044 </span>            : 
+<span class="lineNum">    1045 </span><span class="lineCov">       8504 :    for (int i = 0; i &lt; nports; i++) {</span>
+<span class="lineNum">    1046 </span><span class="lineCov">       8504 :       tree_t p = tree_port(decl, i);</span>
+<span class="lineNum">    1047 </span><span class="lineCov">       8504 :       if (tree_class(p) == C_SIGNAL)</span>
+<span class="lineNum">    1048 </span><span class="lineCov">        563 :          tb_printf(buf, &quot;s&quot;);</span>
+<span class="lineNum">    1049 </span><span class="lineCov">       8504 :       mangle_one_type(buf, tree_type(p));</span>
+<span class="lineNum">    1050 </span>            :    }
+<span class="lineNum">    1051 </span>            : 
+<span class="lineNum">    1052 </span><span class="lineCov">       4185 :    if (nports &gt; 0 || is_func)</span>
+<span class="lineNum">    1053 </span><span class="lineCov">       4159 :       tb_printf(buf, &quot;)&quot;);</span>
+<span class="lineNum">    1054 </span>            : 
+<span class="lineNum">    1055 </span><span class="lineCov">       4185 :    if (is_func)</span>
+<span class="lineNum">    1056 </span><span class="lineCov">       3576 :       mangle_one_type(buf, type_result(tree_type(decl)));</span>
+<span class="lineNum">    1057 </span>            : 
+<span class="lineNum">    1058 </span><span class="lineCov">       4185 :    return ident_new(tb_get(buf));</span>
+<span class="lineNum">    1059 </span>            : }
 </pre>
       </td>
     </tr>

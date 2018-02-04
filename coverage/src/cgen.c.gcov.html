@@ -3825,216 +3825,199 @@
 <span class="lineNum">    3763 </span><span class="lineCov">        428 :    LLVMValueRef _tmp_alloc =</span>
 <span class="lineNum">    3764 </span><span class="lineCov">        428 :       LLVMAddGlobal(module, LLVMInt32Type(), &quot;_tmp_alloc&quot;);</span>
 <span class="lineNum">    3765 </span><span class="lineCov">        428 :    LLVMSetLinkage(_tmp_alloc, LLVMExternalLinkage);</span>
-<span class="lineNum">    3766 </span><span class="lineCov">        428 : }</span>
-<a name="3767"><span class="lineNum">    3767 </span>            : </a>
-<span class="lineNum">    3768 </span>            : #ifdef ENABLE_NATIVE
-<span class="lineNum">    3769 </span><span class="lineCov">       2140 : static void cgen_link_arg(const char *fmt, ...)</span>
-<span class="lineNum">    3770 </span>            : {
-<span class="lineNum">    3771 </span>            :    va_list ap;
-<span class="lineNum">    3772 </span><span class="lineCov">       2140 :    va_start(ap, fmt);</span>
-<span class="lineNum">    3773 </span><span class="lineCov">       2140 :    char *buf = xvasprintf(fmt, ap);</span>
-<span class="lineNum">    3774 </span><span class="lineCov">       2140 :    va_end(ap);</span>
-<span class="lineNum">    3775 </span>            : 
-<span class="lineNum">    3776 </span><span class="lineCov">       2140 :    ARRAY_APPEND(link_args, buf, n_link_args, max_link_args);</span>
-<span class="lineNum">    3777 </span><span class="lineCov">       2140 : }</span>
-<span class="lineNum">    3778 </span>            : 
-<span class="lineNum">    3779 </span>            : #ifdef IMPLIB_REQUIRED
-<span class="lineNum">    3780 </span>            : static void cgen_find_implib_deps(ident_t unit_name, ident_list_t **deps)
-<span class="lineNum">    3781 </span>            : {
-<span class="lineNum">    3782 </span>            :    lib_t lib = lib_find(ident_until(unit_name, '.'), true);
-<span class="lineNum">    3783 </span>            :    tree_t unit = lib_get(lib, unit_name);
-<span class="lineNum">    3784 </span>            : 
-<span class="lineNum">    3785 </span>            :    if (unit == NULL)
-<span class="lineNum">    3786 </span>            :       return;
-<span class="lineNum">    3787 </span>            : 
-<span class="lineNum">    3788 </span>            :    unit_name = tree_ident(unit);
-<span class="lineNum">    3789 </span>            : 
-<span class="lineNum">    3790 </span>            :    if (ident_list_find(*deps, unit_name))
-<span class="lineNum">    3791 </span>            :       return;
-<span class="lineNum">    3792 </span>            : 
-<span class="lineNum">    3793 </span>            :    ident_list_push(deps, unit_name);
-<span class="lineNum">    3794 </span>            : 
-<span class="lineNum">    3795 </span>            :    switch (tree_kind(unit)) {
-<span class="lineNum">    3796 </span>            :    case T_PACKAGE:
-<span class="lineNum">    3797 </span>            :       {
-<span class="lineNum">    3798 </span>            :          ident_t body_name = ident_prefix(unit_name, ident_new(&quot;body&quot;), '-');
-<span class="lineNum">    3799 </span>            :          cgen_find_implib_deps(body_name, deps);
-<span class="lineNum">    3800 </span>            :       }
-<span class="lineNum">    3801 </span>            :       break;
-<span class="lineNum">    3802 </span>            : 
-<span class="lineNum">    3803 </span>            :    case T_PACK_BODY:
-<span class="lineNum">    3804 </span>            :       {
-<span class="lineNum">    3805 </span>            :          ident_t pack_name = ident_until(unit_name, '-');
-<span class="lineNum">    3806 </span>            :          cgen_find_implib_deps(pack_name, deps);
-<span class="lineNum">    3807 </span>            :       }
-<span class="lineNum">    3808 </span>            :       break;
-<span class="lineNum">    3809 </span>            : 
-<span class="lineNum">    3810 </span>            :    default:
-<span class="lineNum">    3811 </span>            :       break;
-<span class="lineNum">    3812 </span>            :    }
-<span class="lineNum">    3813 </span>            : 
-<span class="lineNum">    3814 </span>            :    const int ncontext = tree_contexts(unit);
-<span class="lineNum">    3815 </span>            :    for (int i = 0; i &lt; ncontext; i++) {
-<span class="lineNum">    3816 </span>            :       tree_t c = tree_context(unit, i);
-<span class="lineNum">    3817 </span>            :       if (tree_kind(c) != T_USE)
-<span class="lineNum">    3818 </span>            :          continue;
-<span class="lineNum">    3819 </span>            : 
-<span class="lineNum">    3820 </span>            :       cgen_find_implib_deps(tree_ident(c), deps);
-<span class="lineNum">    3821 </span>            :    }
-<span class="lineNum">    3822 </span>            : }
-<a name="3823"><span class="lineNum">    3823 </span>            : #endif  // IMPLIB_REQUIRED</a>
-<span class="lineNum">    3824 </span>            : 
-<span class="lineNum">    3825 </span><span class="lineCov">        428 : static void cgen_native(tree_t top)</span>
-<span class="lineNum">    3826 </span>            : {
-<span class="lineNum">    3827 </span><span class="lineCov">        428 :    LLVMInitializeNativeTarget();</span>
-<span class="lineNum">    3828 </span><span class="lineCov">        428 :    LLVMInitializeNativeAsmPrinter();</span>
-<span class="lineNum">    3829 </span>            : 
-<span class="lineNum">    3830 </span><span class="lineCov">        428 :    char *def_triple = LLVMGetDefaultTargetTriple();</span>
-<span class="lineNum">    3831 </span>            :    char *error;
-<span class="lineNum">    3832 </span>            :    LLVMTargetRef target_ref;
-<span class="lineNum">    3833 </span><span class="lineCov">        428 :    if (LLVMGetTargetFromTriple(def_triple, &amp;target_ref, &amp;error))</span>
-<span class="lineNum">    3834 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to get LLVM target for %s: %s&quot;, def_triple, error);</span>
-<span class="lineNum">    3835 </span>            : 
-<span class="lineNum">    3836 </span>            :    LLVMCodeGenOptLevel code_gen_level;
-<span class="lineNum">    3837 </span><span class="lineCov">        428 :    switch (opt_get_int(&quot;optimise&quot;)) {</span>
-<span class="lineNum">    3838 </span>            :    case 0: code_gen_level = LLVMCodeGenLevelNone; break;
-<span class="lineNum">    3839 </span>            :    case 1: code_gen_level = LLVMCodeGenLevelLess; break;
-<span class="lineNum">    3840 </span>            :    case 3: code_gen_level = LLVMCodeGenLevelAggressive; break;
-<span class="lineNum">    3841 </span>            :    default: code_gen_level = LLVMCodeGenLevelDefault;
-<span class="lineNum">    3842 </span>            :    }
-<span class="lineNum">    3843 </span>            : 
-<span class="lineNum">    3844 </span><span class="lineCov">        428 :    LLVMTargetMachineRef tm_ref =</span>
-<span class="lineNum">    3845 </span><span class="lineCov">        428 :       LLVMCreateTargetMachine(target_ref, def_triple, &quot;&quot;, &quot;&quot;,</span>
-<span class="lineNum">    3846 </span>            :                               code_gen_level,
-<span class="lineNum">    3847 </span>            :                               LLVMRelocPIC,
-<span class="lineNum">    3848 </span>            :                               LLVMCodeModelDefault);
-<span class="lineNum">    3849 </span>            : 
-<span class="lineNum">    3850 </span><span class="lineCov">        428 :    ident_t unit_name = tree_ident(top);</span>
-<span class="lineNum">    3851 </span><span class="lineCov">        856 :    char *obj_name LOCAL = xasprintf(&quot;_%s.&quot; LLVM_OBJ_EXT, istr(unit_name));</span>
-<span class="lineNum">    3852 </span>            : 
-<span class="lineNum">    3853 </span>            :    char obj_path[PATH_MAX];
-<span class="lineNum">    3854 </span><span class="lineCov">        428 :    lib_realpath(lib_work(), obj_name, obj_path, sizeof(obj_path));</span>
-<span class="lineNum">    3855 </span>            : 
-<span class="lineNum">    3856 </span><span class="lineCov">        428 :    if (LLVMTargetMachineEmitToFile(tm_ref, module, obj_path,</span>
-<span class="lineNum">    3857 </span>            :                                    LLVMObjectFile, &amp;error))
-<span class="lineNum">    3858 </span><span class="lineNoCov">          0 :       fatal(&quot;Failed to write object file: %s&quot;, error);</span>
-<span class="lineNum">    3859 </span>            : 
-<span class="lineNum">    3860 </span><span class="lineCov">        428 :    max_link_args = 64;</span>
-<span class="lineNum">    3861 </span><span class="lineCov">        428 :    link_args = xmalloc(sizeof(char *) * max_link_args);</span>
-<span class="lineNum">    3862 </span><span class="lineCov">        428 :    n_link_args = 0;</span>
-<span class="lineNum">    3863 </span>            : 
-<span class="lineNum">    3864 </span>            : #ifdef LINKER_PATH
-<span class="lineNum">    3865 </span><span class="lineCov">        428 :    cgen_link_arg(&quot;%s&quot;, LINKER_PATH);</span>
-<span class="lineNum">    3866 </span>            : #else
-<span class="lineNum">    3867 </span>            :    cgen_link_arg(&quot;%s&quot;, SYSTEM_CC);
-<span class="lineNum">    3868 </span>            : #endif
-<span class="lineNum">    3869 </span>            : 
-<span class="lineNum">    3870 </span>            : #if defined __APPLE__
-<span class="lineNum">    3871 </span>            :    cgen_link_arg(&quot;-bundle&quot;);
-<span class="lineNum">    3872 </span>            :    cgen_link_arg(&quot;-flat_namespace&quot;);
-<span class="lineNum">    3873 </span>            :    cgen_link_arg(&quot;-undefined&quot;);
-<span class="lineNum">    3874 </span>            :    cgen_link_arg(&quot;dynamic_lookup&quot;);
-<span class="lineNum">    3875 </span>            : #else
-<span class="lineNum">    3876 </span><span class="lineCov">        428 :    cgen_link_arg(&quot;-shared&quot;);</span>
-<span class="lineNum">    3877 </span>            : #endif
-<span class="lineNum">    3878 </span>            : 
-<span class="lineNum">    3879 </span><span class="lineCov">        856 :    char *fname LOCAL = xasprintf(&quot;_%s.&quot; DLL_EXT, istr(unit_name));</span>
-<span class="lineNum">    3880 </span>            :    char so_path[PATH_MAX];
-<span class="lineNum">    3881 </span><span class="lineCov">        428 :    lib_realpath(lib_work(), fname, so_path, PATH_MAX);</span>
-<span class="lineNum">    3882 </span>            : 
-<span class="lineNum">    3883 </span><span class="lineCov">        428 :    cgen_link_arg(&quot;-o&quot;);</span>
-<span class="lineNum">    3884 </span><span class="lineCov">        428 :    cgen_link_arg(&quot;%s&quot;, so_path);</span>
-<span class="lineNum">    3885 </span><span class="lineCov">        428 :    cgen_link_arg(&quot;%s&quot;, obj_path);</span>
-<span class="lineNum">    3886 </span>            : 
-<span class="lineNum">    3887 </span>            : #if IMPLIB_REQUIRED
-<span class="lineNum">    3888 </span>            :    char *impname LOCAL = xasprintf(&quot;_%s.lib&quot;, istr(unit_name));
-<span class="lineNum">    3889 </span>            :    char imp_path[PATH_MAX];
-<span class="lineNum">    3890 </span>            :    lib_realpath(lib_work(), impname, imp_path, PATH_MAX);
-<span class="lineNum">    3891 </span>            : 
-<span class="lineNum">    3892 </span>            :    cgen_link_arg(&quot;-Wl,--out-implib=%s&quot;, imp_path);
-<span class="lineNum">    3893 </span>            :    cgen_link_arg(&quot;-L%s&quot;, lib_path(lib_work()));
-<span class="lineNum">    3894 </span>            : 
-<span class="lineNum">    3895 </span>            :    LOCAL_IDENT_LIST deps = NULL;
-<span class="lineNum">    3896 </span>            :    cgen_find_implib_deps(unit_name, &amp;deps);
-<span class="lineNum">    3897 </span>            : 
-<span class="lineNum">    3898 </span>            :    for (const ident_list_t *it = deps; it != NULL; it = it-&gt;next) {
-<span class="lineNum">    3899 </span>            :       if (it-&gt;ident == unit_name)
-<span class="lineNum">    3900 </span>            :          continue;
-<span class="lineNum">    3901 </span>            : 
-<span class="lineNum">    3902 </span>            :       lib_t lib = lib_find(ident_until(it-&gt;ident, '.'), true);
-<span class="lineNum">    3903 </span>            : 
-<span class="lineNum">    3904 </span>            :       char *imp_name LOCAL = xasprintf(&quot;_%s.lib&quot;, istr(it-&gt;ident));
-<span class="lineNum">    3905 </span>            :       char import_imp[PATH_MAX];
-<span class="lineNum">    3906 </span>            :       lib_realpath(lib, imp_name, import_imp, PATH_MAX);
-<span class="lineNum">    3907 </span>            : 
-<span class="lineNum">    3908 </span>            :       if (access(import_imp, F_OK) == 0) {
-<span class="lineNum">    3909 </span>            :          if (lib != lib_work())
-<span class="lineNum">    3910 </span>            :             cgen_link_arg(&quot;-L%s&quot;, lib_path(lib));
-<span class="lineNum">    3911 </span>            :          cgen_link_arg(&quot;-l_%s&quot;, istr(it-&gt;ident));
-<span class="lineNum">    3912 </span>            :       }
-<span class="lineNum">    3913 </span>            :    }
-<span class="lineNum">    3914 </span>            : #endif
-<span class="lineNum">    3915 </span>            : 
-<span class="lineNum">    3916 </span><span class="lineCov">        428 :    const char *obj = getenv(&quot;NVC_FOREIGN_OBJ&quot;);</span>
-<span class="lineNum">    3917 </span><span class="lineCov">        428 :    if (obj != NULL)</span>
-<span class="lineNum">    3918 </span><span class="lineNoCov">          0 :       cgen_link_arg(obj);</span>
-<span class="lineNum">    3919 </span>            : 
-<span class="lineNum">    3920 </span>            : #ifdef IMPLIB_REQUIRED
-<span class="lineNum">    3921 </span>            :    const char *cyglib = getenv(&quot;NVC_IMP_LIB&quot;);
-<span class="lineNum">    3922 </span>            :    char *cygarg LOCAL = xasprintf(&quot;-L%s&quot;, (cyglib != NULL) ? cyglib : DATADIR);
-<span class="lineNum">    3923 </span>            :    cgen_link_arg(cygarg);
-<span class="lineNum">    3924 </span>            :    cgen_link_arg(&quot;-lnvcimp&quot;);
-<span class="lineNum">    3925 </span>            : #endif
-<span class="lineNum">    3926 </span>            : 
-<span class="lineNum">    3927 </span><span class="lineCov">        428 :    ARRAY_APPEND(link_args, NULL, n_link_args, max_link_args);</span>
-<span class="lineNum">    3928 </span>            : 
-<span class="lineNum">    3929 </span><span class="lineCov">        428 :    run_program((const char * const *)link_args, n_link_args - 1);</span>
-<span class="lineNum">    3930 </span>            : 
-<span class="lineNum">    3931 </span><span class="lineCov">        428 :    free(link_args);</span>
-<span class="lineNum">    3932 </span><span class="lineCov">        428 :    link_args = NULL;</span>
-<span class="lineNum">    3933 </span><span class="lineCov">        428 : }</span>
-<a name="3934"><span class="lineNum">    3934 </span>            : #endif  // ENABLE_NATIVE</a>
-<span class="lineNum">    3935 </span>            : 
-<span class="lineNum">    3936 </span><span class="lineCov">        428 : void cgen(tree_t top, vcode_unit_t vcode)</span>
-<span class="lineNum">    3937 </span>            : {
-<span class="lineNum">    3938 </span><span class="lineCov">        428 :    tree_kind_t kind = tree_kind(top);</span>
-<span class="lineNum">    3939 </span><span class="lineCov">        428 :    if (kind != T_ELAB &amp;&amp; kind != T_PACK_BODY &amp;&amp; kind != T_PACKAGE)</span>
-<span class="lineNum">    3940 </span><span class="lineNoCov">          0 :       fatal(&quot;cannot generate code for %s&quot;, tree_kind_str(kind));</span>
-<span class="lineNum">    3941 </span>            : 
-<span class="lineNum">    3942 </span><span class="lineCov">        428 :    module = LLVMModuleCreateWithName(istr(tree_ident(top)));</span>
-<span class="lineNum">    3943 </span><span class="lineCov">        428 :    builder = LLVMCreateBuilder();</span>
+<a name="3766"><span class="lineNum">    3766 </span><span class="lineCov">        428 : }</span></a>
+<span class="lineNum">    3767 </span>            : 
+<span class="lineNum">    3768 </span><span class="lineCov">       2140 : static void cgen_link_arg(const char *fmt, ...)</span>
+<span class="lineNum">    3769 </span>            : {
+<span class="lineNum">    3770 </span>            :    va_list ap;
+<span class="lineNum">    3771 </span><span class="lineCov">       2140 :    va_start(ap, fmt);</span>
+<span class="lineNum">    3772 </span><span class="lineCov">       2140 :    char *buf = xvasprintf(fmt, ap);</span>
+<span class="lineNum">    3773 </span><span class="lineCov">       2140 :    va_end(ap);</span>
+<span class="lineNum">    3774 </span>            : 
+<span class="lineNum">    3775 </span><span class="lineCov">       2140 :    ARRAY_APPEND(link_args, buf, n_link_args, max_link_args);</span>
+<span class="lineNum">    3776 </span><span class="lineCov">       2140 : }</span>
+<span class="lineNum">    3777 </span>            : 
+<span class="lineNum">    3778 </span>            : #ifdef IMPLIB_REQUIRED
+<span class="lineNum">    3779 </span>            : static void cgen_find_implib_deps(ident_t unit_name, ident_list_t **deps)
+<span class="lineNum">    3780 </span>            : {
+<span class="lineNum">    3781 </span>            :    lib_t lib = lib_find(ident_until(unit_name, '.'), true);
+<span class="lineNum">    3782 </span>            :    tree_t unit = lib_get(lib, unit_name);
+<span class="lineNum">    3783 </span>            : 
+<span class="lineNum">    3784 </span>            :    if (unit == NULL)
+<span class="lineNum">    3785 </span>            :       return;
+<span class="lineNum">    3786 </span>            : 
+<span class="lineNum">    3787 </span>            :    unit_name = tree_ident(unit);
+<span class="lineNum">    3788 </span>            : 
+<span class="lineNum">    3789 </span>            :    if (ident_list_find(*deps, unit_name))
+<span class="lineNum">    3790 </span>            :       return;
+<span class="lineNum">    3791 </span>            : 
+<span class="lineNum">    3792 </span>            :    ident_list_push(deps, unit_name);
+<span class="lineNum">    3793 </span>            : 
+<span class="lineNum">    3794 </span>            :    switch (tree_kind(unit)) {
+<span class="lineNum">    3795 </span>            :    case T_PACKAGE:
+<span class="lineNum">    3796 </span>            :       {
+<span class="lineNum">    3797 </span>            :          ident_t body_name = ident_prefix(unit_name, ident_new(&quot;body&quot;), '-');
+<span class="lineNum">    3798 </span>            :          cgen_find_implib_deps(body_name, deps);
+<span class="lineNum">    3799 </span>            :       }
+<span class="lineNum">    3800 </span>            :       break;
+<span class="lineNum">    3801 </span>            : 
+<span class="lineNum">    3802 </span>            :    case T_PACK_BODY:
+<span class="lineNum">    3803 </span>            :       {
+<span class="lineNum">    3804 </span>            :          ident_t pack_name = ident_until(unit_name, '-');
+<span class="lineNum">    3805 </span>            :          cgen_find_implib_deps(pack_name, deps);
+<span class="lineNum">    3806 </span>            :       }
+<span class="lineNum">    3807 </span>            :       break;
+<span class="lineNum">    3808 </span>            : 
+<span class="lineNum">    3809 </span>            :    default:
+<span class="lineNum">    3810 </span>            :       break;
+<span class="lineNum">    3811 </span>            :    }
+<span class="lineNum">    3812 </span>            : 
+<span class="lineNum">    3813 </span>            :    const int ncontext = tree_contexts(unit);
+<span class="lineNum">    3814 </span>            :    for (int i = 0; i &lt; ncontext; i++) {
+<span class="lineNum">    3815 </span>            :       tree_t c = tree_context(unit, i);
+<span class="lineNum">    3816 </span>            :       if (tree_kind(c) != T_USE)
+<span class="lineNum">    3817 </span>            :          continue;
+<span class="lineNum">    3818 </span>            : 
+<span class="lineNum">    3819 </span>            :       cgen_find_implib_deps(tree_ident(c), deps);
+<span class="lineNum">    3820 </span>            :    }
+<span class="lineNum">    3821 </span>            : }
+<a name="3822"><span class="lineNum">    3822 </span>            : #endif  // IMPLIB_REQUIRED</a>
+<span class="lineNum">    3823 </span>            : 
+<span class="lineNum">    3824 </span><span class="lineCov">        428 : static void cgen_native(tree_t top)</span>
+<span class="lineNum">    3825 </span>            : {
+<span class="lineNum">    3826 </span><span class="lineCov">        428 :    LLVMInitializeNativeTarget();</span>
+<span class="lineNum">    3827 </span><span class="lineCov">        428 :    LLVMInitializeNativeAsmPrinter();</span>
+<span class="lineNum">    3828 </span>            : 
+<span class="lineNum">    3829 </span><span class="lineCov">        428 :    char *def_triple = LLVMGetDefaultTargetTriple();</span>
+<span class="lineNum">    3830 </span>            :    char *error;
+<span class="lineNum">    3831 </span>            :    LLVMTargetRef target_ref;
+<span class="lineNum">    3832 </span><span class="lineCov">        428 :    if (LLVMGetTargetFromTriple(def_triple, &amp;target_ref, &amp;error))</span>
+<span class="lineNum">    3833 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to get LLVM target for %s: %s&quot;, def_triple, error);</span>
+<span class="lineNum">    3834 </span>            : 
+<span class="lineNum">    3835 </span>            :    LLVMCodeGenOptLevel code_gen_level;
+<span class="lineNum">    3836 </span><span class="lineCov">        428 :    switch (opt_get_int(&quot;optimise&quot;)) {</span>
+<span class="lineNum">    3837 </span>            :    case 0: code_gen_level = LLVMCodeGenLevelNone; break;
+<span class="lineNum">    3838 </span>            :    case 1: code_gen_level = LLVMCodeGenLevelLess; break;
+<span class="lineNum">    3839 </span>            :    case 3: code_gen_level = LLVMCodeGenLevelAggressive; break;
+<span class="lineNum">    3840 </span>            :    default: code_gen_level = LLVMCodeGenLevelDefault;
+<span class="lineNum">    3841 </span>            :    }
+<span class="lineNum">    3842 </span>            : 
+<span class="lineNum">    3843 </span><span class="lineCov">        428 :    LLVMTargetMachineRef tm_ref =</span>
+<span class="lineNum">    3844 </span><span class="lineCov">        428 :       LLVMCreateTargetMachine(target_ref, def_triple, &quot;&quot;, &quot;&quot;,</span>
+<span class="lineNum">    3845 </span>            :                               code_gen_level,
+<span class="lineNum">    3846 </span>            :                               LLVMRelocPIC,
+<span class="lineNum">    3847 </span>            :                               LLVMCodeModelDefault);
+<span class="lineNum">    3848 </span>            : 
+<span class="lineNum">    3849 </span><span class="lineCov">        428 :    ident_t unit_name = tree_ident(top);</span>
+<span class="lineNum">    3850 </span><span class="lineCov">        856 :    char *obj_name LOCAL = xasprintf(&quot;_%s.&quot; LLVM_OBJ_EXT, istr(unit_name));</span>
+<span class="lineNum">    3851 </span>            : 
+<span class="lineNum">    3852 </span>            :    char obj_path[PATH_MAX];
+<span class="lineNum">    3853 </span><span class="lineCov">        428 :    lib_realpath(lib_work(), obj_name, obj_path, sizeof(obj_path));</span>
+<span class="lineNum">    3854 </span>            : 
+<span class="lineNum">    3855 </span><span class="lineCov">        428 :    if (LLVMTargetMachineEmitToFile(tm_ref, module, obj_path,</span>
+<span class="lineNum">    3856 </span>            :                                    LLVMObjectFile, &amp;error))
+<span class="lineNum">    3857 </span><span class="lineNoCov">          0 :       fatal(&quot;Failed to write object file: %s&quot;, error);</span>
+<span class="lineNum">    3858 </span>            : 
+<span class="lineNum">    3859 </span><span class="lineCov">        428 :    max_link_args = 64;</span>
+<span class="lineNum">    3860 </span><span class="lineCov">        428 :    link_args = xmalloc(sizeof(char *) * max_link_args);</span>
+<span class="lineNum">    3861 </span><span class="lineCov">        428 :    n_link_args = 0;</span>
+<span class="lineNum">    3862 </span>            : 
+<span class="lineNum">    3863 </span>            : #ifdef LINKER_PATH
+<span class="lineNum">    3864 </span><span class="lineCov">        428 :    cgen_link_arg(&quot;%s&quot;, LINKER_PATH);</span>
+<span class="lineNum">    3865 </span>            : #else
+<span class="lineNum">    3866 </span>            :    cgen_link_arg(&quot;%s&quot;, SYSTEM_CC);
+<span class="lineNum">    3867 </span>            : #endif
+<span class="lineNum">    3868 </span>            : 
+<span class="lineNum">    3869 </span>            : #if defined __APPLE__
+<span class="lineNum">    3870 </span>            :    cgen_link_arg(&quot;-bundle&quot;);
+<span class="lineNum">    3871 </span>            :    cgen_link_arg(&quot;-flat_namespace&quot;);
+<span class="lineNum">    3872 </span>            :    cgen_link_arg(&quot;-undefined&quot;);
+<span class="lineNum">    3873 </span>            :    cgen_link_arg(&quot;dynamic_lookup&quot;);
+<span class="lineNum">    3874 </span>            : #else
+<span class="lineNum">    3875 </span><span class="lineCov">        428 :    cgen_link_arg(&quot;-shared&quot;);</span>
+<span class="lineNum">    3876 </span>            : #endif
+<span class="lineNum">    3877 </span>            : 
+<span class="lineNum">    3878 </span><span class="lineCov">        856 :    char *fname LOCAL = xasprintf(&quot;_%s.&quot; DLL_EXT, istr(unit_name));</span>
+<span class="lineNum">    3879 </span>            :    char so_path[PATH_MAX];
+<span class="lineNum">    3880 </span><span class="lineCov">        428 :    lib_realpath(lib_work(), fname, so_path, PATH_MAX);</span>
+<span class="lineNum">    3881 </span>            : 
+<span class="lineNum">    3882 </span><span class="lineCov">        428 :    cgen_link_arg(&quot;-o&quot;);</span>
+<span class="lineNum">    3883 </span><span class="lineCov">        428 :    cgen_link_arg(&quot;%s&quot;, so_path);</span>
+<span class="lineNum">    3884 </span><span class="lineCov">        428 :    cgen_link_arg(&quot;%s&quot;, obj_path);</span>
+<span class="lineNum">    3885 </span>            : 
+<span class="lineNum">    3886 </span>            : #if IMPLIB_REQUIRED
+<span class="lineNum">    3887 </span>            :    char *impname LOCAL = xasprintf(&quot;_%s.lib&quot;, istr(unit_name));
+<span class="lineNum">    3888 </span>            :    char imp_path[PATH_MAX];
+<span class="lineNum">    3889 </span>            :    lib_realpath(lib_work(), impname, imp_path, PATH_MAX);
+<span class="lineNum">    3890 </span>            : 
+<span class="lineNum">    3891 </span>            :    cgen_link_arg(&quot;-Wl,--out-implib=%s&quot;, imp_path);
+<span class="lineNum">    3892 </span>            :    cgen_link_arg(&quot;-L%s&quot;, lib_path(lib_work()));
+<span class="lineNum">    3893 </span>            : 
+<span class="lineNum">    3894 </span>            :    LOCAL_IDENT_LIST deps = NULL;
+<span class="lineNum">    3895 </span>            :    cgen_find_implib_deps(unit_name, &amp;deps);
+<span class="lineNum">    3896 </span>            : 
+<span class="lineNum">    3897 </span>            :    for (const ident_list_t *it = deps; it != NULL; it = it-&gt;next) {
+<span class="lineNum">    3898 </span>            :       if (it-&gt;ident == unit_name)
+<span class="lineNum">    3899 </span>            :          continue;
+<span class="lineNum">    3900 </span>            : 
+<span class="lineNum">    3901 </span>            :       lib_t lib = lib_find(ident_until(it-&gt;ident, '.'), true);
+<span class="lineNum">    3902 </span>            : 
+<span class="lineNum">    3903 </span>            :       char *imp_name LOCAL = xasprintf(&quot;_%s.lib&quot;, istr(it-&gt;ident));
+<span class="lineNum">    3904 </span>            :       char import_imp[PATH_MAX];
+<span class="lineNum">    3905 </span>            :       lib_realpath(lib, imp_name, import_imp, PATH_MAX);
+<span class="lineNum">    3906 </span>            : 
+<span class="lineNum">    3907 </span>            :       if (access(import_imp, F_OK) == 0) {
+<span class="lineNum">    3908 </span>            :          if (lib != lib_work())
+<span class="lineNum">    3909 </span>            :             cgen_link_arg(&quot;-L%s&quot;, lib_path(lib));
+<span class="lineNum">    3910 </span>            :          cgen_link_arg(&quot;-l_%s&quot;, istr(it-&gt;ident));
+<span class="lineNum">    3911 </span>            :       }
+<span class="lineNum">    3912 </span>            :    }
+<span class="lineNum">    3913 </span>            : #endif
+<span class="lineNum">    3914 </span>            : 
+<span class="lineNum">    3915 </span><span class="lineCov">        428 :    const char *obj = getenv(&quot;NVC_FOREIGN_OBJ&quot;);</span>
+<span class="lineNum">    3916 </span><span class="lineCov">        428 :    if (obj != NULL)</span>
+<span class="lineNum">    3917 </span><span class="lineNoCov">          0 :       cgen_link_arg(obj);</span>
+<span class="lineNum">    3918 </span>            : 
+<span class="lineNum">    3919 </span>            : #ifdef IMPLIB_REQUIRED
+<span class="lineNum">    3920 </span>            :    const char *cyglib = getenv(&quot;NVC_IMP_LIB&quot;);
+<span class="lineNum">    3921 </span>            :    char *cygarg LOCAL = xasprintf(&quot;-L%s&quot;, (cyglib != NULL) ? cyglib : DATADIR);
+<span class="lineNum">    3922 </span>            :    cgen_link_arg(cygarg);
+<span class="lineNum">    3923 </span>            :    cgen_link_arg(&quot;-lnvcimp&quot;);
+<span class="lineNum">    3924 </span>            : #endif
+<span class="lineNum">    3925 </span>            : 
+<span class="lineNum">    3926 </span><span class="lineCov">        428 :    ARRAY_APPEND(link_args, NULL, n_link_args, max_link_args);</span>
+<span class="lineNum">    3927 </span>            : 
+<span class="lineNum">    3928 </span><span class="lineCov">        428 :    run_program((const char * const *)link_args, n_link_args - 1);</span>
+<span class="lineNum">    3929 </span>            : 
+<span class="lineNum">    3930 </span><span class="lineCov">        428 :    free(link_args);</span>
+<span class="lineNum">    3931 </span><span class="lineCov">        428 :    link_args = NULL;</span>
+<a name="3932"><span class="lineNum">    3932 </span><span class="lineCov">        428 : }</span></a>
+<span class="lineNum">    3933 </span>            : 
+<span class="lineNum">    3934 </span><span class="lineCov">        428 : void cgen(tree_t top, vcode_unit_t vcode)</span>
+<span class="lineNum">    3935 </span>            : {
+<span class="lineNum">    3936 </span><span class="lineCov">        428 :    tree_kind_t kind = tree_kind(top);</span>
+<span class="lineNum">    3937 </span><span class="lineCov">        428 :    if (kind != T_ELAB &amp;&amp; kind != T_PACK_BODY &amp;&amp; kind != T_PACKAGE)</span>
+<span class="lineNum">    3938 </span><span class="lineNoCov">          0 :       fatal(&quot;cannot generate code for %s&quot;, tree_kind_str(kind));</span>
+<span class="lineNum">    3939 </span>            : 
+<span class="lineNum">    3940 </span><span class="lineCov">        428 :    module = LLVMModuleCreateWithName(istr(tree_ident(top)));</span>
+<span class="lineNum">    3941 </span><span class="lineCov">        428 :    builder = LLVMCreateBuilder();</span>
+<span class="lineNum">    3942 </span>            : 
+<span class="lineNum">    3943 </span><span class="lineCov">        428 :    cgen_tmp_stack();</span>
 <span class="lineNum">    3944 </span>            : 
-<span class="lineNum">    3945 </span><span class="lineCov">        428 :    cgen_tmp_stack();</span>
+<span class="lineNum">    3945 </span><span class="lineCov">        428 :    cgen_top(top, vcode);</span>
 <span class="lineNum">    3946 </span>            : 
-<span class="lineNum">    3947 </span><span class="lineCov">        428 :    cgen_top(top, vcode);</span>
-<span class="lineNum">    3948 </span>            : 
-<span class="lineNum">    3949 </span><span class="lineCov">        428 :    if (opt_get_int(&quot;dump-llvm&quot;))</span>
-<span class="lineNum">    3950 </span><span class="lineNoCov">          0 :       LLVMDumpModule(module);</span>
-<span class="lineNum">    3951 </span>            : 
-<span class="lineNum">    3952 </span><span class="lineCov">        428 :    if (LLVMVerifyModule(module, LLVMPrintMessageAction, NULL))</span>
-<span class="lineNum">    3953 </span><span class="lineNoCov">          0 :       fatal(&quot;LLVM verification failed&quot;);</span>
-<span class="lineNum">    3954 </span>            : 
-<span class="lineNum">    3955 </span><span class="lineCov">        428 :    cgen_optimise();</span>
-<span class="lineNum">    3956 </span>            : 
-<span class="lineNum">    3957 </span>            : #ifdef ENABLE_NATIVE
-<span class="lineNum">    3958 </span><span class="lineCov">        428 :    cgen_native(top);</span>
-<span class="lineNum">    3959 </span>            : 
-<span class="lineNum">    3960 </span><span class="lineCov">        428 :    LLVMDisposeModule(module);</span>
-<span class="lineNum">    3961 </span>            : #else
-<span class="lineNum">    3962 </span>            :    char *fname = xasprintf(&quot;_%s.bc&quot;, istr(tree_ident(top)));
-<span class="lineNum">    3963 </span>            : 
-<span class="lineNum">    3964 </span>            :    FILE *f = lib_fopen(lib_work(), fname, &quot;wb&quot;);
-<span class="lineNum">    3965 </span>            :    if (LLVMWriteBitcodeToFD(module, fileno(f), 0, 0) != 0)
-<span class="lineNum">    3966 </span>            :       fatal(&quot;error writing LLVM bitcode&quot;);
-<span class="lineNum">    3967 </span>            :    const long bc_bytes = ftell(f);
-<span class="lineNum">    3968 </span>            :    fclose(f);
-<span class="lineNum">    3969 </span>            :    free(fname);
-<span class="lineNum">    3970 </span>            : 
-<span class="lineNum">    3971 </span>            :    tree_add_attr_ptr(top, llvm_i, module);
-<span class="lineNum">    3972 </span>            : #endif
-<span class="lineNum">    3973 </span>            : 
-<span class="lineNum">    3974 </span><span class="lineCov">        428 :    LLVMDisposeBuilder(builder);</span>
-<span class="lineNum">    3975 </span><span class="lineCov">        428 : }</span>
+<span class="lineNum">    3947 </span><span class="lineCov">        428 :    if (opt_get_int(&quot;dump-llvm&quot;))</span>
+<span class="lineNum">    3948 </span><span class="lineNoCov">          0 :       LLVMDumpModule(module);</span>
+<span class="lineNum">    3949 </span>            : 
+<span class="lineNum">    3950 </span><span class="lineCov">        428 :    if (LLVMVerifyModule(module, LLVMPrintMessageAction, NULL))</span>
+<span class="lineNum">    3951 </span><span class="lineNoCov">          0 :       fatal(&quot;LLVM verification failed&quot;);</span>
+<span class="lineNum">    3952 </span>            : 
+<span class="lineNum">    3953 </span><span class="lineCov">        428 :    cgen_optimise();</span>
+<span class="lineNum">    3954 </span><span class="lineCov">        428 :    cgen_native(top);</span>
+<span class="lineNum">    3955 </span>            : 
+<span class="lineNum">    3956 </span><span class="lineCov">        428 :    LLVMDisposeModule(module);</span>
+<span class="lineNum">    3957 </span><span class="lineCov">        428 :    LLVMDisposeBuilder(builder);</span>
+<span class="lineNum">    3958 </span><span class="lineCov">        428 : }</span>
 </pre>
       </td>
     </tr>
