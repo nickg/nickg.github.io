@@ -92,232 +92,233 @@
 <span class="lineNum">      30 </span>            : #include &lt;stdlib.h&gt;
 <span class="lineNum">      31 </span>            : #include &lt;string.h&gt;
 <span class="lineNum">      32 </span>            : #include &lt;ctype.h&gt;
-<span class="lineNum">      33 </span>            : 
-<span class="lineNum">      34 </span>            : #ifdef HAVE_EXECINFO_H
-<span class="lineNum">      35 </span>            : #include &lt;execinfo.h&gt;
-<span class="lineNum">      36 </span>            : #endif
-<span class="lineNum">      37 </span>            : 
-<span class="lineNum">      38 </span>            : #ifdef __MINGW32__
-<span class="lineNum">      39 </span>            : #define WIN32_LEAN_AND_MEAN
-<span class="lineNum">      40 </span>            : #include &lt;windows.h&gt;
-<span class="lineNum">      41 </span>            : #else
-<span class="lineNum">      42 </span>            : #include &lt;dlfcn.h&gt;
-<span class="lineNum">      43 </span>            : #endif
-<span class="lineNum">      44 </span>            : 
-<span class="lineNum">      45 </span>            : #define TRACE_MAX 10
-<span class="lineNum">      46 </span>            : 
-<span class="lineNum">      47 </span>            : #ifdef __MINGW32__
-<span class="lineNum">      48 </span>            : #ifdef _WIN64
-<span class="lineNum">      49 </span>            : extern void ___chkstk_ms(void);
-<span class="lineNum">      50 </span>            : #else
-<span class="lineNum">      51 </span>            : #undef _alloca
-<span class="lineNum">      52 </span>            : extern void _alloca(void);
-<span class="lineNum">      53 </span>            : #endif
-<span class="lineNum">      54 </span>            : 
-<span class="lineNum">      55 </span>            : static HMODULE *search_modules;
-<span class="lineNum">      56 </span>            : static size_t nmodules = 0, max_modules = 0;
-<span class="lineNum">      57 </span>            : 
-<a name="58"><span class="lineNum">      58 </span>            : #endif</a>
-<span class="lineNum">      59 </span>            : 
-<span class="lineNum">      60 </span><span class="lineCov">       4216 : void *jit_find_symbol(const char *name, bool required)</span>
-<span class="lineNum">      61 </span>            : {
-<span class="lineNum">      62 </span>            : #if (defined __MINGW32__ || defined __CYGWIN__) &amp;&amp; !defined _WIN64
-<span class="lineNum">      63 </span>            :    if (*name == '_')
-<span class="lineNum">      64 </span>            :       name++;   // Remove leading underscore on 32-bit Windows
-<span class="lineNum">      65 </span>            : #endif
-<span class="lineNum">      66 </span>            : 
-<span class="lineNum">      67 </span><span class="lineCov">       4216 :    name = safe_symbol(name);</span>
-<span class="lineNum">      68 </span>            : 
-<span class="lineNum">      69 </span>            : #ifdef __MINGW32__
-<span class="lineNum">      70 </span>            : 
-<span class="lineNum">      71 </span>            : #ifdef _WIN64
-<span class="lineNum">      72 </span>            :    if (strcmp(name, &quot;___chkstk_ms&quot;) == 0)
-<span class="lineNum">      73 </span>            :       return (void *)(uintptr_t)___chkstk_ms;
-<span class="lineNum">      74 </span>            : #else
-<span class="lineNum">      75 </span>            :    if (strcmp(name, &quot;_alloca&quot;) == 0)
-<span class="lineNum">      76 </span>            :       return (void *)(uintptr_t)_alloca;
-<span class="lineNum">      77 </span>            : #endif
-<span class="lineNum">      78 </span>            : 
-<span class="lineNum">      79 </span>            :    if (strcmp(name, &quot;exp2&quot;) == 0)
-<span class="lineNum">      80 </span>            :       return (void *)(uintptr_t)exp2;
-<span class="lineNum">      81 </span>            : 
-<span class="lineNum">      82 </span>            :    for (size_t i = 0; i &lt; nmodules; i++) {
-<span class="lineNum">      83 </span>            :       void *ptr = (void *)(uintptr_t)GetProcAddress(search_modules[i], name);
-<span class="lineNum">      84 </span>            :       if (ptr != NULL)
-<span class="lineNum">      85 </span>            :          return ptr;
-<span class="lineNum">      86 </span>            :    }
-<span class="lineNum">      87 </span>            : 
-<span class="lineNum">      88 </span>            :    if (required)
-<span class="lineNum">      89 </span>            :       fatal(&quot;cannot find symbol %s&quot;, name);
-<span class="lineNum">      90 </span>            : 
-<span class="lineNum">      91 </span>            :    return NULL;
-<span class="lineNum">      92 </span>            : 
-<span class="lineNum">      93 </span>            : #else  // __MINGW32__
-<span class="lineNum">      94 </span>            : 
-<span class="lineNum">      95 </span><span class="lineCov">       4216 :    dlerror();   // Clear any previous error</span>
-<span class="lineNum">      96 </span>            : 
-<span class="lineNum">      97 </span><span class="lineCov">       4216 :    void *sym = dlsym(NULL, name);</span>
-<span class="lineNum">      98 </span><span class="lineCov">       4216 :    const char *error = dlerror();</span>
-<span class="lineNum">      99 </span><span class="lineCov">       4216 :    if (error != NULL) {</span>
-<span class="lineNum">     100 </span><span class="lineCov">       2908 :       sym = dlsym(RTLD_DEFAULT, name);</span>
-<span class="lineNum">     101 </span><span class="lineCov">       2908 :       error = dlerror();</span>
-<span class="lineNum">     102 </span><span class="lineCov">       2908 :       if ((error != NULL) &amp;&amp; required)</span>
-<span class="lineNum">     103 </span><span class="lineNoCov">          0 :          fatal(&quot;%s: %s&quot;, name, error);</span>
-<span class="lineNum">     104 </span>            :    }
-<span class="lineNum">     105 </span><span class="lineCov">       4216 :    return sym;</span>
-<span class="lineNum">     106 </span>            : #endif
-<a name="107"><span class="lineNum">     107 </span>            : }</a>
-<span class="lineNum">     108 </span>            : 
-<span class="lineNum">     109 </span><span class="lineCov">       1361 : static void jit_load_module(ident_t name)</span>
-<span class="lineNum">     110 </span>            : {
-<span class="lineNum">     111 </span><span class="lineCov">       1361 :    lib_t lib = lib_find(ident_until(name, '.'), true);</span>
-<span class="lineNum">     112 </span>            : 
-<span class="lineNum">     113 </span><span class="lineCov">       1361 :    tree_kind_t kind = lib_index_kind(lib, name);</span>
-<span class="lineNum">     114 </span><span class="lineCov">       1361 :    if (kind == T_LAST_TREE_KIND)</span>
-<span class="lineNum">     115 </span><span class="lineNoCov">          0 :       fatal(&quot;Cannot find %s in library %s&quot;, istr(name), istr(lib_name(lib)));</span>
-<span class="lineNum">     116 </span>            : 
-<span class="lineNum">     117 </span><span class="lineCov">       1361 :    if (kind == T_ENTITY || kind == T_ARCH)</span>
-<span class="lineNum">     118 </span><span class="lineCov">        881 :       return;</span>
-<span class="lineNum">     119 </span>            : 
-<span class="lineNum">     120 </span><span class="lineCov">        545 :    const bool optional = (kind == T_PACKAGE || kind == T_PACK_BODY);</span>
-<span class="lineNum">     121 </span>            : 
-<span class="lineNum">     122 </span><span class="lineCov">       1025 :    char *so_fname LOCAL = xasprintf(&quot;_%s.&quot; DLL_EXT, istr(name));</span>
-<span class="lineNum">     123 </span>            : 
-<span class="lineNum">     124 </span>            :    char so_path[PATH_MAX];
-<span class="lineNum">     125 </span><span class="lineCov">        545 :    lib_realpath(lib, so_fname, so_path, sizeof(so_path));</span>
-<span class="lineNum">     126 </span>            : 
-<span class="lineNum">     127 </span><span class="lineCov">        545 :    if (access(so_path, F_OK) != 0 &amp;&amp; optional)</span>
-<span class="lineNum">     128 </span>            :       return;
-<span class="lineNum">     129 </span>            : 
-<span class="lineNum">     130 </span><span class="lineCov">        480 :    if (opt_get_int(&quot;rt_trace_en&quot;))</span>
-<span class="lineNum">     131 </span><span class="lineNoCov">          0 :       fprintf(stderr, &quot;TRACE (init): load %s from %s\n&quot;, istr(name), so_path);</span>
-<span class="lineNum">     132 </span>            : 
-<span class="lineNum">     133 </span>            : #ifdef __MINGW32__
-<span class="lineNum">     134 </span>            :    HMODULE hModule = LoadLibrary(so_path);
-<span class="lineNum">     135 </span>            :    if (hModule == NULL)
-<span class="lineNum">     136 </span>            :       fatal(&quot;failed to load %s&quot;, so_path);
-<span class="lineNum">     137 </span>            : 
-<span class="lineNum">     138 </span>            :    ARRAY_APPEND(search_modules, hModule, nmodules, max_modules);
-<span class="lineNum">     139 </span>            : #else
-<span class="lineNum">     140 </span><span class="lineCov">        480 :    if (dlopen(so_path, RTLD_LAZY | RTLD_GLOBAL) == NULL)</span>
-<span class="lineNum">     141 </span><span class="lineNoCov">          0 :       fatal(&quot;%s: %s&quot;, so_path, dlerror());</span>
-<span class="lineNum">     142 </span>            : #endif
-<a name="143"><span class="lineNum">     143 </span>            : }</a>
-<span class="lineNum">     144 </span>            : 
-<span class="lineNum">     145 </span><span class="lineCov">        343 : void jit_init(tree_t top)</span>
-<span class="lineNum">     146 </span>            : {
-<span class="lineNum">     147 </span>            : #ifdef __MINGW32__
-<span class="lineNum">     148 </span>            :    max_modules = 16;
-<span class="lineNum">     149 </span>            :    nmodules = 0;
-<span class="lineNum">     150 </span>            :    search_modules = xmalloc(sizeof(HMODULE) * max_modules);
-<span class="lineNum">     151 </span>            :    ARRAY_APPEND(search_modules, GetModuleHandle(NULL), nmodules, max_modules);
-<span class="lineNum">     152 </span>            :    ARRAY_APPEND(search_modules, GetModuleHandle(&quot;MSVCRT.DLL&quot;),
-<span class="lineNum">     153 </span>            :                 nmodules, max_modules);
-<span class="lineNum">     154 </span>            : #endif
-<span class="lineNum">     155 </span>            : 
-<span class="lineNum">     156 </span><span class="lineCov">        343 :    const int ncontext = tree_contexts(top);</span>
-<span class="lineNum">     157 </span><span class="lineCov">       2066 :    for (int i = 0; i &lt; ncontext; i++) {</span>
-<span class="lineNum">     158 </span><span class="lineCov">       1723 :       tree_t c = tree_context(top, i);</span>
-<span class="lineNum">     159 </span><span class="lineCov">       1723 :       if (tree_kind(c) == T_USE)</span>
-<span class="lineNum">     160 </span><span class="lineCov">       1018 :          jit_load_module(tree_ident(c));</span>
-<span class="lineNum">     161 </span>            :    }
-<span class="lineNum">     162 </span>            : 
-<span class="lineNum">     163 </span><span class="lineCov">        343 :    jit_load_module(tree_ident(top));</span>
-<a name="164"><span class="lineNum">     164 </span><span class="lineCov">        343 : }</span></a>
-<span class="lineNum">     165 </span>            : 
-<span class="lineNum">     166 </span><span class="lineCov">        320 : void jit_shutdown(void)</span>
-<span class="lineNum">     167 </span>            : {
-<span class="lineNum">     168 </span>            : 
-<a name="169"><span class="lineNum">     169 </span><span class="lineCov">        320 : }</span></a>
-<span class="lineNum">     170 </span>            : 
-<span class="lineNum">     171 </span><span class="lineCov">        568 : void jit_trace(jit_trace_t **trace, size_t *count)</span>
-<span class="lineNum">     172 </span>            : {
-<span class="lineNum">     173 </span>            : #ifdef HAVE_EXECINFO_H
-<span class="lineNum">     174 </span>            : 
-<span class="lineNum">     175 </span>            :    void *frames[TRACE_MAX];
-<span class="lineNum">     176 </span><span class="lineCov">        568 :    char **messages = NULL;</span>
-<span class="lineNum">     177 </span><span class="lineCov">        568 :    int trace_size = 0;</span>
-<span class="lineNum">     178 </span>            : 
-<span class="lineNum">     179 </span><span class="lineCov">        568 :    trace_size = backtrace(frames, TRACE_MAX);</span>
-<span class="lineNum">     180 </span><span class="lineCov">        568 :    messages = backtrace_symbols(frames, trace_size);</span>
-<span class="lineNum">     181 </span>            : 
-<span class="lineNum">     182 </span><span class="lineCov">        568 :    *count = 0;</span>
-<span class="lineNum">     183 </span><span class="lineCov">        568 :    *trace = xcalloc(sizeof(jit_trace_t) * trace_size);</span>
-<span class="lineNum">     184 </span>            : 
-<span class="lineNum">     185 </span><span class="lineCov">       2840 :    for (int i = 0; i &lt; trace_size; i++) {</span>
-<span class="lineNum">     186 </span>            :       // This hack only works for native compiled code
-<span class="lineNum">     187 </span><span class="lineCov">       2272 :       char *begin = strchr(messages[i], '(');</span>
-<span class="lineNum">     188 </span><span class="lineCov">       2272 :       char *end = strchr(messages[i], '+');</span>
-<span class="lineNum">     189 </span>            : 
-<span class="lineNum">     190 </span><span class="lineCov">       2272 :       if (begin == NULL || end == NULL)</span>
-<span class="lineNum">     191 </span><span class="lineCov">        568 :          continue;</span>
-<span class="lineNum">     192 </span>            : 
-<span class="lineNum">     193 </span><span class="lineCov">       1704 :       *end = '\0';</span>
-<span class="lineNum">     194 </span>            : 
-<span class="lineNum">     195 </span><span class="lineCov">       1704 :       bool maybe_vhdl = false;</span>
-<span class="lineNum">     196 </span><span class="lineCov">       4902 :       for (const char *p = begin + 1; *p != '\0'; p++) {</span>
-<span class="lineNum">     197 </span><span class="lineCov">       2439 :          if (isupper((int)*p) || isdigit((int)*p) || *p == '_') {</span>
-<span class="lineNum">     198 </span><span class="lineCov">        747 :             maybe_vhdl = true;</span>
-<span class="lineNum">     199 </span><span class="lineCov">        747 :             continue;</span>
-<span class="lineNum">     200 </span>            :          }
-<span class="lineNum">     201 </span><span class="lineCov">       1692 :          else if (*p == '.') {</span>
-<span class="lineNum">     202 </span><span class="lineCov">         11 :             maybe_vhdl = p &gt; begin + 1;</span>
-<span class="lineNum">     203 </span><span class="lineCov">         11 :             break;</span>
-<span class="lineNum">     204 </span>            :          }
-<span class="lineNum">     205 </span>            :          else {
-<span class="lineNum">     206 </span>            :             maybe_vhdl = false;
-<span class="lineNum">     207 </span>            :             break;
-<span class="lineNum">     208 </span>            :          }
-<span class="lineNum">     209 </span>            :       }
-<span class="lineNum">     210 </span>            : 
-<span class="lineNum">     211 </span><span class="lineCov">       1704 :       if (!maybe_vhdl)</span>
-<span class="lineNum">     212 </span><span class="lineCov">       1693 :          continue;</span>
-<span class="lineNum">     213 </span>            : 
-<span class="lineNum">     214 </span><span class="lineCov">         11 :       ident_t mangled = ident_new(begin + 1);</span>
-<span class="lineNum">     215 </span><span class="lineCov">         11 :       ident_t lib_name = ident_until(mangled, '.');</span>
-<span class="lineNum">     216 </span>            : 
-<span class="lineNum">     217 </span><span class="lineCov">         11 :       lib_t lib = lib_find(lib_name, false);</span>
-<span class="lineNum">     218 </span><span class="lineCov">         11 :       if (lib == NULL)</span>
-<span class="lineNum">     219 </span><span class="lineNoCov">          0 :          continue;</span>
-<span class="lineNum">     220 </span>            : 
-<span class="lineNum">     221 </span><span class="lineCov">         11 :       ident_t decl_name = ident_until(mangled, '$');</span>
-<span class="lineNum">     222 </span>            : 
-<span class="lineNum">     223 </span><span class="lineCov">         11 :       ident_t unit_name = ident_runtil(decl_name, '.');</span>
-<span class="lineNum">     224 </span><span class="lineCov">         11 :       tree_t unit = lib_get(lib, unit_name);</span>
-<span class="lineNum">     225 </span><span class="lineCov">         11 :       if (unit == NULL)</span>
-<span class="lineNum">     226 </span><span class="lineCov">          3 :          continue;</span>
-<span class="lineNum">     227 </span>            : 
-<span class="lineNum">     228 </span><span class="lineCov">          8 :       if (tree_kind(unit) == T_PACKAGE) {</span>
-<span class="lineNum">     229 </span><span class="lineCov">          8 :          unit = lib_get(lib, ident_prefix(unit_name, ident_new(&quot;body&quot;), '-'));</span>
-<span class="lineNum">     230 </span><span class="lineCov">          8 :          if (unit == NULL)</span>
-<span class="lineNum">     231 </span><span class="lineNoCov">          0 :             continue;</span>
-<span class="lineNum">     232 </span>            :       }
-<span class="lineNum">     233 </span>            : 
-<span class="lineNum">     234 </span><span class="lineCov">          8 :       tree_t best = NULL;</span>
-<span class="lineNum">     235 </span><span class="lineCov">          8 :       const int ndecls = tree_decls(unit);</span>
-<span class="lineNum">     236 </span><span class="lineCov">         16 :       for (int i = 0; i &lt; ndecls; i++) {</span>
-<span class="lineNum">     237 </span><span class="lineCov">          8 :          tree_t d = tree_decl(unit, i);</span>
-<span class="lineNum">     238 </span><span class="lineCov">          8 :          if (tree_attr_str(d, mangled_i) == mangled)</span>
-<span class="lineNum">     239 </span>            :             best = d;
-<span class="lineNum">     240 </span><span class="lineNoCov">          0 :          else if (tree_ident(d) == decl_name &amp;&amp; best == NULL)</span>
-<span class="lineNum">     241 </span><span class="lineNoCov">          0 :             best = d;</span>
-<span class="lineNum">     242 </span>            :       }
-<span class="lineNum">     243 </span>            : 
-<span class="lineNum">     244 </span><span class="lineCov">          8 :       if (best == NULL)</span>
-<span class="lineNum">     245 </span><span class="lineNoCov">          0 :          continue;</span>
-<span class="lineNum">     246 </span>            : 
-<span class="lineNum">     247 </span><span class="lineCov">          8 :       (*trace)[*count].loc = *tree_loc(best);</span>
-<span class="lineNum">     248 </span><span class="lineCov">          8 :       (*trace)[*count].tree = best;</span>
-<span class="lineNum">     249 </span><span class="lineCov">          8 :       (*count)++;</span>
-<span class="lineNum">     250 </span>            :    }
-<span class="lineNum">     251 </span>            : 
-<span class="lineNum">     252 </span><span class="lineCov">        568 :    free(messages);</span>
-<span class="lineNum">     253 </span>            : 
-<span class="lineNum">     254 </span>            : #else
-<span class="lineNum">     255 </span>            :    *count = 0;
-<span class="lineNum">     256 </span>            :    *trace = NULL;
-<span class="lineNum">     257 </span>            : #endif
-<span class="lineNum">     258 </span><span class="lineCov">        568 : }</span>
+<span class="lineNum">      33 </span>            : #include &lt;math.h&gt;
+<span class="lineNum">      34 </span>            : 
+<span class="lineNum">      35 </span>            : #ifdef HAVE_EXECINFO_H
+<span class="lineNum">      36 </span>            : #include &lt;execinfo.h&gt;
+<span class="lineNum">      37 </span>            : #endif
+<span class="lineNum">      38 </span>            : 
+<span class="lineNum">      39 </span>            : #ifdef __MINGW32__
+<span class="lineNum">      40 </span>            : #define WIN32_LEAN_AND_MEAN
+<span class="lineNum">      41 </span>            : #include &lt;windows.h&gt;
+<span class="lineNum">      42 </span>            : #else
+<span class="lineNum">      43 </span>            : #include &lt;dlfcn.h&gt;
+<span class="lineNum">      44 </span>            : #endif
+<span class="lineNum">      45 </span>            : 
+<span class="lineNum">      46 </span>            : #define TRACE_MAX 10
+<span class="lineNum">      47 </span>            : 
+<span class="lineNum">      48 </span>            : #ifdef __MINGW32__
+<span class="lineNum">      49 </span>            : #ifdef _WIN64
+<span class="lineNum">      50 </span>            : extern void ___chkstk_ms(void);
+<span class="lineNum">      51 </span>            : #else
+<span class="lineNum">      52 </span>            : #undef _alloca
+<span class="lineNum">      53 </span>            : extern void _alloca(void);
+<span class="lineNum">      54 </span>            : #endif
+<span class="lineNum">      55 </span>            : 
+<span class="lineNum">      56 </span>            : static HMODULE *search_modules;
+<span class="lineNum">      57 </span>            : static size_t nmodules = 0, max_modules = 0;
+<span class="lineNum">      58 </span>            : 
+<a name="59"><span class="lineNum">      59 </span>            : #endif</a>
+<span class="lineNum">      60 </span>            : 
+<span class="lineNum">      61 </span><span class="lineCov">       4216 : void *jit_find_symbol(const char *name, bool required)</span>
+<span class="lineNum">      62 </span>            : {
+<span class="lineNum">      63 </span>            : #if (defined __MINGW32__ || defined __CYGWIN__) &amp;&amp; !defined _WIN64
+<span class="lineNum">      64 </span>            :    if (*name == '_')
+<span class="lineNum">      65 </span>            :       name++;   // Remove leading underscore on 32-bit Windows
+<span class="lineNum">      66 </span>            : #endif
+<span class="lineNum">      67 </span>            : 
+<span class="lineNum">      68 </span><span class="lineCov">       4216 :    name = safe_symbol(name);</span>
+<span class="lineNum">      69 </span>            : 
+<span class="lineNum">      70 </span>            : #ifdef __MINGW32__
+<span class="lineNum">      71 </span>            : 
+<span class="lineNum">      72 </span>            : #ifdef _WIN64
+<span class="lineNum">      73 </span>            :    if (strcmp(name, &quot;___chkstk_ms&quot;) == 0)
+<span class="lineNum">      74 </span>            :       return (void *)(uintptr_t)___chkstk_ms;
+<span class="lineNum">      75 </span>            : #else
+<span class="lineNum">      76 </span>            :    if (strcmp(name, &quot;_alloca&quot;) == 0)
+<span class="lineNum">      77 </span>            :       return (void *)(uintptr_t)_alloca;
+<span class="lineNum">      78 </span>            : #endif
+<span class="lineNum">      79 </span>            : 
+<span class="lineNum">      80 </span>            :    if (strcmp(name, &quot;exp2&quot;) == 0)
+<span class="lineNum">      81 </span>            :       return (void *)(uintptr_t)exp2;
+<span class="lineNum">      82 </span>            : 
+<span class="lineNum">      83 </span>            :    for (size_t i = 0; i &lt; nmodules; i++) {
+<span class="lineNum">      84 </span>            :       void *ptr = (void *)(uintptr_t)GetProcAddress(search_modules[i], name);
+<span class="lineNum">      85 </span>            :       if (ptr != NULL)
+<span class="lineNum">      86 </span>            :          return ptr;
+<span class="lineNum">      87 </span>            :    }
+<span class="lineNum">      88 </span>            : 
+<span class="lineNum">      89 </span>            :    if (required)
+<span class="lineNum">      90 </span>            :       fatal(&quot;cannot find symbol %s&quot;, name);
+<span class="lineNum">      91 </span>            : 
+<span class="lineNum">      92 </span>            :    return NULL;
+<span class="lineNum">      93 </span>            : 
+<span class="lineNum">      94 </span>            : #else  // __MINGW32__
+<span class="lineNum">      95 </span>            : 
+<span class="lineNum">      96 </span><span class="lineCov">       4216 :    dlerror();   // Clear any previous error</span>
+<span class="lineNum">      97 </span>            : 
+<span class="lineNum">      98 </span><span class="lineCov">       4216 :    void *sym = dlsym(NULL, name);</span>
+<span class="lineNum">      99 </span><span class="lineCov">       4216 :    const char *error = dlerror();</span>
+<span class="lineNum">     100 </span><span class="lineCov">       4216 :    if (error != NULL) {</span>
+<span class="lineNum">     101 </span><span class="lineCov">       2908 :       sym = dlsym(RTLD_DEFAULT, name);</span>
+<span class="lineNum">     102 </span><span class="lineCov">       2908 :       error = dlerror();</span>
+<span class="lineNum">     103 </span><span class="lineCov">       2908 :       if ((error != NULL) &amp;&amp; required)</span>
+<span class="lineNum">     104 </span><span class="lineNoCov">          0 :          fatal(&quot;%s: %s&quot;, name, error);</span>
+<span class="lineNum">     105 </span>            :    }
+<span class="lineNum">     106 </span><span class="lineCov">       4216 :    return sym;</span>
+<span class="lineNum">     107 </span>            : #endif
+<a name="108"><span class="lineNum">     108 </span>            : }</a>
+<span class="lineNum">     109 </span>            : 
+<span class="lineNum">     110 </span><span class="lineCov">       1361 : static void jit_load_module(ident_t name)</span>
+<span class="lineNum">     111 </span>            : {
+<span class="lineNum">     112 </span><span class="lineCov">       1361 :    lib_t lib = lib_find(ident_until(name, '.'), true);</span>
+<span class="lineNum">     113 </span>            : 
+<span class="lineNum">     114 </span><span class="lineCov">       1361 :    tree_kind_t kind = lib_index_kind(lib, name);</span>
+<span class="lineNum">     115 </span><span class="lineCov">       1361 :    if (kind == T_LAST_TREE_KIND)</span>
+<span class="lineNum">     116 </span><span class="lineNoCov">          0 :       fatal(&quot;Cannot find %s in library %s&quot;, istr(name), istr(lib_name(lib)));</span>
+<span class="lineNum">     117 </span>            : 
+<span class="lineNum">     118 </span><span class="lineCov">       1361 :    if (kind == T_ENTITY || kind == T_ARCH)</span>
+<span class="lineNum">     119 </span><span class="lineCov">        881 :       return;</span>
+<span class="lineNum">     120 </span>            : 
+<span class="lineNum">     121 </span><span class="lineCov">        545 :    const bool optional = (kind == T_PACKAGE || kind == T_PACK_BODY);</span>
+<span class="lineNum">     122 </span>            : 
+<span class="lineNum">     123 </span><span class="lineCov">       1025 :    char *so_fname LOCAL = xasprintf(&quot;_%s.&quot; DLL_EXT, istr(name));</span>
+<span class="lineNum">     124 </span>            : 
+<span class="lineNum">     125 </span>            :    char so_path[PATH_MAX];
+<span class="lineNum">     126 </span><span class="lineCov">        545 :    lib_realpath(lib, so_fname, so_path, sizeof(so_path));</span>
+<span class="lineNum">     127 </span>            : 
+<span class="lineNum">     128 </span><span class="lineCov">        545 :    if (access(so_path, F_OK) != 0 &amp;&amp; optional)</span>
+<span class="lineNum">     129 </span>            :       return;
+<span class="lineNum">     130 </span>            : 
+<span class="lineNum">     131 </span><span class="lineCov">        480 :    if (opt_get_int(&quot;rt_trace_en&quot;))</span>
+<span class="lineNum">     132 </span><span class="lineNoCov">          0 :       fprintf(stderr, &quot;TRACE (init): load %s from %s\n&quot;, istr(name), so_path);</span>
+<span class="lineNum">     133 </span>            : 
+<span class="lineNum">     134 </span>            : #ifdef __MINGW32__
+<span class="lineNum">     135 </span>            :    HMODULE hModule = LoadLibrary(so_path);
+<span class="lineNum">     136 </span>            :    if (hModule == NULL)
+<span class="lineNum">     137 </span>            :       fatal(&quot;failed to load %s&quot;, so_path);
+<span class="lineNum">     138 </span>            : 
+<span class="lineNum">     139 </span>            :    ARRAY_APPEND(search_modules, hModule, nmodules, max_modules);
+<span class="lineNum">     140 </span>            : #else
+<span class="lineNum">     141 </span><span class="lineCov">        480 :    if (dlopen(so_path, RTLD_LAZY | RTLD_GLOBAL) == NULL)</span>
+<span class="lineNum">     142 </span><span class="lineNoCov">          0 :       fatal(&quot;%s: %s&quot;, so_path, dlerror());</span>
+<span class="lineNum">     143 </span>            : #endif
+<a name="144"><span class="lineNum">     144 </span>            : }</a>
+<span class="lineNum">     145 </span>            : 
+<span class="lineNum">     146 </span><span class="lineCov">        343 : void jit_init(tree_t top)</span>
+<span class="lineNum">     147 </span>            : {
+<span class="lineNum">     148 </span>            : #ifdef __MINGW32__
+<span class="lineNum">     149 </span>            :    max_modules = 16;
+<span class="lineNum">     150 </span>            :    nmodules = 0;
+<span class="lineNum">     151 </span>            :    search_modules = xmalloc(sizeof(HMODULE) * max_modules);
+<span class="lineNum">     152 </span>            :    ARRAY_APPEND(search_modules, GetModuleHandle(NULL), nmodules, max_modules);
+<span class="lineNum">     153 </span>            :    ARRAY_APPEND(search_modules, GetModuleHandle(&quot;MSVCRT.DLL&quot;),
+<span class="lineNum">     154 </span>            :                 nmodules, max_modules);
+<span class="lineNum">     155 </span>            : #endif
+<span class="lineNum">     156 </span>            : 
+<span class="lineNum">     157 </span><span class="lineCov">        343 :    const int ncontext = tree_contexts(top);</span>
+<span class="lineNum">     158 </span><span class="lineCov">       2066 :    for (int i = 0; i &lt; ncontext; i++) {</span>
+<span class="lineNum">     159 </span><span class="lineCov">       1723 :       tree_t c = tree_context(top, i);</span>
+<span class="lineNum">     160 </span><span class="lineCov">       1723 :       if (tree_kind(c) == T_USE)</span>
+<span class="lineNum">     161 </span><span class="lineCov">       1018 :          jit_load_module(tree_ident(c));</span>
+<span class="lineNum">     162 </span>            :    }
+<span class="lineNum">     163 </span>            : 
+<span class="lineNum">     164 </span><span class="lineCov">        343 :    jit_load_module(tree_ident(top));</span>
+<a name="165"><span class="lineNum">     165 </span><span class="lineCov">        343 : }</span></a>
+<span class="lineNum">     166 </span>            : 
+<span class="lineNum">     167 </span><span class="lineCov">        320 : void jit_shutdown(void)</span>
+<span class="lineNum">     168 </span>            : {
+<span class="lineNum">     169 </span>            : 
+<a name="170"><span class="lineNum">     170 </span><span class="lineCov">        320 : }</span></a>
+<span class="lineNum">     171 </span>            : 
+<span class="lineNum">     172 </span><span class="lineCov">        568 : void jit_trace(jit_trace_t **trace, size_t *count)</span>
+<span class="lineNum">     173 </span>            : {
+<span class="lineNum">     174 </span>            : #ifdef HAVE_EXECINFO_H
+<span class="lineNum">     175 </span>            : 
+<span class="lineNum">     176 </span>            :    void *frames[TRACE_MAX];
+<span class="lineNum">     177 </span><span class="lineCov">        568 :    char **messages = NULL;</span>
+<span class="lineNum">     178 </span><span class="lineCov">        568 :    int trace_size = 0;</span>
+<span class="lineNum">     179 </span>            : 
+<span class="lineNum">     180 </span><span class="lineCov">        568 :    trace_size = backtrace(frames, TRACE_MAX);</span>
+<span class="lineNum">     181 </span><span class="lineCov">        568 :    messages = backtrace_symbols(frames, trace_size);</span>
+<span class="lineNum">     182 </span>            : 
+<span class="lineNum">     183 </span><span class="lineCov">        568 :    *count = 0;</span>
+<span class="lineNum">     184 </span><span class="lineCov">        568 :    *trace = xcalloc(sizeof(jit_trace_t) * trace_size);</span>
+<span class="lineNum">     185 </span>            : 
+<span class="lineNum">     186 </span><span class="lineCov">       2840 :    for (int i = 0; i &lt; trace_size; i++) {</span>
+<span class="lineNum">     187 </span>            :       // This hack only works for native compiled code
+<span class="lineNum">     188 </span><span class="lineCov">       2272 :       char *begin = strchr(messages[i], '(');</span>
+<span class="lineNum">     189 </span><span class="lineCov">       2272 :       char *end = strchr(messages[i], '+');</span>
+<span class="lineNum">     190 </span>            : 
+<span class="lineNum">     191 </span><span class="lineCov">       2272 :       if (begin == NULL || end == NULL)</span>
+<span class="lineNum">     192 </span><span class="lineCov">        568 :          continue;</span>
+<span class="lineNum">     193 </span>            : 
+<span class="lineNum">     194 </span><span class="lineCov">       1704 :       *end = '\0';</span>
+<span class="lineNum">     195 </span>            : 
+<span class="lineNum">     196 </span><span class="lineCov">       1704 :       bool maybe_vhdl = false;</span>
+<span class="lineNum">     197 </span><span class="lineCov">       4766 :       for (const char *p = begin + 1; *p != '\0'; p++) {</span>
+<span class="lineNum">     198 </span><span class="lineCov">       2371 :          if (isupper((int)*p) || isdigit((int)*p) || *p == '_') {</span>
+<span class="lineNum">     199 </span><span class="lineCov">        679 :             maybe_vhdl = true;</span>
+<span class="lineNum">     200 </span><span class="lineCov">        679 :             continue;</span>
+<span class="lineNum">     201 </span>            :          }
+<span class="lineNum">     202 </span><span class="lineCov">       1692 :          else if (*p == '.') {</span>
+<span class="lineNum">     203 </span><span class="lineCov">         11 :             maybe_vhdl = p &gt; begin + 1;</span>
+<span class="lineNum">     204 </span><span class="lineCov">         11 :             break;</span>
+<span class="lineNum">     205 </span>            :          }
+<span class="lineNum">     206 </span>            :          else {
+<span class="lineNum">     207 </span>            :             maybe_vhdl = false;
+<span class="lineNum">     208 </span>            :             break;
+<span class="lineNum">     209 </span>            :          }
+<span class="lineNum">     210 </span>            :       }
+<span class="lineNum">     211 </span>            : 
+<span class="lineNum">     212 </span><span class="lineCov">       1704 :       if (!maybe_vhdl)</span>
+<span class="lineNum">     213 </span><span class="lineCov">       1693 :          continue;</span>
+<span class="lineNum">     214 </span>            : 
+<span class="lineNum">     215 </span><span class="lineCov">         11 :       ident_t mangled = ident_new(begin + 1);</span>
+<span class="lineNum">     216 </span><span class="lineCov">         11 :       ident_t lib_name = ident_until(mangled, '.');</span>
+<span class="lineNum">     217 </span>            : 
+<span class="lineNum">     218 </span><span class="lineCov">         11 :       lib_t lib = lib_find(lib_name, false);</span>
+<span class="lineNum">     219 </span><span class="lineCov">         11 :       if (lib == NULL)</span>
+<span class="lineNum">     220 </span><span class="lineNoCov">          0 :          continue;</span>
+<span class="lineNum">     221 </span>            : 
+<span class="lineNum">     222 </span><span class="lineCov">         11 :       ident_t decl_name = ident_until(mangled, '$');</span>
+<span class="lineNum">     223 </span>            : 
+<span class="lineNum">     224 </span><span class="lineCov">         11 :       ident_t unit_name = ident_runtil(decl_name, '.');</span>
+<span class="lineNum">     225 </span><span class="lineCov">         11 :       tree_t unit = lib_get(lib, unit_name);</span>
+<span class="lineNum">     226 </span><span class="lineCov">         11 :       if (unit == NULL)</span>
+<span class="lineNum">     227 </span><span class="lineCov">          3 :          continue;</span>
+<span class="lineNum">     228 </span>            : 
+<span class="lineNum">     229 </span><span class="lineCov">          8 :       if (tree_kind(unit) == T_PACKAGE) {</span>
+<span class="lineNum">     230 </span><span class="lineCov">          8 :          unit = lib_get(lib, ident_prefix(unit_name, ident_new(&quot;body&quot;), '-'));</span>
+<span class="lineNum">     231 </span><span class="lineCov">          8 :          if (unit == NULL)</span>
+<span class="lineNum">     232 </span><span class="lineNoCov">          0 :             continue;</span>
+<span class="lineNum">     233 </span>            :       }
+<span class="lineNum">     234 </span>            : 
+<span class="lineNum">     235 </span><span class="lineCov">          8 :       tree_t best = NULL;</span>
+<span class="lineNum">     236 </span><span class="lineCov">          8 :       const int ndecls = tree_decls(unit);</span>
+<span class="lineNum">     237 </span><span class="lineCov">         16 :       for (int i = 0; i &lt; ndecls; i++) {</span>
+<span class="lineNum">     238 </span><span class="lineCov">          8 :          tree_t d = tree_decl(unit, i);</span>
+<span class="lineNum">     239 </span><span class="lineCov">          8 :          if (tree_attr_str(d, mangled_i) == mangled)</span>
+<span class="lineNum">     240 </span>            :             best = d;
+<span class="lineNum">     241 </span><span class="lineNoCov">          0 :          else if (tree_ident(d) == decl_name &amp;&amp; best == NULL)</span>
+<span class="lineNum">     242 </span><span class="lineNoCov">          0 :             best = d;</span>
+<span class="lineNum">     243 </span>            :       }
+<span class="lineNum">     244 </span>            : 
+<span class="lineNum">     245 </span><span class="lineCov">          8 :       if (best == NULL)</span>
+<span class="lineNum">     246 </span><span class="lineNoCov">          0 :          continue;</span>
+<span class="lineNum">     247 </span>            : 
+<span class="lineNum">     248 </span><span class="lineCov">          8 :       (*trace)[*count].loc = *tree_loc(best);</span>
+<span class="lineNum">     249 </span><span class="lineCov">          8 :       (*trace)[*count].tree = best;</span>
+<span class="lineNum">     250 </span><span class="lineCov">          8 :       (*count)++;</span>
+<span class="lineNum">     251 </span>            :    }
+<span class="lineNum">     252 </span>            : 
+<span class="lineNum">     253 </span><span class="lineCov">        568 :    free(messages);</span>
+<span class="lineNum">     254 </span>            : 
+<span class="lineNum">     255 </span>            : #else
+<span class="lineNum">     256 </span>            :    *count = 0;
+<span class="lineNum">     257 </span>            :    *trace = NULL;
+<span class="lineNum">     258 </span>            : #endif
+<span class="lineNum">     259 </span><span class="lineCov">        568 : }</span>
 </pre>
       </td>
     </tr>
