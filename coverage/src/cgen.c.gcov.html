@@ -31,8 +31,8 @@
             <td class="headerValue">nvc.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">2175</td>
-            <td class="headerCovTableEntry">2230</td>
+            <td class="headerCovTableEntry">2178</td>
+            <td class="headerCovTableEntry">2233</td>
             <td class="headerCovTableEntryHi">97.5 %</td>
           </tr>
           <tr>
@@ -4040,73 +4040,76 @@
 <span class="lineNum">    3978 </span>            : 
 <span class="lineNum">    3979 </span><span class="lineCov">        435 :    run_program((const char * const *)link_args, n_link_args - 1);</span>
 <span class="lineNum">    3980 </span>            : 
-<span class="lineNum">    3981 </span><span class="lineCov">        435 :    free(link_args);</span>
-<span class="lineNum">    3982 </span><span class="lineCov">        435 :    link_args = NULL;</span>
-<a name="3983"><span class="lineNum">    3983 </span><span class="lineCov">        435 : }</span></a>
-<span class="lineNum">    3984 </span>            : 
-<span class="lineNum">    3985 </span><span class="lineCov">        435 : void cgen(tree_t top, vcode_unit_t vcode)</span>
-<span class="lineNum">    3986 </span>            : {
-<span class="lineNum">    3987 </span><span class="lineCov">        435 :    tree_kind_t kind = tree_kind(top);</span>
-<span class="lineNum">    3988 </span><span class="lineCov">        435 :    if (kind != T_ELAB &amp;&amp; kind != T_PACK_BODY &amp;&amp; kind != T_PACKAGE)</span>
-<span class="lineNum">    3989 </span><span class="lineNoCov">          0 :       fatal(&quot;cannot generate code for %s&quot;, tree_kind_str(kind));</span>
-<span class="lineNum">    3990 </span>            : 
-<span class="lineNum">    3991 </span><span class="lineCov">        435 :    module = LLVMModuleCreateWithName(istr(tree_ident(top)));</span>
-<span class="lineNum">    3992 </span><span class="lineCov">        435 :    builder = LLVMCreateBuilder();</span>
-<span class="lineNum">    3993 </span>            : 
-<span class="lineNum">    3994 </span><span class="lineCov">        435 :    LLVMInitializeNativeTarget();</span>
-<span class="lineNum">    3995 </span><span class="lineCov">        435 :    LLVMInitializeNativeAsmPrinter();</span>
-<span class="lineNum">    3996 </span>            : 
-<span class="lineNum">    3997 </span><span class="lineCov">        435 :    char *def_triple = LLVMGetDefaultTargetTriple();</span>
-<span class="lineNum">    3998 </span>            :    char *error;
-<span class="lineNum">    3999 </span>            :    LLVMTargetRef target_ref;
-<span class="lineNum">    4000 </span><span class="lineCov">        435 :    if (LLVMGetTargetFromTriple(def_triple, &amp;target_ref, &amp;error))</span>
-<span class="lineNum">    4001 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to get LLVM target for %s: %s&quot;, def_triple, error);</span>
-<span class="lineNum">    4002 </span>            : 
-<span class="lineNum">    4003 </span>            :    LLVMCodeGenOptLevel code_gen_level;
-<span class="lineNum">    4004 </span><span class="lineCov">        435 :    switch (opt_get_int(&quot;optimise&quot;)) {</span>
-<span class="lineNum">    4005 </span>            :    case 0: code_gen_level = LLVMCodeGenLevelNone; break;
-<span class="lineNum">    4006 </span>            :    case 1: code_gen_level = LLVMCodeGenLevelLess; break;
-<span class="lineNum">    4007 </span>            :    case 3: code_gen_level = LLVMCodeGenLevelAggressive; break;
-<span class="lineNum">    4008 </span>            :    default: code_gen_level = LLVMCodeGenLevelDefault;
-<span class="lineNum">    4009 </span>            :    }
-<span class="lineNum">    4010 </span>            : 
-<span class="lineNum">    4011 </span><span class="lineCov">        435 :    LLVMTargetMachineRef tm_ref =</span>
-<span class="lineNum">    4012 </span><span class="lineCov">        435 :       LLVMCreateTargetMachine(target_ref, def_triple, &quot;&quot;, &quot;&quot;,</span>
-<span class="lineNum">    4013 </span>            :                               code_gen_level,
-<span class="lineNum">    4014 </span>            :                               LLVMRelocPIC,
-<span class="lineNum">    4015 </span>            :                               LLVMCodeModelDefault);
-<span class="lineNum">    4016 </span>            : 
-<span class="lineNum">    4017 </span><span class="lineCov">        435 :    LLVMSetTarget(module, def_triple);</span>
+<span class="lineNum">    3981 </span><span class="lineCov">       3045 :    for (size_t i = 0; i &lt; n_link_args; i++)</span>
+<span class="lineNum">    3982 </span><span class="lineCov">       2610 :       free(link_args[i]);</span>
+<span class="lineNum">    3983 </span><span class="lineCov">        435 :    free(link_args);</span>
+<span class="lineNum">    3984 </span><span class="lineCov">        435 :    link_args = NULL;</span>
+<a name="3985"><span class="lineNum">    3985 </span><span class="lineCov">        435 : }</span></a>
+<span class="lineNum">    3986 </span>            : 
+<span class="lineNum">    3987 </span><span class="lineCov">        435 : void cgen(tree_t top, vcode_unit_t vcode)</span>
+<span class="lineNum">    3988 </span>            : {
+<span class="lineNum">    3989 </span><span class="lineCov">        435 :    tree_kind_t kind = tree_kind(top);</span>
+<span class="lineNum">    3990 </span><span class="lineCov">        435 :    if (kind != T_ELAB &amp;&amp; kind != T_PACK_BODY &amp;&amp; kind != T_PACKAGE)</span>
+<span class="lineNum">    3991 </span><span class="lineNoCov">          0 :       fatal(&quot;cannot generate code for %s&quot;, tree_kind_str(kind));</span>
+<span class="lineNum">    3992 </span>            : 
+<span class="lineNum">    3993 </span><span class="lineCov">        435 :    module = LLVMModuleCreateWithName(istr(tree_ident(top)));</span>
+<span class="lineNum">    3994 </span><span class="lineCov">        435 :    builder = LLVMCreateBuilder();</span>
+<span class="lineNum">    3995 </span>            : 
+<span class="lineNum">    3996 </span><span class="lineCov">        435 :    LLVMInitializeNativeTarget();</span>
+<span class="lineNum">    3997 </span><span class="lineCov">        435 :    LLVMInitializeNativeAsmPrinter();</span>
+<span class="lineNum">    3998 </span>            : 
+<span class="lineNum">    3999 </span><span class="lineCov">        435 :    char *def_triple = LLVMGetDefaultTargetTriple();</span>
+<span class="lineNum">    4000 </span>            :    char *error;
+<span class="lineNum">    4001 </span>            :    LLVMTargetRef target_ref;
+<span class="lineNum">    4002 </span><span class="lineCov">        435 :    if (LLVMGetTargetFromTriple(def_triple, &amp;target_ref, &amp;error))</span>
+<span class="lineNum">    4003 </span><span class="lineNoCov">          0 :       fatal(&quot;failed to get LLVM target for %s: %s&quot;, def_triple, error);</span>
+<span class="lineNum">    4004 </span>            : 
+<span class="lineNum">    4005 </span>            :    LLVMCodeGenOptLevel code_gen_level;
+<span class="lineNum">    4006 </span><span class="lineCov">        435 :    switch (opt_get_int(&quot;optimise&quot;)) {</span>
+<span class="lineNum">    4007 </span>            :    case 0: code_gen_level = LLVMCodeGenLevelNone; break;
+<span class="lineNum">    4008 </span>            :    case 1: code_gen_level = LLVMCodeGenLevelLess; break;
+<span class="lineNum">    4009 </span>            :    case 3: code_gen_level = LLVMCodeGenLevelAggressive; break;
+<span class="lineNum">    4010 </span>            :    default: code_gen_level = LLVMCodeGenLevelDefault;
+<span class="lineNum">    4011 </span>            :    }
+<span class="lineNum">    4012 </span>            : 
+<span class="lineNum">    4013 </span><span class="lineCov">        435 :    LLVMTargetMachineRef tm_ref =</span>
+<span class="lineNum">    4014 </span><span class="lineCov">        435 :       LLVMCreateTargetMachine(target_ref, def_triple, &quot;&quot;, &quot;&quot;,</span>
+<span class="lineNum">    4015 </span>            :                               code_gen_level,
+<span class="lineNum">    4016 </span>            :                               LLVMRelocPIC,
+<span class="lineNum">    4017 </span>            :                               LLVMCodeModelDefault);
 <span class="lineNum">    4018 </span>            : 
-<span class="lineNum">    4019 </span>            : #if LLVM_HAS_CREATE_TARGET_DATA_LAYOUT
-<span class="lineNum">    4020 </span>            :    LLVMTargetDataRef data_ref = LLVMCreateTargetDataLayout(tm_ref);
-<span class="lineNum">    4021 </span>            : #else
-<span class="lineNum">    4022 </span><span class="lineCov">        435 :    LLVMTargetDataRef data_ref = LLVMGetTargetMachineData(tm_ref);</span>
-<span class="lineNum">    4023 </span>            : #endif
-<span class="lineNum">    4024 </span>            : 
-<span class="lineNum">    4025 </span><span class="lineCov">        870 :    char *layout LOCAL = LLVMCopyStringRepOfTargetData(data_ref);</span>
-<span class="lineNum">    4026 </span><span class="lineCov">        435 :    LLVMSetDataLayout(module, layout);</span>
-<span class="lineNum">    4027 </span>            : 
-<span class="lineNum">    4028 </span><span class="lineCov">        435 :    cgen_tmp_stack();</span>
+<span class="lineNum">    4019 </span><span class="lineCov">        435 :    LLVMSetTarget(module, def_triple);</span>
+<span class="lineNum">    4020 </span>            : 
+<span class="lineNum">    4021 </span>            : #if LLVM_HAS_CREATE_TARGET_DATA_LAYOUT
+<span class="lineNum">    4022 </span>            :    LLVMTargetDataRef data_ref = LLVMCreateTargetDataLayout(tm_ref);
+<span class="lineNum">    4023 </span>            : #else
+<span class="lineNum">    4024 </span><span class="lineCov">        435 :    LLVMTargetDataRef data_ref = LLVMGetTargetMachineData(tm_ref);</span>
+<span class="lineNum">    4025 </span>            : #endif
+<span class="lineNum">    4026 </span>            : 
+<span class="lineNum">    4027 </span><span class="lineCov">        870 :    char *layout LOCAL = LLVMCopyStringRepOfTargetData(data_ref);</span>
+<span class="lineNum">    4028 </span><span class="lineCov">        435 :    LLVMSetDataLayout(module, layout);</span>
 <span class="lineNum">    4029 </span>            : 
-<span class="lineNum">    4030 </span><span class="lineCov">        435 :    cgen_top(top, vcode);</span>
+<span class="lineNum">    4030 </span><span class="lineCov">        435 :    cgen_tmp_stack();</span>
 <span class="lineNum">    4031 </span>            : 
-<span class="lineNum">    4032 </span><span class="lineCov">        435 :    if (opt_get_int(&quot;dump-llvm&quot;))</span>
-<span class="lineNum">    4033 </span><span class="lineNoCov">          0 :       LLVMDumpModule(module);</span>
-<span class="lineNum">    4034 </span>            : 
-<span class="lineNum">    4035 </span><span class="lineCov">        435 :    if (LLVMVerifyModule(module, LLVMPrintMessageAction, NULL))</span>
-<span class="lineNum">    4036 </span><span class="lineNoCov">          0 :       fatal(&quot;LLVM verification failed&quot;);</span>
-<span class="lineNum">    4037 </span>            : 
-<span class="lineNum">    4038 </span><span class="lineCov">        435 :    cgen_optimise();</span>
-<span class="lineNum">    4039 </span><span class="lineCov">        435 :    cgen_native(top, tm_ref);</span>
-<span class="lineNum">    4040 </span>            : 
-<span class="lineNum">    4041 </span><span class="lineCov">        435 :    LLVMDisposeModule(module);</span>
-<span class="lineNum">    4042 </span><span class="lineCov">        435 :    LLVMDisposeBuilder(builder);</span>
-<span class="lineNum">    4043 </span><span class="lineCov">        435 :    LLVMDisposeTargetMachine(tm_ref);</span>
-<span class="lineNum">    4044 </span>            : #if LLVM_HAS_CREATE_TARGET_DATA_LAYOUT
-<span class="lineNum">    4045 </span>            :    LLVMDisposeTargetData(data_ref);
-<span class="lineNum">    4046 </span>            : #endif
-<span class="lineNum">    4047 </span><span class="lineCov">        435 : }</span>
+<span class="lineNum">    4032 </span><span class="lineCov">        435 :    cgen_top(top, vcode);</span>
+<span class="lineNum">    4033 </span>            : 
+<span class="lineNum">    4034 </span><span class="lineCov">        435 :    if (opt_get_int(&quot;dump-llvm&quot;))</span>
+<span class="lineNum">    4035 </span><span class="lineNoCov">          0 :       LLVMDumpModule(module);</span>
+<span class="lineNum">    4036 </span>            : 
+<span class="lineNum">    4037 </span><span class="lineCov">        435 :    if (LLVMVerifyModule(module, LLVMPrintMessageAction, NULL))</span>
+<span class="lineNum">    4038 </span><span class="lineNoCov">          0 :       fatal(&quot;LLVM verification failed&quot;);</span>
+<span class="lineNum">    4039 </span>            : 
+<span class="lineNum">    4040 </span><span class="lineCov">        435 :    cgen_optimise();</span>
+<span class="lineNum">    4041 </span><span class="lineCov">        435 :    cgen_native(top, tm_ref);</span>
+<span class="lineNum">    4042 </span>            : 
+<span class="lineNum">    4043 </span><span class="lineCov">        435 :    LLVMDisposeModule(module);</span>
+<span class="lineNum">    4044 </span><span class="lineCov">        435 :    LLVMDisposeBuilder(builder);</span>
+<span class="lineNum">    4045 </span><span class="lineCov">        435 :    LLVMDisposeTargetMachine(tm_ref);</span>
+<span class="lineNum">    4046 </span>            : #if LLVM_HAS_CREATE_TARGET_DATA_LAYOUT
+<span class="lineNum">    4047 </span>            :    LLVMDisposeTargetData(data_ref);
+<span class="lineNum">    4048 </span>            : #endif
+<span class="lineNum">    4049 </span><span class="lineCov">        435 :    LLVMDisposeMessage(def_triple);</span>
+<span class="lineNum">    4050 </span><span class="lineCov">        435 : }</span>
 </pre>
       </td>
     </tr>
